@@ -1,0 +1,14 @@
+.footer {
+  background-color: #ffffff;
+  color: #000;
+}
+
+.logo {
+  height: 20px;
+}
+
+.copy {
+  font-family: arial;
+  font-size: 10px;
+  text-transform: uppercase;
+}

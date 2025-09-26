@@ -1,0 +1,19 @@
+.p-dialog-header {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.p-dialog-header-error {
+  background-color: #f44336; /* Rojo para errores */
+  color: white;
+}
+
+.icon-error {
+  color: #f44336; /* Color rojo para el ícono de error */
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.body {
+  margin-bottom: 30px;
+}

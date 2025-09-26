@@ -1,0 +1,48 @@
+<div class="row w-100 p-0 g-0 align-items-start justify-content-center">
+  <div class="col-12 col-md-3 mb-2 mb-md-0">
+    <p-card class="p-card-modified d-block me-md-2">
+      <ng-template pTemplate="header">
+        <div
+          class="header w-100 px-4 d-flex align-items-center justify-content-center"
+        >
+          <span><b>LOTES DE HILO</b></span>
+        </div>
+      </ng-template>
+
+      <div>
+        <div class="lista-lotes d-flex flex-column align-items-center">
+          <p-button
+            *ngFor="let lote of lotes"
+            [label]="lote.TCODIGRUPLOTE"
+            [raised]="true"
+            variant="text"
+            severity="contrast"
+            class="mb-2 p-button-modificado"
+          ></p-button>
+        </div>
+        <div
+          class="w-100 d-flex align-items-center justify-content-center mt-3"
+        >
+          <p-button label="hola" [raised]="true"></p-button>
+        </div>
+      </div>
+    </p-card>
+  </div>
+  <div class="col-12 col-md-9">
+    <p-card class="p-card-modified d-block ms-md-2">
+      <ng-template pTemplate="header">
+        <div
+          class="header w-100 px-4 d-flex align-items-center justify-content-center"
+        >
+          <span>LOTES</span>
+        </div>
+      </ng-template>
+
+      <div class="lista-lotes d-flex flex-column">
+        <span *ngFor="let lote of lotes">
+          {{ lote.TCODIGRUPLOTE }}
+        </span>
+      </div>
+    </p-card>
+  </div>
+</div>

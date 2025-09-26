@@ -1,0 +1,15 @@
+.lista-lotes {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding: 0 1rem;
+  scrollbar-width: thin;
+}
+
+.lista-lotes::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-lotes::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}

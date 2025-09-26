@@ -1,0 +1,16 @@
+.spinner-container {
+  width: 100%; /* Se ajusta al 100% del ancho del contenedor padre */
+  height: 100%; /* Se ajusta al 100% del alto del contenedor padre */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro translúcido */
+  z-index: 3;
+}
+
+.loading-spinner {
+  width: 20%; /* Puedes ajustar el tamaño dinámico aquí */
+  height: 20%; /* Ajustar también la altura para ser proporcional */
+  z-index: 2; /* Asegura que el spinner esté encima del fondo */
+}

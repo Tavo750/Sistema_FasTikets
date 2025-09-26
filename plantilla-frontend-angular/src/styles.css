@@ -1,0 +1,94 @@
+:root {
+  --primary-blue: #4a7aff;
+
+  --secondary-teal: #176973;
+  --secondary-light-gray: #ececea;
+  --secondary-green: #a2f0a1;
+  --secondary-blue-light: #b7caff;
+  --secondary-gray: #7a7a7a;
+
+  --font-family: "Anek Latin", sans-serif;
+
+  --gradient-dark-1: #27272a;
+  --gradient-dark-2: #26262b;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.p-password,
+.p-password > input {
+  width: 100% !important;
+}
+
+.p-button-modificado .p-button {
+  width: 100% !important;
+}
+
+.p-drawer {
+  border: 0 !important;
+}
+
+.p-menu-item.p-focus .p-menu-item-content {
+  background: transparent !important;
+}
+
+.p-card-modified .p-card-body {
+  padding: 0.5rem;
+}
+
+.p-card-modified .p-carousel-indicator-list {
+  padding: 0.2rem;
+}
+
+.p-card-modified .header {
+  border-radius: var(--p-card-border-radius) var(--p-card-border-radius) 0 0;
+  background-color: #798eb3;
+  color: #fff;
+  --bs-gutter-x: 0 !important;
+}
+
+.p-card-modified .p-carousel-item {
+  padding: 5px;
+}
+
+.p-card-modified .p-card-body {
+  height: 100%;
+}
+
+.p-card-modified .p-card-content {
+  height: 100%;
+}
+
+.tabla-datos td {
+  padding: 0.3rem 5px 0.3rem 5px !important;
+  font-size: 14px;
+}
+
+.tabla-datos td button {
+  padding: 0;
+  font-size: 12px;
+}
+
+.tabla-datos th {
+  padding: 0.5rem 5px 0.5rem 5px !important;
+  font-size: 14px;
+}
+
+.tabla-datos th button {
+  padding: 5px;
+  font-size: 16px;
+}
+
+.tabla-datos .p-datatable.p-datatable-gridlines .p-datatable-header {
+  padding: 10px 1rem;
+}
+
+.tabla-datos .p-datatable.p-datatable-gridlines .p-paginator-bottom {
+  padding: 0px 1rem;
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="pi pi-file-edit"></i> Modificar Cotización</h1>
+            <span class="status-badge status-pendiente">PENDIENTE</span>
+        </div>
+
+        <form [formGroup]="cotizacionForm" (ngSubmit)="onSubmit()">
+            <!-- Información General -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="pi pi-info-circle"></i> Información General
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="numeroCotizacion">Número de Cotización <span class="required">*</span></label>
+                        <input formControlName="numero" type="text" id="numeroCotizacion" class="p-inputtext" value="COT-2024-001" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaCotizacion">Fecha de Cotización <span class="required">*</span></label>
+                        <input formControlName="fecha" type="date" id="fechaCotizacion" class="p-calendar" value="2024-06-18">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaVencimiento">Fecha de Vencimiento <span class="required">*</span></label>
+                        <input formControlName="fechaVencimiento" type="date" id="fechaVencimiento" class="p-calendar" value="2024-07-18">
+                    </div>
+                    <div class="form-group">
+                        <label for="vendedor">Vendedor <span class="required">*</span></label>
+                        <select formControlName="vendedorId" id="vendedor" class="p-dropdown">
+                            <option value="">Seleccionar vendedor</option>
+                            <option value="1" selected>Juan Pérez</option>
+                            <option value="2">María García</option>
+                            <option value="3">Carlos López</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Cliente -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="pi pi-user"></i> Información del Cliente
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cliente">Cliente <span class="required">*</span></label>
+                        <select formControlName="clienteId" id="cliente" class="p-dropdown">
+                            <option value="">Seleccionar cliente</option>
+                            <option value="1" selected>Empresa ABC S.A.C.</option>
+                            <option value="2">Corporación XYZ</option>
+                            <option value="3">Servicios Integrales</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contacto">Contacto</label>
+                        <input type="text" id="contacto" class="p-inputtext" value="Roberto Martínez" placeholder="Nombre del contacto">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="p-inputtext" value="roberto@empresaabc.com" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" class="p-inputtext" value="+51 999 888 777" placeholder="+51 999 999 999">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles de la Cotización -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="pi pi-list"></i> Detalles de la Cotización
+                    <button class="p-button p-button-success p-button-sm" style="margin-left: auto;" type="button" (click)="mostrarDialogoItem()">
+                        <i class="pi pi-plus"></i> Agregar Item
+                    </button>
+                </div>
+
+                <table class="p-datatable">
+                    <thead>
+                        <tr>
+                            <th>Producto/Servicio</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unit.</th>
+                            <th>Descuento</th>
+                            <th>Total</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let detalle of detalles.controls; let i = index" [formGroupName]="i">
+                            <td>{{ detalle.get('producto')?.value }}</td>
+                            <td>{{ detalle.get('descripcion')?.value }}</td>
+                            <td>{{ detalle.get('cantidad')?.value }}</td>
+                            <td>{{ detalle.get('precioUnitario')?.value }}</td>
+                            <td>{{ detalle.get('descuento')?.value }}</td>
+                            <td>{{ detalle.get('total')?.value | number:'1.2-2' }}</td>
+                            <td>
+                                <div class="item-actions">
+                                    <button type="button" (click)="mostrarDialogoItem(true, i)" class="p-button p-button-primary p-button-sm">
+                                        <i class="pi pi-pencil"></i>
+                                    </button>
+                                    <button type="button" (click)="eliminarItem(i)" class="p-button p-button-danger p-button-sm">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales -->
+            <div class="totals-section">
+                <div class="totals-grid">
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea formControlName="observaciones" id="observaciones" class="p-inputtextarea" rows="4" placeholder="Observaciones adicionales...">Entrega en 15 días hábiles. Garantía de 1 año en equipos.</textarea>
+                    </div>
+                    <div>
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span>{{ subtotal | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Descuento:</span>
+                            <span>{{ descuentoTotal | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="total-row">
+                            <span>IGV (18%):</span>
+                            <span>{{ igv | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="total-row total-final">
+                            <span>TOTAL:</span>
+                            <span>{{ total | number:'1.2-2' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="actions-buttons">
+                <button type="button" (click)="cancelar()" class="p-button p-button-secondary">
+                    <i class="pi pi-times"></i> Cancelar
+                </button>
+                <button type="button" (click)="guardarBorrador()" [disabled]="guardando" class="p-button p-button-primary">
+                    <i class="pi pi-save"></i> Guardar Borrador
+                </button>
+                <button type="submit" [disabled]="guardando" class="p-button p-button-success">
+                    <i class="pi pi-check"></i> Actualizar Cotización
+                </button>
+                <button type="button" (click)="generarPDF()" class="p-button p-button-primary">
+                    <i class="pi pi-file-pdf"></i> Generar PDF
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Diálogo para agregar/editar detalle -->
+    <p-dialog [(visible)]="displayItemDialog" [modal]="true" [closable]="false" header="{{ editandoItem ? 'Editar Detalle' : 'Agregar Detalle' }}">
+        <form [formGroup]="itemForm">
+            <div>
+                <label>Producto:</label>
+                <select formControlName="productoId" (change)="onProductoChange(itemForm.get('productoId')?.value)">
+                    <option value="">Seleccione...</option>
+                    <option *ngFor="let producto of productos" [value]="producto.id">{{ producto.nombre }}</option>
+                </select>
+            </div>
+            <div>
+                <label>Descripción:</label>
+                <input formControlName="descripcion" type="text" />
+            </div>
+            <div>
+                <label>Cantidad:</label>
+                <input formControlName="cantidad" type="number" min="1" />
+            </div>
+            <div>
+                <label>Precio Unitario:</label>
+                <input formControlName="precioUnitario" type="number" min="0" />
+            </div>
+            <div>
+                <label>Descuento (%):</label>
+                <input formControlName="descuento" type="number" min="0" max="100" />
+            </div>
+            <div>
+                <strong>Total:</strong> {{ calcularTotalItem() | number:'1.2-2' }}
+            </div>
+            <div>
+                <button type="button" (click)="guardarItem()" [disabled]="itemForm.invalid">Guardar_TIEN</button>
+                <button type="button" (click)="displayItemDialog = false">Cancelar</button>
+            </div>
+        </form>
+    </p-dialog>
+</body>
+</html>

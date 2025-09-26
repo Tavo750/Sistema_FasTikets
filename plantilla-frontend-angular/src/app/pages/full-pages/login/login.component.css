@@ -1,0 +1,134 @@
+/* ===== Reset & variables ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; overflow-x: hidden; }
+:root { --header-h: 64px; --text: #1f1f1f; --muted:#7a7a7a; }
+
+/* ===== Header ===== */
+.header{
+  position: fixed; top:0; left:0; width:100%;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 24px; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.08);
+  z-index:1000;
+}
+.logo img{ height:40px; display:block; }
+.header-buttons{ display:flex; gap:12px; }
+.btn-header{
+  background:#fff; border:1px solid #333; padding:8px 14px;
+  border-radius:6px; cursor:pointer; font-weight:600;
+}
+.btn-header:hover{ background:#f3f3f3; }
+
+/* Botón de icono (casita) */
+.btn-icon{
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #333;
+  border-radius: 8px;       /* si lo quieres circular usa 50% */
+  cursor: pointer;
+  transition: background .2s ease;
+}
+.btn-icon:hover{ background:#f3f3f3; }
+.btn-icon img{
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+}
+
+/* ===== Layout ===== */
+.login-container{
+  display:flex; min-height:calc(100vh - var(--header-h));
+  margin-top:var(--header-h);
+  max-width:1200px; margin-inline:auto;
+  padding:0 24px; gap:32px; font-family:Arial, sans-serif; color:var(--text);
+}
+
+/* Lado izquierdo (póster) */
+.poster{ flex:1 1 50%; }
+.poster img{ width:100%; height:100%; display:block; object-fit:cover; border-radius:8px; }
+
+/* Lado derecho (formulario) */
+.form-container{
+  flex:1 1 50%;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:8px 0;
+}
+
+.form-container h1{
+  font-size:48px; line-height:1; margin:0 0 8px 0; font-weight:800; text-align:center;
+}
+.subtitle{
+  margin:0 0 28px 0; color:#666; text-align:center; font-size:16px;
+}
+
+form{
+  width:100%; max-width:440px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* Inputs estilo suave */
+input{
+  width:100%; margin:10px 0; padding:12px 14px;
+  background:#f7f7f7; border:1px solid #e5e5e5; border-radius:8px;
+  outline:none; transition:border .2s, box-shadow .2s;
+}
+input:focus{
+  border-color:#b6b6b6; box-shadow:0 0 0 3px rgba(0,0,0,.05);
+}
+
+/* Link de olvidar contraseña a la derecha, itálico y subrayado */
+.forgot-wrap{ width:100%; text-align:right; margin-top:4px; }
+.forgot-link{ font-size:14px; color:#5a5a5a; font-style:italic; text-decoration:underline; }
+
+/* Botón verde centrado tipo pill */
+.btn-login{
+  margin:16px auto 10px auto;
+  width:220px; height:42px;
+  background:#7ed957; /* verde claro como el mock */
+  color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;
+  box-shadow:0 2px 0 rgba(0,0,0,.15);
+  transition:transform .05s ease, filter .2s ease;
+}
+.btn-login:active{ transform:translateY(1px); }
+.btn-login:hover{ filter:brightness(0.98); }
+
+/* Línea separadora fina antes del botón de Google */
+.divider{
+  width:100%; height:1px; background:#e8e8e8; margin:12px 0 14px 0;
+}
+
+/* Sección registro alineada como en el mock */
+.register-wrap{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  font-size:14px; color:#666; margin-top:2px;
+}
+.register-wrap .register-link{ color:#6c63ff; text-decoration:underline; }
+
+/* Botón Google ancho, redondeado y color celeste claro */
+.btn-google{
+  width:100%; height:44px;
+  background:#b8d8ff; /* celeste claro */
+  color:#0f2555; border:none; border-radius:16px;
+  font-weight:700; cursor:pointer;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 992px){
+  .login-container{ flex-direction:column; max-width:720px; gap:16px; }
+  .poster{ height:260px; }
+  .poster img{ height:100%; }
+  .form-container{ align-items:center; }
+  .form-container h1{ font-size:40px; }
+}
+@media (max-width: 480px){
+  .header{ padding:10px 14px; }
+  .btn-header{ padding:6px 10px; }
+  .login-container{ padding:0 14px; }
+  .form-container h1{ font-size:34px; }
+}

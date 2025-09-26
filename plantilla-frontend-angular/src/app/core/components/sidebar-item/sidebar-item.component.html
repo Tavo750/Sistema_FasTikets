@@ -1,0 +1,44 @@
+<a
+  [routerLink]="!item.items ? item.routerLink : null"
+  (click)="toggleExpansion(index)"
+  class="menu-link"
+  [ngClass]="{
+    active: isActive(),
+    'has-children': item.items
+  }"
+>
+  <i [class]="item.icon" class="me-1"></i>
+  <span>{{ item.label }}</span>
+  <ng-container *ngIf="item.items">
+    <i
+      class="pi pi-chevron-down"
+      [ngStyle]="{
+        transform: isExpanded() ? 'rotate(180deg)' : 'rotate(0deg)'
+      }"
+      style="
+        margin-left: auto;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+      "
+    ></i>
+  </ng-container>
+</a>
+
+<!-- Submenú que se muestra solo si el item está expandido -->
+<ul [ngClass]="{ submenu: true, expanded: expanded }" class="pe-1">
+  <li
+    *ngFor="let subItem of item.items; let i = index"
+    class="submenu-item elemento"
+  >
+    <!-- Llamada recursiva para submenús -->
+    <app-sidebar-item
+      [item]="subItem"
+      [depth]="depth + 1"
+      [index]="i"
+      [expanded]="currentExpandedItemIndex[depth + 1] === i"
+      [currentExpandedItemIndex]="currentExpandedItemIndex"
+      (expandChange)="handleExpandChange($event)"
+    >
+    </app-sidebar-item>
+  </li>
+</ul>

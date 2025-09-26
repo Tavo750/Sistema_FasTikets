@@ -1,0 +1,20 @@
+<div class="p-field body">
+  <!-- <i [class]="'pi ' + icono"
+     [ngClass]="{
+       'icon-error': severidad === 'error',
+       'p-text-success': severidad === 'success',
+       'p-text-warning': severidad === 'warn'
+     }"></i> -->
+  <span>{{ mensaje }}</span>
+</div>
+
+<p-footer
+  class="p-dialog-footer flex align-items-center justify-content-center p-0"
+>
+  <button
+    pButton
+    class="p-button-custom"
+    label="Cerrar"
+    (click)="cerrar()"
+  ></button>
+</p-footer>

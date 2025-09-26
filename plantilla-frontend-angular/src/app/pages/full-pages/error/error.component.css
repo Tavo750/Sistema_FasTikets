@@ -1,0 +1,43 @@
+/* Estilos para la página de error */
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f8ff; /* Azul claro similar al de la barra de navegación */
+  text-align: center;
+}
+
+.error-title {
+  font-size: 10rem;
+  font-weight: bold;
+  color: #007bff; /* Azul que combina con el tema de la app */
+  margin-bottom: 20px;
+}
+
+.error-message {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.text-danger {
+  color: #dc3545; /* Rojo para el texto de error */
+}
+
+.error-description {
+  font-size: 1rem;
+  color: #6c757d; /* Gris claro */
+  margin-bottom: 30px;
+}
+
+.btn-primary {
+  background-color: #007bff; /* Botón de color azul similar al de la app */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3; /* Color del botón cuando se pasa el cursor */
+}
