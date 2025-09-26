@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-dialog-terminos',
   templateUrl: './dialog-terminos.component.html',
   styleUrls: ['./dialog-terminos.component.css'],
-  standalone: true,
-  imports: [CommonModule, ButtonModule]
+  standalone: false
+
 })
 export class DialogTerminosComponent {
   constructor(

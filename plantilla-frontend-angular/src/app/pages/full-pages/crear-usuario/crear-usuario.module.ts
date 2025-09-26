@@ -8,10 +8,14 @@ import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.compo
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 
 @NgModule({
   declarations: [
-    CrearUsuarioComponent
+    CrearUsuarioComponent,
+    DialogTerminosComponent,
+    DialogPoliticaComponent
+
   ],
   imports: [
     CommonModule,

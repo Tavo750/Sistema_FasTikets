@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
+import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 
 @Component({
   selector: 'app-crear-usuario',
@@ -43,7 +44,24 @@ export class CrearUsuarioComponent implements OnInit {
   mostrarTerminos(event: Event): void {
     event.preventDefault();
     this.dialogRef = this.dialogService.open(DialogTerminosComponent, {
-      
+
+      width: '40%',
+      contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
+      baseZIndex: 10000
+    });
+
+    this.dialogRef.onClose.subscribe((acepto: boolean) => {
+      if (acepto) {
+        console.log('Términos aceptados');
+      }
+    });
+  }
+
+
+    mostrarPoliticas(event: Event): void {
+    event.preventDefault();
+    this.dialogRef = this.dialogService.open(DialogPoliticaComponent, {
+
       width: '40%',
       contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
       baseZIndex: 10000
