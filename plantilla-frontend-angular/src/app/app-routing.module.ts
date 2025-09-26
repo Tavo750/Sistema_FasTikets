@@ -32,6 +32,8 @@ const routes: Routes = [
   },
   { path: 'login', loadChildren: () => import('./pages/full-pages/login/login.module').then(m => m.LoginModule) },
   { path: 'error', loadChildren: () => import('./pages/full-pages/error/error.module').then(m => m.ErrorModule) },
+  { path: 'crear_usuario', loadChildren: () => import('./pages/full-pages/crear-usuario/crear-usuario.module').then(m => m.CrearUsuarioModule) },
+  { path: 'cambiar_contra', loadChildren: () => import('./pages/full-pages/cambiar-contra/cambiar-contra.module').then(m => m.CambiarContraModule) },
   { path: '**', redirectTo: 'error' },
 ];
 

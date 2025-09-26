@@ -18,12 +18,12 @@ import { RegistroComponent } from './pages/modules/facturacion/components/regist
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CambiarContraComponent } from './pages/full-pages/cambiar-contra/cambiar-contra.component';
+import { CrearUsuarioComponent } from './pages/full-pages/crear-usuario/crear-usuario.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    CambiarContraComponent,
   ],
   imports: [
     BrowserModule,

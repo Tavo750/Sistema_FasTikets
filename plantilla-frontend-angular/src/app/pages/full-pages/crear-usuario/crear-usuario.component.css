@@ -29,7 +29,7 @@ body { margin: 0; overflow-x: hidden; }
   justify-content: center;
   background: #fff;
   border: 1px solid #333;
-  border-radius: 8px;       /* si lo quieres circular usa 50% */
+  border-radius: 8px;
   cursor: pointer;
   transition: background .2s ease;
 }
@@ -73,24 +73,29 @@ form{
 }
 
 /* Inputs estilo suave */
-input{
-  width:100%; margin:10px 0; padding:12px 14px;
+input, select{
+  width:100%; margin:6px 0; padding:12px 14px;
   background:#f7f7f7; border:1px solid #e5e5e5; border-radius:8px;
   outline:none; transition:border .2s, box-shadow .2s;
+  font-size:14px;
 }
-input:focus{
+input:focus, select:focus{
   border-color:#b6b6b6; box-shadow:0 0 0 3px rgba(0,0,0,.05);
 }
 
-/* Link de olvidar contraseña a la derecha, itálico y subrayado */
-.forgot-wrap{ width:100%; text-align:right; margin-top:4px; }
-.forgot-link{ font-size:14px; color:#5a5a5a; font-style:italic; text-decoration:underline; }
+/* Contenedores para campos en fila */
+.form-row{
+  width:100%; display:flex; gap:12px; margin:6px 0;
+}
+.form-row input, .form-row select{
+  margin:0;
+}
 
-/* Botón verde centrado tipo pill */
+/* Botón verde centrado */
 .btn-login{
-  margin:16px auto 10px auto;
+  margin:20px auto 12px auto;
   width:220px; height:42px;
-  background:#7ed957; /* verde claro como el mock */
+  background:#7ed957;
   color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;
   box-shadow:0 2px 0 rgba(0,0,0,.15);
   transition:transform .05s ease, filter .2s ease;
@@ -98,40 +103,17 @@ input:focus{
 .btn-login:active{ transform:translateY(1px); }
 .btn-login:hover{ filter:brightness(0.98); }
 
-/* Línea separadora fina antes del botón de Google */
-.divider{
-  width:100%; height:1px; background:#e8e8e8; margin:12px 0 14px 0;
+/* Texto de términos y condiciones */
+.terms-text{
+  font-size:12px; color:#666; text-align:center; margin:12px 0 0 0;
+  line-height:1.4;
 }
-
-/* Sección registro alineada como en el mock */
-.register-wrap{
-  width:100%; display:flex; justify-content:space-between; align-items:center;
-  font-size:14px; color:#666; margin-top:2px;
-}
-.register-wrap .register-link{ color:#6c63ff; text-decoration:underline; }
-
-/* Botón Google ancho, redondeado y color celeste claro */
-.btn-google{
-  width:100%; height:44px;
-  background:#b8d8ff; /* celeste claro */
-  color:#0f2555; border:none; border-radius:16px;
-  font-weight:700; cursor:pointer;
+.terms-text a{
+  color:#666; text-decoration:underline;
 }
 
 /* ===== Responsivo ===== */
-@media (max-width: 992px){
-  .login-container{ flex-direction:column; max-width:720px; gap:16px; }
-  .poster{ height:260px; }
-  .poster img{ height:100%; }
-  .form-container{ align-items:center; }
-  .form-container h1{ font-size:40px; }
-}
-@media (max-width: 480px){
-  .header{ padding:10px 14px; }
-  .btn-header{ padding:6px 10px; }
-  .login-container{ padding:0 14px; }
-  .form-container h1{ font-size:34px; }
-}
+
 /* 1) En laptops 1280–1366px: reduce tipografía/anchos sin romper 2 columnas */
 @media (max-width: 1280px){
   .login-container{ gap:20px; padding:0 16px; max-width:1100px; }
@@ -159,4 +141,3 @@ input:focus{
   .btn-login{ height:38px; width:190px; }
   .btn-google{ height:42px; }
 }
-

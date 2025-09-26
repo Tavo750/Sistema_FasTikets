@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CambiarContraComponent } from './cambiar-contra.component';
+import { CrearUsuarioComponent } from './crear-usuario.component';
 
 const routes: Routes = [
-  { path: '', component: CambiarContraComponent }
+  { path: '', component: CrearUsuarioComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class CambiarContraRoutingModule { }
+export class CrearUsuarioRoutingModule { }

@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private fullscreenSubscription!: Subscription;
 
   constructor(
-    private router: Router,
+    public router: Router,
     public dialogService: DialogService,
     private loginService: LoginService,
     private loadingService: LoadingService,

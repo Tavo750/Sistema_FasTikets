@@ -1,0 +1,163 @@
+* {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        background: #f0f2f5;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    /* Dialog styling */
+    :host ::ng-deep .p-dialog-content {
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+    }
+
+    /* Dialog container */
+    .dialog {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 480px;
+        width: 90%;
+        max-height: 80vh;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        transform: scale(0.9) translateY(20px);
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .dialog-overlay.active .dialog {
+        transform: scale(1) translateY(0);
+    }
+
+    /* Header */
+    .dialog-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .dialog-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+
+    /* Content */
+    .dialog-content {
+        margin-bottom: 32px;
+    }
+
+    .intro-text {
+        font-size: 15px;
+        color: #4a5568;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .terms-list {
+        list-style: none;
+        margin-bottom: 20px;
+    }
+
+    .terms-list li {
+        font-size: 15px;
+        color: #4a5568;
+        margin-bottom: 16px;
+        line-height: 1.6;
+        counter-increment: term-counter;
+        position: relative;
+    }
+
+    .terms-list li::before {
+        content: counter(term-counter) ". ";
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .terms-list {
+        counter-reset: term-counter;
+    }
+
+    .term-title {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .warning-text {
+        font-size: 14px;
+        color: #4a5568;
+        line-height: 1.5;
+        margin-bottom: 24px;
+    }
+
+    /* Button */
+    .dialog-footer {
+        text-align: center;
+    }
+
+    .accept-button {
+        background: #7dd87a;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 32px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        min-width: 120px;
+    }
+
+    .accept-button:hover {
+        background: #6bc96a;
+        transform: translateY(-1px);
+    }
+
+    .accept-button:active {
+        transform: translateY(0);
+    }
+
+    /* Demo button to open dialog */
+    .open-dialog-btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .open-dialog-btn:hover {
+        background: #5a6fd8;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+        .dialog {
+            padding: 24px;
+            margin: 20px;
+        }
+
+        .dialog-title {
+            font-size: 22px;
+        }
+
+        .intro-text,
+        .terms-list li {
+            font-size: 14px;
+        }
+    }
+
+        
