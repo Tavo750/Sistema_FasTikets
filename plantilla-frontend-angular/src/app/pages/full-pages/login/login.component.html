@@ -27,7 +27,7 @@
       <input type="password" placeholder="Contraseña" required>
 
       <div class="forgot-wrap">
-        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        <a (click)="router.navigate(['/cambiar_contra'])" class="forgot-link" style="cursor: pointer;">¿Olvidaste tu contraseña?</a>
       </div>
 
       <button type="submit" class="btn-login">Iniciar Sesión</button>

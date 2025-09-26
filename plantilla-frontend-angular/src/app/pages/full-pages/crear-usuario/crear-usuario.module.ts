@@ -9,12 +9,14 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
+import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
 
 @NgModule({
   declarations: [
     CrearUsuarioComponent,
     DialogTerminosComponent,
-    DialogPoliticaComponent
+    DialogPoliticaComponent,
+    DialogExitosoComponent
 
   ],
   imports: [

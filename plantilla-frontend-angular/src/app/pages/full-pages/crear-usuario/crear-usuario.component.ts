@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
+import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
 
 @Component({
   selector: 'app-crear-usuario',
@@ -80,16 +81,31 @@ export class CrearUsuarioComponent implements OnInit {
     }
   }
 
+  mostrarDialogExitoso(): void {
+    this.dialogRef = this.dialogService.open(DialogExitosoComponent, {
+      width: '30%',
+      contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
+      baseZIndex: 10000
+    });
+
+    this.dialogRef.onClose.subscribe((result: any) => {
+      console.log('Dialog exitoso cerrado');
+    });
+  }
+
   onSubmit(): void {
-    if (this.registroForm.valid) {
-      console.log(this.registroForm.value);
-      // Aquí iría la lógica para enviar los datos al servidor
-    } else {
-      // Marcar todos los campos como tocados para mostrar los errores
-      Object.keys(this.registroForm.controls).forEach(key => {
-        const control = this.registroForm.get(key);
-        control?.markAsTouched();
-      });
-    }
+    // if (this.registroForm.valid) {
+    //   console.log(this.registroForm.value);
+    //   // Aquí iría la lógica para enviar los datos al servidor
+    //   // Después de enviar exitosamente, mostrar el dialog
+    //   this.mostrarDialogExitoso();
+    // } else {
+    //   // Marcar todos los campos como tocados para mostrar los errores
+    //   Object.keys(this.registroForm.controls).forEach(key => {
+    //     const control = this.registroForm.get(key);
+    //     control?.markAsTouched();
+    //   });
+    // }
+    this.mostrarDialogExitoso();
   }
 }

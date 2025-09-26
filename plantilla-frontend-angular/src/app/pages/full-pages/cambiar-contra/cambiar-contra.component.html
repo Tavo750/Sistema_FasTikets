@@ -1,1 +1,46 @@
-<p>cambiar-contra works!</p>
+<header class="header">
+  <div class="logo">
+    <img src="img/logo/logo-fasticket.jpg" alt="FASTICKET">
+  </div>
+  <div class="header-buttons">
+    <button class="btn-header" (click)="router.navigate(['/crear_usuario'])">Registrarse</button>
+    <!-- Botón con icono de casita -->
+    <button class="btn-icon" title="Ir a Página Principal">
+      <img src="img/logo/home.jpg" alt="Inicio">
+    </button>
+  </div>
+</header>
+
+<div class="login-container">
+  <!-- Lado izquierdo con la imagen -->
+  <div class="poster">
+    <img src="img/logo/concierto.jpg" alt="Concierto">
+  </div>
+
+  <!-- Lado derecho con el formulario -->
+    <div class="form-container">
+        <h1>Verifica tu correo</h1>
+        <p class="subtitle">Hemos enviado un número de verificación a tu correo. Introduce el código en el recuadro inferior</p>
+
+        <form class="verification-form">
+            <div class="code-instruction">Introduce el código</div>
+
+            <div class="code-inputs">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+            </div>
+
+            <div class="resend-wrap">
+                <span class="resend-text">¿No lo has recibido? </span>
+                <a class="resend-link">Volver a enviar</a>
+            </div>
+            <button type="submit" class="btn-login">Continuar</button>
+        </form>
+    </div>
+
+</div>
+

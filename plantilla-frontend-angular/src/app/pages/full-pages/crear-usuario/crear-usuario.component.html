@@ -22,22 +22,22 @@
     <h1>¡Crea tu cuenta!</h1>
     <p class="subtitle">Regístrate y accede a muchos beneficios</p>
 
-    <form>
-      <input type="text" placeholder="Nombres *" required>
-      <input type="text" placeholder="Apellidos *" required>
-      <input type="email" placeholder="Correo Electrónico *" required>
-      <input type="password" placeholder="Contraseña *" required>
-      <input type="password" placeholder="Repita Contraseña *" required>
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+      <input type="text" placeholder="Nombres *" formControlName="nombres" required>
+      <input type="text" placeholder="Apellidos *" formControlName="apellidos" required>
+      <input type="email" placeholder="Correo Electrónico *" formControlName="correo" required>
+      <input type="password" placeholder="Contraseña *" formControlName="contrasena" required>
+      <input type="password" placeholder="Repita Contraseña *" formControlName="repitaContrasena" required>
 
       <div class="form-row">
-        <input type="date" placeholder="Fecha de nacimiento *" required>
-        <select required>
+        <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>
+        <select formControlName="departamento" required>
           <option value="">Departamento *</option>
           <option value="lima">Lima</option>
           <option value="arequipa">Arequipa</option>
           <option value="cusco">Cusco</option>
         </select>
-        <select required>
+        <select formControlName="distrito" required>
           <option value="">Distrito *</option>
           <option value="miraflores">Miraflores</option>
           <option value="san-isidro">San Isidro</option>
@@ -45,20 +45,20 @@
         </select>
       </div>
 
-      <input type="text" placeholder="Dirección domiciliaria *" required>
+      <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>
 
       <div class="form-row">
-        <input type="tel" placeholder="Número de Teléfono *" required>
-        <select required>
+        <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono" required>
+        <select formControlName="tipoDocumento" required>
           <option value="">Tipo de Documento *</option>
           <option value="dni">DNI</option>
           <option value="pasaporte">Pasaporte</option>
           <option value="ce">Carnet de Extranjería</option>
         </select>
-        <input type="text" placeholder="Número de Documento *" required>
+        <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento" required>
       </div>
 
-      <button type="submit" class="btn-login">Continuar</button>
+      <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>
 
       <p class="terms-text">
         Al registrarse acepta los <a href="#" (click)="mostrarTerminos($event)">Términos del Servicio</a><br>
