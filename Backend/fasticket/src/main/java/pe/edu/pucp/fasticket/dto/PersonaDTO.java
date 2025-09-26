@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PersonaDTO {
     private Integer idPersona;
-    private Integer usuario_creacion, usuario_actualizacion, edad;
+    private Integer usuario_creacion, usuario_actualizacion;
     private String docIdentidad, nombres, apellidos,  telefono, email, direccion, contrasena;
     private LocalDate fechaNacimiento, fecha_creacion, fecha_actualizacion;
     private Boolean activo;
@@ -23,7 +23,7 @@ public class PersonaDTO {
         this.idPersona = p_persona.getIdPersona();
         this.usuario_creacion = p_persona.getUsuario_creacion();
         this.usuario_actualizacion = p_persona.getUsuario_actualizacion();
-        this.edad = p_persona.getEdad();
+
         this.docIdentidad = p_persona.getDocIdentidad();
         this.nombres = p_persona.getNombres();
         this.apellidos = p_persona.getApellidos();

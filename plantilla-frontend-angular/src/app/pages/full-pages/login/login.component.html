@@ -22,9 +22,9 @@
     <h1>Iniciar Sesión</h1>
     <p class="subtitle">Ingresa y accede a muchos beneficios</p>
 
-    <form>
-      <input type="email" placeholder="Correo Electrónico" required>
-      <input type="password" placeholder="Contraseña" required>
+    <form (ngSubmit)="onSubmit()">
+      <input type="email" placeholder="Correo Electrónico" [(ngModel)]="username" name="username" required>
+      <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required>
 
       <div class="forgot-wrap">
         <a (click)="router.navigate(['/cambiar_contra'])" class="forgot-link" style="cursor: pointer;">¿Olvidaste tu contraseña?</a>

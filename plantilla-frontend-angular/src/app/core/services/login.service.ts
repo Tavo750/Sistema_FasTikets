@@ -36,15 +36,23 @@ export class LoginService {
     this.cacheStore = JSON.parse(sessionStorage.getItem('cacheStore')!);
   }
 
-  getLogin(p_codipers: string, p_clavpers: string): Observable<LoginResponse> {
+  getLogin(email: string, contrasena: string): Observable<LoginResponse> {
     const filtro = {
-      "user": p_codipers,
-      "password": p_clavpers,
+      "email": email,
+      "contrasena": contrasena,
     };
 
-    return this.http.post<LoginResponse>(`${this.url}auth/v1/session`, filtro)
+    return this.http.post<LoginResponse>(`http://localhost:8080/api/personas/login`, filtro)  //${this.url}auth/v1/session
       .pipe(
-        tap(login => this.cacheStore.usuario = login.data),
+        tap(login => {
+          this.cacheStore.usuario = {
+            codiPers: login.persona.docIdentidad,
+            nombPers: `${login.persona.nombres} ${login.persona.apellidos}`,
+            linkFoto: '',
+            codiPues: 0,
+            permissions: []
+          };
+        }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
       );

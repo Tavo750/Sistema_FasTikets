@@ -73,12 +73,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loadingService.show();
     this.loginService.getLogin(this.username, this.password).subscribe({
       next: (resp) => {
-        // console.log(resp)
-        if (resp.responseCode == "00") {
+        if (resp.ok === true) {
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
           this.router.navigate(['/inicio']);
         } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.message}` });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.mensaje}` });
           this.hayError = true;
         }
         this.loadingService.hide();
