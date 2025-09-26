@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
@@ -9,10 +10,8 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 })
 export class DialogExitosoComponent {
 
-  constructor(private dialogRef: DynamicDialogRef) {}
-
-  continuar(): void {
-    this.dialogRef.close();
-  }
-
+  constructor(
+    private dialogRef: DynamicDialogRef,
+    public router: Router,
+  ) {}
 }
