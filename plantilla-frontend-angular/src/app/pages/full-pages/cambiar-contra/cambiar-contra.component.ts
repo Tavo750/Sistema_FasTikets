@@ -1,14 +1,17 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogEnvioComponent } from './dialog-envio/dialog-envio.component';
 
 @Component({
   selector: 'app-cambiar-contra',
   standalone: false,
   templateUrl: './cambiar-contra.component.html',
-  styleUrl: './cambiar-contra.component.css'
+  styleUrl: './cambiar-contra.component.css',
+  providers: [DialogService]
 })
 export class CambiarContraComponent implements AfterViewInit {
+  private dialogRef: DynamicDialogRef | undefined;
 
   constructor(
     public router: Router,
@@ -47,4 +50,19 @@ export class CambiarContraComponent implements AfterViewInit {
         });
     });
   }
+
+  mostrarReenvio(event: Event): void {
+      event.preventDefault();
+      this.dialogRef = this.dialogService.open(DialogEnvioComponent, {
+        width: '50%',
+        contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
+        baseZIndex: 10000
+      });
+
+      this.dialogRef.onClose.subscribe((acepto: boolean) => {
+        if (acepto) {
+          console.log('Términos aceptados');
+        }
+      });
+    }
 }

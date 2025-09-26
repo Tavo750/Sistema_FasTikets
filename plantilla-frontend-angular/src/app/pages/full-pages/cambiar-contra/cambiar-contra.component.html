@@ -36,7 +36,9 @@
 
             <div class="resend-wrap">
                 <span class="resend-text">¿No lo has recibido? </span>
-                <a class="resend-link">Volver a enviar</a>
+
+                <a class="resend-link" (click)="mostrarReenvio($event)">Volver a enviar</a>
+
             </div>
             <button type="submit" class="btn-login">Continuar</button>
         </form>
