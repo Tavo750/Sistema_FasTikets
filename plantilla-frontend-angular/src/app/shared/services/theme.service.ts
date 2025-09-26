@@ -19,14 +19,16 @@ export class ThemeService {
     if (temaGuardado) {
       return temaGuardado;
     }
-    // Si no hay tema almacenado, usa el sistema (por ejemplo, dark o light según el match)
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'dark' : 'light';
+    // Si no hay tema almacenado, usa el sistema (claro si el sistema está en claro, oscuro si está en oscuro)
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   public setTheme(tema: string): void {
-    localStorage.setItem('tema', tema);
-    this.themeSubject.next(tema);
-    this.applyTheme(tema);
+    if (tema !== this.themeSubject.value) {
+      localStorage.setItem('tema', tema);
+      this.themeSubject.next(tema);
+      this.applyTheme(tema);
+    }
   }
 
   private applyTheme(tema: string): void {
@@ -34,10 +36,14 @@ export class ThemeService {
     if (!htmlElement) {
       return;
     }
-    if (tema === 'dark') {
-      htmlElement.classList.add('my-app-dark');
-    } else {
-      htmlElement.classList.remove('my-app-dark');
+
+    const darkClass = 'my-app-dark';
+    const hasDarkClass = htmlElement.classList.contains(darkClass);
+
+    if (tema === 'dark' && !hasDarkClass) {
+      htmlElement.classList.add(darkClass);
+    } else if (tema === 'light' && hasDarkClass) {
+      htmlElement.classList.remove(darkClass);
     }
   }
 }
