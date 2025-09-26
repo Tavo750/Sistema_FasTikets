@@ -8,7 +8,7 @@ import { DialogEnvioComponent } from './dialog-envio/dialog-envio.component';
   standalone: false,
   templateUrl: './cambiar-contra.component.html',
   styleUrl: './cambiar-contra.component.css',
-  providers: [DialogService]
+  //providers: [DialogService]
 })
 export class CambiarContraComponent implements AfterViewInit {
   private dialogRef: DynamicDialogRef | undefined;
@@ -54,7 +54,7 @@ export class CambiarContraComponent implements AfterViewInit {
   mostrarReenvio(event: Event): void {
       event.preventDefault();
       this.dialogRef = this.dialogService.open(DialogEnvioComponent, {
-        width: '50%',
+        width: '20%',
         contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
         baseZIndex: 10000
       });

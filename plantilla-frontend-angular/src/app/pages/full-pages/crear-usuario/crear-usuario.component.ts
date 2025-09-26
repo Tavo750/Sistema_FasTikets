@@ -11,7 +11,7 @@ import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.componen
   standalone: false,
   templateUrl: './crear-usuario.component.html',
   styleUrl: './crear-usuario.component.css',
-  providers: [DialogService]
+  //providers: [DialogService]
 })
 export class CrearUsuarioComponent implements OnInit {
   private dialogRef: DynamicDialogRef | undefined;

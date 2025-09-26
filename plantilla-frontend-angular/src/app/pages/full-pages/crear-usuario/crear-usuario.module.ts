@@ -7,7 +7,7 @@ import { CrearUsuarioComponent } from './crear-usuario.component';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
 
@@ -26,6 +26,7 @@ import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.componen
     ButtonModule,
     DialogModule,
     DynamicDialogModule
-  ]
+  ],
+  providers: [DialogService]
 })
 export class CrearUsuarioModule { }
