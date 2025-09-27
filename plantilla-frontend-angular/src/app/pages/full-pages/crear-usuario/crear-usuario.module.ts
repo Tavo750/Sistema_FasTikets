@@ -5,11 +5,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CrearUsuarioRoutingModule } from './crear-usuario-routing.module';
 import { CrearUsuarioComponent } from './crear-usuario.component';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
+import { DialogService } from 'primeng/dynamicdialog';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
+import { PrimeNgModule } from '../../../prime-ng/prime-ng.module';
 
 @NgModule({
   declarations: [
@@ -23,9 +22,7 @@ import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.componen
     CommonModule,
     ReactiveFormsModule,
     CrearUsuarioRoutingModule,
-    ButtonModule,
-    DialogModule,
-    DynamicDialogModule
+    PrimeNgModule
   ],
   providers: [DialogService]
 })

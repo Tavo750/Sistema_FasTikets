@@ -165,11 +165,56 @@ export class CrearUsuarioComponent implements OnInit {
       Object.keys(this.registroForm.controls).forEach(key => {
         const control = this.registroForm.get(key);
         if (control?.errors) {
-          let errorMessage = 'Campo requerido';
-          if (control.errors['email']) {
-            errorMessage = 'Email inválido';
+          let errorMessage = '';
+          if (control.errors['required']) {
+            switch(key) {
+              case 'nombres':
+                errorMessage = 'El campo Nombres es obligatorio';
+                break;
+              case 'apellidos':
+                errorMessage = 'El campo Apellidos es obligatorio';
+                break;
+              case 'correo':
+                errorMessage = 'El campo Correo Electrónico es obligatorio';
+                break;
+              case 'contrasena':
+                errorMessage = 'El campo Contraseña es obligatorio';
+                break;
+              case 'repitaContrasena':
+                errorMessage = 'Debe repetir la contraseña';
+                break;
+              case 'fechaNacimiento':
+                errorMessage = 'La Fecha de Nacimiento es obligatoria';
+                break;
+              case 'departamento':
+                errorMessage = 'Debe seleccionar un Departamento';
+                break;
+              case 'distrito':
+                errorMessage = 'Debe seleccionar un Distrito';
+                break;
+              case 'direccion':
+                errorMessage = 'La Dirección es obligatoria';
+                break;
+              case 'telefono':
+                errorMessage = 'El Número de Teléfono es obligatorio';
+                break;
+              case 'tipoDocumento':
+                errorMessage = 'Debe seleccionar un Tipo de Documento';
+                break;
+              case 'numeroDocumento':
+                errorMessage = 'El Número de Documento es obligatorio';
+                break;
+              default:
+                errorMessage = 'Este campo es obligatorio';
+            }
+          } else if (control.errors['email']) {
+            errorMessage = 'El formato del correo electrónico no es válido';
+          } else if (control.errors['pattern']) {
+            if (key === 'numeroDocumento') {
+              errorMessage = 'El número de documento solo debe contener números';
+            }
           }
-          this.mostrarError(`Error en ${key}: ${errorMessage}`);
+          this.mostrarError(errorMessage);
         }
         control?.markAsTouched();
       });
