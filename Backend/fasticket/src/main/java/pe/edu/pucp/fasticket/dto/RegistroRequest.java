@@ -1,7 +1,7 @@
 package pe.edu.pucp.fasticket.dto;
 
-import pe.edu.pucp.fasticket.model.TipoDocumento;
-import pe.edu.pucp.fasticket.model.Rol;
+import pe.edu.pucp.fasticket.model.usuario.TipoDocumento;
+import pe.edu.pucp.fasticket.model.usuario.Rol;
 
 import java.time.LocalDate;
 

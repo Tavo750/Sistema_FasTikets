@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import pe.edu.pucp.fasticket.dto.LoginResponse;
 import pe.edu.pucp.fasticket.dto.RegistroRequest;
 import pe.edu.pucp.fasticket.dto.RegistroResponse;
-import pe.edu.pucp.fasticket.model.Persona;
+import pe.edu.pucp.fasticket.model.usuario.Persona;
 import pe.edu.pucp.fasticket.repository.PersonasRepositorio;
 
 import java.time.LocalDate;

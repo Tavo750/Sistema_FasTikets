@@ -8,14 +8,12 @@ import pe.edu.pucp.fasticket.dto.LoginRequest;
 import pe.edu.pucp.fasticket.dto.LoginResponse;
 import pe.edu.pucp.fasticket.dto.RegistroRequest;
 import pe.edu.pucp.fasticket.dto.RegistroResponse;
-import pe.edu.pucp.fasticket.model.Persona;
+import pe.edu.pucp.fasticket.model.usuario.Persona;
 import pe.edu.pucp.fasticket.services.PersonaServicio;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/personas")

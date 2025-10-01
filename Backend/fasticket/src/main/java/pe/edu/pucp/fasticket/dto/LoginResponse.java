@@ -1,6 +1,6 @@
 package pe.edu.pucp.fasticket.dto;
 
-import pe.edu.pucp.fasticket.model.Persona;
+import pe.edu.pucp.fasticket.model.usuario.Persona;
 
 public class LoginResponse {
     private boolean ok;
