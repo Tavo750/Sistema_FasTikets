@@ -17,7 +17,7 @@ public class Cliente extends Persona {
 
     // Atributos de Fidelización
     @Column(name = "nivel") // Coincide con nivel tipo_nivel
-    private String nivel;
+    private TipoNivel nivel;
 
     @Column(name = "puntos_acumulados") // Coincide con puntos_acumulados
     private Integer puntosAcumulados;

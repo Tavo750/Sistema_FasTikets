@@ -19,7 +19,7 @@ public class Membresia {
     // Mapeo de ENUM tipo_membresia
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false)
-    private String tipo;
+    private TipoMembresia tipo;
 
     @Column(name = "min_entradas", nullable = false)
     private Integer minEntradas;

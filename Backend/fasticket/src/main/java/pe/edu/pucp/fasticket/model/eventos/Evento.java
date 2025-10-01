@@ -45,11 +45,11 @@ public class Evento {
     // Mapeo de ENUM EstadoEvento y TipoEvento
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private String estado; // Coincide con estado EstadoEvento
+    private EstadoEvento estado; // Coincide con estado EstadoEvento
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo")
-    private String tipo; // Coincide con tipo TipoEvento
+    private TipoEvento tipo; // Coincide con tipo TipoEvento
 
     // --- Relaciones ---
 

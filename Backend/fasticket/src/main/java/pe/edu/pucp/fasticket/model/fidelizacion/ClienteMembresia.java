@@ -30,7 +30,7 @@ public class ClienteMembresia {
     // Mapeo de ENUM estado_membresia_cliente
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
-    private String estado;
+    private EstadoMembresiaCliente estado;
 
     // ManyToOne con Cliente
     @ManyToOne(fetch = FetchType.LAZY)

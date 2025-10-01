@@ -41,7 +41,7 @@ public class Ticket {
     // Mapeo de ENUM TipoEstadoTiket
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private String estado; // Ej: DISPONIBLE, VENDIDA, TRANSFERIDA (RF-098)
+    private EstadoTicket estado; // Ej: DISPONIBLE, VENDIDA, TRANSFERIDA (RF-098)
 
     // --- Relaciones ---
 

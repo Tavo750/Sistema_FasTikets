@@ -28,7 +28,7 @@ public class Pago {
     // Mapeo de ENUM EstadoPago
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private String estado; // Ej: PENDIENTE, APROBADO, CANCELADO
+    private EstadoPago estado; // Ej: PENDIENTE, APROBADO, CANCELADO
 
     // Atributos de Auditoría
     @Column(name = "activo")

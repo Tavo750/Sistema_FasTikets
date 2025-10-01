@@ -3,6 +3,8 @@ package pe.edu.pucp.fasticket.model.fidelizacion;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pe.edu.pucp.fasticket.model.eventos.EstadoTicket;
+
 import java.time.LocalDate;
 
 @Data
@@ -28,7 +30,7 @@ public class Puntos {
     // Mapeo de ENUM EstadoPuntos
     @Enumerated(EnumType.STRING)
     @Column(name = "estado")
-    private String estado; // Ej: ACTIVO, VENCIDO, CANJEADO
+    private EstadoPuntos estado; // Ej: ACTIVO, VENCIDO, CANJEADO
 
     @Column(name = "activo")
     private Boolean activo;

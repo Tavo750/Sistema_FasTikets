@@ -18,7 +18,7 @@ public class Beneficio {
     // Mapeo de ENUM tipo_beneficio
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false)
-    private String tipo;
+    private TipoBeneficio tipo;
 
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;

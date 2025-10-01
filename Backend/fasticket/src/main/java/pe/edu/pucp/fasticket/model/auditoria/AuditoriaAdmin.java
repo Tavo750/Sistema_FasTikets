@@ -21,7 +21,7 @@ public class AuditoriaAdmin {
     // Mapeo de ENUM tipo_accion
     @Enumerated(EnumType.STRING)
     @Column(name = "accion", nullable = false)
-    private String accion;
+    private TipoAccion accion;
 
     @Column(name = "modulo")
     private String modulo;
