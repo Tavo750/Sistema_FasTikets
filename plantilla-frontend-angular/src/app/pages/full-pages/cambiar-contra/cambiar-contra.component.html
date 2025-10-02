@@ -4,7 +4,6 @@
   </div>
   <div class="header-buttons">
     <button class="btn-header" (click)="router.navigate(['/crear_usuario'])">Registrarse</button>
-    <!-- Botón con icono de casita -->
     <button class="btn-icon" title="Ir a Página Principal">
       <img src="img/logo/home.jpg" alt="Inicio">
     </button>
@@ -17,32 +16,51 @@
     <img src="img/logo/concierto.jpg" alt="Concierto">
   </div>
 
-  <!-- Lado derecho con el formulario -->
-    <div class="form-container">
-        <h1>Verifica tu correo</h1>
-        <p class="subtitle">Hemos enviado un número de verificación a tu correo. Introduce el código en el recuadro inferior</p>
+  <!-- Vista de verificación de código -->
+  <div class="form-container" *ngIf="!mostrarCambioContrasena">
+    <h1>Verifica tu correo</h1>
+    <p class="subtitle">Hemos enviado un número de verificación a tu correo. Introduce el código en el recuadro inferior</p>
 
-        <form class="verification-form">
-            <div class="code-instruction">Introduce el código</div>
+    <form class="verification-form" (submit)="validarCodigo($event)">
+      <div class="code-instruction">Introduce el código</div>
 
-            <div class="code-inputs">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-            </div>
+      <div class="code-inputs">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+      </div>
 
-            <div class="resend-wrap">
-                <span class="resend-text">¿No lo has recibido? </span>
+      <div class="resend-wrap">
+        <span class="resend-text">¿No lo has recibido? </span>
+        <a class="resend-link" (click)="mostrarReenvio($event)">Volver a enviar</a>
+      </div>
 
-                <a class="resend-link" (click)="mostrarReenvio($event)">Volver a enviar</a>
+      <button type="submit" class="btn-login">Continuar</button>
+    </form>
+  </div>
 
-            </div>
-            <button type="submit" class="btn-login">Continuar</button>
-        </form>
-    </div>
+  <!-- Vista de cambio de contraseña -->
+  <div class="form-container" *ngIf="mostrarCambioContrasena">
+    <h1>Cambia tu contraseña</h1>
+    <p class="subtitle">Ingresa tu nueva contraseña</p>
 
+    <form (submit)="cambiarContrasena($event)">
+      <input 
+        type="password" 
+        id="nuevaContrasena"
+        placeholder="Nueva contraseña *" 
+        required>
+      
+      <input 
+        type="password" 
+        id="repetirContrasena"
+        placeholder="Repetir contraseña *" 
+        required>
+
+      <button type="submit" class="btn-login">Cambiar contraseña</button>
+    </form>
+  </div>
 </div>
-
