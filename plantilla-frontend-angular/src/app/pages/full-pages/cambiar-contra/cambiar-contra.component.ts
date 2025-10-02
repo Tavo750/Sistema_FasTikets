@@ -175,5 +175,23 @@ export class CambiarContraComponent implements AfterViewInit {
     this.router.navigate(['/login']);
   }
 
+  cancelar(): void {
+    // Volver a la pantalla de verificación
+    this.mostrarCambioContrasena = false;
+    
+    // Limpiar los inputs del código
+    const codeInputs = document.querySelectorAll('.code-input') as NodeListOf<HTMLInputElement>;
+    codeInputs.forEach(input => {
+      input.value = '';
+    });
+    
+    // Opcional: mostrar mensaje
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Cancelado',
+      detail: 'Operación cancelada',
+      life: 2000
+    });
+  }
 
 }

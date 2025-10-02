@@ -42,25 +42,29 @@
     </form>
   </div>
 
-  <!-- Vista de cambio de contraseña -->
-  <div class="form-container" *ngIf="mostrarCambioContrasena">
-    <h1>Cambia tu contraseña</h1>
-    <p class="subtitle">Ingresa tu nueva contraseña</p>
+<!-- Vista de cambio de contraseña -->
+<div class="form-container" *ngIf="mostrarCambioContrasena">
+  <form class="password-form" (submit)="cambiarContrasena($event)">
+    <h1>Recupera tu Contraseña</h1>
+    <p class="subtitle">Ingrese su nueva contraseña</p>
 
-    <form (submit)="cambiarContrasena($event)">
-      <input 
-        type="password" 
-        id="nuevaContrasena"
-        placeholder="Nueva contraseña *" 
-        required>
-      
-      <input 
-        type="password" 
-        id="repetirContrasena"
-        placeholder="Repetir contraseña *" 
-        required>
+    <label class="input-label">Nueva contraseña:</label>
+    <input 
+      type="password" 
+      id="nuevaContrasena"
+      placeholder="Complete el campo" 
+      required>
+    
+    <label class="input-label">Repita la nueva contraseña:</label>
+    <input 
+      type="password" 
+      id="repetirContrasena"
+      placeholder="Complete el campo" 
+      required>
 
-      <button type="submit" class="btn-login">Cambiar contraseña</button>
-    </form>
-  </div>
+    <div class="button-group">
+      <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
+      <button type="submit" class="btn-submit">Siguiente</button>
+    </div>
+  </form>
 </div>
