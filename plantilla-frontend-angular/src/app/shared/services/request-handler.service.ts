@@ -27,4 +27,40 @@ export class RequestHandlerService {
       })
     );
   }
+
+   /**
+   * Muestra un mensaje de éxito
+   */
+  showSuccess(message: string, summary: string = 'Éxito'): void {
+    this.message.add({
+      severity: 'success',
+      summary,
+      detail: message,
+      life: 3000
+    });
+  }
+
+  /**
+   * Muestra un mensaje de información
+   */
+  showInfo(message: string, summary: string = 'Información'): void {
+    this.message.add({
+      severity: 'info',
+      summary,
+      detail: message,
+      life: 3000
+    });
+  }
+
+  /**
+   * Muestra un mensaje de advertencia
+   */
+  showWarning(message: string, summary: string = 'Advertencia'): void {
+    this.message.add({
+      severity: 'warn',
+      summary,
+      detail: message,
+      life: 4000
+    });
+  }
 }
