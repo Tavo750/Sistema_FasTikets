@@ -1,4 +1,4 @@
-package pe.edu.pucp.fasticket.controllers;
+package pe.edu.pucp.fasticket.controllers.usuario;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +9,7 @@ import pe.edu.pucp.fasticket.dto.LoginResponse;
 import pe.edu.pucp.fasticket.dto.RegistroRequest;
 import pe.edu.pucp.fasticket.dto.RegistroResponse;
 import pe.edu.pucp.fasticket.model.usuario.Persona;
-import pe.edu.pucp.fasticket.services.PersonaServicio;
+import pe.edu.pucp.fasticket.services.usuario.PersonaServicio;
 
 import java.util.List;
 

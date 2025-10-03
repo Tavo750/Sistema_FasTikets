@@ -1,4 +1,4 @@
-package pe.edu.pucp.fasticket.dto;
+package pe.edu.pucp.fasticket.dto.usuario;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
