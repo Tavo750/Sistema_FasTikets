@@ -1,17 +1,17 @@
 <div class="header-container">
-  <!-- Buscador -->
-  <div class="search-wrapper">
-    <input
-      type="text"
-      class="search-input"
-      placeholder="Buscador..."
-      [(ngModel)]="searchTerm"
-    />
-    <i class="pi pi-search search-icon"></i>
-  </div>
-
   <!-- Iconos de navegación y avatar -->
   <div class="header-actions">
+    <!-- Buscador pegado al botón eventos -->
+    <div class="search-wrapper">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscador..."
+        [(ngModel)]="searchTerm"
+      />
+      <i class="pi pi-search search-icon"></i>
+    </div>
+
     <button class="action-btn" >
       <i class="pi pi-calendar"></i>
       <span class="action-label">Eventos</span>
@@ -45,15 +45,8 @@
 
     <!-- Opciones para usuario no autenticado -->
     <ng-container *ngIf="!usuario">
-      <button class="action-btn" (click)="navegarA('/login')">
-        <i class="pi pi-sign-in"></i>
-        <span class="action-label">Iniciar Sesión</span>
-      </button>
-
-      <button class="action-btn" (click)="navegarA('/registro')">
-        <i class="pi pi-user-plus"></i>
-        <span class="action-label">Registrarse</span>
-      </button>
+      <button class="btn-header-login" (click)="navegarA('/login')">Iniciar Sesion</button>
+      <button class="btn-header" (click)="navegarA('/crear_usuario')">Registrarse</button>
     </ng-container>
   </div>
 </div>
