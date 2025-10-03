@@ -1,5 +1,10 @@
 <div class="d-flex flex-column vh-100">
-  <app-header class="w-100" [usuario]="usuario"></app-header>
+  <div class="top-bar d-flex align-items-center">
+    <div class="logo-container">
+      <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo">
+    </div>
+    <app-header class="flex-grow-1" [usuario]="usuario"></app-header>
+  </div>
 
   <div class="flex-grow-1">
     <router-outlet></router-outlet>

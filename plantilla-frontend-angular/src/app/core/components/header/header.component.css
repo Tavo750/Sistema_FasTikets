@@ -8,19 +8,6 @@
   background-color: #ffffff;
 }
 
-/* Logo */
-.logo-wrapper {
-  display: flex;
-  align-items: center;
-  padding-right: 1rem;
-}
-
-.logo-image {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-}
-
 /* Buscador */
 .search-wrapper {
   position: relative;
