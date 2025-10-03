@@ -1,29 +1,64 @@
-<div class="header-container d-flex align-items-center justify-content-between">
-  <div class="header-title text-truncate" [title]="breadcrumbFull">
-    <!-- Mostrar solo el breadcrumb corto en pantallas pequeñas -->
-    <span
-      pTooltip="{{ breadcrumbFull }}"
-      tooltipPosition="bottom"
-      class="d-sm-none"
-      >{{ breadcrumbDisplay }}</span
-    >
-
-    <!-- Mostrar breadcrumb completo en pantallas sm en adelante -->
-    <span
-      pTooltip="{{ breadcrumbFull }}"
-      tooltipPosition="bottom"
-      class="d-none d-sm-inline text-truncate"
-      >{{ breadcrumbFull }}</span
-    >
+<div class="header-container">
+  <!-- Logo -->
+  <div class="logo-wrapper">
+    <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo-image">
   </div>
 
-  <div class="perfil">
-    <p-avatar
-      (click)="menu.toggle($event)"
-      size="large"
-      shape="circle"
-      class="imagen"
+  <!-- Buscador -->
+  <div class="search-wrapper">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscador..."
+      [(ngModel)]="searchTerm"
     />
-    <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+    <i class="pi pi-search search-icon"></i>
+  </div>
+
+  <!-- Iconos de navegación y avatar -->
+  <div class="header-actions">
+    <button class="action-btn" >
+      <i class="pi pi-calendar"></i>
+      <span class="action-label">Eventos</span>
+    </button>
+
+    <button class="action-btn" >
+      <i class="pi pi-th-large"></i>
+      <span class="action-label">Categorías</span>
+    </button>
+
+    <!-- Opciones para usuario autenticado -->
+    <ng-container *ngIf="usuario">
+      <button class="action-btn notification-btn">
+        <i class="pi pi-bell"></i>
+        <span class="notification-badge" *ngIf="notificationCount > 0">
+          {{ notificationCount }}
+        </span>
+      </button>
+
+      <!-- Avatar -->
+      <div class="perfil">
+        <p-avatar
+          (click)="menu.toggle($event)"
+          size="large"
+          shape="circle"
+          class="imagen"
+        />
+        <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+      </div>
+    </ng-container>
+
+    <!-- Opciones para usuario no autenticado -->
+    <ng-container *ngIf="!usuario">
+      <button class="action-btn" (click)="navegarA('/login')">
+        <i class="pi pi-sign-in"></i>
+        <span class="action-label">Iniciar Sesión</span>
+      </button>
+
+      <button class="action-btn" (click)="navegarA('/registro')">
+        <i class="pi pi-user-plus"></i>
+        <span class="action-label">Registrarse</span>
+      </button>
+    </ng-container>
   </div>
 </div>

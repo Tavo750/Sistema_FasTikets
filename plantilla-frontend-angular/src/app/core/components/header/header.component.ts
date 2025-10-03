@@ -17,6 +17,8 @@ export class HeaderComponent implements OnInit {
   breadcrumbDisplay = '';     // Para la vista
   breadcrumbFull = '';        // Para el tooltip completo
   items: MenuItem[] | undefined;
+  searchTerm: string = '';
+  notificationCount: number = 5; // Ejemplo
   @Input() usuario: Usuario | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
   private routerSubscription!: Subscription;
@@ -25,6 +27,22 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     private menuService: MenuService
   ) {
+    // Inicializar los items del menú
+    this.actualizarMenuItems();
+  }
+
+  /**
+   * Navega a la ruta especificada
+   * @param ruta Ruta a la que se desea navegar
+   */
+  navegarA(ruta: string): void {
+    this.router.navigate([ruta]);
+  }
+
+  /**
+   * Actualiza los items del menú según el estado de autenticación
+   */
+  private actualizarMenuItems(): void {
     this.items = [
       {
         label: 'usuario',
