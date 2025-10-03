@@ -1,1 +1,9 @@
-<p>home hola mundo works!</p>
+<div class="d-flex flex-column vh-100">
+  <app-header class="w-100" [usuario]="usuario"></app-header>
+
+  <div class="flex-grow-1">
+    <router-outlet></router-outlet>
+  </div>
+
+  <app-footer class="w-100"></app-footer>
+</div>

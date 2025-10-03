@@ -4,7 +4,7 @@ import { LayoutComponent } from './core/components/layout/layout.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'inicio', pathMatch: 'full' },
   {
     path: 'lote', component: LayoutComponent, canActivate: [AuthGuard], children: [
       { path: '', loadChildren: () => import('./pages/modules/lote/lote.module').then(m => m.LoteModule) },
