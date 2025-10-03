@@ -30,6 +30,17 @@ const routes: Routes = [
       { path: '', loadChildren: () => import('./pages/modules/cotizacion/cotizacion.module').then(m => m.CotizacionModule) },
     ]
   },
+
+  {
+    path: 'carrito', component: LayoutComponent, canActivate: [AuthGuard], children: [
+      { path: '', loadChildren: () => import('./pages/modules/cotizacion/cotizacion.module').then(m => m.CotizacionModule) },
+    ]
+  },
+
+
+
+
+
   { path: 'login', loadChildren: () => import('./pages/full-pages/login/login.module').then(m => m.LoginModule) },
   { path: 'error', loadChildren: () => import('./pages/full-pages/error/error.module').then(m => m.ErrorModule) },
   { path: 'home', loadChildren: () => import('./pages/full-pages/home/home.module').then(m => m.HomeModule) },
