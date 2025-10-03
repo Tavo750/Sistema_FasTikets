@@ -1,4 +1,4 @@
-package pe.edu.pucp.fasticket.services;
+package pe.edu.pucp.fasticket.services.usuario;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -6,7 +6,7 @@ import pe.edu.pucp.fasticket.dto.LoginResponse;
 import pe.edu.pucp.fasticket.dto.RegistroRequest;
 import pe.edu.pucp.fasticket.dto.RegistroResponse;
 import pe.edu.pucp.fasticket.model.usuario.Persona;
-import pe.edu.pucp.fasticket.repository.PersonasRepositorio;
+import pe.edu.pucp.fasticket.repository.usuario.PersonasRepositorio;
 
 import java.time.LocalDate;
 import java.util.List;
