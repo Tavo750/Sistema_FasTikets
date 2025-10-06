@@ -3,7 +3,7 @@ package pe.edu.pucp.fasticket.model.fidelizacion;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pe.edu.pucp.fasticket.model.eventos.EstadoTicket;
+//import pe.edu.pucp.fasticket.model.eventos.EstadoTicket;
 
 import java.time.LocalDate;
 
