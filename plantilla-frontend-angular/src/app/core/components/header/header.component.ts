@@ -48,11 +48,11 @@ export class HeaderComponent implements OnInit {
         label: 'usuario',
         items: [
           { separator: true },
-          // {
-          //   label: 'Mi perfil',
-          //   icon: 'pi pi-user',
-          //   routerLink: '/home/usuario'
-          // },
+          {
+            label: 'Mi perfil',
+            icon: 'pi pi-user',
+            routerLink: '/usuario'
+          },
           // {
           //   label: 'Configuración',
           //   icon: 'pi pi-cog',
