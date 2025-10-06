@@ -2,40 +2,47 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './core/components/layout/layout.component';
 import { AuthGuard } from './core/guards/auth.guard';
+//import { HomeComponent } from './pages/full-pages/home - eliminar/home.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
+
+   // ========== INICIO ==================================================================
   {
-    path: 'lote', component: LayoutComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/lote/lote.module').then(m => m.LoteModule) },
-    ],
+    path: 'home',
+    component: LayoutComponent,
+    loadChildren: () => import('./pages/modules/home/home.module').then(m => m.HomeModule)
   },
+  //=========================================================================================
+
+  // ========== INICIO ==================================================================
   {
-    path: 'logo', component: LayoutComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/logo/logo.module').then(m => m.LogoModule) },
-    ]
+    path: 'usuario',
+    component: LayoutComponent,
+    loadChildren: () => import('./pages/modules/usuario/usuario.module').then(m => m.UsuarioModule),
   },
+  //=========================================================================================
+
+  // ========== ADMINISTRADOR ==================================================================
   {
-    path: 'facturacion', component: LayoutComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/facturacion/facturacion.module').then(m => m.FacturacionModule) },
-    ]
+    path: 'administrador',
+    component: LayoutComponent,
+    loadChildren: () => import('./pages/modules/administrador/administrador.module').then(m => m.AdministradorModule),
   },
-  {
-    path: 'inicio', component: LayoutComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/home/home.module').then(m => m.HomeModule) },
-    ]
-  },
-  {
-    path: 'cotizacion', component: LayoutComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/cotizacion/cotizacion.module').then(m => m.CotizacionModule) },
-    ]
-  },
+  //=========================================================================================
+
+
+
+  // ========== LOGIN ==================================================================
   { path: 'login', loadChildren: () => import('./pages/full-pages/login/login.module').then(m => m.LoginModule) },
   { path: 'error', loadChildren: () => import('./pages/full-pages/error/error.module').then(m => m.ErrorModule) },
-  { path: 'home', loadChildren: () => import('./pages/full-pages/home/home.module').then(m => m.HomeModule) },
+  //=========================================================================================
+
+  // ========== REGISTRO DE USUARIO Y CONTRASEÑA ==========================================================
   { path: 'crear_usuario', loadChildren: () => import('./pages/full-pages/crear-usuario/crear-usuario.module').then(m => m.CrearUsuarioModule) },
   { path: 'cambiar_contra', loadChildren: () => import('./pages/full-pages/cambiar-contra/cambiar-contra.module').then(m => m.CambiarContraModule) },
   { path: '**', redirectTo: 'error' },
+  //=========================================================================================
 ];
 
 

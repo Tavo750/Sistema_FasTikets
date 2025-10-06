@@ -1,29 +1,52 @@
-<div class="header-container d-flex align-items-center justify-content-between">
-  <div class="header-title text-truncate" [title]="breadcrumbFull">
-    <!-- Mostrar solo el breadcrumb corto en pantallas pequeñas -->
-    <span
-      pTooltip="{{ breadcrumbFull }}"
-      tooltipPosition="bottom"
-      class="d-sm-none"
-      >{{ breadcrumbDisplay }}</span
-    >
+<div class="header-container">
+  <!-- Iconos de navegación y avatar -->
+  <div class="header-actions">
+    <!-- Buscador pegado al botón eventos -->
+    <div class="search-wrapper">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscador..."
+        [(ngModel)]="searchTerm"
+      />
+      <i class="pi pi-search search-icon"></i>
+    </div>
 
-    <!-- Mostrar breadcrumb completo en pantallas sm en adelante -->
-    <span
-      pTooltip="{{ breadcrumbFull }}"
-      tooltipPosition="bottom"
-      class="d-none d-sm-inline text-truncate"
-      >{{ breadcrumbFull }}</span
-    >
-  </div>
+    <button class="action-btn" >
+      <i class="pi pi-calendar"></i>
+      <span class="action-label">Eventos</span>
+    </button>
 
-  <div class="perfil">
-    <p-avatar
-      (click)="menu.toggle($event)"
-      size="large"
-      shape="circle"
-      class="imagen"
-    />
-    <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+    <button class="action-btn" >
+      <i class="pi pi-th-large"></i>
+      <span class="action-label">Categorías</span>
+    </button>
+
+    <!-- Opciones para usuario autenticado -->
+    <ng-container *ngIf="usuario">
+      <button class="action-btn notification-btn">
+        <i class="pi pi-bell"></i>
+        <span class="notification-badge" *ngIf="notificationCount > 0">
+          {{ notificationCount }}
+        </span>
+      </button>
+
+      <!-- Avatar -->
+      <div class="perfil">
+        <p-avatar
+          (click)="menu.toggle($event)"
+          size="large"
+          shape="circle"
+          class="imagen"
+        />
+        <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+      </div>
+    </ng-container>
+
+    <!-- Opciones para usuario no autenticado -->
+    <ng-container *ngIf="!usuario">
+      <button class="btn-header-login" (click)="navegarA('/login')">Iniciar Sesion</button>
+      <button class="btn-header" (click)="navegarA('/crear_usuario')">Registrarse</button>
+    </ng-container>
   </div>
 </div>
