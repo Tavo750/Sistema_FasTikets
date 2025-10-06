@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './core/components/layout/layout.component';
 import { AuthGuard } from './core/guards/auth.guard';
-import { HomeComponent } from './pages/full-pages/home - eliminar/home.component';
+//import { HomeComponent } from './pages/full-pages/home - eliminar/home.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -11,11 +11,11 @@ const routes: Routes = [
       { path: '', loadChildren: () => import('./pages/modules/lote/lote.module').then(m => m.LoteModule) },
     ],
   },
-  // {
-  //   path: 'logo', component: LayoutComponent, canActivate: [AuthGuard], children: [
-  //     { path: '', loadChildren: () => import('./pages/modules/logo/logo.module').then(m => m.LogoModule) },
-  //   ]
-  // },
+  {
+    path: 'logo', component: LayoutComponent, canActivate: [AuthGuard], children: [
+      { path: '', loadChildren: () => import('./pages/modules/logo/logo.module').then(m => m.LogoModule) },
+    ]
+  },
   {
     path: 'facturacion', component: LayoutComponent, canActivate: [AuthGuard], children: [
       { path: '', loadChildren: () => import('./pages/modules/facturacion/facturacion.module').then(m => m.FacturacionModule) },
@@ -32,11 +32,11 @@ const routes: Routes = [
     ]
   },
 
-  {
-    path: 'logo', component: HomeComponent, canActivate: [AuthGuard], children: [
-      { path: '', loadChildren: () => import('./pages/modules/cotizacion/cotizacion.module').then(m => m.CotizacionModule) },
-    ]
-  },
+  // {
+  //   path: 'logo', component: HomeComponent, canActivate: [AuthGuard], children: [
+  //     { path: '', loadChildren: () => import('./pages/modules/cotizacion/cotizacion.module').then(m => m.CotizacionModule) },
+  //   ]
+  // },
 
 
 
