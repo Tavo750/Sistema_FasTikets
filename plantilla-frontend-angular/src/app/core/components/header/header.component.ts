@@ -54,6 +54,11 @@ export class HeaderComponent implements OnInit {
             routerLink: '/usuario/perfilPersonal',
           },
           {
+            label: 'Mis entradas',
+            icon: 'pi pi-ticket',
+            routerLink: '/usuario/misEntradas',
+          },
+          {
             label: 'Regresar a Inicio',
             icon: 'pi pi-home',
             routerLink: '/home/inicio',
