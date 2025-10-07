@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
 import { SharedModule } from 'primeng/api';
 import { SidebarItemComponent } from './components/sidebar-item/sidebar-item.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { SidebarItemComponent } from './components/sidebar-item/sidebar-item.com
     CommonModule,
     RouterModule,
     PrimeNgModule,
-    SharedModule
+    SharedModule,
+    FormsModule
   ],
   exports: [
     HeaderComponent,

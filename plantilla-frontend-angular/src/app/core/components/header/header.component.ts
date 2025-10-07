@@ -51,27 +51,12 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Mi perfil',
             icon: 'pi pi-user',
-            routerLink: '/usuario'
+            routerLink: '/usuario/perfilPersonal',
           },
-          // {
-          //   label: 'Configuración',
-          //   icon: 'pi pi-cog',
-          //   routerLink: '/home/configuracion'
-          // },
-          // {
-          //   label: 'Ayuda y Asistencia',
-          //   icon: 'pi pi-question',
-          //   routerLink: '/home/configuracion'
-          // },
           {
-            label: 'Regresar al menu',
+            label: 'Regresar a Inicio',
             icon: 'pi pi-home',
-            command: () => {
-              // Redirigir al menú principal
-              //TODO: Hacer una validación que desea regresar al menú principal
-              window.location.href = 'https://nocb.nettalco.com.pe/intranet/sso/menu';
-
-            },
+            routerLink: '/home/inicio',
           }
         ]
       }

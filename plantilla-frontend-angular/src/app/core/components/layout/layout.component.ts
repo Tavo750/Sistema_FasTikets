@@ -2,6 +2,8 @@ import { Component, HostListener } from '@angular/core';
 import * as global from '../../../global'
 import { Usuario } from '../../interfaces/login.interface';
 import { AuthService } from '../../services/auth.service';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-layout',
@@ -14,11 +16,13 @@ export class LayoutComponent {
   isSidebarOpen = true; // Inicialmente abierto
   isSidebarOpenMobile = false; // Inicialmente cerrado
   isMobile = false;
+  shouldShowSidebar = false; // Controla si el sidebar debe mostrarse
 
   usuario: Usuario | null = null;
 
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -36,6 +40,24 @@ export class LayoutComponent {
       this.isSidebarOpenMobile = false;
       this.isMobile = false;
     }
+
+    // Verificar la ruta inicial
+    this.checkRoute(this.router.url);
+
+    // Suscribirse a cambios de ruta
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.checkRoute(event.urlAfterRedirects);
+    });
+  }
+
+  /**
+   * Verifica si el sidebar debe mostrarse basado en la ruta actual
+   */
+  private checkRoute(url: string): void {
+    // Mostrar sidebar en rutas de usuario y administrador
+    this.shouldShowSidebar = url.includes('/usuario') || url.includes('/administrador');
   }
 
   toggleSidebar() {
