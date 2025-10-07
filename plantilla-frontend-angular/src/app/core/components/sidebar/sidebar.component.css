@@ -19,13 +19,18 @@
 }
 
 .titulo-wrapper {
-  /* max-height: 60px;
-  overflow: hidden; */
+  max-height: 160px;
+  height: 80px!important;
+  overflow: hidden;
   height: auto;
   transition: max-height 0.4s ease, opacity 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #dc3545;
 }
 
 .titulo-wrapper-colapsado {
