@@ -19,21 +19,27 @@ export class MenuService {
     },
     {
       label: 'Mis Beneficios',
-      icon: 'pi pi-gift',
+      icon: 'pi pi-star',
       iconRef: 'iconCroco',
       routerLink: ['./usuario/beneficios'],
     },
     {
       label: 'Carrito de Compras',
-      icon: 'pi pi-gift',
+      icon: 'pi pi-shopping-cart',
       iconRef: 'iconCroco',
       routerLink: ['./home/carritoCompra'],
     },
     {
       label: 'Historial de Compras',
-      icon: 'pi pi-shopping-cart',
+      icon: 'pi pi-history',
       iconRef: 'iconSubopcion1',
       routerLink: ['./usuario/historialCompras'],
+    },
+    {
+      label: 'Configuración',
+      icon: 'pi pi-cog',
+      iconRef: 'iconSubopcion1',
+      routerLink: ['./usuario/configuracion'],
     }
   ];
 
@@ -58,7 +64,7 @@ export class MenuService {
     },
     {
       label: 'Gestión de Clientes',
-      icon: 'pi pi-calendar',
+      icon: 'pi pi-users',
       iconRef: 'iconCroco',
       routerLink: ['./administrador/gestionClientes'],
     },
