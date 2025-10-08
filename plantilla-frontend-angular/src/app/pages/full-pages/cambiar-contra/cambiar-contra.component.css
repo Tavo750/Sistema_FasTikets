@@ -205,3 +205,116 @@ input:focus{
   .btn-google{ height:42px; }
 }
 
+/* ===== Estilos para la pantalla de cambio de contraseña ===== */
+
+.password-form {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.password-form h1 {
+  font-size: 40px;
+  line-height: 1.2;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+  text-align: center;
+  color: #1f1f1f;
+}
+
+.password-form .subtitle {
+  margin: 0 0 30px 0;
+  color: #666;
+  text-align: center;
+  font-size: 16px;
+  max-width: 400px;
+}
+
+.input-label {
+  width: 100%;
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px 0;
+  text-align: left;
+}
+
+.password-form input {
+  width: 100%;
+  margin: 0 0 20px 0;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-size: 14px;
+}
+
+.password-form input:focus {
+  border-color: #7ed957;
+  box-shadow: 0 0 0 3px rgba(126, 217, 87, 0.1);
+}
+
+.password-form input::placeholder {
+  color: #aaa;
+}
+
+.button-group {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-cancel {
+  width: 140px;
+  height: 42px;
+  background: #ff4757;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: #e63946;
+}
+
+.btn-submit {
+  width: 140px;
+  height: 42px;
+  background: #7ed957;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-submit:hover {
+  background: #6bc745;
+}
+
+
+/* Estilo especial para botón Iniciar Sesión */
+.btn-header-dark {
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.btn-header-dark:hover {
+  background: #333;
+  border-color: #333;
+}
