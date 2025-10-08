@@ -64,9 +64,39 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.username === '' || this.password === '') {
       this.error('¡Usuario o Contraseña incompletos!');
-    } else {
-      this.validarLogin();
+      return;
     }
+
+    if (!this.validarFormatoEmail(this.username)) {
+      this.error('¡Formato de correo electrónico inválido!');
+      return;
+    }
+
+    if (!this.validarDominioPermitido(this.username)) {
+      this.error('¡Dominio de correo no permitido! Use gmail.com o pucp.edu.pe');
+      return;
+    }
+
+    this.validarLogin();
+  }
+
+  validarFormatoEmail(email: string): boolean {
+    // Expresión regular para validar formato de email y caracteres permitidos
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  }
+
+  validarDominioPermitido(email: string): boolean {
+    const dominiosPermitidos = ['gmail.com', 'pucp.edu.pe'];
+    const dominio = email.split('@')[1]?.toLowerCase();
+    return dominiosPermitidos.includes(dominio);
+  }
+
+  obtenerTipoUsuario(email: string): string {
+    const dominio = email.split('@')[1]?.toLowerCase();
+    if (dominio === 'gmail.com') return 'cliente';
+    if (dominio === 'pucp.edu.pe') return 'administrador';
+    return '';
   }
 
   validarLogin() {
@@ -74,8 +104,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginService.getLogin(this.username, this.password).subscribe({
       next: (resp) => {
         if (resp.ok === true) {
+          const tipoUsuario = this.obtenerTipoUsuario(this.username);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
-          this.router.navigate(['/inicio']);
+          
+          // Redirigir según el tipo de usuario
+          if (tipoUsuario === 'cliente') {
+            this.router.navigate(['/usuario/inicio']);
+          } else if (tipoUsuario === 'administrador') {
+            this.router.navigate(['/administrador/inicio']);
+          } else {
+            this.error('Error en la redirección del usuario');
+          }
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.mensaje}` });
           this.hayError = true;

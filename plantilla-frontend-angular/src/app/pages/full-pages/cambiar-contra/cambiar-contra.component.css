@@ -238,6 +238,7 @@ input:focus{
   color: #666;
   margin: 0 0 8px 0;
   text-align: left;
+  font-weight: 500;
 }
 
 .password-form input {
