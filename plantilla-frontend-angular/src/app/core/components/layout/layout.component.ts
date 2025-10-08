@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import * as global from '../../../global'
-import { Usuario } from '../../interfaces/login.interface';
+import { Persona } from '../../interfaces/login.interface';
 import { AuthService } from '../../services/auth.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -18,7 +18,7 @@ export class LayoutComponent {
   isMobile = false;
   shouldShowSidebar = false; // Controla si el sidebar debe mostrarse
 
-  usuario: Usuario | null = null;
+  usuario: Persona | null = null;
 
   constructor(
     private authService: AuthService,

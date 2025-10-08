@@ -12,6 +12,7 @@ import { CodigosPromocionalesComponent } from './components/codigos-promocionale
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
+import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { PerfilAdministradorComponent } from './components/perfil-administrador/
     CodigosPromocionalesComponent,
     LogErroresComponent,
     AuditoriaComponent,
-    PerfilAdministradorComponent
+    PerfilAdministradorComponent,
+    EditarEventoComponent
   ],
   imports: [
     CommonModule,

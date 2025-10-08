@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface TipoConcierto {
   name: string;
@@ -13,6 +14,8 @@ interface TipoConcierto {
 })
 export class GestionEventosComponent implements OnInit {
   tiposConcierto: TipoConcierto[] = [];
+
+  constructor(private router: Router) {}
 
   ngOnInit() {
     this.tiposConcierto = [
@@ -37,5 +40,9 @@ export class GestionEventosComponent implements OnInit {
   agregarEvento() {
     // Implementar lógica para agregar evento
     console.log('Agregando evento...');
+  }
+
+  editarEvento(id: number) {
+    this.router.navigate(['/administrador/gestionEventos/editar', id]);
   }
 }
