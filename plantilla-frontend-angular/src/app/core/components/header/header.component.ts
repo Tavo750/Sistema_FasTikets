@@ -75,12 +75,12 @@ export class HeaderComponent implements OnInit {
           {
             label: 'Gestión de clientes',
             icon: 'pi pi-users',
-            routerLink: '/administracion/gestionClientes',
+            routerLink: '/administrador/gestionClientes',
           },
           {
             label: 'Auditoría',
             icon: 'pi pi-chart-bar',
-            routerLink: '/administracion/auditoria',
+            routerLink: '/administrador/auditoria',
           }
         ]
       }
