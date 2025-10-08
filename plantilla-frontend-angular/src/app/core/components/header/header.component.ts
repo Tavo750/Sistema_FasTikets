@@ -3,7 +3,7 @@ import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { MenuItem } from 'primeng/api';
-import { Usuario } from '../../interfaces/login.interface';
+import { Usuario, Persona } from '../../interfaces/login.interface';
 
 @Component({
   selector: 'app-header',
@@ -17,9 +17,10 @@ export class HeaderComponent implements OnInit {
   breadcrumbDisplay = '';     // Para la vista
   breadcrumbFull = '';        // Para el tooltip completo
   items: MenuItem[] | undefined;
+  itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
   notificationCount: number = 5; // Ejemplo
-  @Input() usuario: Usuario | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
+  @Input() usuario: Persona | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
   private routerSubscription!: Subscription;
 
@@ -62,6 +63,24 @@ export class HeaderComponent implements OnInit {
             label: 'Regresar a Inicio',
             icon: 'pi pi-home',
             routerLink: '/home/inicio',
+          }
+        ]
+      }
+    ];
+    this.itemsAdmin = [
+      {
+        label: 'Administración',
+        icon: 'pi pi-cog',
+        items: [
+          {
+            label: 'Gestión de clientes',
+            icon: 'pi pi-users',
+            routerLink: '/administracion/gestionClientes',
+          },
+          {
+            label: 'Auditoría',
+            icon: 'pi pi-chart-bar',
+            routerLink: '/administracion/auditoria',
           }
         ]
       }
