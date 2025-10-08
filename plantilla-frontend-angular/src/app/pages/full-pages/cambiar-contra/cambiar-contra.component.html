@@ -1,10 +1,12 @@
+<p-toast></p-toast>
+
 <header class="header">
   <div class="logo">
     <img src="img/logo/logo-fasticket.jpg" alt="FASTICKET">
   </div>
   <div class="header-buttons">
+    <button class="btn-header-dark" (click)="router.navigate(['/login'])">Iniciar Sesión</button>
     <button class="btn-header" (click)="router.navigate(['/crear_usuario'])">Registrarse</button>
-    <!-- Botón con icono de casita -->
     <button class="btn-icon" title="Ir a Página Principal">
       <img src="img/logo/home.jpg" alt="Inicio">
     </button>
@@ -17,32 +19,73 @@
     <img src="img/logo/concierto.jpg" alt="Concierto">
   </div>
 
-  <!-- Lado derecho con el formulario -->
-    <div class="form-container">
-        <h1>Verifica tu correo</h1>
-        <p class="subtitle">Hemos enviado un número de verificación a tu correo. Introduce el código en el recuadro inferior</p>
+  <!-- VISTA 1: Ingresar correo electrónico -->
+  <div class="form-container" *ngIf="mostrarIngresarCorreo">
+    <h1>Recupera tu Contraseña</h1>
+    <p class="subtitle">Ingresa tu correo electrónico asociado a tu cuenta</p>
 
-        <form class="verification-form">
-            <div class="code-instruction">Introduce el código</div>
+    <form (submit)="enviarCorreo($event)">
+      <label class="input-label">Correo Electrónico</label>
+      <input 
+        type="email" 
+        id="correoElectronico"
+        placeholder="ejemplo@correo.com" 
+        required>
 
-            <div class="code-inputs">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-                <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
-            </div>
+      <button type="submit" class="btn-login">Enviar Correo</button>
+    </form>
+  </div>
 
-            <div class="resend-wrap">
-                <span class="resend-text">¿No lo has recibido? </span>
+  <!-- VISTA 2: Verificar código -->
+  <div class="form-container" *ngIf="mostrarVerificarCodigo">
+    <h1>Verifica tu correo</h1>
+    <p class="subtitle">Hemos enviado un número de verificación a tu correo. Introduce el código en el recuadro inferior</p>
 
-                <a class="resend-link" (click)="mostrarReenvio($event)">Volver a enviar</a>
+    <form class="verification-form" (submit)="validarCodigo($event)">
+      <div class="code-instruction">Introduce el código</div>
 
-            </div>
-            <button type="submit" class="btn-login">Continuar</button>
-        </form>
-    </div>
+      <div class="code-inputs">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+        <input type="text" class="code-input" maxlength="1" pattern="[0-9]">
+      </div>
 
+      <div class="resend-wrap">
+        <span class="resend-text">¿No lo has recibido? </span>
+        <a class="resend-link" (click)="mostrarReenvio($event)">Volver a enviar</a>
+      </div>
+
+      <button type="submit" class="btn-login">Continuar</button>
+    </form>
+  </div>
+
+  <!-- VISTA 3: Cambiar contraseña -->
+  <div class="form-container" *ngIf="mostrarCambioContrasena">
+    <form class="password-form" (submit)="cambiarContrasena($event)">
+      <h1>Recupera tu Contraseña</h1>
+      <p class="subtitle">Ingrese su nueva contraseña</p>
+
+      <label class="input-label">Nueva contraseña</label>
+      <input 
+        type="password" 
+        id="nuevaContrasena"
+        placeholder="Ingrese su nueva contraseña" 
+        required>
+      
+      <label class="input-label">Repita la nueva contraseña</label>
+      <input 
+        type="password" 
+        id="repetirContrasena"
+        placeholder="Repita su nueva contraseña" 
+        required>
+
+      <div class="button-group">
+        <button type="button" class="btn-cancel" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn-submit">Siguiente</button>
+      </div>
+    </form>
+  </div>
 </div>
-
