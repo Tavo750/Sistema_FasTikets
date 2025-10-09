@@ -54,7 +54,11 @@ public class OrdenCompra {
 
 
     @ManyToOne
-    @JoinColumn(name = "idCliente")
+    @JoinColumn(name = "idCliente", nullable = false)
     private Cliente cliente;
+
+    @OneToOne
+    @JoinColumn(name = "idCarroCompras", nullable = false)
+    private CarroCompras carroCompras;
 
 }

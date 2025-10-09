@@ -40,6 +40,13 @@ public class CarroCompras {
     private Double total;
 
     @OneToOne
-    @JoinColumn(name="idCliente")
+    @JoinColumn(name="idCliente", nullable=false)
     private Cliente cliente;
+
+    @OneToOne(mappedBy = "carroCompras", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrdenCompra ordenCompra;
+
+    @OneToMany(mappedBy = "carroCompras", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemCarrito> items;
+
 }
