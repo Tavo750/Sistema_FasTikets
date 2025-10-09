@@ -5,7 +5,6 @@ import * as global from './global';
 import { FullscreenService } from './shared/services/fullscreen.service';
 import { Subscription } from 'rxjs';
 import { ThemeService } from './shared/services/theme.service';
-import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -28,7 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private primeng: PrimeNG,
     private fullscreenService: FullscreenService,
     private themeService: ThemeService,
-    private authService: AuthService,
+
   ) {
   }
 

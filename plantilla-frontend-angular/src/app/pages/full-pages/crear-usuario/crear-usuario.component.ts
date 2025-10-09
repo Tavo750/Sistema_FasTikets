@@ -121,17 +121,20 @@ export class CrearUsuarioComponent implements OnInit {
       const fechaFormateada = fechaNacimiento instanceof Date ?
         fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
 
+      const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
+      const rol = email.endsWith('@pucp.edu.pe') ? 'ADMINISTRADOR' : 'CLIENTE';
+
       const usuario: RegistroUsuario = {
         docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
         nombres: this.registroForm.get('nombres')?.value.trim(),
         apellidos: this.registroForm.get('apellidos')?.value.trim(),
         telefono: this.registroForm.get('telefono')?.value.trim(),
-        email: this.registroForm.get('correo')?.value.trim().toLowerCase(),
+        email: email,
         direccion: this.registroForm.get('direccion')?.value.trim(),
         contrasena: this.registroForm.get('contrasena')?.value,
         fechaNacimiento: fechaFormateada,
         tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
-        rol: 'CLIENTE'
+        rol: rol
       };
 
       // Validar que todos los campos requeridos tengan valor

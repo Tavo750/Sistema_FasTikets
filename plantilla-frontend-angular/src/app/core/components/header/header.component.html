@@ -23,7 +23,7 @@
     </button>
 
     <!-- Opciones para usuario autenticado -->
-    <ng-container *ngIf="!usuario">
+    <ng-container *ngIf="usuario">
       <button class="action-btn notification-btn">
         <i class="pi pi-bell"></i>
         <span class="notification-badge" *ngIf="notificationCount > 0">
@@ -39,12 +39,12 @@
           shape="circle"
           class="imagen"
         />
-        <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
       </div>
     </ng-container>
 
     <!-- Opciones para usuario no autenticado -->
-    <ng-container *ngIf="usuario">
+    <ng-container *ngIf="!usuario">
       <button class="btn-header-login" (click)="navegarA('/login')">Iniciar Sesion</button>
       <button class="btn-header" (click)="navegarA('/crear_usuario')">Registrarse</button>
     </ng-container>

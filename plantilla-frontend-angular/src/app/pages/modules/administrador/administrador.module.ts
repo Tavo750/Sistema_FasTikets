@@ -1,8 +1,11 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import { AdministradorRoutingModule } from './administrador-routing.module';
+import { PrimeNgModule } from '../../../prime-ng/prime-ng.module';
+
 import { GestionLocalesComponent } from './components/gestion-locales/gestion-locales.component';
 import { GestionEventosComponent } from './components/gestion-eventos/gestion-eventos.component';
 import { GestionClientesComponent } from './components/gestion-clientes/gestion-clientes.component';
@@ -10,6 +13,8 @@ import { CodigosPromocionalesComponent } from './components/codigos-promocionale
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
+import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
+import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -26,16 +31,20 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
     LogErroresComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
-    CambiarContrasenaAdminComponent
+    CambiarContrasenaAdminComponent,
+    EditarEventoComponent,
+    CrearEventoComponent
   ],
   imports: [
     CommonModule,
     AdministradorRoutingModule,
     ReactiveFormsModule,
-    // PrimeNG
+    PrimeNgModule,
     ButtonModule,
     InputTextModule,
-    DropdownModule
-  ]
+    DropdownModule,
+    FormsModule,
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AdministradorModule { }
