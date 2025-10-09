@@ -1,5 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 
 import { AdministradorRoutingModule } from './administrador-routing.module';
@@ -15,6 +16,11 @@ import { PerfilAdministradorComponent } from './components/perfil-administrador/
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
 import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 
+// PrimeNG
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { CambiarContrasenaAdminComponent } from './components/perfil-administrador/cambiar-contrasena-admin/cambiar-contrasena-admin.component';
 
 @NgModule({
   declarations: [
@@ -25,14 +31,19 @@ import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/
     LogErroresComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
+    CambiarContrasenaAdminComponent,
     EditarEventoComponent,
     CrearEventoComponent
   ],
   imports: [
     CommonModule,
-    FormsModule,
     AdministradorRoutingModule,
-    PrimeNgModule
+    ReactiveFormsModule,
+    PrimeNgModule,
+    ButtonModule,
+    InputTextModule,
+    DropdownModule,
+    FormsModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })

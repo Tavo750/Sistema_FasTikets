@@ -1,1 +1,108 @@
-<p>perfil-administrador works!</p>
+<div class="card">
+    <div class="header-row mb-4">
+        <h2 class="m-0">Datos del Administrador</h2>
+        <button pButton type="button" label="Editar" class="p-button btn-edit" (click)="toggleEditMode()" *ngIf="!isEditing"></button>
+    </div>
+
+    <!-- Vista de solo lectura -->
+    <form [formGroup]="perfilForm" class="grid p-fluid" *ngIf="!isEditing">
+        <!-- Primera fila -->
+        <div class="col-12 md:col-6 field-container">
+            <label for="nombres">Nombres</label>
+            <input pInputText id="nombres" formControlName="nombres" class="large-input" readonly />
+        </div>
+
+        <div class="col-12 md:col-6 field-container">
+            <label for="apellidos">Apellidos</label>
+            <input pInputText id="apellidos" formControlName="apellidos" class="large-input" readonly />
+        </div>
+
+        <!-- Segunda fila -->
+        <div class="col-12 field-container">
+            <label for="correo">Correo Electrónico</label>
+            <input pInputText id="correo" formControlName="correo" class="large-input" readonly />
+        </div>
+
+        <!-- Tercera fila -->
+        <div class="flex-row-container">
+            <div class="flex-field field-container">
+                <label for="telefono">Número de Teléfono</label>
+                <input pInputText id="telefono" formControlName="telefono" class="large-input" readonly />
+            </div>
+
+            <div class="flex-field field-container">
+                <label for="tipoDocumento">Tipo de Documento</label>
+                <p-dropdown id="tipoDocumento" [options]="tiposDocumento" formControlName="tipoDocumento" 
+                    [autoDisplayFirst]="false" optionLabel="nombre" optionValue="valor"
+                    class="large-dropdown" [disabled]="true" readonly="true">
+                </p-dropdown>
+            </div>
+
+            <div class="flex-field field-container">
+                <label for="numeroDocumento">Número de Documento</label>
+                <input pInputText id="numeroDocumento" formControlName="numeroDocumento" class="large-input" readonly />
+            </div>
+        </div>
+
+        <!-- Botón de cambiar contraseña -->
+        <div class="col-12 password-button-container">
+            <button pButton routerLink="/administrador/perfilAdministrador/cambiarContra" type="button" label="Cambiar mi contraseña" 
+                class="p-button-secondary change-password-btn" (click)="cambiarContrasena()">
+            </button>
+        </div>
+    </form>
+
+    <!-- Vista de edición -->
+    <form [formGroup]="editForm" class="grid p-fluid" *ngIf="isEditing">
+        <!-- Primera fila -->
+        <div class="col-12 md:col-6 field-container">
+            <label for="nombresEdit">Nombres</label>
+            <input pInputText id="nombresEdit" formControlName="nombres" class="large-input" />
+        </div>
+
+        <div class="col-12 md:col-6 field-container">
+            <label for="apellidosEdit">Apellidos</label>
+            <input pInputText id="apellidosEdit" formControlName="apellidos" class="large-input" />
+        </div>
+
+        <!-- Segunda fila -->
+        <div class="col-12 field-container">
+            <label for="correoEdit">Correo Electrónico</label>
+            <input pInputText id="correoEdit" formControlName="correo" class="large-input" />
+        </div>
+
+        <!-- Tercera fila -->
+        <div class="flex-row-container">
+            <div class="flex-field field-container">
+                <label for="telefonoEdit">Número de Teléfono</label>
+                <input pInputText id="telefonoEdit" formControlName="telefono" class="large-input" />
+            </div>
+
+            <div class="flex-field field-container">
+                <label for="departamentoEdit">Departamento</label>
+                <input pInputText id="departamentoEdit" formControlName="departamento" class="large-input" />
+            </div>
+
+            <div class="flex-field field-container">
+                <label for="distritoEdit">Distrito</label>
+                <input pInputText id="distritoEdit" formControlName="distrito" class="large-input" />
+            </div>
+        </div>
+
+        <!-- Cuarta fila -->
+        <div class="col-12 field-container">
+            <label for="direccionEdit">Dirección domiciliaria</label>
+            <input pInputText id="direccionEdit" formControlName="direccion" class="large-input" />
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="col-12 sticky-actions">
+            <button pButton type="button" label="Cancelar" 
+                class="p-button-danger" (click)="cancelarEdicion()">
+            </button>
+            <button pButton type="button" label="Aceptar" 
+                class="p-button-success" (click)="guardarCambios()">
+            </button>
+        </div>
+    </form>
+</div>

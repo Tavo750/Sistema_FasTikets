@@ -1,0 +1,131 @@
+/* Igual que en Perfil */
+.card{
+  /*background: var(--surface-card);*/
+  /*max-width: auto;*/
+  /*max-height: 1500px;*/
+  /*margin-left: auto;*/
+  /*margin-right: auto;*/
+  /*min-height: 500px;*//*con esto se ajusta con el footer la altura*/
+  /* borde gris y sombra suave como tarjeta */
+  height: auto;
+  width: auto;
+  border: 1px solid #E2E2E2;
+  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+}
+
+
+
+/* ancho más angosto para esta página */
+.change-pass-card{
+  max-width: 600px;   /* ajusta a tu gusto (420/500/600) */
+}
+
+.title{
+  font-size: 1.5rem;
+  margin: 0 0 1.25rem 0;
+  color: var(--text-color);
+}
+
+.field{ margin-bottom: 1.1rem; }
+
+:host ::ng-deep .p-inputtext{
+  width: 100%;
+  height: 40px;
+  border-radius: 6px;
+}
+
+.actions{
+  display: flex;
+  gap: 1rem;
+  margin-top: .75rem;
+}
+
+/* Botón rojo y verde (ya usados) */
+:host ::ng-deep .p-button-danger{
+  background-color:#DC3545 !important;
+  border-color:#DC3545 !important;
+  color:#fff !important;
+  border-radius:10px;
+  min-width:110px; height:40px;
+}
+:host ::ng-deep .p-button-success{
+  background-color:#91E345 !important;
+  border-color:#91E345 !important;
+  color:#fff !important;
+  border-radius:10px;
+  min-width:110px; height:40px;
+}
+
+@media (max-width: 480px){
+  .actions{ flex-direction: column; }
+}
+
+:host ::ng-deep .p-inputtext{
+  width: 100%;
+  height: 40px;
+  border-radius: 6px;
+}
+
+
+
+.button-container{
+  display: flex;
+  justify-content: center;        /* centra los botones */
+  gap: 1rem;                      /* separación entre botones */
+  margin-top: .75rem;
+}
+
+.card.change-pass-card{
+  max-width: 1200px;               /* ajusta: 420–520 según tu gusto */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem 1.25rem;
+}
+
+.h2{
+    text-align: center;
+    align-items: center;
+}
+
+.title-center{
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Hacer el formulario más angosto y centrado */
+.form-narrow{
+  max-width: 480px;    /* ajusta: 360–520 según tu gusto */
+  margin: 0 auto;
+}
+
+/* Espaciado entre campos */
+.form-group{ 
+  margin-bottom: 2rem;
+
+}
+
+/* Reducir el alto de los inputs y que no ocupen toda la card */
+:host ::ng-deep .form-narrow .p-inputtext{
+  width: 100%;
+  height: 36px;        /* antes 40–45px */
+  border-radius: 6px;
+}
+
+/* Centrar y espaciar botones */
+.button-container{
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: .75rem;
+}
+
+/* Responsive: si la pantalla es muy angosta, ocupa el ancho completo */
+@media (max-width: 480px){
+  .form-narrow{ max-width: 100%; }
+  .button-container{ flex-direction: column; }
+}
+
+.dentroCard{
+  padding-top: 50px;
+  padding-bottom: 100px;
+}
