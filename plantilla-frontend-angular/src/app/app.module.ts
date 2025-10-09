@@ -14,7 +14,6 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { PrimeNgModule } from './prime-ng/prime-ng.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { RegistroComponent } from './pages/modules/facturacion/components/registro/registro.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CambiarContraComponent } from './pages/full-pages/cambiar-contra/cambiar-contra.component';
