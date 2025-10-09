@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { Usuario, Persona } from '../../interfaces/login.interface';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +27,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private authService: AuthService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -44,9 +46,10 @@ export class HeaderComponent implements OnInit {
    * Actualiza los items del menú según el estado de autenticación
    */
   private actualizarMenuItems(): void {
+    // Menú para usuarios con rol CLIENTE
     this.items = [
       {
-        label: 'usuario',
+        label: 'Usuario',
         items: [
           { separator: true },
           {
@@ -63,15 +66,29 @@ export class HeaderComponent implements OnInit {
             label: 'Regresar a Inicio',
             icon: 'pi pi-home',
             routerLink: '/home/inicio',
+          },
+          { separator: true },
+          {
+            label: 'Cerrar sesión',
+            icon: 'pi pi-sign-out',
+            command: () => this.cerrarSesion()
           }
         ]
       }
     ];
+
+    // Menú para usuarios con rol ADMINISTRADOR
     this.itemsAdmin = [
       {
-        label: 'Administración',
-        icon: 'pi pi-cog',
+        label: 'Administrador',
         items: [
+          { separator: true },
+          {
+            label: 'Mi perfil',
+            icon: 'pi pi-user',
+            routerLink: '/usuario/perfilPersonal',
+          },
+          { separator: true },
           {
             label: 'Gestión de clientes',
             icon: 'pi pi-users',
@@ -81,6 +98,17 @@ export class HeaderComponent implements OnInit {
             label: 'Auditoría',
             icon: 'pi pi-chart-bar',
             routerLink: '/administrador/auditoria',
+          },
+          { separator: true },
+          {
+            label: 'Regresar a Inicio',
+            icon: 'pi pi-home',
+            routerLink: '/home/inicio',
+          },
+          {
+            label: 'Cerrar sesión',
+            icon: 'pi pi-sign-out',
+            command: () => this.cerrarSesion()
           }
         ]
       }
@@ -147,6 +175,14 @@ export class HeaderComponent implements OnInit {
     if (typeof routerLink === 'string') return routerLink.replace(/^\/+|\/+$/g, '').toLowerCase();
     if (Array.isArray(routerLink)) return routerLink.join('/').replace(/^\/+|\/+$/g, '').toLowerCase();
     return '';
+  }
+
+  /**
+   * Cierra la sesión del usuario actual
+   */
+  cerrarSesion(): void {
+    this.authService.removeAccessToken();
+    this.router.navigate(['/login']);
   }
 
 }

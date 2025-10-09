@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { BasicResponse, LoginResponse, Usuario } from '../interfaces/login.interface';
+import { BasicResponse, LoginResponse, Usuario, Persona } from '../interfaces/login.interface';
 import * as global from '../../global';
 import { CacheStore } from '../interfaces/cache-store.interface';
 
@@ -17,7 +17,8 @@ export class LoginService {
       linkFoto: '',
       codiPues: 0,
       permissions: []
-    }
+    },
+    persona: undefined
   }
 
   url = global.url;
@@ -52,6 +53,8 @@ export class LoginService {
             codiPues: 0,
             permissions: []
           };
+          // Guardar también la información completa de la persona
+          this.cacheStore.persona = login.persona;
         }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
@@ -93,5 +96,33 @@ export class LoginService {
 
       return throwError(() => defaultError);
     }
+  }
+
+  // Método para obtener el usuario actual
+  getCurrentUser(): Usuario | null {
+    return this.cacheStore.usuario?.codiPers ? this.cacheStore.usuario : null;
+  }
+
+  // Método para obtener la persona actual
+  getCurrentPersona(): Persona | null {
+    return this.cacheStore.persona || null;
+  }
+
+  // Método para verificar si el usuario está autenticado
+  isLoggedIn(): boolean {
+    return !!this.cacheStore.usuario?.codiPers;
+  }
+
+  // Método para cerrar sesión
+  logout(): void {
+    this.cacheStore.usuario = {
+      codiPers: '',
+      nombPers: '',
+      linkFoto: '',
+      codiPues: 0,
+      permissions: []
+    };
+    this.cacheStore.persona = undefined;
+    this.saveToSessionStorage();
   }
 }
