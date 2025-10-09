@@ -34,7 +34,7 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
     AuditoriaComponent,
     PerfilAdministradorComponent,
     CrearLocalComponent,
-    EditarLocalComponent
+    EditarLocalComponent,
     CambiarContrasenaAdminComponent,
     EditarEventoComponent,
     CrearEventoComponent
