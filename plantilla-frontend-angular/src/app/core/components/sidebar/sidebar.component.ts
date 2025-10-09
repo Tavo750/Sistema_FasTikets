@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuService } from '../../services/menu.service';
-import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../../shared/services/session.service';
 import { MenuElemento } from '../../interfaces/core.interface';
 import * as global from '../../../global';
 import { titulo } from '../../../global';
@@ -27,7 +27,7 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private menuService: MenuService,
-    private authService: AuthService,
+    private sessionService: SessionService,
     private router: Router
   ) { }
 
@@ -37,7 +37,7 @@ export class SidebarComponent implements OnInit {
     this.expandMenuToMatchUrl(currentUrl);
 
     // Suscribirse a cambios de usuario para actualizar el menú dinámicamente
-    this.authService.user$.subscribe(user => {
+    this.sessionService.user$.subscribe((user: any) => {
       this.loadMenuItems();
       const newUrl = this.router.url.split('?')[0];
       this.expandMenuToMatchUrl(newUrl);
@@ -56,7 +56,7 @@ export class SidebarComponent implements OnInit {
    * Carga los elementos del menú según el rol del usuario
    */
   private loadMenuItems() {
-    const user = this.authService.getUser();
+    const user = this.sessionService.getCurrentUser();
 
     if (user && user.rol) {
       // Si el usuario tiene un rol definido, usar ese rol
@@ -86,16 +86,16 @@ export class SidebarComponent implements OnInit {
    * Verifica si el usuario actual es administrador
    */
   isAdmin(): boolean {
-    const user = this.authService.getUser();
-    return user && user.rol === 'administrador';
+    const user = this.sessionService.getCurrentUser();
+    return !!(user && user.rol === 'ADMINISTRADOR');
   }
 
   /**
-   * Verifica si el usuario actual es un usuario regular
+   * Verifica si el usuario actual es un usuario regular (cliente)
    */
   isUser(): boolean {
-    const user = this.authService.getUser();
-    return user && user.rol === 'usuario';
+    const user = this.sessionService.getCurrentUser();
+    return !!(user && user.rol === 'CLIENTE');
   }
 
   handleExpandChange(event: { depth: number, index: number }) {

@@ -1,0 +1,377 @@
+<div class="card overflow-hidden">
+    <div class="grid p-fluid" style="height: calc(100vh - 150px); overflow-y: auto;">
+        <!-- Datos Generales -->
+         <div class="field">
+         </div>
+        <div class="grid">
+            <div class="datos-generales-container">
+                <h2 class="section-title">Datos generales</h2>
+
+                <div class="form-grid">
+                    <!-- Columna Izquierda -->
+                    <div class="form-left">
+                        <div class="field">
+                            <label for="titulo">Título:</label>
+                            <input
+                                id="titulo"
+                                type="text"
+                                pInputText
+                                [(ngModel)]="evento.titulo"
+                                placeholder="Electronic Festival" />
+                        </div>
+
+                        <div class="field">
+                            <label for="categoria">Categoría:</label>
+                            <input
+                                id="categoria"
+                                type="text"
+                                pInputText
+                                [(ngModel)]="evento.categoria"
+                                placeholder="Electrónica" />
+                        </div>
+
+                        <div class="field">
+                            <label for="descripcion">Descripción:</label>
+                            <textarea
+                                id="descripcion"
+                                rows="4"
+                                pInputTextarea
+                                [(ngModel)]="evento.descripcion"
+                                placeholder="Descripción genérica de concierto porque no ando creativo.">
+                            </textarea>
+                        </div>
+
+                        <div class="field">
+                            <label>Fecha:</label>
+                            <div class="fecha-inputs">
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="evento.dia"
+                                    placeholder="30"
+                                    class="fecha-dia"
+                                    maxlength="2" />
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="evento.mes"
+                                    placeholder="Julio"
+                                    class="fecha-mes" />
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="evento.anio"
+                                    placeholder="2025"
+                                    class="fecha-anio"
+                                    maxlength="4" />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label>Hora:</label>
+                            <div class="hora-inputs">
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="evento.hora"
+                                    placeholder="23"
+                                    class="hora-input"
+                                    maxlength="2" />
+                                <span class="hora-separator">:</span>
+                                <input
+                                    type="text"
+                                    pInputText
+                                    [(ngModel)]="evento.minutos"
+                                    placeholder="00"
+                                    class="hora-input"
+                                    maxlength="2" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha -->
+                    <div class="form-right">
+                        <div class="field estado-field">
+                            <label class="estado-label">ESTADO:</label>
+                            <p-dropdown
+                                [(ngModel)]="evento.estado"
+                                [options]="estadoOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Seleccionar estado"
+                                styleClass="estado-dropdown">
+                            </p-dropdown>
+                        </div>
+
+                        <div class="field">
+                            <label>Banner:</label>
+                            <div class="upload-area" (click)="fileInput.click()">
+                                <i class="pi pi-upload upload-icon"></i>
+                                <input
+                                    #fileInput
+                                    type="file"
+                                    accept="image/*"
+                                    (change)="onFileSelected($event)"
+                                    style="display: none" />
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="videoPromocional">Video Promocional:</label>
+                            <input
+                                id="videoPromocional"
+                                type="text"
+                                pInputText
+                                [(ngModel)]="evento.videoPromocional"
+                                placeholder="Link completamente normal..." />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Local y Asientos -->
+        <div class="field">
+         </div>
+        <div class="grid">
+            <div class="datos-generales-container">
+                <h2 class="section-title">Local y asientos</h2>
+
+                <div class="form-grid">
+                    <!-- Columna Izquierda -->
+                    <div class="form-left">
+                        <div class="field">
+                            <label for="local">Local:</label>
+                            <input
+                                id="local"
+                                type="text"
+                                pInputText
+                                [(ngModel)]="evento.local"
+                                placeholder="Parque de la exposición" />
+                        </div>
+
+                        <div class="field">
+                            <label class="categorias-label">Categorías:</label>
+                        </div>
+                        <div class="card">
+                            <p-table [value]="categoriasLocal" [tableStyle]="{'min-width': '50rem'}">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                <th>Nombre</th>
+                                <th>Aforo Máximo</th>
+                                <th>Aforo Disponible</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-cat>
+                                <tr>
+                                <td>{{ cat.nombre }}</td>
+                                <td>{{ cat.aforoMaximo }}</td>
+                                <td>
+                                    <div
+                                    [ngClass]="{
+                                        'vendido': cat.aforoDisponible === 'VENDIDO' || +cat.aforoDisponible === 0,
+                                        'bajo': cat.aforoDisponible !== 'VENDIDO' && +cat.aforoDisponible > 0 && +cat.aforoDisponible < 100,
+                                        'disponible': cat.aforoDisponible !== 'VENDIDO' && +cat.aforoDisponible >= 100
+                                    }">
+                                    {{ cat.aforoDisponible }}
+                                    </div>
+                                </td>
+                                </tr>
+                            </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha - Mapa -->
+                    <div class="form-right">
+                        <div class="field">
+                            <label>Mapa</label>
+                            <div class="mapa-container">
+                                <img
+                                    [src]="evento.mapaUrl || 'assets/images/mapa-default.png'"
+                                    alt="Mapa del local"
+                                    class="mapa-imagen"
+                                    *ngIf="evento.mapaUrl || usarMapaDefault">
+                                <div class="upload-area-mapa" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+                                    <i class="pi pi-image upload-icon"></i>
+                                    <p class="upload-text">Subir imagen del mapa</p>
+                                    <input
+                                        #fileInputMapa
+                                        type="file"
+                                        accept="image/*"
+                                        (change)="onMapaSelected($event)"
+                                        style="display: none" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entradas -->
+        <div class="field">
+         </div>
+         <div class="grid">
+            <div class="datos-generales-container">
+                <h2 class="section-title">Entradas</h2>
+
+                <!-- Moneda Field -->
+                <div class="field">
+                    <label for="moneda">Moneda:</label>
+                    <input
+                        id="moneda"
+                        type="text"
+                        pInputText
+                        [(ngModel)]="evento.moneda"
+                        placeholder="Nuevo Sol"
+                        class="moneda-input" />
+                </div>
+
+                <!-- Entrada Regular -->
+                <div class="entrada-container">
+                    <div class="field">
+                        <label>Nombre</label>
+                        <input
+                            type="text"
+                            pInputText
+                            [(ngModel)]="entradas.regular.nombre"
+                            placeholder="Regular" />
+                    </div>
+
+                    <!-- Categorías para Entrada Regular -->
+                    <div class="categorias-grid">
+                        <div class="categoria-row">
+                            <div class="categoria-col">
+                                <label>Categoría</label>
+                                <input
+                                    type="text"
+                                    pInputText
+                                    value="General"
+                                    readonly />
+                            </div>
+                            <div class="estado-col">
+                                <label>Estado:</label>
+                                <p-dropdown
+                                    [(ngModel)]="entradas.regular.categorias[0].estado"
+                                    [options]="estadoEntradaOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="ACTIVO">
+                                </p-dropdown>
+                            </div>
+                        </div>
+
+                        <div class="categoria-row">
+                            <div class="categoria-col">
+                                <input
+                                    type="text"
+                                    pInputText
+                                    value="Premium"
+                                    readonly />
+                            </div>
+                            <div class="estado-col">
+                                <p-dropdown
+                                    [(ngModel)]="entradas.regular.categorias[1].estado"
+                                    [options]="estadoEntradaOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="ACTIVO">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entrada Preventa -->
+                <div class="entrada-container">
+                    <div class="field">
+                        <label>Nombre</label>
+                        <input
+                            type="text"
+                            pInputText
+                            [(ngModel)]="entradas.preventa.nombre"
+                            placeholder="Preventa" />
+                    </div>
+
+                    <!-- Categorías para Entrada Preventa -->
+                    <div class="categorias-grid">
+                        <div class="categoria-row">
+                            <div class="categoria-col">
+                                <label>Categoría</label>
+                                <input
+                                    type="text"
+                                    pInputText
+                                    value="General"
+                                    readonly />
+                            </div>
+                            <div class="estado-col">
+                                <label>Estado:</label>
+                                <p-dropdown
+                                    [(ngModel)]="entradas.preventa.categorias[0].estado"
+                                    [options]="estadoEntradaOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="ACTIVO">
+                                </p-dropdown>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Límite de compra -->
+                <div class="limite-compra-section">
+                    <label>Límite:</label>
+                    <div class="limite-options">
+                        <div class="limite-option">
+                            <p-radioButton
+                                [(ngModel)]="limiteCompra.tipo"
+                                name="limiteCompra"
+                                value="sinLimite"
+                                inputId="sinLimite">
+                            </p-radioButton>
+                            <label for="sinLimite">Sin Límite</label>
+                        </div>
+
+                        <div class="limite-option">
+                            <p-radioButton
+                                [(ngModel)]="limiteCompra.tipo"
+                                name="limiteCompra"
+                                value="conMaximo"
+                                inputId="conMaximo">
+                            </p-radioButton>
+                            <label for="conMaximo">Máximo:</label>
+                            <input
+                                type="number"
+                                pInputText
+                                [(ngModel)]="limiteCompra.maximo"
+                                placeholder="10"
+                                class="maximo-input"
+                                [disabled]="limiteCompra.tipo !== 'conMaximo'" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Botones de acción -->
+        <div class="justify-content-center">
+            <div class=" justify-content-center ">
+                <p-button
+                    class="justify-content-center"
+                    label="Cancelar Evento"
+                    styleClass="p-button-danger"
+                    (onClick)="onCancelarEvento()">
+                </p-button>
+                <p-button
+                    class="justify-content-center"
+                    label="Guardar cambios"
+                    styleClass="p-button-primary"
+                    (onClick)="onGuardarCambios()">
+                </p-button>
+            </div>
+        </div>
+    </div>
+</div>

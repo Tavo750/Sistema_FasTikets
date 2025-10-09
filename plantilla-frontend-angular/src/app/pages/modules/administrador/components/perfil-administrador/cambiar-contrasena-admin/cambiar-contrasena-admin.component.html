@@ -1,0 +1,29 @@
+<div class="card">
+    <div class="dentroCard">
+    <form [formGroup]="cambiarContrasenaForm!" (ngSubmit)="onSubmit()" class="form-narrow">
+        <h2>Cambiar mi contraseña</h2>
+        <div class="form-group">
+            <label>Contraseña actual</label>
+            <input type="password" pInputText formControlName="contrasenaActual">
+        </div>
+        
+        <div class="form-group">
+            <label>Contraseña nueva</label>
+            <input type="password" pInputText formControlName="contrasenaNueva">
+        </div>
+        
+        <div class="form-group">
+            <label>Repita la nueva contraseña</label>
+            <input type="password" pInputText formControlName="confirmarContrasena">
+        </div>
+
+        <div class="button-container">
+            <button pButton type="button" label="Volver" class="p-button-danger" 
+                    [routerLink]="['/administrador/perfilAdministrador']">
+            </button>
+            <button pButton type="submit" label="Cambiar" class="p-button-success">
+            </button>
+        </div>
+    </form>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+.card {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h2 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.field-container {
+    margin-bottom: 1.5rem;
+}
+
+.field-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: normal;
+}
+
+.large-input {
+    height: 45px !important;
+    font-size: 1rem;
+}
+
+:host ::ng-deep .large-dropdown {
+    height: 45px;
+
+    .p-dropdown-trigger {
+        height: 45px;
+    }
+
+    .p-dropdown-label {
+        line-height: 45px;
+    }
+}
+
+.flex-row-container {
+    display: flex;
+    gap: 1.5rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.flex-field {
+    flex: 1;
+    min-width: 0;
+}
+
+.password-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+}
+
+:host ::ng-deep .change-password-btn {
+    background-color: white !important;
+    color: var(--text-color) !important;
+    border: 1px solid #ced4da !important;
+    padding: 1rem 2rem;
+    font-weight: normal;
+    min-width: 200px;
+    height: 45px;
+}
+
+:host ::ng-deep .change-password-btn:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Color del botón Editar */
+:host ::ng-deep .btn-edit {
+    background-color: #91E345 !important;
+    border-color: #91E345 !important;
+    color: #FFFFFF !important;
+    height: 45px;
+    padding: 0 2rem;
+}
+
+/* Hover / Focus */
+:host ::ng-deep .btn-edit:hover,
+:host ::ng-deep .btn-edit:focus {
+    background-color: #7fd52f !important;
+    border-color: #7fd52f !important;
+}
+
+/* Botones de edición */
+.edit-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 3rem;
+}
+
+:host ::ng-deep .p-button-danger {
+    background-color: #FF4949 !important;
+    border-color: #FF4949 !important;
+    color: white !important;
+    min-width: 150px;
+    height: 45px;
+}
+
+:host ::ng-deep .p-button-danger:hover {
+    background-color: #e04242 !important;
+    border-color: #e04242 !important;
+}
+
+:host ::ng-deep .p-button-success {
+    background-color: #91E345 !important;
+    border-color: #91E345 !important;
+    color: white !important;
+    min-width: 150px;
+    height: 45px;
+}
+
+:host ::ng-deep .p-button-success:hover {
+    background-color: #7fd52f !important;
+    border-color: #7fd52f !important;
+}
+
+@media screen and (max-width: 960px) {
+    .card {
+        padding: 1rem;
+    }
+
+    .flex-row-container {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .edit-buttons-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-dropdown,
+.large-input,
+.large-dropdown {
+    width: 100%;
+}
+
+/* Ajustes para inputs de edición */
+:host ::ng-deep .p-inputtext:enabled:focus {
+    border-color: #91E345 !important;
+    box-shadow: 0 0 0 1px #91E345 !important;
+}
+
+
+.sticky-actions{
+  position: sticky;
+  bottom: 0;                       /* se “pega” al borde inferior visible */
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  margin-top: 3rem;
+
+  /* fondo para que no se vea “transparente” al hacer scroll */
+  background: var(--surface-card);
+  box-shadow: 0 -4px 12px rgba(0,0,0,.05);
+  z-index: 5;                      /* por encima del contenido */
+}
+
+/* Un poco más de aire al fondo de la card para que no tape contenido */
+.card{
+  padding-bottom: 2.5rem;
+}
