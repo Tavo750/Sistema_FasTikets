@@ -55,7 +55,7 @@ public class OrdenCompra {
     // Relación ManyToOne con Cliente (no está en tu SQL, pero es crucial)
     // Asumiremos que OrdenCompra necesita una FK a Cliente para saber quién compró
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente", nullable = false) // Asumimos esta columna como FK a Cliente
+    @JoinColumn(name = "id_persona", nullable = false) // Asumimos esta columna como FK a Cliente
     private Cliente cliente;
 
     // Relación OneToMany con OrderItems (ítems de la orden)
