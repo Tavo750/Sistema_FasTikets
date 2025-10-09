@@ -6,35 +6,33 @@ import lombok.EqualsAndHashCode;
 import pe.edu.pucp.fasticket.model.compra.CarroCompras;
 import pe.edu.pucp.fasticket.model.compra.OrdenCompra;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "cliente") // Coincide con CREATE TABLE cliente
-@PrimaryKeyJoinColumn(name = "id_cliente") // Coincide con id_cliente INT PRIMARY KEY y la FK
+@Table(name = "cliente")
+@PrimaryKeyJoinColumn(name = "id_persona")  // FK a persona.id_persona
 public class Cliente extends Persona {
 
     // Atributos de Fidelización
-    @Column(name = "nivel") // Coincide con nivel tipo_nivel
-    private TipoNivel nivel;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nivel", length = 20)
+    private TipoNivel nivel = TipoNivel.BRONCE;
 
-    @Column(name = "puntos_acumulados") // Coincide con puntos_acumulados
-    private Integer puntosAcumulados;
+    @Column(name = "puntos_acumulados")
+    private Integer puntosAcumulados = 0;
 
-    // --- Relación con Carrito de Compras (OneToOne) ---
-    // La tabla SQL es CarroCompras
+    // --- Relaciones ---
     @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private CarroCompras carroCompras; // Nombre de variable ajustado a CarroCompras
+    private CarroCompras carroCompras;
 
-    // --- Relación con Compras (Historial) (OneToMany) ---
-    // La tabla SQL es OrdenCompra
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrdenCompra> ordenesCompra; // Nombre de variable ajustado a OrdenCompra
+    private List<OrdenCompra> ordenesCompra;
 
-    // Constructor
     public Cliente() {
         super();
-        this.puntosAcumulados = 0;
+        this.setRol(Rol.CLIENTE);
     }
 }
