@@ -1,5 +1,14 @@
 import { Component } from '@angular/core';
 
+interface Local {
+  id: number;
+  nombre: string;
+  direccion: string;
+  distrito: string;
+  aforo: number;
+  estado: string;
+}
+
 @Component({
   selector: 'app-gestion-locales',
   standalone: false,
@@ -7,5 +16,5 @@ import { Component } from '@angular/core';
   styleUrl: './gestion-locales.component.css'
 })
 export class GestionLocalesComponent {
-
+  
 }

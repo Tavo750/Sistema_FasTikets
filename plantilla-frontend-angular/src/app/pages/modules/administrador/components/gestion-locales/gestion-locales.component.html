@@ -1,1 +1,70 @@
-<p>gestion-locales works!</p>
+<div class="gestion-locales-container">
+  <h2>Lista de Locales</h2>
+
+  <div class="acciones">
+    <input type="text" placeholder="Filtrar por nombre, distrito o estado" class="buscador" />
+    <button class="crear-btn" routerLink="/administrador/gestionLocales/crearLocal">+ Crear nuevo local</button>
+  </div>
+
+  <table class="tabla-locales">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Dirección</th>
+        <th>Distrito</th>
+        <th>Aforo</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Jockey Plaza Centro de Exposiciones</td>
+        <td>Av. Javier Prado 42000</td>
+        <td>Santiago de Surco</td>
+        <td>5000</td>
+        <td>HABILITADO</td>
+        <td>
+            <button class="editar-btn">Editar</button>
+            <button class="eliminar-btn">Eliminar</button>
+        </td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Mall del Sur</td>
+        <td>Av. Los Lirios 15081</td>
+        <td>San Juan de Miraflores</td>
+        <td>1000</td>
+        <td>HABILITADO</td>
+        <td>
+            <button class="editar-btn">Editar</button>
+            <button class="eliminar-btn">Eliminar</button>
+        </td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Nombre Genérico</td>
+        <td>Av. Brasil 1450</td>
+        <td>Jesús María</td>
+        <td>200</td>
+        <td>HABILITADO</td>
+        <td>
+            <button class="editar-btn">Editar</button>
+            <button class="eliminar-btn">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="paginacion">
+    <label for="filas">Filas por página:</label>
+    <select id="filas">
+      <option>5</option>
+      <option selected>10</option>
+      <option>20</option>
+    </select>
+    <span>1 de 10</span>
+  </div>
+</div>

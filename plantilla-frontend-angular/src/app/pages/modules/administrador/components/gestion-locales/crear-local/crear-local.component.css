@@ -1,0 +1,84 @@
+.crear-local-container {
+  padding: 30px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff;
+  border-radius: 8px;
+  max-width: 1000px;
+  margin: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.form-grid {
+  display: flex;
+  gap: 40px;
+}
+
+.form-left, .form-right {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+  color: #444;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.map-placeholder {
+  height: 220px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.form-actions {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.crear-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.crear-btn:hover {
+  background-color: #218838;
+}
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}

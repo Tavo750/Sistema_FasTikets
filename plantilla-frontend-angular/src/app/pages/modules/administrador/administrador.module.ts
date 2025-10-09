@@ -9,6 +9,7 @@ import { CodigosPromocionalesComponent } from './components/codigos-promocionale
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
+import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { PerfilAdministradorComponent } from './components/perfil-administrador/
     CodigosPromocionalesComponent,
     LogErroresComponent,
     AuditoriaComponent,
-    PerfilAdministradorComponent
+    PerfilAdministradorComponent,
+    CrearLocalComponent
   ],
   imports: [
     CommonModule,

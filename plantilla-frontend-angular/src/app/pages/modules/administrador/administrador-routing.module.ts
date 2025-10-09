@@ -7,11 +7,13 @@ import { GestionClientesComponent } from './components/gestion-clientes/gestion-
 import { CodigosPromocionalesComponent } from './components/codigos-promocionales/codigos-promocionales.component';
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
+import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilAdministrador', pathMatch: 'full' },
   { path: 'perfilAdministrador', component: PerfilAdministradorComponent },
   { path: 'gestionLocales', component: GestionLocalesComponent },
+  { path: 'gestionLocales/crearLocal', component: CrearLocalComponent },
   { path: 'gestionEventos', component: GestionEventosComponent },
   { path: 'gestionClientes', component: GestionClientesComponent },
   { path: 'codigosPromocionales', component: CodigosPromocionalesComponent },
