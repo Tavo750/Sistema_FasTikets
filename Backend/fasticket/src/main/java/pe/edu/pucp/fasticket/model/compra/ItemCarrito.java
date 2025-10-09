@@ -37,10 +37,9 @@ public class ItemCarrito {
     @Column(name = "precioUnitario")
     private Double precioUnitario; // Coincide con precioUnitario
 
-    // --- Relación ManyToOne con CarroCompras ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idCarroCompra", nullable = false) // Coincide con fk_carro_compras_item
-    private CarroCompras carroCompra; // Nombre de variable ajustado a CarroCompra
+    @JoinColumn(name = "idCarritoCompras")  // Tú decides el nombre de la FK
+    private CarroCompras carroCompras;
 
     // --- Relación ManyToOne con Ticket ---
     // Asumiremos que ItemCarrito se relaciona con Ticket (la clase de tu UML)

@@ -1,5 +1,6 @@
 package pe.edu.pucp.fasticket.model.compra;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,13 +39,14 @@ public class CarroCompras {
     @Column(name = "total")
     private Double total;
 
-    // Relación OneToOne con Cliente (Inversa a la relación en Cliente)
-    // Asumimos que CarroCompras tiene una FK a Cliente, aunque no está explícita en tu script
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente") // Asumimos una FK a persona en esta tabla
+    @OneToOne
+    @JoinColumn(name="idCliente", nullable=false)
     private Cliente cliente;
 
-    // Relación OneToMany con ItemCarrito
-    @OneToMany(mappedBy = "carroCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "carroCompras", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrdenCompra ordenCompra;
+
+    @OneToMany(mappedBy = "carroCompras", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCarrito> items;
+
 }

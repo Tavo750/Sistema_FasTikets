@@ -38,12 +38,11 @@ public class Cliente extends Persona {
     }
     * */
 
-    // --- Relaciones ---
-    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private CarroCompras carroCompras;
-
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrdenCompra> ordenesCompra;
+
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private CarroCompras carroCompras;
 
     public Cliente() {
         super();
