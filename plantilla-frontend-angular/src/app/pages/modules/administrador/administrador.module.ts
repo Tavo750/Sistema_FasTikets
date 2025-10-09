@@ -10,6 +10,7 @@ import { LogErroresComponent } from './components/log-errores/log-errores.compon
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
 import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
+import { EditarLocalComponent } from './components/gestion-locales/editar-local/editar-local.component';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import { CrearLocalComponent } from './components/gestion-locales/crear-local/cr
     LogErroresComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
-    CrearLocalComponent
+    CrearLocalComponent,
+    EditarLocalComponent
   ],
   imports: [
     CommonModule,
