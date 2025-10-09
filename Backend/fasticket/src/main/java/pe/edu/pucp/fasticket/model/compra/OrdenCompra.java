@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "orden_compra") // Coincide con CREATE TABLE OrdenCompra
+@Table(name = "OrdenCompra") // Coincide con CREATE TABLE OrdenCompra
 public class OrdenCompra {
 
     @Id
@@ -20,13 +20,13 @@ public class OrdenCompra {
     private Integer idOrdenCompra;
 
     // Atributos de Auditoría y Control
-    @Column(name = "usuario_creacion")
+    @Column(name = "usuarioCreacion")
     private Integer usuarioCreacion;
-    @Column(name = "fecha_creacion")
+    @Column(name = "fechaCreacion")
     private LocalDate fechaCreacion;
-    @Column(name = "usuario_actualizacion")
+    @Column(name = "usuarioActualizacion")
     private Integer usuarioActualizacion;
-    @Column(name = "fecha_actualizacion")
+    @Column(name = "fechaActualizacion")
     private LocalDate fechaActualizacion;
     @Column(name = "activo")
     private Boolean activo;
@@ -55,7 +55,7 @@ public class OrdenCompra {
     // Relación ManyToOne con Cliente (no está en tu SQL, pero es crucial)
     // Asumiremos que OrdenCompra necesita una FK a Cliente para saber quién compró
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_persona", nullable = false) // Asumimos esta columna como FK a Cliente
+    @JoinColumn(name = "idPersona", nullable = false) // Asumimos esta columna como FK a Cliente
     private Cliente cliente;
 
     // Relación OneToMany con OrderItems (ítems de la orden)

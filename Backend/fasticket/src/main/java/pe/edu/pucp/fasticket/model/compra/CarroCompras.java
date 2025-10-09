@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "carrocompras") // Coincide con CREATE TABLE CarroCompras
+@Table(name = "CarroCompras") // Coincide con CREATE TABLE CarroCompras
 public class CarroCompras {
 
     @Id
@@ -20,13 +20,13 @@ public class CarroCompras {
     private Integer idCarroCompra;
 
     // Atributos de Auditoría y Control
-    @Column(name = "usuario_creacion")
+    @Column(name = "usuarioCreacion")
     private Integer usuarioCreacion;
-    @Column(name = "fecha_creacion")
+    @Column(name = "fechaCreacion")
     private LocalDateTime fechaCreacion;
-    @Column(name = "usuario_actualizacion")
+    @Column(name = "usuarioActualizacion")
     private Integer usuarioActualizacion;
-    @Column(name = "fecha_actualizacion")
+    @Column(name = "fechaActualizacion")
     private LocalDateTime fechaActualizacion;
     @Column(name = "activo")
     private Boolean activo;
@@ -41,7 +41,7 @@ public class CarroCompras {
     // Relación OneToOne con Cliente (Inversa a la relación en Cliente)
     // Asumimos que CarroCompras tiene una FK a Cliente, aunque no está explícita en tu script
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_persona") // Asumimos una FK a persona en esta tabla
+    @JoinColumn(name = "cliente") // Asumimos una FK a persona en esta tabla
     private Cliente cliente;
 
     // Relación OneToMany con ItemCarrito
