@@ -119,17 +119,17 @@ export class MenuService {
     } else if (currentUrl.includes('/administrador')) {
       return this.getAdminMenuItems();
     }
-    return this.getMenuItems();
+    return this.getUserMenuItems(); // Por defecto, mostrar menú de cliente
   }
 
   /**
    * Obtiene los items del menú según el rol del usuario
-   * @param userRole Rol del usuario ('administrador' o 'usuario')
+   * @param userRole Rol del usuario ('ADMINISTRADOR' o 'CLIENTE')
    */
   getMenuItemsByRole(userRole: string): MenuItem[] {
-    if (userRole === 'administrador') {
+    if (userRole === 'ADMINISTRADOR') {
       return this.getAdminMenuItems();
-    } else if (userRole === 'usuario') {
+    } else if (userRole === 'CLIENTE') {
       return this.getUserMenuItems();
     }
     return this.getUserMenuItems(); // Por defecto, mostrar menú de usuario
