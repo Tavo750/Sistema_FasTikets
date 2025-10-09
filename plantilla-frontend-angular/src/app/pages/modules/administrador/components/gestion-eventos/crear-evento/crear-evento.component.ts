@@ -42,15 +42,16 @@ interface LimiteCompra {
   tipo: 'sinLimite' | 'conMaximo';
   maximo: number;
 }
-
 @Component({
-  selector: 'app-editar-evento',
+  selector: 'app-crear-evento',
   standalone: false,
-  templateUrl: './editar-evento.component.html',
-  styleUrl: './editar-evento.component.scss'
+  templateUrl: './crear-evento.component.html',
+  styleUrl: './crear-evento.component.scss'
 })
-export class EditarEventoComponent implements OnInit{
-evento: Evento = {
+export class CrearEventoComponent implements OnInit{
+  date: Date | undefined;
+  time: Date[] | undefined;
+  evento: Evento = {
     titulo: 'Electronic Festival',
     categoria: 'Electrónica',
     descripcion: 'Descripción genérica de concierto porque no ando creativo.',
@@ -254,8 +255,5 @@ evento: Evento = {
       console.log('Mapa seleccionado:', file.name);
     }
   }
-
-
-  // Métodos adicionales para manejar el mapa, categorías, etc. podrían ir aquí
 
 }

@@ -8,6 +8,7 @@ import { CodigosPromocionalesComponent } from './components/codigos-promocionale
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
+import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilAdministrador', pathMatch: 'full' },
@@ -15,6 +16,7 @@ const routes: Routes = [
   { path: 'gestionLocales', component: GestionLocalesComponent },
   { path: 'gestionEventos', component: GestionEventosComponent },
   { path: 'gestionEventos/editar/:id', component: EditarEventoComponent },
+  { path: 'gestionEventos/crear/:id', component: CrearEventoComponent },
   { path: 'gestionClientes', component: GestionClientesComponent },
   { path: 'codigosPromocionales', component: CodigosPromocionalesComponent },
   { path: 'logErrores', component: LogErroresComponent },

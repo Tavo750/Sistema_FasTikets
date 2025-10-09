@@ -45,4 +45,7 @@ export class GestionEventosComponent implements OnInit {
   editarEvento(id: number) {
     this.router.navigate(['/administrador/gestionEventos/editar', id]);
   }
+  crearEvento(id:number){
+    this.router.navigate(['/administrador/gestionEventos/crear', id]);
+  }
 }

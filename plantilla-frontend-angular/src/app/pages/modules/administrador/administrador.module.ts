@@ -13,6 +13,7 @@ import { LogErroresComponent } from './components/log-errores/log-errores.compon
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
+import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { EditarEventoComponent } from './components/gestion-eventos/editar-event
     LogErroresComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
-    EditarEventoComponent
+    EditarEventoComponent,
+    CrearEventoComponent
   ],
   imports: [
     CommonModule,

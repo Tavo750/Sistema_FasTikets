@@ -44,48 +44,16 @@
                         <div class="field">
                             <label>Fecha:</label>
                             <div class="fecha-inputs">
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.dia"
-                                    placeholder="30"
-                                    class="fecha-dia"
-                                    maxlength="2" />
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.mes"
-                                    placeholder="Julio"
-                                    class="fecha-mes" />
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.anio"
-                                    placeholder="2025"
-                                    class="fecha-anio"
-                                    maxlength="4" />
+                              <p-datepicker
+                              [(ngModel)]="date"
+                              dateFormat="dd/mm/yy"
+                               />
                             </div>
                         </div>
 
                         <div class="field">
                             <label>Hora:</label>
-                            <div class="hora-inputs">
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.hora"
-                                    placeholder="23"
-                                    class="hora-input"
-                                    maxlength="2" />
-                                <span class="hora-separator">:</span>
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.minutos"
-                                    placeholder="00"
-                                    class="hora-input"
-                                    maxlength="2" />
-                            </div>
+                            <p-datepicker inputId="calendar-timeonly" [(ngModel)]="time" [timeOnly]="true" />
                         </div>
                     </div>
 
@@ -124,6 +92,32 @@
                                 pInputText
                                 [(ngModel)]="evento.videoPromocional"
                                 placeholder="Link completamente normal..." />
+                        </div>
+                        <div class="field">
+                            <label>Publicar:</label>
+                            <div class="limite-options">
+                                <p-radioButton
+                                  [(ngModel)]="limiteCompra.tipo"
+                                  name="limiteCompra"
+                                  value="sinLimite"
+                                  inputId="sinLimite">
+                                </p-radioButton>
+                              <label for="sinLimite">Inmediato</label>
+
+                              <p-radioButton
+                                [(ngModel)]="limiteCompra.tipo"
+                                name="limiteCompra"
+                                value="conMaximo"
+                                inputId="conMaximo">
+                              </p-radioButton>
+                              <label for="conMaximo">A partir de:</label>
+                              <p-datepicker
+                              [(ngModel)]="date"
+                              [disabled]="limiteCompra.tipo !== 'conMaximo'"
+                               />
+                            </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -375,3 +369,4 @@
         </div>
     </div>
 </div>
+

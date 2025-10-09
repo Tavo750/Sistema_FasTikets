@@ -75,7 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       next: (resp) => {
         if (resp.ok === true) {
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
-          this.router.navigate(['/inicio']);
+          this.router.navigate(['/home/inicio']);
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.mensaje}` });
           this.hayError = true;

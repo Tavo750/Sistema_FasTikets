@@ -1,12 +1,12 @@
 <div class="container">
     <h1 class="title">Gestion De Eventos</h1>
-    
+
     <div class="search-container">
         <span class="p-input-icon-left search-box">
             <i class="pi pi-search"></i>
             <input type="text" pInputText placeholder="Escribir el nombre del evento"/>
         </span>
-        
+
         <p-dropdown [options]="tiposConcierto" optionLabel="name" placeholder="Tipo de concierto" class="filter-dropdown"></p-dropdown>
     </div>
 
@@ -22,7 +22,7 @@
                     <span><i class="pi pi-map-marker"></i> Estadio Nacional Peru</span>
                 </div>
             </div>
-            
+
             <div class="event-stats">
                 <div class="stat-item">
                     <label>Capacidad:</label>
@@ -41,7 +41,7 @@
                     <span class="income">$333,874,000.992</span>
                 </div>
             </div>
-            
+
             <div class="event-actions">
                 <button pButton type="button" label="Reporte" icon="pi pi-download" class="p-button-secondary"></button>
                 <button pButton type="button" label="Ver Detalles" icon="pi pi-eye"></button>
@@ -49,6 +49,6 @@
             </div>
         </div>
     </div>
-    
-    <button pButton type="button" label="Agregar Evento" icon="pi pi-plus" class="add-event-button"></button>
+
+    <button pButton type="button" label="Agregar Evento" icon="pi pi-plus" class="add-event-button"  (click)="crearEvento(1)"></button>
 </div>
