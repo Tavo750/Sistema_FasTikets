@@ -41,7 +41,7 @@ public class CarroCompras {
     // Relación OneToOne con Cliente (Inversa a la relación en Cliente)
     // Asumimos que CarroCompras tiene una FK a Cliente, aunque no está explícita en tu script
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_cliente") // Asumimos una FK a Cliente en esta tabla
+    @JoinColumn(name = "id_persona") // Asumimos una FK a persona en esta tabla
     private Cliente cliente;
 
     // Relación OneToMany con ItemCarrito

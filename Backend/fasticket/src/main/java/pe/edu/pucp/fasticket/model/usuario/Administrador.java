@@ -7,17 +7,17 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "administrador") // Coincide con CREATE TABLE administrador
-@PrimaryKeyJoinColumn(name = "id_admin") // Coincide con id_admin INT PRIMARY KEY y la FK
+@Table(name = "administrador")
+@PrimaryKeyJoinColumn(name = "id_persona")
 public class Administrador extends Persona {
 
-    // Atributos específicos
-    @Column(name = "cargo") // Coincide con cargo VARCHAR(100)
+    @Column(name = "cargo", length = 100)
     private String cargo;
 
     // Constructor
     public Administrador() {
         super();
-        // this.setRol("ADMINISTRADOR"); // El rol se asigna en la capa de servicio
+        // Puedes establecer valores por defecto si es necesario
+        this.setRol(Rol.ADMINISTRADOR); // Asignar rol automáticamente
     }
 }
