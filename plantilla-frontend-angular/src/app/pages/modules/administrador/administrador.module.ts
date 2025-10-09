@@ -13,6 +13,8 @@ import { CodigosPromocionalesComponent } from './components/codigos-promocionale
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
+import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
+import { EditarLocalComponent } from './components/gestion-locales/editar-local/editar-local.component';
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
 import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 
@@ -31,6 +33,8 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
     LogErroresComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
+    CrearLocalComponent,
+    EditarLocalComponent
     CambiarContrasenaAdminComponent,
     EditarEventoComponent,
     CrearEventoComponent
