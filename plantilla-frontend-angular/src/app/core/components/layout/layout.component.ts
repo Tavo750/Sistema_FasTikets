@@ -1,7 +1,7 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import * as global from '../../../global'
 import { Persona } from '../../interfaces/login.interface';
-import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription, interval } from 'rxjs';
@@ -24,7 +24,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private authCheckSubscription!: Subscription;
 
   constructor(
-    private authService: AuthService,
+    private sessionService: SessionService,
     private loginService: LoginService,
     private router: Router
   ) { }

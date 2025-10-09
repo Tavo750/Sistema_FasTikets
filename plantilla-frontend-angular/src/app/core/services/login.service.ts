@@ -61,18 +61,6 @@ export class LoginService {
       );
   }
 
-  cerrarSesion(usuario: string, codiPuesto: number): Observable<BasicResponse> {
-
-    const filtro = {
-      "userCode": usuario,
-      "workstationCode": codiPuesto
-    };
-
-    return this.http.post<BasicResponse>(this.url + 'auth/v1/closeSession', filtro).pipe(
-      catchError(this.handleError) // Maneja errores
-    );
-  }
-
   //------------------
   // Método de manejo de errores
   private handleError(error: HttpErrorResponse): Observable<never> {

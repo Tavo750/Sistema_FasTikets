@@ -7,6 +7,7 @@ import { MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { FullscreenService } from '../../../shared/services/fullscreen.service';
 import { LoginService } from '../../../core/services/login.service';
+import { SessionService } from '../../../shared/services/session.service';
 
 @Component({
   selector: 'app-login',
@@ -38,6 +39,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private loadingService: LoadingService,
     private messageService: MessageService,
     private fullscreenService: FullscreenService,
+    private sessionService: SessionService,
   ) { }
 
   ngOnInit(): void {
@@ -74,6 +76,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginService.getLogin(this.username, this.password).subscribe({
       next: (resp) => {
         if (resp.ok === true) {
+          // Guardar la información del usuario en el SessionService
+          this.sessionService.setUser(resp.persona);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
           this.router.navigate(['/home/inicio']);
         } else {
@@ -92,6 +96,23 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.hayError = true;
       }
     })
+  }
+
+  /**
+   * Navega al inicio verificando primero el estado de la sesión
+   */
+  navegarAInicio(): void {
+    // Verificar si hay una sesión activa en ambos servicios
+    const sessionActive = this.sessionService.isAuthenticated();
+    const loginActive = this.loginService.isLoggedIn();
+
+    if (sessionActive || loginActive) {
+      // Si hay sesión activa en cualquiera de los dos, ir al home autenticado
+      this.router.navigate(['/home/inicio']);
+    } else {
+      // Si no hay sesión activa en ninguno, ir al home público
+      this.router.navigate(['/home']);
+    }
   }
 
   error(mensaje: string) {

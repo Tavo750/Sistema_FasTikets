@@ -39,7 +39,7 @@
           shape="circle"
           class="imagen"
         />
-        <p-menu #menu [model]="usuario && usuario.rol === 'ADMINISTRADOR' ? itemsAdmin : items" [popup]="true" appendTo="body" />
+        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
       </div>
     </ng-container>
 

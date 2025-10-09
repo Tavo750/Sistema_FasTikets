@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { MenuItem } from 'primeng/api';
 import { Usuario, Persona } from '../../interfaces/login.interface';
-import { AuthService } from '../../services/auth.service';
+import { SessionService } from '../../../shared/services/session.service';
+import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   currentLabel: string = '';
   breadcrumbDisplay = '';     // Para la vista
@@ -23,12 +24,24 @@ export class HeaderComponent implements OnInit {
   notificationCount: number = 5; // Ejemplo
   @Input() usuario: Persona | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
+  /**
+   * Getter que retorna los items del menú según el rol del usuario
+   */
+  get menuItems(): MenuItem[] | undefined {
+    if (!this.usuario) {
+      return undefined;
+    }
+    return this.usuario.rol === 'ADMINISTRADOR' ? this.itemsAdmin : this.items;
+  }
+
   private routerSubscription!: Subscription;
+  private userSubscription!: Subscription;
 
   constructor(
     private router: Router,
     private menuService: MenuService,
-    private authService: AuthService
+    private sessionService: SessionService,
+    private loginService: LoginService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -119,6 +132,7 @@ export class HeaderComponent implements OnInit {
     const currentUrl = this.router.url;
     this.findLabelForUrl(currentUrl);
 
+    // Suscribirse a cambios de ruta
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -126,10 +140,21 @@ export class HeaderComponent implements OnInit {
         this.findLabelForUrl(newUrl);
         console.log('hola')
       });
+
+    // Suscribirse a cambios del usuario autenticado
+    this.userSubscription = this.sessionService.user$.subscribe((user: Persona | null) => {
+      // Si no hay usuario o el input usuario no está definido, usar el del SessionService
+      if (!this.usuario) {
+        this.usuario = user;
+      }
+    });
   }
 
   ngOnDestroy() {
     this.routerSubscription.unsubscribe();
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   private findLabelForUrl(url: string) {
@@ -181,8 +206,11 @@ export class HeaderComponent implements OnInit {
    * Cierra la sesión del usuario actual
    */
   cerrarSesion(): void {
-    this.authService.removeAccessToken();
-    this.router.navigate(['/login']);
+    // Limpiar ambos servicios de sesión
+    this.sessionService.clearUser();
+    this.loginService.logout();
+    this.usuario = null; // Limpiar el usuario del componente
+    this.router.navigate(['/home']);
   }
 
 }
