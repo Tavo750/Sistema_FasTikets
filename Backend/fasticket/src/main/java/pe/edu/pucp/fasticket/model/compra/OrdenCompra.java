@@ -52,18 +52,9 @@ public class OrdenCompra {
     @Column(name = "estado")
     private EstadoCompra estado;
 
-    // Relación ManyToOne con Cliente (no está en tu SQL, pero es crucial)
-    // Asumiremos que OrdenCompra necesita una FK a Cliente para saber quién compró
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPersona", nullable = false) // Asumimos esta columna como FK a Cliente
+
+    @ManyToOne
+    @JoinColumn(name = "idCliente")
     private Cliente cliente;
 
-    // Relación OneToMany con OrderItems (ítems de la orden)
-    @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ItemCarrito> items; // Cambiado a OrderItems para coincidir con la tabla OrderItems
-
-    // Relación OneToOne con CarroCompras (asumiendo que es la FK en tu SQL)
-    @OneToOne
-    @JoinColumn(name = "idCarroCompra") // Coincide con la FK a CarroCompras que sugiere tu SQL
-    private CarroCompras carroCompras;
 }
