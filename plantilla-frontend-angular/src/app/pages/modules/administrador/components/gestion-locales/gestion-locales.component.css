@@ -1,0 +1,74 @@
+.gestion-locales-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.buscador {
+  padding: 5px;
+  width: 200px;
+}
+
+.crear-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.tabla-locales {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-locales th,
+.tabla-locales td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.tabla-locales th {
+  background-color: #f2f2f2;
+}
+
+.paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.controles-paginacion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+select {
+  padding: 4px;
+}
+
+.editar-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.eliminar-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 5px;
+  cursor: pointer;
+}

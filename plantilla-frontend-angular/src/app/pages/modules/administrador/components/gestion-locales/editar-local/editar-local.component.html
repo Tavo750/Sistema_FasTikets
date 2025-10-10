@@ -1,0 +1,60 @@
+
+<div class="crear-local-container">
+  <h2>1. Modifica Datos del Local</h2>
+
+  <form>
+    <div class="form-grid">
+      <div class="form-left">
+        <div class="form-group">
+          <label for="nombre">1) Nombre</label>
+          <input type="text" id="nombre" placeholder="Ej. Centro de usos Múltiples..." />
+        </div>
+
+        <div class="form-group">
+          <label for="direccion">2) Dirección</label>
+          <input type="text" id="direccion" placeholder="Ej. Av. Principal 123..." />
+        </div>
+
+        <div class="form-row">
+  <div class="form-group">
+    <label for="distrito">3) Distrito</label>
+    <select id="distrito">
+      <option value="">Seleccionar...</option>
+      <option value="Santiago de Surco">Santiago de Surco</option>
+      <option value="San Juan de Miraflores">San Juan de Miraflores</option>
+      <option value="Jesús María">Jesús María</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="aforo">4) Aforo máximo</label>
+    <input type="number" id="aforo" placeholder="Ej. 5000" />
+  </div>
+</div>
+
+
+        <div class="form-group">
+          <label for="estado">5) Estado</label>
+          <select id="estado">
+            <option value="HABILITADO" selected>HABILITADO</option>
+            <option value="DESHABILITADO">DESHABILITADO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-right">
+        <div class="form-group">
+          <label>6) Ubicación</label>
+          <div class="map-placeholder">
+            <p>🗺️ Aquí irá el mapa</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="crear-btn" (click)="GuardarLocal()">Guardar Cambios</button>
+
+    </div>
+  </form>
+</div>
