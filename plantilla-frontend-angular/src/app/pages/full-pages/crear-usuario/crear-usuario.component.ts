@@ -10,6 +10,7 @@ import { RegistroUsuarioService } from '../../../core/services/registro-usuario.
 import { RegistroUsuario, RegistroResponse } from '../../../core/interfaces/registro_usuario.interface';
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 
+
 @Component({
   selector: 'app-crear-usuario',
   standalone: false,
@@ -148,8 +149,8 @@ export class CrearUsuarioComponent implements OnInit {
       this.registroUsuarioService.postRegistro(usuario).subscribe({
         next: (response: RegistroResponse) => {
           if (response.exito) {
-            this.mostrarDialogExitoso();
-            this.registroForm.reset();
+              this.registroForm.reset();
+              this.router.navigate(['/login']); // 👈 redirige al login
           }
         },
         error: (error) => {
