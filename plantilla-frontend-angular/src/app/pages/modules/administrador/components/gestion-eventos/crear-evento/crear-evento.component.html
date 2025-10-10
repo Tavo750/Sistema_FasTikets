@@ -20,14 +20,16 @@
                                 placeholder="Electronic Festival" />
                         </div>
 
-                        <div class="field">
-                            <label for="categoria">Categoría:</label>
-                            <input
-                                id="categoria"
-                                type="text"
-                                pInputText
-                                [(ngModel)]="evento.categoria"
-                                placeholder="Electrónica" />
+                        <div class="field ">
+                            <label class="estado-label">Elige una categoria:</label>
+                            <p-dropdown
+                                [(ngModel)]="evento.estado"
+                                [options]="estadoOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Seleccionar estado"
+                                >
+                            </p-dropdown>
                         </div>
 
                         <div class="field">
@@ -59,17 +61,7 @@
 
                     <!-- Columna Derecha -->
                     <div class="form-right">
-                        <div class="field estado-field">
-                            <label class="estado-label">ESTADO:</label>
-                            <p-dropdown
-                                [(ngModel)]="evento.estado"
-                                [options]="estadoOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Seleccionar estado"
-                                styleClass="estado-dropdown">
-                            </p-dropdown>
-                        </div>
+                        
 
                         <div class="field">
                             <label>Banner:</label>
@@ -134,14 +126,16 @@
                 <div class="form-grid">
                     <!-- Columna Izquierda -->
                     <div class="form-left">
-                        <div class="field">
-                            <label for="local">Local:</label>
-                            <input
-                                id="local"
-                                type="text"
-                                pInputText
-                                [(ngModel)]="evento.local"
-                                placeholder="Parque de la exposición" />
+                        <div class="field ">
+                            <label class="estado-label">Selecciona el local:</label>
+                            <p-dropdown
+                                [(ngModel)]="evento.estado"
+                                [options]="estadoOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Seleccionar estado"
+                                styleClass="estado-dropdown">
+                            </p-dropdown>
                         </div>
 
                         <div class="field">
@@ -153,7 +147,7 @@
                                 <tr>
                                 <th>Nombre</th>
                                 <th>Aforo Máximo</th>
-                                <th>Aforo Disponible</th>
+                                
                                 </tr>
                             </ng-template>
 
@@ -161,16 +155,7 @@
                                 <tr>
                                 <td>{{ cat.nombre }}</td>
                                 <td>{{ cat.aforoMaximo }}</td>
-                                <td>
-                                    <div
-                                    [ngClass]="{
-                                        'vendido': cat.aforoDisponible === 'VENDIDO' || +cat.aforoDisponible === 0,
-                                        'bajo': cat.aforoDisponible !== 'VENDIDO' && +cat.aforoDisponible > 0 && +cat.aforoDisponible < 100,
-                                        'disponible': cat.aforoDisponible !== 'VENDIDO' && +cat.aforoDisponible >= 100
-                                    }">
-                                    {{ cat.aforoDisponible }}
-                                    </div>
-                                </td>
+
                                 </tr>
                             </ng-template>
                             </p-table>
