@@ -1,0 +1,14 @@
+<div class="item-card">
+  <img [src]="item.image" alt="{{item.title}}" class="item-img">
+  <div class="item-info">
+    <h5>{{ item.title }}</h5>
+    <small>{{ item.category }}</small>
+    <p class="price">S/ {{ item.price }}</p>
+  </div>
+  <div class="item-qty">
+    <button class="decrement-btn" (click)="onDecrement()">−</button>
+    <span>{{ item.quantity }}</span>
+    <button class="increment-btn" (click)="onIncrement()">+</button>
+  </div>
+  <button class="remove-btn" (click)="onRemove()">×</button>
+</div>

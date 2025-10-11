@@ -1,0 +1,122 @@
+.contenedor {
+  padding: 1.5rem 8rem;      /* reducir márgenes verticales y horizontales */
+  max-width: 0 auto;          /* ocupar todo el ancho */
+  width: 100%;              /* ocupar 100% */
+  margin: 0 auto;
+}
+
+.filtros {
+  display: flex;
+  justify-content: space-between;  /* espacio uniforme entre filtros */
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  width: 100%;                   /* ocupar todo el ancho de contenedor */
+  gap: 2rem;                     /* separar ligeramente */
+}
+
+.filtro {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 22%;     /* permitir crecer hasta 22% cada filtro */
+  min-width: 180px;  /* que no sean demasiado pequeños */
+}
+
+.filtro select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.tarjetas {
+  display: grid;
+  /* Fuerza siempre 3 columnas iguales por fila */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tarjeta {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  background: #fff;
+  position: relative;  /* para posicionar el botón */
+}
+
+.tarjeta:hover {
+  transform: scale(1.02);
+}
+
+.tarjeta img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.info {
+  padding: 10px;
+}
+
+.categoria {
+  color: #666;
+}
+
+.precio {
+  font-weight: bold;
+  color: #222;
+}
+
+.paginacion {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 6px;
+}
+
+.paginacion button {
+  border: 1px solid #ccc;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.paginacion button:hover {
+  background: #eee;
+}
+
+.paginacion .activo {
+  background: #d33;
+  color: white;
+  border-color: #d33;
+}
+
+.titulo {
+  text-align: left;
+  margin-bottom: 2.2rem;
+  font-weight: 700;   
+  line-height: 1.2; 
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 0.1px;
+  font-size: 2.5rem;
+  color: #111;
+}
+
+.detalle-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.detalle-btn:hover {
+  background-color: #222;
+}

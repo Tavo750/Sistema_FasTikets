@@ -39,9 +39,6 @@ import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
 
-
-
-
 @NgModule({
   exports: [
     AvatarModule,
