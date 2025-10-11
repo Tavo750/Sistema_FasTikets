@@ -1,1 +1,20 @@
-<p>carrito-compra works!</p>
+<div class="cart-container">
+  <h2 class="title">Carrito de Compra</h2>
+
+  <div class="cart-content">
+    <!-- Lista de items -->
+    <div class="cart-items">
+      <app-carrito-item
+        *ngFor="let item of cartItems"
+        [item]="item"
+        (remove)="removeItem($event)"
+        (updateQuantity)="updateQuantity($event.id, $event.quantity)">
+      </app-carrito-item>
+    </div>
+
+    <!-- Resumen -->
+    <div class="cart-summary">
+      <app-resumen-carrito-compra [total]="total"></app-resumen-carrito-compra>
+    </div>
+  </div>
+</div>

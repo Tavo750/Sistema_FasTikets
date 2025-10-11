@@ -1,1 +1,56 @@
-<span>lista </span>
+<div class="contenedor">
+  <h1 class="titulo">Proximos Eventos</h1>
+  <!-- FILTROS -->
+  <div class="filtros">
+    <div class="filtro">
+      <label>Categoría</label>
+      <select #catSel (change)="filtrarPorCategoria(catSel.value)">
+        <option value="">Seleccionar</option>
+        <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div class="filtro">
+      <label>Fecha</label>
+      <select>
+        <option>Seleccionar</option>
+      </select>
+    </div>
+
+    <div class="filtro">
+      <label>Ubicación</label>
+      <select>
+        <option>Seleccionar</option>
+      </select>
+    </div>
+
+    <div class="filtro">
+      <label>Ordenar por</label>
+      <select>
+        <option>Seleccionar</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- TARJETAS -->
+  <div class="tarjetas">
+    <div class="tarjeta" *ngFor="let evento of obtenerEventosPagina()">
+      <img [src]="evento.imagen" [alt]="evento.nombre">
+      <div class="info">
+        <h3>{{ evento.nombre }}</h3>
+        <p>{{ evento.lugar }}</p>
+        <p>{{ evento.fecha }}</p>
+        <p class="categoria">{{ evento.categoria }}</p>
+        <p class="precio">Desde S/ {{ evento.precio | number:'1.2-2' }}</p>
+      </div>
+      <button class="detalle-btn">Ver detalle</button>
+    </div>
+  </div>
+
+  <!-- PAGINACIÓN -->
+  <div class="paginacion">
+    <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">&lt;</button>
+    <button *ngFor="let p of [1,2,3]" (click)="cambiarPagina(p)" [class.activo]="p === paginaActual">{{ p }}</button>
+    <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual * eventosPorPagina >= eventosFiltrados.length">&gt;</button>
+  </div>
+</div>
