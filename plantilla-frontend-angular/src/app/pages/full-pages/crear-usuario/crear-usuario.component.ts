@@ -122,19 +122,18 @@ export class CrearUsuarioComponent implements OnInit {
         fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
 
       const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
-      const rol = email.endsWith('@pucp.edu.pe') ? 'ADMINISTRADOR' : 'CLIENTE';
 
       const usuario: RegistroUsuario = {
+        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
         docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
         nombres: this.registroForm.get('nombres')?.value.trim(),
         apellidos: this.registroForm.get('apellidos')?.value.trim(),
-        telefono: this.registroForm.get('telefono')?.value.trim(),
         email: email,
-        direccion: this.registroForm.get('direccion')?.value.trim(),
         contrasena: this.registroForm.get('contrasena')?.value,
+        telefono: this.registroForm.get('telefono')?.value.trim(),
         fechaNacimiento: fechaFormateada,
-        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
-        rol: rol
+        direccion: this.registroForm.get('direccion')?.value.trim(),
+        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1
       };
 
       // Validar que todos los campos requeridos tengan valor
@@ -147,16 +146,31 @@ export class CrearUsuarioComponent implements OnInit {
 
       this.registroUsuarioService.postRegistro(usuario).subscribe({
         next: (response: RegistroResponse) => {
-          if (response.exito) {
+          if (response.ok && response.data.exito) {
             this.mostrarDialogExitoso();
             this.registroForm.reset();
+          } else {
+            this.mostrarError(response.data.mensaje || 'Error en el registro');
           }
         },
         error: (error) => {
+          console.error('Error completo del endpoint:', error);
+          
+          // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
-          if (error instanceof Error) {
+          
+          if (error.message) {
+            // El mensaje que viene del HttpUtilsService
             mensajeError = error.message;
+          } else if (typeof error === 'string') {
+            mensajeError = error;
+          } else if (error.error?.message) {
+            mensajeError = error.error.message;
+          } else if (error.error?.mensaje) {
+            mensajeError = error.error.mensaje;
           }
+          
+          console.error('Mensaje de error del endpoint:', mensajeError);
           this.mostrarError(mensajeError);
         },
         complete: () => {
