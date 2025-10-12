@@ -43,7 +43,7 @@
         <p class="categoria">{{ evento.categoria }}</p>
         <p class="precio">Desde S/ {{ evento.precio | number:'1.2-2' }}</p>
       </div>
-      <button class="detalle-btn">Ver detalle</button>
+      <button class="detalle-btn" (click)="goToEvento()">Ver detalle</button>
     </div>
   </div>
 

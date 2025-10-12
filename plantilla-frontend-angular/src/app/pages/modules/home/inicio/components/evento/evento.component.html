@@ -1,1 +1,35 @@
-<p>evento works!</p>
+<div class="evento-card">
+  <div class="imagen-col">
+    <img [src]="imageUrl" alt="Imagen del evento" />
+  </div>
+  <div class="detalle-col">
+    <h2 class="titulo">{{ title }}</h2>
+    <div class="info-fecha">
+      <div><strong>Fecha</strong></div>
+      <div>{{ date }}</div>
+    </div>
+    <div class="info-fecha">
+      <div><strong>Horario</strong></div>
+      <div>{{ time }}</div>
+    </div>
+
+    <h3>Entradas</h3>
+    <ul class="lista-entradas">
+      <li *ngFor="let t of tickets">
+        <div class="entrada-nombre">
+          {{ t.name }} <span class="precio">S/ {{ t.price | number:'1.2-2' }}</span>
+        </div>
+        <div class="contador">
+          <button (click)="decrement(t)">–</button>
+          <span>{{ t.quantity }}</span>
+          <button (click)="increment(t)">+</button>
+        </div>
+      </li>
+    </ul>
+
+    <div class="acciones">
+      <button class="btn-secundario" (click)="onBuyNow()">Comprar Ahora</button>
+      <button class="btn-principal" (click)="onAddToCart()">Añadir al Carrito</button>
+    </div>
+  </div>
+</div>

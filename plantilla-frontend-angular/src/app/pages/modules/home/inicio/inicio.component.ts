@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Evento } from '../../../../models/evento.model';
 
 
@@ -16,6 +17,8 @@ export class InicioComponent implements OnInit {
   ubicaciones: string[] = ['Arena 1 - Cúpula', 'Arena 2', 'Arena 3', 'Movistar Arena'];
   paginaActual: number = 1;
   eventosPorPagina: number = 6;
+
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     this.cargarEventos();
@@ -48,5 +51,9 @@ export class InicioComponent implements OnInit {
 
   cambiarPagina(pagina: number) {
     this.paginaActual = pagina;
+  }
+
+  goToEvento(): void {
+    this.router.navigate(['/home/evento']);
   }
 }
