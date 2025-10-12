@@ -8,6 +8,13 @@ export interface Data {
   email:   string;
   mensaje: string;
   exito:   boolean;
+  timestamp: Date;
+  status:    number;
+  error:     string;
+  message:   string;
+  path:      string;
+  details:   null;
+
 }
 
 export interface RegistroUsuario {
@@ -22,3 +29,5 @@ export interface RegistroUsuario {
   direccion: string;
   idDistrito: number;
 }
+
+

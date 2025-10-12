@@ -39,9 +39,9 @@ export class CrearUsuarioComponent implements OnInit {
       departamento: ['', Validators.required],
       distrito: ['', Validators.required],
       direccion: ['', Validators.required],
-      telefono: ['', Validators.required],
+      telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
       tipoDocumento: [TipoDocumento.DNI, Validators.required],
-      numeroDocumento: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+      numeroDocumento: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]]
     });
   }
 
@@ -159,9 +159,9 @@ export class CrearUsuarioComponent implements OnInit {
           // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
           
-          if (error.message) {
+          if (error.mensaje) {
             // El mensaje que viene del HttpUtilsService
-            mensajeError = error.message;
+            mensajeError = error?.mensaje;
           } else if (typeof error === 'string') {
             mensajeError = error;
           } else if (error.error?.message) {
@@ -228,7 +228,9 @@ export class CrearUsuarioComponent implements OnInit {
             errorMessage = 'El formato del correo electrónico no es válido';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
-              errorMessage = 'El número de documento solo debe contener números';
+              errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';
+            } else if (key === 'telefono') {
+              errorMessage = 'El número de teléfono debe tener exactamente 9 dígitos numéricos';
             }
           }
           this.mostrarError(errorMessage);
@@ -236,6 +238,53 @@ export class CrearUsuarioComponent implements OnInit {
         control?.markAsTouched();
       });
     }
+  }
+
+  /**
+   * Permite solo números en el input
+   * @param event Evento de teclado
+   */
+  onlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Permitir: backspace, delete, tab, escape, enter
+    if ([8, 9, 27, 13, 46].indexOf(charCode) !== -1 ||
+        // Permitir: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (charCode === 65 && event.ctrlKey === true) ||
+        (charCode === 67 && event.ctrlKey === true) ||
+        (charCode === 86 && event.ctrlKey === true) ||
+        (charCode === 88 && event.ctrlKey === true)) {
+      return;
+    }
+    // Asegurar que solo sea un número
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Maneja el evento paste para asegurar solo números
+   * @param event Evento de pegado
+   * @param fieldName Nombre del campo
+   */
+  onPaste(event: ClipboardEvent, fieldName: string): void {
+    event.preventDefault();
+    const clipboardData = event.clipboardData?.getData('text') || '';
+    
+    // Filtrar solo números
+    const numbersOnly = clipboardData.replace(/[^0-9]/g, '');
+    
+    // Aplicar límite según el campo
+    let maxLength = 0;
+    if (fieldName === 'telefono') {
+      maxLength = 9;
+    } else if (fieldName === 'numeroDocumento') {
+      maxLength = 8;
+    }
+    
+    const limitedValue = numbersOnly.substring(0, maxLength);
+    
+    // Actualizar el valor del formulario
+    this.registroForm.get(fieldName)?.setValue(limitedValue);
   }
 
 
