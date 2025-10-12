@@ -35,7 +35,7 @@ export class SessionService {
    */
   getUserRole(): string | null {
     const user = this.getCurrentUser();
-    return user ? user.rol : null;
+    return user?.rol || null;
   }
 
   /**
