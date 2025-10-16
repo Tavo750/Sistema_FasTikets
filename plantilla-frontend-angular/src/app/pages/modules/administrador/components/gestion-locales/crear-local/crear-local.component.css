@@ -24,7 +24,13 @@ h2 {
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.form-group input,
+.form-group p-select,
+.form-group p-inputnumber {
+  width: 100%;
 }
 
 label {
@@ -34,13 +40,34 @@ label {
   color: #444;
 }
 
-input, select {
+/* Estilos para componentes PrimeNG */
+::ng-deep .p-inputtext,
+::ng-deep .p-select,
+::ng-deep .p-inputnumber-input {
   width: 100%;
   padding: 10px;
   font-size: 15px;
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #f9f9f9;
+}
+
+::ng-deep .p-select-panel {
+  border-radius: 6px;
+}
+
+::ng-deep .p-button.crear-btn {
+  background-color: #28a745;
+  border-color: #28a745;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+::ng-deep .p-button.crear-btn:hover {
+  background-color: #218838;
+  border-color: #218838;
 }
 
 .map-placeholder {
@@ -60,20 +87,6 @@ input, select {
   margin-top: 30px;
 }
 
-.crear-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.crear-btn:hover {
-  background-color: #218838;
-}
 .form-row {
   display: flex;
   gap: 20px;

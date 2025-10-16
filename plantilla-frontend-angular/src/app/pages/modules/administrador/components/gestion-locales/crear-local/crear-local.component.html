@@ -1,44 +1,71 @@
 
+<p-toast></p-toast>
+
 <div class="crear-local-container">
   <h2>1. Datos del Local</h2>
 
-  <form>
+  <form [formGroup]="localForm">
     <div class="form-grid">
       <div class="form-left">
         <div class="form-group">
           <label for="nombre">1) Nombre</label>
-          <input type="text" id="nombre" placeholder="Ej. Centro de usos Múltiples..." />
+          <input
+            type="text"
+            pInputText
+            id="nombre"
+            formControlName="nombre"
+            placeholder="Ej. Centro de usos Múltiples..."
+          />
         </div>
 
         <div class="form-group">
           <label for="direccion">2) Dirección</label>
-          <input type="text" id="direccion" placeholder="Ej. Av. Principal 123..." />
+          <input
+            type="text"
+            pInputText
+            id="direccion"
+            formControlName="direccion"
+            placeholder="Ej. Av. Principal 123..."
+          />
         </div>
 
         <div class="form-row">
-  <div class="form-group">
-    <label for="distrito">3) Distrito</label>
-    <select id="distrito">
-      <option value="">Seleccionar...</option>
-      <option value="Santiago de Surco">Santiago de Surco</option>
-      <option value="San Juan de Miraflores">San Juan de Miraflores</option>
-      <option value="Jesús María">Jesús María</option>
-    </select>
-  </div>
+          <div class="form-group">
+            <label for="distrito">3) Distrito</label>
+            <p-select
+              id="distrito"
+              formControlName="distrito"
+              [options]="distritos"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar..."
+              styleClass="w-full"
+            ></p-select>
+          </div>
 
-  <div class="form-group">
-    <label for="aforo">4) Aforo máximo</label>
-    <input type="number" id="aforo" placeholder="Ej. 5000" />
-  </div>
-</div>
-
+          <div class="form-group">
+            <label for="aforo">4) Aforo máximo</label>
+            <p-inputnumber
+              id="aforo"
+              formControlName="aforo"
+              placeholder="Ej. 5000"
+              [min]="1"
+              [useGrouping]="false"
+              styleClass="w-full"
+            ></p-inputnumber>
+          </div>
+        </div>
 
         <div class="form-group">
           <label for="estado">5) Estado</label>
-          <select id="estado">
-            <option value="HABILITADO" selected>HABILITADO</option>
-            <option value="DESHABILITADO">DESHABILITADO</option>
-          </select>
+          <p-select
+            id="estado"
+            formControlName="estado"
+            [options]="estados"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+          ></p-select>
         </div>
       </div>
 
@@ -53,8 +80,12 @@
     </div>
 
     <div class="form-actions">
-      <button type="button" class="crear-btn" (click)="crearLocal()">Crear Local</button>
-
+      <p-button
+        label="Crear Local"
+        (onClick)="crearLocal()"
+        [disabled]="localForm.invalid"
+        styleClass="crear-btn"
+      ></p-button>
     </div>
   </form>
 </div>

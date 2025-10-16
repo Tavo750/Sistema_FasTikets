@@ -3,72 +3,170 @@
   font-family: Arial, sans-serif;
 }
 
+.gestion-locales-container h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
 .acciones {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
 }
 
-.buscador {
-  padding: 5px;
-  width: 200px;
+.acciones .p-inputgroup {
+  max-width: 300px;
+  flex: 1;
+}
+
+.acciones .p-inputgroup .buscador {
+  width: 100%;
 }
 
 .crear-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
+  white-space: nowrap;
 }
 
-.tabla-locales {
-  width: 100%;
-  border-collapse: collapse;
+/* Estilos para la tabla de PrimeNG */
+::ng-deep .p-datatable {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.tabla-locales th,
-.tabla-locales td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+::ng-deep .p-datatable .p-datatable-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+  font-weight: 600;
 }
 
-.tabla-locales th {
-  background-color: #f2f2f2;
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #ffffff;
+  color: #495057;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 2px solid #dee2e6;
 }
 
-.paginacion {
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background: #f8f9fa;
+}
+
+/* Estilos para las acciones */
+.acciones-fila {
   display: flex;
-  justify-content: space-between;
+  gap: 5px;
   align-items: center;
-  margin-top: 20px;
-  font-size: 14px;
+  justify-content: center;
 }
 
-.controles-paginacion {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.acciones-fila .p-button {
+  width: 32px;
+  height: 32px;
 }
 
-select {
-  padding: 4px;
+/* Estilos para el estado */
+.estado-tag {
+  font-weight: 600;
+  font-size: 0.875rem;
 }
 
-.editar-btn {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
 }
 
-.eliminar-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 5px;
-  cursor: pointer;
+.empty-state i {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Estilos para el paginador */
+::ng-deep .p-paginator {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  padding: 0.75rem 1rem;
+}
+
+::ng-deep .p-paginator .p-paginator-current {
+  color: #495057;
+  font-weight: 500;
+}
+
+.search-icon {
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 1.25rem;
+  pointer-events: none;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones .p-inputgroup {
+    max-width: none;
+    margin-bottom: 10px;
+  }
+
+  .acciones-fila {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .acciones-fila .p-button {
+    width: 100%;
+    max-width: 120px;
+  }
+}
+
+/* Ajustes específicos para PrimeNG v17 */
+::ng-deep .p-datatable-gridlines .p-datatable-header {
+  border-width: 1px;
+}
+
+::ng-deep .p-datatable-gridlines .p-datatable-footer {
+  border-width: 1px;
+}
+
+::ng-deep .p-button-text {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+::ng-deep .p-button-text:hover {
+  background: rgba(var(--primary-color-rgb), 0.04) !important;
+  border-color: transparent !important;
+}
+
+::ng-deep .p-tag {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
 }

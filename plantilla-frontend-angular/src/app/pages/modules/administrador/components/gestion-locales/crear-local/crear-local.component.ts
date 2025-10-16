@@ -1,6 +1,7 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 @Component({
   selector: 'app-crear-local',
   standalone: false,
@@ -10,42 +11,50 @@ import { MessageService } from 'primeng/api';
 
 
 export class CrearLocalComponent implements AfterViewInit {
+  localForm: FormGroup;
+
+  distritos = [
+    { label: 'Seleccionar...', value: '' },
+    { label: 'Santiago de Surco', value: 'Santiago de Surco' },
+    { label: 'San Juan de Miraflores', value: 'San Juan de Miraflores' },
+    { label: 'Jesús María', value: 'Jesús María' }
+  ];
+
+  estados = [
+    { label: 'HABILITADO', value: 'HABILITADO' },
+    { label: 'DESHABILITADO', value: 'DESHABILITADO' }
+  ];
+
   constructor(
       public router: Router,
-      private messageService: MessageService 
-    ) { }
+      private messageService: MessageService,
+      private fb: FormBuilder
+    ) {
+      this.localForm = this.fb.group({
+        nombre: ['', [Validators.required]],
+        direccion: ['', [Validators.required]],
+        distrito: ['', [Validators.required]],
+        aforo: ['', [Validators.required, Validators.min(1)]],
+        estado: ['HABILITADO', [Validators.required]]
+      });
+    }
 
   ngAfterViewInit(): void {
     // Inicializar el mapa aquí si es necesario
   }
 crearLocal(): void {
-  const nombre = (document.getElementById('nombre') as HTMLInputElement)?.value.trim();
-  const direccion = (document.getElementById('direccion') as HTMLInputElement)?.value.trim();
-  const distrito = (document.getElementById('distrito') as HTMLSelectElement)?.value;
-  const aforo = (document.getElementById('aforo') as HTMLInputElement)?.value.trim();
-  const estado = (document.getElementById('estado') as HTMLSelectElement)?.value;
-  const ubicacion = 'Mapa fijo'; // Simulado
-
-  // Validaciones
-  if (!nombre || !direccion || !distrito || !aforo || !estado || !ubicacion) {
+  if (this.localForm.invalid) {
     this.messageService.add({
       severity: 'warn',
       summary: 'Campos incompletos',
-      detail: 'Por favor complete todos los campos antes de continuar',
+      detail: 'Por favor complete todos los campos correctamente antes de continuar',
       life: 3000
     });
+    this.localForm.markAllAsTouched();
     return;
   }
 
-  if (isNaN(Number(aforo)) || Number(aforo) <= 0) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Aforo inválido',
-      detail: 'Ingrese un número válido mayor a cero',
-      life: 3000
-    });
-    return;
-  }
+  const formData = this.localForm.value;
 
   // Mostrar mensaje de éxito
   this.messageService.add({

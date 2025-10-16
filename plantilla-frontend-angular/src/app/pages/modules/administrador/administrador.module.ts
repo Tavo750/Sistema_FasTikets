@@ -24,6 +24,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CambiarContrasenaAdminComponent } from './components/perfil-administrador/cambiar-contrasena-admin/cambiar-contrasena-admin.component';
 
+// PrimeNG Services
+import { ConfirmationService, MessageService } from 'primeng/api';
+
 @NgModule({
   declarations: [
     GestionLocalesComponent,
@@ -48,6 +51,10 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
     InputTextModule,
     DropdownModule,
     FormsModule,
+  ],
+  providers: [
+    ConfirmationService,
+    MessageService
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
