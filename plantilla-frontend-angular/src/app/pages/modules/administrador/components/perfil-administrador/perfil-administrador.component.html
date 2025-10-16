@@ -1,7 +1,9 @@
+<p-toast></p-toast>
+
 <div class="card">
     <div class="header-row mb-4">
         <h2 class="m-0">Datos del Administrador</h2>
-        <button pButton type="button" label="Editar" class="p-button btn-edit" (click)="toggleEditMode()" *ngIf="!isEditing"></button>
+        <p-button type="button" label="Editar" styleClass="p-button btn-edit" (onClick)="toggleEditMode()" *ngIf="!isEditing"></p-button>
     </div>
 
     <!-- Vista de solo lectura -->
@@ -32,10 +34,10 @@
 
             <div class="flex-field field-container">
                 <label for="tipoDocumento">Tipo de Documento</label>
-                <p-dropdown id="tipoDocumento" [options]="tiposDocumento" formControlName="tipoDocumento" 
+                <p-select id="tipoDocumento" [options]="tiposDocumento" formControlName="tipoDocumento"
                     [autoDisplayFirst]="false" optionLabel="nombre" optionValue="valor"
-                    class="large-dropdown" [disabled]="true" readonly="true">
-                </p-dropdown>
+                    styleClass="large-dropdown" [disabled]="true">
+                </p-select>
             </div>
 
             <div class="flex-field field-container">
@@ -46,9 +48,9 @@
 
         <!-- Botón de cambiar contraseña -->
         <div class="col-12 password-button-container">
-            <button pButton routerLink="/administrador/perfilAdministrador/cambiarContra" type="button" label="Cambiar mi contraseña" 
-                class="p-button-secondary change-password-btn" (click)="cambiarContrasena()">
-            </button>
+            <p-button routerLink="/administrador/perfilAdministrador/cambiarContra" type="button" label="Cambiar mi contraseña"
+                styleClass="p-button-secondary change-password-btn" (onClick)="cambiarContrasena()">
+            </p-button>
         </div>
     </form>
 
@@ -97,12 +99,13 @@
 
         <!-- Botones de acción -->
         <div class="col-12 sticky-actions">
-            <button pButton type="button" label="Cancelar" 
-                class="p-button-danger" (click)="cancelarEdicion()">
-            </button>
-            <button pButton type="button" label="Aceptar" 
-                class="p-button-success" (click)="guardarCambios()">
-            </button>
+            <p-button type="button" label="Cancelar"
+                styleClass="p-button-danger" (onClick)="cancelarEdicion()">
+            </p-button>
+            <p-button type="button" label="Aceptar"
+                styleClass="p-button-success" (onClick)="guardarCambios()"
+                [disabled]="editForm.invalid">
+            </p-button>
         </div>
     </form>
 </div>

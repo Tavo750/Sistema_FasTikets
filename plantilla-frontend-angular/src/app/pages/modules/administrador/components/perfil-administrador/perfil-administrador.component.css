@@ -38,11 +38,11 @@ h2 {
 :host ::ng-deep .large-dropdown {
     height: 45px;
 
-    .p-dropdown-trigger {
+    .p-select-trigger {
         height: 45px;
     }
 
-    .p-dropdown-label {
+    .p-select-label {
         line-height: 45px;
     }
 }
@@ -147,7 +147,7 @@ h2 {
 }
 
 :host ::ng-deep .p-inputtext,
-:host ::ng-deep .p-dropdown,
+:host ::ng-deep .p-select,
 .large-input,
 .large-dropdown {
     width: 100%;

@@ -32,15 +32,28 @@
         <div class="form-row">
           <div class="form-group">
             <label for="distrito">3) Distrito</label>
-            <p-select
-              id="distrito"
-              formControlName="distrito"
-              [options]="distritos"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Seleccionar..."
-              styleClass="w-full"
-            ></p-select>
+            <div class="distrito-container">
+              <p-select
+                id="distrito"
+                formControlName="distrito"
+                [options]="distritos"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Seleccionar..."
+                styleClass="w-full distrito-select"
+                (onChange)="centerMapOnDistrict()"
+              ></p-select>
+              <p-button
+                icon="pi pi-map-marker"
+                (onClick)="centerMapOnDistrict()"
+                [disabled]="!localForm.get('distrito')?.value"
+                class="distrito-btn"
+                size="small"
+                severity="secondary"
+                outlined="true"
+                pTooltip="Centrar mapa en distrito"
+              ></p-button>
+            </div>
           </div>
 
           <div class="form-group">
@@ -72,8 +85,36 @@
       <div class="form-right">
         <div class="form-group">
           <label>6) Ubicación</label>
-          <div class="map-placeholder">
-            <p>🗺️ Aquí irá el mapa</p>
+          <div class="map-wrapper">
+            <div id="map" class="map-container">
+              <div class="map-loading" *ngIf="mapLoading">
+                <div class="loading-spinner">
+                  <p-progressSpinner strokeWidth="4" fill="#f0f0f0"></p-progressSpinner>
+                </div>
+                <p>Cargando mapa...</p>
+              </div>
+            </div>
+          </div>
+          <div class="coordinates-info">
+            <small>
+              <strong>Coordenadas:</strong>
+              Lat: {{ selectedCoordinates.lat | number:'1.6-6' }},
+              Lng: {{ selectedCoordinates.lng | number:'1.6-6' }}
+            </small>
+            <br>
+            <small class="map-instructions">
+              💡 Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación
+            </small>
+            <br>
+            <p-button
+              *ngIf="!mapLoading"
+              label="Recargar Mapa"
+              icon="pi pi-refresh"
+              size="small"
+              severity="secondary"
+              (onClick)="reloadMap()"
+              class="mt-2"
+            ></p-button>
           </div>
         </div>
       </div>

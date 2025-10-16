@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 interface TipoDocumento {
   nombre: string;
@@ -18,7 +20,11 @@ export class PerfilAdministradorComponent implements OnInit {
   isEditing: boolean = false;
   tiposDocumento: TipoDocumento[];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private router: Router
+  ) {
     this.tiposDocumento = [
       { nombre: 'Cédula de Ciudadanía', valor: 'CC' },
       { nombre: 'Cédula de Extranjería', valor: 'CE' },
@@ -82,25 +88,41 @@ export class PerfilAdministradorComponent implements OnInit {
   }
 
   guardarCambios(): void {
-    if (this.editForm.valid) {
-      // Aquí implementarías la lógica para guardar los cambios en el backend
-      console.log('Datos a guardar:', this.editForm.value);
-      
-      // Actualizar el formulario de visualización con los nuevos datos
-      this.perfilForm.patchValue({
-        nombres: this.editForm.get('nombres')?.value,
-        apellidos: this.editForm.get('apellidos')?.value,
-        correo: this.editForm.get('correo')?.value,
-        telefono: this.editForm.get('telefono')?.value
+    if (this.editForm.invalid) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos incompletos',
+        detail: 'Por favor complete todos los campos correctamente antes de continuar',
+        life: 3000
       });
-      
-      this.isEditing = false;
+      this.editForm.markAllAsTouched();
+      return;
     }
+
+    // Aquí implementarías la lógica para guardar los cambios en el backend
+    console.log('Datos a guardar:', this.editForm.value);
+
+    // Actualizar el formulario de visualización con los nuevos datos
+    this.perfilForm.patchValue({
+      nombres: this.editForm.get('nombres')?.value,
+      apellidos: this.editForm.get('apellidos')?.value,
+      correo: this.editForm.get('correo')?.value,
+      telefono: this.editForm.get('telefono')?.value
+    });
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Perfil actualizado',
+      detail: 'Los datos del perfil han sido actualizados exitosamente',
+      life: 3000
+    });
+
+    this.isEditing = false;
   }
 
   cambiarContrasena(): void {
-    // Aquí implementarías la lógica para cambiar la contraseña
-    console.log('Cambiar contraseña clicked');
+    // Navegar al componente de cambiar contraseña
+    this.router.navigate(['/administrador/perfilAdministrador/cambiarContra']);
   }
 }
 
