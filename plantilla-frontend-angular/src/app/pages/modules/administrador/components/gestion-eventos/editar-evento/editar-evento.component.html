@@ -44,48 +44,21 @@
                         <div class="field">
                             <label>Fecha:</label>
                             <div class="fecha-inputs">
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.dia"
-                                    placeholder="30"
-                                    class="fecha-dia"
-                                    maxlength="2" />
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.mes"
-                                    placeholder="Julio"
-                                    class="fecha-mes" />
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.anio"
-                                    placeholder="2025"
-                                    class="fecha-anio"
-                                    maxlength="4" />
+                                <p-datepicker
+                                [(ngModel)]="date"
+                                dateFormat="dd/mm/yy"
+                            />
                             </div>
                         </div>
 
                         <div class="field">
                             <label>Hora:</label>
-                            <div class="hora-inputs">
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.hora"
-                                    placeholder="23"
-                                    class="hora-input"
-                                    maxlength="2" />
-                                <span class="hora-separator">:</span>
-                                <input
-                                    type="text"
-                                    pInputText
-                                    [(ngModel)]="evento.minutos"
-                                    placeholder="00"
-                                    class="hora-input"
-                                    maxlength="2" />
-                            </div>
+
+                            <p-datepicker
+                                    inputId="calendar-timeonly"
+                                    [(ngModel)]="time"
+                                    [timeOnly]="true"
+                                    class="hora-picker" />
                         </div>
                     </div>
 
@@ -104,15 +77,49 @@
                         </div>
 
                         <div class="field">
-                            <label>Banner:</label>
-                            <div class="upload-area" (click)="fileInput.click()">
-                                <i class="pi pi-upload upload-icon"></i>
+                          <label>Banner:</label>
+                            <div class="banner-container">
+                                <!-- Mostrar imagen actual del banner -->
+                                <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+                                    <img
+                                        [src]="evento.bannerUrl"
+                                        alt="Banner del evento"
+                                        class="banner-imagen">
+                                    <div class="banner-overlay">
+                                        <i class="pi pi-camera upload-overlay-icon"></i>
+                                        <p class="upload-overlay-text">Cambiar imagen</p>
+                                    </div>
+                                </div>
+
+                                <!-- Área de subida cuando no hay imagen -->
+                                <div class="upload-area-banner" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
+                                    <i class="pi pi-image upload-icon"></i>
+                                    <p class="upload-text">Subir imagen del banner</p>
+                                </div>
+
+                                <!-- Input file oculto -->
                                 <input
                                     #fileInput
                                     type="file"
                                     accept="image/*"
                                     (change)="onFileSelected($event)"
                                     style="display: none" />
+                            </div>
+
+                            <!-- Botones de acción para el banner -->
+                            <div class="banner-actions" *ngIf="evento.bannerUrl">
+                                <p-button
+                                    label="Cambiar imagen"
+                                    icon="pi pi-upload"
+                                    styleClass="p-button-outlined p-button-sm"
+                                    (onClick)="fileInput.click()">
+                                </p-button>
+                                <p-button
+                                    label="Eliminar"
+                                    icon="pi pi-trash"
+                                    styleClass="p-button-outlined p-button-danger p-button-sm"
+                                    (onClick)="onEliminarBanner()">
+                                </p-button>
                             </div>
                         </div>
 
@@ -185,24 +192,50 @@
 
                     <!-- Columna Derecha - Mapa -->
                     <div class="form-right">
-                        <div class="field">
-                            <label>Mapa</label>
-                            <div class="mapa-container">
-                                <img
-                                    [src]="evento.mapaUrl || 'assets/images/mapa-default.png'"
-                                    alt="Mapa del local"
-                                    class="mapa-imagen"
-                                    *ngIf="evento.mapaUrl || usarMapaDefault">
-                                <div class="upload-area-mapa" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+                                            <div class="field">
+                          <label>Mapa:</label>
+                            <div class="banner-container">
+                                <!-- Mostrar imagen actual del banner -->
+                                <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+                                    <img
+                                        [src]="evento.bannerUrl"
+                                        alt="Banner del evento"
+                                        class="banner-imagen">
+                                    <div class="banner-overlay">
+                                        <i class="pi pi-camera upload-overlay-icon"></i>
+                                        <p class="upload-overlay-text">Cambiar imagen</p>
+                                    </div>
+                                </div>
+
+                                <!-- Área de subida cuando no hay imagen -->
+                                <div class="upload-area-banner" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
                                     <i class="pi pi-image upload-icon"></i>
                                     <p class="upload-text">Subir imagen del mapa</p>
-                                    <input
-                                        #fileInputMapa
-                                        type="file"
-                                        accept="image/*"
-                                        (change)="onMapaSelected($event)"
-                                        style="display: none" />
                                 </div>
+
+                                <!-- Input file oculto -->
+                                <input
+                                    #fileInput
+                                    type="file"
+                                    accept="image/*"
+                                    (change)="onFileSelected($event)"
+                                    style="display: none" />
+                            </div>
+
+                            <!-- Botones de acción para el banner -->
+                            <div class="banner-actions" *ngIf="evento.bannerUrl">
+                                <p-button
+                                    label="Cambiar imagen"
+                                    icon="pi pi-upload"
+                                    styleClass="p-button-outlined p-button-sm"
+                                    (onClick)="fileInput.click()">
+                                </p-button>
+                                <p-button
+                                    label="Eliminar"
+                                    icon="pi pi-trash"
+                                    styleClass="p-button-outlined p-button-danger p-button-sm"
+                                    (onClick)="onEliminarBanner()">
+                                </p-button>
                             </div>
                         </div>
                     </div>

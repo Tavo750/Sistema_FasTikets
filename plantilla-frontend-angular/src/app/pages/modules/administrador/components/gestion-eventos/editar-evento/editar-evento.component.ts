@@ -17,6 +17,7 @@ interface Evento {
   estado: string;
   videoPromocional: string;
   banner?: File | null;
+  bannerUrl?: string;
   local: string;
   mapaUrl?: string;
   mapaFile?: File | null;
@@ -62,12 +63,17 @@ evento: Evento = {
     estado: 'publicado',
     videoPromocional: 'Link completamente normal...',
     banner: null,
+    bannerUrl: '',
     local: 'Parque de la exposición',
     mapaUrl: '',
     mapaFile: null,
     moneda: 'Nuevo Sol'
 
   };
+
+  date: Date | undefined;
+  time: Date[] | undefined;
+
 
   estadoOptions: EstadoOption[] = [
     { label: 'PUBLICADO', value: 'publicado' },
@@ -114,6 +120,7 @@ evento: Evento = {
   };
 
   usarMapaDefault: boolean = false;
+  usarBannerDefault: boolean = false;
 
   estadoOption: EstadoOption[] = [
     { label: 'PUBLICADO', value: 'publicado' },
@@ -159,10 +166,16 @@ evento: Evento = {
       }
 
       this.evento.banner = file;
-      console.log('Banner seleccionado:', file.name);
 
-      // Aquí podrías mostrar una preview de la imagen
-      this.mostrarPreview(file);
+      // Crear URL para mostrar preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.evento.bannerUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      console.log('Banner seleccionado:', file.name);
+      alert('Banner cargado exitosamente');
     }
   }
 
@@ -173,6 +186,16 @@ evento: Evento = {
       // Aquí podrías actualizar una variable para mostrar el preview en el HTML
     };
     reader.readAsDataURL(file);
+  }
+
+  onEliminarBanner(): void {
+    if (confirm('¿Estás seguro de que deseas eliminar el banner?')) {
+      this.evento.banner = null;
+      this.evento.bannerUrl = '';
+      this.usarBannerDefault = false;
+      console.log('Banner eliminado');
+      alert('Banner eliminado exitosamente');
+    }
   }
 
   onCancelarEvento(): void {
@@ -252,6 +275,15 @@ evento: Evento = {
       reader.readAsDataURL(file);
 
       console.log('Mapa seleccionado:', file.name);
+    }
+  }
+
+  onEliminarMapa(): void {
+    if (confirm('¿Estás seguro de que deseas eliminar la imagen del mapa?')) {
+      this.evento.mapaUrl = '';
+      this.evento.mapaFile = null;
+      console.log('Mapa eliminado');
+      alert('Imagen del mapa eliminada');
     }
   }
 
