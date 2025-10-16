@@ -124,5 +124,10 @@ export class PerfilAdministradorComponent implements OnInit {
     // Navegar al componente de cambiar contraseña
     this.router.navigate(['/administrador/perfilAdministrador/cambiarContra']);
   }
+
+  getTipoDocumentoNombre(valor: string): string {
+    const tipo = this.tiposDocumento.find(t => t.valor === valor);
+    return tipo ? tipo.nombre : valor;
+  }
 }
 

@@ -39,6 +39,7 @@ import { PanelModule } from 'primeng/panel';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   exports: [
@@ -80,7 +81,8 @@ import { TooltipModule } from 'primeng/tooltip';
     ToggleButtonModule,
     CalendarModule,
     DropdownModule,
-    TooltipModule
+    TooltipModule,
+    TagModule
   ]
 })
 export class PrimeNgModule { }

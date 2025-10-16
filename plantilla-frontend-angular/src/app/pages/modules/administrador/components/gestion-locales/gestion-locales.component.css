@@ -1,101 +1,354 @@
-.gestion-locales-container {
-  padding: 20px;
-  font-family: Arial, sans-serif;
+.container {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.gestion-locales-container h2 {
-  color: #333;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  font-weight: 600;
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.acciones {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 15px;
+.title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.acciones .p-inputgroup {
-  max-width: 300px;
-  flex: 1;
+.title i {
+    font-size: 2rem;
+    color: #1976d2;
 }
 
-.acciones .p-inputgroup .buscador {
-  width: 100%;
+.add-button {
+    height: fit-content;
 }
 
-.crear-btn {
-  white-space: nowrap;
+/* Panel de búsqueda */
+.search-panel {
+    margin-bottom: 2rem;
 }
 
-/* Estilos para la tabla de PrimeNG */
-::ng-deep .p-datatable {
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.search-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: end;
 }
 
-::ng-deep .p-datatable .p-datatable-header {
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  padding: 1rem;
-  font-weight: 600;
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background: #ffffff;
-  color: #495057;
-  font-weight: 600;
-  padding: 1rem;
-  border-bottom: 2px solid #dee2e6;
+.field label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+.w-full {
+    width: 100%;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-  background: #f8f9fa;
+/* Sección de resultados */
+.results-section {
+    margin-top: 2rem;
 }
 
-/* Estilos para las acciones */
-.acciones-fila {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  justify-content: center;
+.results-header {
+    margin-bottom: 1.5rem;
 }
 
-.acciones-fila .p-button {
-  width: 32px;
-  height: 32px;
+.results-header h3 {
+    margin: 0;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
 }
 
-/* Estilos para el estado */
-.estado-tag {
-  font-weight: 600;
-  font-size: 0.875rem;
+/* Contenedor de tabla */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
 }
 
-/* Estado vacío */
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #6c757d;
+/* Estado sin resultados */
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #dee2e6;
 }
 
-.empty-state i {
-  display: block;
-  margin-bottom: 1rem;
+.no-results i {
+    color: #adb5bd;
+    margin-bottom: 1rem;
 }
 
-.empty-state p {
-  margin: 0;
-  font-size: 1.1rem;
+.no-results h3 {
+    margin: 1rem 0 0.5rem 0;
+    color: #495057;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.no-results p {
+    margin: 0.5rem 0 2rem 0;
+    font-size: 1rem;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* Estilos específicos de la tabla */
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.header-content i {
+    color: #1976d2;
+    font-size: 0.9rem;
+}
+
+.id-column {
+    width: 80px;
+    text-align: center;
+}
+
+.actions-column {
+    width: 120px;
+    text-align: center;
+}
+
+.table-row {
+    transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+    background-color: #f8f9fa !important;
+}
+
+.id-cell {
+    text-align: center;
+}
+
+.id-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.name-cell {
+    font-weight: 600;
+}
+
+.name-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.name-icon {
+    color: #1976d2;
+    font-size: 0.9rem;
+}
+
+.name-text {
+    color: #212529;
+}
+
+.address-cell {
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.district-cell {
+    color: #495057;
+    font-weight: 500;
+}
+
+.capacity-cell {
+    text-align: center;
+}
+
+.capacity-value {
+    font-weight: 700;
+    color: #1976d2;
+    font-size: 1.1rem;
+}
+
+.capacity-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.status-cell {
+    text-align: center;
+}
+
+.status-tag {
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.actions-cell {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .search-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .capacity-value {
+        font-size: 1rem;
+    }
+
+    .capacity-label {
+        font-size: 0.75rem;
+    }
+}
+
+/* Mejoras visuales para PrimeNG */
+:host ::ng-deep {
+    .p-panel .p-panel-header {
+        background: #1976d2;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+    }
+
+    .p-panel .p-panel-content {
+        border-radius: 0 0 8px 8px;
+        border: 2px solid #e3f2fd;
+        border-top: none;
+    }
+
+    .custom-table .p-datatable-thead > tr > th {
+        background: #1976d2;
+        color: white;
+        font-weight: 600;
+        padding: 1rem;
+        border-bottom: 2px solid #1565c0;
+    }
+
+    .custom-table .p-datatable-tbody > tr > td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .custom-table .p-datatable-tbody > tr:nth-child(even) {
+        background: #f8f9fa;
+    }
+
+    .p-button.p-button-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .p-tag {
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .p-inputtext {
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .p-inputtext:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+
+    .p-button {
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .p-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .p-paginator {
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+        padding: 1rem;
+    }
 }
 
 /* Estilos para el paginador */

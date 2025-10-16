@@ -1,111 +1,234 @@
-<p-toast></p-toast>
+<div class="container">
+    <div class="header-section">
+        <h1 class="title">
+            <i class="pi pi-user"></i>
+            Perfil de Administrador
+        </h1>
 
-<div class="card">
-    <div class="header-row mb-4">
-        <h2 class="m-0">Datos del Administrador</h2>
-        <p-button type="button" label="Editar" styleClass="p-button btn-edit" (onClick)="toggleEditMode()" *ngIf="!isEditing"></p-button>
+        <p-button
+            label="Editar Perfil"
+            icon="pi pi-pencil"
+            (onClick)="toggleEditMode()"
+            *ngIf="!isEditing"
+            class="edit-button">
+        </p-button>
     </div>
 
-    <!-- Vista de solo lectura -->
-    <form [formGroup]="perfilForm" class="grid p-fluid" *ngIf="!isEditing">
-        <!-- Primera fila -->
-        <div class="col-12 md:col-6 field-container">
-            <label for="nombres">Nombres</label>
-            <input pInputText id="nombres" formControlName="nombres" class="large-input" readonly />
-        </div>
+    <div class="profile-content">
+        <!-- Vista de solo lectura -->
+        <p-card *ngIf="!isEditing" class="profile-card">
+            <ng-template pTemplate="header">
+                <div class="card-header">
+                    <h3>
+                        <i class="pi pi-info-circle"></i>
+                        Información Personal
+                    </h3>
+                </div>
+            </ng-template>
 
-        <div class="col-12 md:col-6 field-container">
-            <label for="apellidos">Apellidos</label>
-            <input pInputText id="apellidos" formControlName="apellidos" class="large-input" readonly />
-        </div>
+            <ng-template pTemplate="content">
+                <form [formGroup]="perfilForm" class="profile-form">
+                    <div class="profile-grid">
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-user"></i>
+                                Nombres:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('nombres')?.value}}</div>
+                        </div>
 
-        <!-- Segunda fila -->
-        <div class="col-12 field-container">
-            <label for="correo">Correo Electrónico</label>
-            <input pInputText id="correo" formControlName="correo" class="large-input" readonly />
-        </div>
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-user"></i>
+                                Apellidos:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('apellidos')?.value}}</div>
+                        </div>
 
-        <!-- Tercera fila -->
-        <div class="flex-row-container">
-            <div class="flex-field field-container">
-                <label for="telefono">Número de Teléfono</label>
-                <input pInputText id="telefono" formControlName="telefono" class="large-input" readonly />
-            </div>
+                        <div class="profile-field full-width">
+                            <label class="field-label">
+                                <i class="pi pi-envelope"></i>
+                                Correo Electrónico:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('correo')?.value}}</div>
+                        </div>
 
-            <div class="flex-field field-container">
-                <label for="tipoDocumento">Tipo de Documento</label>
-                <p-select id="tipoDocumento" [options]="tiposDocumento" formControlName="tipoDocumento"
-                    [autoDisplayFirst]="false" optionLabel="nombre" optionValue="valor"
-                    styleClass="large-dropdown" [disabled]="true">
-                </p-select>
-            </div>
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-phone"></i>
+                                Teléfono:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('telefono')?.value}}</div>
+                        </div>
 
-            <div class="flex-field field-container">
-                <label for="numeroDocumento">Número de Documento</label>
-                <input pInputText id="numeroDocumento" formControlName="numeroDocumento" class="large-input" readonly />
-            </div>
-        </div>
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-id-card"></i>
+                                Tipo de Documento:
+                            </label>
+                            <div class="field-value">
+                                {{getTipoDocumentoNombre(perfilForm.get('tipoDocumento')?.value)}}
+                            </div>
+                        </div>
 
-        <!-- Botón de cambiar contraseña -->
-        <div class="col-12 password-button-container">
-            <p-button routerLink="/administrador/perfilAdministrador/cambiarContra" type="button" label="Cambiar mi contraseña"
-                styleClass="p-button-secondary change-password-btn" (onClick)="cambiarContrasena()">
-            </p-button>
-        </div>
-    </form>
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-hashtag"></i>
+                                Número de Documento:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('numeroDocumento')?.value}}</div>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
 
-    <!-- Vista de edición -->
-    <form [formGroup]="editForm" class="grid p-fluid" *ngIf="isEditing">
-        <!-- Primera fila -->
-        <div class="col-12 md:col-6 field-container">
-            <label for="nombresEdit">Nombres</label>
-            <input pInputText id="nombresEdit" formControlName="nombres" class="large-input" />
-        </div>
+            <ng-template pTemplate="footer">
+                <div class="card-actions">
+                    <p-button
+                        label="Cambiar Contraseña"
+                        icon="pi pi-key"
+                        severity="secondary"
+                        routerLink="/administrador/perfilAdministrador/cambiarContra"
+                        (onClick)="cambiarContrasena()">
+                    </p-button>
+                </div>
+            </ng-template>
+        </p-card>
 
-        <div class="col-12 md:col-6 field-container">
-            <label for="apellidosEdit">Apellidos</label>
-            <input pInputText id="apellidosEdit" formControlName="apellidos" class="large-input" />
-        </div>
+        <!-- Vista de edición -->
+        <p-card *ngIf="isEditing" class="profile-card edit-mode">
+            <ng-template pTemplate="header">
+                <div class="card-header">
+                    <h3>
+                        <i class="pi pi-pencil"></i>
+                        Editar Información Personal
+                    </h3>
+                </div>
+            </ng-template>
 
-        <!-- Segunda fila -->
-        <div class="col-12 field-container">
-            <label for="correoEdit">Correo Electrónico</label>
-            <input pInputText id="correoEdit" formControlName="correo" class="large-input" />
-        </div>
+            <ng-template pTemplate="content">
+                <form [formGroup]="editForm" class="profile-form">
+                    <div class="edit-grid">
+                        <div class="form-field">
+                            <label for="nombresEdit" class="field-label">
+                                <i class="pi pi-user"></i>
+                                Nombres *
+                            </label>
+                            <input
+                                id="nombresEdit"
+                                type="text"
+                                pInputText
+                                formControlName="nombres"
+                                class="form-input"
+                                placeholder="Ingrese sus nombres" />
+                        </div>
 
-        <!-- Tercera fila -->
-        <div class="flex-row-container">
-            <div class="flex-field field-container">
-                <label for="telefonoEdit">Número de Teléfono</label>
-                <input pInputText id="telefonoEdit" formControlName="telefono" class="large-input" />
-            </div>
+                        <div class="form-field">
+                            <label for="apellidosEdit" class="field-label">
+                                <i class="pi pi-user"></i>
+                                Apellidos *
+                            </label>
+                            <input
+                                id="apellidosEdit"
+                                type="text"
+                                pInputText
+                                formControlName="apellidos"
+                                class="form-input"
+                                placeholder="Ingrese sus apellidos" />
+                        </div>
 
-            <div class="flex-field field-container">
-                <label for="departamentoEdit">Departamento</label>
-                <input pInputText id="departamentoEdit" formControlName="departamento" class="large-input" />
-            </div>
+                        <div class="form-field full-width">
+                            <label for="correoEdit" class="field-label">
+                                <i class="pi pi-envelope"></i>
+                                Correo Electrónico *
+                            </label>
+                            <input
+                                id="correoEdit"
+                                type="email"
+                                pInputText
+                                formControlName="correo"
+                                class="form-input"
+                                placeholder="ejemplo@correo.com" />
+                        </div>
 
-            <div class="flex-field field-container">
-                <label for="distritoEdit">Distrito</label>
-                <input pInputText id="distritoEdit" formControlName="distrito" class="large-input" />
-            </div>
-        </div>
+                        <div class="form-field">
+                            <label for="telefonoEdit" class="field-label">
+                                <i class="pi pi-phone"></i>
+                                Teléfono *
+                            </label>
+                            <input
+                                id="telefonoEdit"
+                                type="tel"
+                                pInputText
+                                formControlName="telefono"
+                                class="form-input"
+                                placeholder="999 999 999" />
+                        </div>
 
-        <!-- Cuarta fila -->
-        <div class="col-12 field-container">
-            <label for="direccionEdit">Dirección domiciliaria</label>
-            <input pInputText id="direccionEdit" formControlName="direccion" class="large-input" />
-        </div>
+                        <div class="form-field">
+                            <label for="departamentoEdit" class="field-label">
+                                <i class="pi pi-map"></i>
+                                Departamento *
+                            </label>
+                            <input
+                                id="departamentoEdit"
+                                type="text"
+                                pInputText
+                                formControlName="departamento"
+                                class="form-input"
+                                placeholder="Departamento" />
+                        </div>
 
-        <!-- Botones de acción -->
-        <div class="col-12 sticky-actions">
-            <p-button type="button" label="Cancelar"
-                styleClass="p-button-danger" (onClick)="cancelarEdicion()">
-            </p-button>
-            <p-button type="button" label="Aceptar"
-                styleClass="p-button-success" (onClick)="guardarCambios()"
-                [disabled]="editForm.invalid">
-            </p-button>
-        </div>
-    </form>
+                        <div class="form-field">
+                            <label for="distritoEdit" class="field-label">
+                                <i class="pi pi-map-marker"></i>
+                                Distrito *
+                            </label>
+                            <input
+                                id="distritoEdit"
+                                type="text"
+                                pInputText
+                                formControlName="distrito"
+                                class="form-input"
+                                placeholder="Distrito" />
+                        </div>
+
+                        <div class="form-field full-width">
+                            <label for="direccionEdit" class="field-label">
+                                <i class="pi pi-home"></i>
+                                Dirección Domiciliaria *
+                            </label>
+                            <input
+                                id="direccionEdit"
+                                type="text"
+                                pInputText
+                                formControlName="direccion"
+                                class="form-input"
+                                placeholder="Dirección completa" />
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <div class="card-actions">
+                    <p-button
+                        label="Cancelar"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        (onClick)="cancelarEdicion()">
+                    </p-button>
+                    <p-button
+                        label="Guardar Cambios"
+                        icon="pi pi-check"
+                        (onClick)="guardarCambios()"
+                        [disabled]="editForm.invalid">
+                    </p-button>
+                </div>
+            </ng-template>
+        </p-card>
+    </div>
+
+    <!-- Toast para mensajes -->
+    <p-toast></p-toast>
 </div>
