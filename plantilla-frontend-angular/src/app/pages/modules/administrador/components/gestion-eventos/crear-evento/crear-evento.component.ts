@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from '../../../../../../core/services/message.service';
 interface EstadoOption {
   label: string;
   value: string;
@@ -167,7 +168,10 @@ export class CrearEventoComponent implements OnInit{
     aforoMaximo: ''
   };
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     // Aquí puedes cargar datos del evento si estás editando
@@ -178,9 +182,9 @@ export class CrearEventoComponent implements OnInit{
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
-    console.log('Cargando evento...');
   }
 
+  // Manejo de banner subida de imagenes
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -188,14 +192,14 @@ export class CrearEventoComponent implements OnInit{
 
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        this.messageService.error('Por favor selecciona un archivo de imagen válido', 'Archivo Inválido');
         return;
       }
 
       // Validar tamaño (por ejemplo, máximo 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('La imagen no debe superar los 5MB');
+        this.messageService.error('La imagen no debe superar los 5MB', 'Archivo Muy Grande');
         return;
       }
 
@@ -208,15 +212,13 @@ export class CrearEventoComponent implements OnInit{
       };
       reader.readAsDataURL(file);
 
-      console.log('Banner seleccionado:', file.name);
-      alert('Banner cargado exitosamente');
+      this.messageService.success('Banner cargado exitosamente', 'Archivo Cargado');
     }
   }
 
   mostrarPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      console.log('Preview cargado:', e.target.result);
       // Aquí podrías actualizar una variable para mostrar el preview en el HTML
     };
     reader.readAsDataURL(file);
@@ -227,15 +229,13 @@ export class CrearEventoComponent implements OnInit{
       this.evento.bannerUrl = '';
       this.evento.banner = null;
       this.usarBannerDefault = false;
-      console.log('Banner eliminado');
-      alert('Banner eliminado exitosamente');
+      this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
     }
   }
 
   onCancelarEvento(): void {
     if (confirm('¿Estás seguro de que deseas cancelar este evento?')) {
-      console.log('Evento cancelado');
-
+      this.messageService.info('Evento cancelado exitosamente', 'Operación Completada');
       // Redirigir a gestión de eventos
       this.router.navigate(['/administrador/gestionEventos']);
     }
@@ -247,35 +247,31 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    console.log('Guardando cambios del evento:', this.evento);
-
     // Aquí implementarías la lógica para guardar
     // Por ejemplo, llamar a un servicio:
-    // this.eventoService.actualizarEvento(this.evento).subscribe(...)
+    // this.eventoService.crearEvento(this.evento).subscribe(...)
 
-    alert('Cambios guardados exitosamente');
+    this.messageService.success('Evento creado exitosamente', 'Evento Guardado');
   }
 
   validarFormulario(): boolean {
     if (!this.evento.titulo || this.evento.titulo.trim() === '') {
-      alert('El título es obligatorio');
+      this.messageService.error('El título es obligatorio', 'Campo Requerido');
       return false;
     }
 
     if (!this.evento.categoria || this.evento.categoria.trim() === '') {
-      alert('La categoría es obligatoria');
+      this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
       return false;
     }
 
     if (!this.evento.descripcion || this.evento.descripcion.trim() === '') {
-      alert('La descripción es obligatoria');
+      this.messageService.error('La descripción es obligatoria', 'Campo Requerido');
       return false;
     }
 
-
-
     if (!this.evento.hora || !this.evento.minutos) {
-      alert('La hora completa es obligatoria');
+      this.messageService.error('La hora completa es obligatoria', 'Campo Requerido');
       return false;
     }
 
@@ -288,14 +284,14 @@ export class CrearEventoComponent implements OnInit{
 
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        this.messageService.error('Por favor selecciona un archivo de imagen válido', 'Archivo Inválido');
         return;
       }
 
       // Validar tamaño (por ejemplo, máximo 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('La imagen no debe superar los 5MB');
+        this.messageService.error('La imagen no debe superar los 5MB', 'Archivo Muy Grande');
         return;
       }
 
@@ -308,8 +304,7 @@ export class CrearEventoComponent implements OnInit{
       };
       reader.readAsDataURL(file);
 
-      console.log('Mapa seleccionado:', file.name);
-      alert('Imagen del mapa cargada exitosamente');
+      this.messageService.success('Imagen del mapa cargada exitosamente', 'Archivo Cargado');
     }
   }
 
@@ -318,26 +313,20 @@ export class CrearEventoComponent implements OnInit{
       this.evento.mapaUrl = '';
       this.evento.mapaFile = null;
       this.usarMapaDefault = false;
-      console.log('Mapa eliminado');
-      alert('Imagen del mapa eliminada');
+      this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
     }
   }
 
   onAgregarEntrada(): void {
     if (!this.entradaNombre.trim()) {
-      alert('Por favor ingresa un nombre para la entrada');
+      this.messageService.error('Por favor ingresa un nombre para la entrada', 'Campo Requerido');
       return;
     }
 
     if (!this.validoPara) {
-      alert('Por favor selecciona para qué categoría es válida la entrada');
+      this.messageService.error('Por favor selecciona para qué categoría es válida la entrada', 'Campo Requerido');
       return;
     }
-
-    console.log('Agregando entrada:', {
-      nombre: this.entradaNombre,
-      validoPara: this.validoPara
-    });
 
     // Aquí puedes implementar la lógica para agregar la entrada a una lista
     // Por ejemplo, agregar a un array de entradas
@@ -346,24 +335,24 @@ export class CrearEventoComponent implements OnInit{
     this.entradaNombre = '';
     this.validoPara = '';
 
-    alert('Entrada agregada exitosamente');
+    this.messageService.success('Entrada agregada exitosamente', 'Operación Exitosa');
   }
 
   onAgregarCategoria(): void {
     if (!this.nuevaCategoria.nombre.trim()) {
-      alert('Por favor ingresa un nombre para la categoría');
+      this.messageService.error('Por favor ingresa un nombre para la categoría', 'Campo Requerido');
       return;
     }
 
     if (!this.nuevaCategoria.aforoMaximo.trim()) {
-      alert('Por favor ingresa el aforo máximo');
+      this.messageService.error('Por favor ingresa el aforo máximo', 'Campo Requerido');
       return;
     }
 
     // Verificar que el aforo sea un número válido
     const aforo = parseInt(this.nuevaCategoria.aforoMaximo);
     if (isNaN(aforo) || aforo <= 0) {
-      alert('El aforo máximo debe ser un número válido mayor a 0');
+      this.messageService.error('El aforo máximo debe ser un número válido mayor a 0', 'Valor Inválido');
       return;
     }
 
@@ -376,21 +365,19 @@ export class CrearEventoComponent implements OnInit{
 
     this.categoriasLocal.push(nuevaCat);
 
-    console.log('Categoría agregada:', nuevaCat);
-
     // Limpiar los campos
     this.nuevaCategoria = {
       nombre: '',
       aforoMaximo: ''
     };
 
-    alert('Categoría agregada exitosamente');
+    this.messageService.success('Categoría agregada exitosamente', 'Operación Exitosa');
   }
 
   onEliminarCategoria(index: number): void {
     if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
       this.categoriasLocal.splice(index, 1);
-      console.log('Categoría eliminada en índice:', index);
+      this.messageService.success('Categoría eliminada exitosamente', 'Operación Exitosa');
     }
   }
 
@@ -408,3 +395,4 @@ export class CrearEventoComponent implements OnInit{
   }
 
 }
+
