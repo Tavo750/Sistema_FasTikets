@@ -9,6 +9,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
+import { DividerModule } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -53,6 +54,7 @@ import { TagModule } from 'primeng/tag';
     ConfirmPopupModule,
     DatePickerModule,
     DialogModule,
+    DividerModule,
     DynamicDialogModule,
     DrawerModule,
     FieldsetModule,
