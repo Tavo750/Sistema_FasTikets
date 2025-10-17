@@ -48,7 +48,7 @@ interface LimiteCompra {
   selector: 'app-editar-evento',
   standalone: false,
   templateUrl: './editar-evento.component.html',
-  styleUrl: './editar-evento.component.scss'
+  styleUrl: './editar-evento.component.css'
 })
 export class EditarEventoComponent implements OnInit{
 evento: Evento = {

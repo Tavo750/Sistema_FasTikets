@@ -210,18 +210,95 @@
           />
         </div>
 
-        <!-- Información de categorías -->
-        <div class="categorias-section">
-          <h4 class="subsection-title">
-            <i class="pi pi-tags"></i>
-            Categorías configuradas
-          </h4>
+        <div class="local-asientos-grid">
+          <!-- Categorías existentes -->
+          <div class="categorias-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-tags"></i>
+              Categorías configuradas
+            </h4>
 
-          <div class="categorias-info">
-            <p class="info-text">
-              <i class="pi pi-info-circle"></i>
-              Las categorías y configuración de asientos se mantienen del evento original.
-            </p>
+            <!-- Lista de categorías existentes -->
+            <div class="categorias-agregadas" *ngIf="categoriasLocal && categoriasLocal.length > 0">
+              <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
+                <div class="categoria-info">
+                  <span class="categoria-nombre">{{ categoria.nombre }}</span>
+                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMaximo }}</span>
+                  <span class="categoria-disponible">Disponible: {{ categoria.aforoDisponible || categoria.aforoMaximo }}</span>
+                </div>
+                <div class="categoria-actions">
+                  <p-button
+                    icon="pi pi-eye"
+                    severity="info"
+                    text="true"
+                    pTooltip="Ver detalles"
+                  ></p-button>
+                </div>
+              </div>
+            </div>
+
+            <div class="categorias-info" *ngIf="!categoriasLocal || categoriasLocal.length === 0">
+              <p class="info-text">
+                <i class="pi pi-info-circle"></i>
+                No hay categorías configuradas para este evento.
+              </p>
+            </div>
+          </div>
+
+          <!-- Mapa del local -->
+          <div class="mapa-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-map"></i>
+              Mapa del local
+            </h4>
+
+            <div class="mapa-container">
+              <!-- Mostrar imagen actual o por defecto -->
+              <div class="mapa-display" *ngIf="evento.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
+                <img
+                  [src]="evento.mapaUrl"
+                  alt="Mapa del local"
+                  class="mapa-imagen">
+                <div class="mapa-overlay">
+                  <i class="pi pi-camera"></i>
+                  <p>Actualizar mapa</p>
+                </div>
+              </div>
+
+              <!-- Área de subida cuando no hay imagen -->
+              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+                <i class="pi pi-cloud-upload"></i>
+                <p>Subir mapa del local</p>
+                <small>JPG, PNG - Máximo 5MB</small>
+              </div>
+
+              <!-- Input file oculto -->
+              <input
+                #fileInputMapa
+                type="file"
+                accept="image/*"
+                (change)="onMapaSelected($event)"
+                style="display: none"
+              />
+
+              <!-- Botones de acción para el mapa -->
+              <div class="mapa-actions" *ngIf="evento.mapaUrl">
+                <p-button
+                  label="Cambiar"
+                  icon="pi pi-upload"
+                  severity="info"
+                  outlined="true"
+                  (onClick)="fileInputMapa.click()"
+                ></p-button>
+                <p-button
+                  label="Eliminar"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="onEliminarMapa()"
+                ></p-button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -253,15 +330,104 @@
           />
         </div>
 
-        <div class="entradas-info">
+        <!-- Lista de entradas configuradas -->
+        <div class="entradas-configuradas">
           <h4 class="subsection-title">
             <i class="pi pi-ticket"></i>
-            Configuración de entradas
+            Entradas configuradas
           </h4>
-          <p class="info-text">
-            <i class="pi pi-info-circle"></i>
-            La configuración de entradas y precios se mantiene del evento original.
-          </p>
+
+          <!-- Entrada Regular -->
+          <div class="entrada-card">
+            <div class="entrada-header">
+              <h5>
+                <i class="pi pi-tag"></i>
+                Entrada Regular
+              </h5>
+              <p-tag value="Activa" severity="success"></p-tag>
+            </div>
+            <div class="entrada-details">
+              <div class="entrada-info">
+                <span class="info-label">Válido para:</span>
+                <span class="info-value">General, Premium</span>
+              </div>
+              <div class="entrada-info">
+                <span class="info-label">Precio base:</span>
+                <span class="info-value">{{ evento.moneda || 'S/' }} 50.00</span>
+              </div>
+              <div class="entrada-actions-small">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  text="true"
+                  pTooltip="Ver precios detallados"
+                ></p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text="true"
+                  pTooltip="Editar entrada"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entrada Preventa -->
+          <div class="entrada-card">
+            <div class="entrada-header">
+              <h5>
+                <i class="pi pi-tag"></i>
+                Entrada Preventa
+              </h5>
+              <p-tag value="Activa" severity="success"></p-tag>
+            </div>
+            <div class="entrada-details">
+              <div class="entrada-info">
+                <span class="info-label">Válido para:</span>
+                <span class="info-value">General</span>
+              </div>
+              <div class="entrada-info">
+                <span class="info-label">Precio base:</span>
+                <span class="info-value">{{ evento.moneda || 'S/' }} 35.00</span>
+              </div>
+              <div class="entrada-actions-small">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  text="true"
+                  pTooltip="Ver precios detallados"
+                ></p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text="true"
+                  pTooltip="Editar entrada"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Límite de compra -->
+        <div class="limite-compra-section">
+          <label class="field-label">
+            <i class="pi pi-shield"></i>
+            Límite de compra por persona
+          </label>
+          <div class="limite-display">
+            <div class="limite-info">
+              <span class="limite-label">Límite actual:</span>
+              <span class="limite-value">
+                <p-tag value="10 entradas máximo" severity="info"></p-tag>
+              </span>
+            </div>
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              text="true"
+              pTooltip="Modificar límite"
+            ></p-button>
+          </div>
         </div>
       </div>
     </p-card>

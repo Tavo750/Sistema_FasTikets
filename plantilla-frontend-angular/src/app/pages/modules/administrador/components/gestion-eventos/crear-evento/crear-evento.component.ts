@@ -47,7 +47,7 @@ interface LimiteCompra {
   selector: 'app-crear-evento',
   standalone: false,
   templateUrl: './crear-evento.component.html',
-  styleUrl: './crear-evento.component.scss'
+  styleUrl: './crear-evento.component.css'
 })
 export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
