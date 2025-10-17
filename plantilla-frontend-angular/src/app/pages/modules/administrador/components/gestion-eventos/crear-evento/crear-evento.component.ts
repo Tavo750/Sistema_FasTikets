@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from '../../../../../../core/services/message.service';
+import { ConfirmPopupService } from '../../../../../../core/services/confirm-popup.service';
 interface EstadoOption {
   label: string;
   value: string;
@@ -170,7 +171,8 @@ export class CrearEventoComponent implements OnInit{
 
   constructor(
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmPopupService: ConfirmPopupService
   ) { }
 
   ngOnInit(): void {
@@ -224,21 +226,29 @@ export class CrearEventoComponent implements OnInit{
     reader.readAsDataURL(file);
   }
 
-  onEliminarBanner(): void {
-    if (confirm('¿Estás seguro de que deseas eliminar el banner?')) {
-      this.evento.bannerUrl = '';
-      this.evento.banner = null;
-      this.usarBannerDefault = false;
-      this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
-    }
+  onEliminarBanner(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar el banner?',
+      () => {
+        this.evento.bannerUrl = '';
+        this.evento.banner = null;
+        this.usarBannerDefault = false;
+        this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
+      }
+    );
   }
 
-  onCancelarEvento(): void {
-    if (confirm('¿Estás seguro de que deseas cancelar este evento?')) {
-      this.messageService.info('Evento cancelado exitosamente', 'Operación Completada');
-      // Redirigir a gestión de eventos
-      this.router.navigate(['/administrador/gestionEventos']);
-    }
+  onCancelarEvento(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas cancelar este evento?',
+      () => {
+        this.messageService.info('Evento cancelado exitosamente', 'Operación Completada');
+        // Redirigir a gestión de eventos
+        this.router.navigate(['/administrador/gestionEventos']);
+      }
+    );
   }
 
   onGuardarCambios(): void {
@@ -308,13 +318,17 @@ export class CrearEventoComponent implements OnInit{
     }
   }
 
-  onEliminarMapa(): void {
-    if (confirm('¿Estás seguro de que deseas eliminar la imagen del mapa?')) {
-      this.evento.mapaUrl = '';
-      this.evento.mapaFile = null;
-      this.usarMapaDefault = false;
-      this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
-    }
+  onEliminarMapa(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar la imagen del mapa?',
+      () => {
+        this.evento.mapaUrl = '';
+        this.evento.mapaFile = null;
+        this.usarMapaDefault = false;
+        this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
+      }
+    );
   }
 
   onAgregarEntrada(): void {
@@ -374,11 +388,15 @@ export class CrearEventoComponent implements OnInit{
     this.messageService.success('Categoría agregada exitosamente', 'Operación Exitosa');
   }
 
-  onEliminarCategoria(index: number): void {
-    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-      this.categoriasLocal.splice(index, 1);
-      this.messageService.success('Categoría eliminada exitosamente', 'Operación Exitosa');
-    }
+  onEliminarCategoria(index: number, event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar esta categoría?',
+      () => {
+        this.categoriasLocal.splice(index, 1);
+        this.messageService.success('Categoría eliminada exitosamente', 'Operación Exitosa');
+      }
+    );
   }
 
   onPublicarInmediatamente(): void {

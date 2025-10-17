@@ -199,7 +199,7 @@
                   icon="pi pi-trash"
                   severity="danger"
                   outlined="true"
-                  (onClick)="onEliminarBanner()"
+                  (onClick)="onEliminarBanner($event)"
                 ></p-button>
               </div>
             </div>
@@ -287,7 +287,7 @@
                   icon="pi pi-trash"
                   severity="danger"
                   text="true"
-                  (onClick)="onEliminarCategoria(i)"
+                  (onClick)="onEliminarCategoria(i, $event)"
                   pTooltip="Eliminar categoría"
                 ></p-button>
               </div>
@@ -344,7 +344,7 @@
                   icon="pi pi-trash"
                   severity="danger"
                   outlined="true"
-                  (onClick)="onEliminarMapa()"
+                  (onClick)="onEliminarMapa($event)"
                 ></p-button>
               </div>
             </div>
@@ -468,7 +468,7 @@
         icon="pi pi-times"
         severity="secondary"
         outlined="true"
-        (onClick)="onCancelarEvento()"
+        (onClick)="onCancelarEvento($event)"
       ></p-button>
       <p-button
         label="Crear Evento"

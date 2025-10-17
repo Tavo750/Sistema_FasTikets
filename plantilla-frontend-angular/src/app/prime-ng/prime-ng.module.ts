@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { CarouselModule } from 'primeng/carousel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { DrawerModule } from 'primeng/drawer';
@@ -49,6 +50,7 @@ import { TagModule } from 'primeng/tag';
     CarouselModule,
     CheckboxModule,
     ConfirmDialogModule,
+    ConfirmPopupModule,
     DatePickerModule,
     DialogModule,
     DynamicDialogModule,
