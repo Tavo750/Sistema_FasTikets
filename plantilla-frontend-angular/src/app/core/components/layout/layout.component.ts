@@ -89,6 +89,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
     }
   }
 
+  navigateToHome() {
+    this.router.navigate(['/home']);
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     if (event.target.innerWidth >= 768) {

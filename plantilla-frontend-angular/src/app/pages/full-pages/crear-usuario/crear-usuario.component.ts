@@ -155,10 +155,10 @@ export class CrearUsuarioComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error completo del endpoint:', error);
-          
+
           // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
-          
+
           if (error.mensaje) {
             // El mensaje que viene del HttpUtilsService
             mensajeError = error?.mensaje;
@@ -169,7 +169,7 @@ export class CrearUsuarioComponent implements OnInit {
           } else if (error.error?.mensaje) {
             mensajeError = error.error.mensaje;
           }
-          
+
           console.error('Mensaje de error del endpoint:', mensajeError);
           this.mostrarError(mensajeError);
         },
@@ -269,10 +269,10 @@ export class CrearUsuarioComponent implements OnInit {
   onPaste(event: ClipboardEvent, fieldName: string): void {
     event.preventDefault();
     const clipboardData = event.clipboardData?.getData('text') || '';
-    
+
     // Filtrar solo números
     const numbersOnly = clipboardData.replace(/[^0-9]/g, '');
-    
+
     // Aplicar límite según el campo
     let maxLength = 0;
     if (fieldName === 'telefono') {
@@ -280,11 +280,15 @@ export class CrearUsuarioComponent implements OnInit {
     } else if (fieldName === 'numeroDocumento') {
       maxLength = 8;
     }
-    
+
     const limitedValue = numbersOnly.substring(0, maxLength);
-    
+
     // Actualizar el valor del formulario
     this.registroForm.get(fieldName)?.setValue(limitedValue);
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/home']);
   }
 
 

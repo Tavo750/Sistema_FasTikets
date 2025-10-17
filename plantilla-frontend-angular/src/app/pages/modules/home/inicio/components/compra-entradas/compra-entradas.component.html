@@ -43,7 +43,7 @@
     </div>
   </div>
   <div class="summary-section">
-    
+
       <h3>Detalles de la Compra</h3>
       <div class="event-info">
         <strong class="event-title">{{ event.title }}</strong>
@@ -86,7 +86,7 @@
   <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">
     <ng-template pTemplate="header">
       <div class="modal-header" >
-        <img src="/img/logo/logo-fasticket.jpg" alt="Fasticket" class="modal-logo" />
+        <img src="/img/logo/logo-fasticket.jpg" alt="Fasticket" class="modal-logo" (click)="navigateToHome()" />
         <button type="button" class="close-button" (click)="onExitCancel()">×</button>
       </div>
     </ng-template>

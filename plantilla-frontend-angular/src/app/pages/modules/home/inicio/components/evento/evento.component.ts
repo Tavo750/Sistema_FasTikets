@@ -81,7 +81,9 @@ export class EventoComponent implements AfterViewInit {
         return;
       }
       // aquí disparar flujo de compra inmediata
+
       console.log('Comprar ahora', selectedTickets);
+
     }
 
     ngAfterViewInit() {

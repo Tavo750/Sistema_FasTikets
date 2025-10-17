@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 
 @Component({
@@ -31,7 +32,7 @@ export class CompraEntradasComponent implements OnInit {
 	showConfirmExitDialog: boolean = false;
 	showSuccessDialog: boolean = false;
 
-	constructor() {}
+	constructor(private router: Router) {}
 	ngOnInit(): void {
 		// Inicializar participantes según quantity
 		this.participants = Array.from({ length: this.quantity }, () => ({
@@ -63,12 +64,12 @@ export class CompraEntradasComponent implements OnInit {
 		this.showPagoDialog = false;
 		this.showSuccessDialog = true;
 	}
-	
+
 	onSuccessOk(): void {
 		this.showSuccessDialog = false;
 		// Aquí podrías redirigir a home o limpiar el formulario
 	}
-	
+
 	onViewDetail(): void {
 		// Acción para ver detalle de la compra
 		console.log('Ver detalle de la compra');
@@ -94,6 +95,10 @@ export class CompraEntradasComponent implements OnInit {
 		// Ejemplo sencillo: cada punto = S/1
 		this.remainingPoints = 100 - this.pointsToUse;
 		this.totalAmount = this.subtotal - this.pointsToUse;
+	}
+
+	navigateToHome(): void {
+		this.router.navigate(['/home']);
 	}
 }
 

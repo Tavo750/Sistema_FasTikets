@@ -153,4 +153,8 @@ export class SidebarComponent implements OnInit {
     }
   }
 
+  navigateToHome() {
+    this.router.navigate(['/home']);
+  }
+
 }
