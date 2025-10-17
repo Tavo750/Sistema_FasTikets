@@ -13,7 +13,7 @@
       <app-header class="flex-grow-1" [usuario]="usuario"></app-header>
     </div>
 
-    <div class="flex-grow-1 d-flex">
+    <div class="content-wrapper d-flex">
       <!-- Sidebar para mobile y cuando está cerrado -->
       <div *ngIf="shouldShowSidebar && (isMobile || !isSidebarOpen)" class="sidebar-container" [class.open]="isSidebarOpenMobile">
         <app-sidebar class="sidebar" [open]="isMobile ? isSidebarOpenMobile : isSidebarOpen"></app-sidebar>
