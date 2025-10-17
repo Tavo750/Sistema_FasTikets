@@ -1,35 +1,188 @@
-<div class="evento-card">
-  <div class="imagen-col">
-    <img [src]="imageUrl" alt="Imagen del evento" />
-  </div>
-  <div class="detalle-col">
-    <h2 class="titulo">{{ title }}</h2>
-    <div class="info-fecha">
-      <div><strong>Fecha</strong></div>
-      <div>{{ date }}</div>
-    </div>
-    <div class="info-fecha">
-      <div><strong>Horario</strong></div>
-      <div>{{ time }}</div>
+<div class="evento-container">
+  <p-card [style]="{'width': '100%', 'max-width': '1200px', 'margin': '0 auto'}" styleClass="evento-card-modern">
+
+    <!-- Layout principal: imagen izquierda, info derecha -->
+    <div class="evento-layout">
+      <!-- Columna izquierda: Imagen del evento -->
+      <div class="evento-imagen-col">
+        <div class="evento-imagen">
+          <p-image
+            [src]="imageUrl"
+            alt="Imagen del evento"
+            width="100%"
+            height="400"
+            [preview]="true"
+            styleClass="evento-image">
+          </p-image>
+        </div>
+
+        <!-- Video del evento -->
+        <div class="video-evento" *ngIf="videoUrl">
+          <h4 class="video-titulo">Vista previa del evento</h4>
+          <div class="video-container">
+            <video
+              [src]="videoUrl"
+              controls
+              preload="metadata"
+              class="evento-video"
+              #eventoVideo>
+              Tu navegador no soporta el elemento video.
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Información del evento y tickets -->
+      <div class="evento-info-col">
+        <!-- Header con información básica -->
+        <div class="evento-header-info">
+          <h1 class="evento-titulo">{{ title }}</h1>
+
+          <div class="info-badges">
+            <p-tag
+              value="EVENTO EN VIVO"
+              severity="success"
+              [rounded]="true"
+              styleClass="mb-2">
+            </p-tag>
+          </div>
+
+          <div class="evento-detalles-basicos">
+            <div class="detalle-basico">
+              <span class="detalle-label">Fecha</span>
+              <span class="detalle-valor">{{ date }}</span>
+            </div>
+
+            <div class="detalle-basico">
+              <span class="detalle-label">Horario</span>
+              <span class="detalle-valor">{{ time }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de tickets -->
+        <div class="tickets-section">
+          <h2 class="tickets-title">Entradas</h2>
+
+          <div class="tickets-list">
+            <div
+              *ngFor="let ticket of tickets"
+              class="ticket-item">
+
+              <div class="ticket-info">
+                <div class="ticket-name">{{ ticket.name }}</div>
+                <div class="ticket-price">
+                  S/ {{ ticket.price | number:'1.2-2' }}
+                </div>
+              </div>
+
+              <div class="ticket-controls">
+                <p-button
+                  icon="pi pi-minus"
+                  size="small"
+                  severity="secondary"
+                  [disabled]="ticket.quantity <= 0"
+                  (onClick)="decrement(ticket)"
+                  [rounded]="true"
+                  styleClass="quantity-btn-minus">
+                </p-button>
+
+                <span class="quantity-display">{{ ticket.quantity }}</span>
+
+                <p-button
+                  icon="pi pi-plus"
+                  size="small"
+                  severity="danger"
+                  (onClick)="increment(ticket)"
+                  [rounded]="true"
+                  styleClass="quantity-btn-plus">
+                </p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Política de privacidad -->
+        <div class="privacy-notice">
+          <i class="pi pi-check-circle" style="color: #22c55e;"></i>
+          <span>Acepta compartir sus datos personales con el organizador del evento.</span>
+        </div>
+      </div>
     </div>
 
-    <h3>Entradas</h3>
-    <ul class="lista-entradas">
-      <li *ngFor="let t of tickets">
-        <div class="entrada-nombre">
-          {{ t.name }} <span class="precio">S/ {{ t.price | number:'1.2-2' }}</span>
-        </div>
-        <div class="contador">
-          <button (click)="decrement(t)">–</button>
-          <span>{{ t.quantity }}</span>
-          <button (click)="increment(t)">+</button>
-        </div>
-      </li>
-    </ul>
+    <!-- Sección de descripción y mapa -->
+    <div class="evento-detalles-adicionales">
+      <!-- Descripción del evento -->
+      <div class="descripcion-evento">
+        <h3 class="descripcion-titulo">{{ title }}</h3>
+        <p class="descripcion-texto">{{ description }}</p>
 
-    <div class="acciones">
-      <button class="btn-secundario" (click)="onBuyNow()">Comprar Ahora</button>
-      <button class="btn-principal" (click)="onAddToCart()">Añadir al Carrito</button>
+        <!-- Diagrama de asientos (opcional) -->
+        <div class="diagrama-asientos" *ngIf="showSeatingChart">
+          <h4>Escenario</h4>
+          <div class="seating-chart">
+            <div class="section platinum">
+              <span>PLATINUM ASIENTOS NUMERADOS</span>
+            </div>
+            <div class="section vip">
+              <span>VIP ASIENTOS NUMERADOS</span>
+            </div>
+            <div class="section tribuna">
+              <span>TRIBUNA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mapa y ubicación -->
+      <div class="evento-ubicacion">
+        <div class="ubicacion-info">
+          <h4>{{ venue }}</h4>
+          <p class="direccion">{{ address }}</p>
+          <p class="organizador">{{ organizer }}</p>
+        </div>
+
+        <div class="mapa-container">
+          <div
+            id="evento-mapa"
+            class="evento-mapa"
+            #eventoMapa>
+          </div>
+        </div>
+      </div>
     </div>
+
+  </p-card>
+
+  <!-- Barra inferior flotante con resumen -->
+  <div class="evento-footer" *ngIf="getTotalTickets() > 0">
+    <p-card styleClass="resumen-card">
+      <div class="resumen-content">
+        <div class="resumen-info">
+          <span class="resumen-tickets">{{ getTotalTickets() }} entrada(s) seleccionada(s)</span>
+          <span class="resumen-total">Total: S/ {{ getTotalPrice() | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="resumen-acciones">
+          <p-button
+            label="Añadir al Carrito"
+            icon="pi pi-shopping-cart"
+            severity="secondary"
+            size="large"
+            (onClick)="onAddToCart()"
+            styleClass="mr-2">
+          </p-button>
+
+          <p-button
+            label="Comprar Ahora"
+            icon="pi pi-credit-card"
+            severity="success"
+            size="large"
+            (onClick)="onBuyNow()">
+          </p-button>
+        </div>
+      </div>
+    </p-card>
   </div>
+
 </div>
