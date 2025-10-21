@@ -1,6 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import * as global from '../../../global'
-import { Persona } from '../../interfaces/login.interface';
+import { Data } from '../../interfaces/login.interface';
 import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
 import { NavigationEnd, Router } from '@angular/router';
@@ -19,7 +19,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   isMobile = false;
   shouldShowSidebar = false; // Controla si el sidebar debe mostrarse
 
-  usuario: Persona | null = null;
+  usuario: Data | null = null;
   private routerSubscription!: Subscription;
   private authCheckSubscription!: Subscription;
 
