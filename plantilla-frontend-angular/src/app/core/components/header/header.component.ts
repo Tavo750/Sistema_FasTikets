@@ -99,7 +99,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Mi perfil',
             icon: 'pi pi-user',
-            routerLink: '/usuario/perfilPersonal',
+            routerLink: '/administrador/perfilAdministrador',
           },
           { separator: true },
           {

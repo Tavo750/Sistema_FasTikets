@@ -334,6 +334,7 @@
 }
 
 .mapa-display, .mapa-container .upload-area {
+  position: relative;
   height: 250px;
 }
 
