@@ -89,7 +89,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   validarDominioPermitido(email: string): boolean {
-    const dominiosPermitidos = ['gmail.com', 'pucp.edu.pe'];
+    const dominiosPermitidos = ['gmail.com', 'pucp.edu.pe','uni.pe','hotmail.com','yahoo.com', 'outlook.com', 'icloud.com','unmsm.edu.pe'];
     const dominio = email.split('@')[1]?.toLowerCase();
     return dominiosPermitidos.includes(dominio);
   }
@@ -114,7 +114,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             email: resp.data.email,
             rol: resp.data.rol
           };
-          
+
           // Guardar la información del usuario en el SessionService
           this.sessionService.setUser(persona);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
