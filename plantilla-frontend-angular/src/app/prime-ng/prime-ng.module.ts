@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { CarouselModule } from 'primeng/carousel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { DrawerModule } from 'primeng/drawer';
@@ -39,9 +40,7 @@ import { PanelModule } from 'primeng/panel';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
-
-
-
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   exports: [
@@ -51,6 +50,7 @@ import { TooltipModule } from 'primeng/tooltip';
     CarouselModule,
     CheckboxModule,
     ConfirmDialogModule,
+    ConfirmPopupModule,
     DatePickerModule,
     DialogModule,
     DynamicDialogModule,
@@ -83,7 +83,8 @@ import { TooltipModule } from 'primeng/tooltip';
     ToggleButtonModule,
     CalendarModule,
     DropdownModule,
-    TooltipModule
+    TooltipModule,
+    TagModule
   ]
 })
 export class PrimeNgModule { }

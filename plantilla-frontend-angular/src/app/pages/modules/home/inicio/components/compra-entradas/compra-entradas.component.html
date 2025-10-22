@@ -1,1 +1,163 @@
-<p>compra-entradas works!</p>
+<div class="compra-container">
+  <div class="form-section">
+    <h2>Complete los Datos de los Participantes:</h2>
+    <div class="participant-card" *ngFor="let p of participants; let i = index">
+      <div class="card-header">
+        <div class="ticket-type">
+          <h3>Tipo de entrada</h3>
+          <p>{{ p.ticketType }}</p>
+        </div>
+        <label class="auto-complete">
+          <input type="checkbox" [(ngModel)]="p.autoComplete">
+          Completar con mis datos
+          <span *ngIf="p.autoComplete" class="check-icon">✔️</span>
+        </label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de Documento: <span class="required">*</span></label>
+            <select [(ngModel)]="p.docType">
+              <option *ngFor="let t of docTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Numero de Documento: <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="p.docNumber" placeholder="Complete aquí">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombre: <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="p.firstName" placeholder="Complete aquí">
+          </div>
+          <div class="form-group">
+            <label>Apellidos: <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="p.lastName" placeholder="Complete aquí">
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <small><span class="info-icon">ℹ️</span> Los campos con <span class="required">*</span> son obligatorios.</small>
+      </div>
+    </div>
+  </div>
+  <div class="summary-section">
+    
+      <h3>Detalles de la Compra</h3>
+      <div class="event-info">
+        <strong class="event-title">{{ event.title }}</strong>
+        <p class="event-date-time">{{ event.date }} | {{ event.time }}</p>
+        <p class="event-venue">{{ event.venue }}</p>
+      </div>
+      <button class="ticket-line">
+        <span>{{ quantity }} x Entrada {{ ticketCategory }}</span>
+        <span>S/ {{ price | number:'1.2-2' }}</span>
+      </button>
+      <div class="line">
+        <span>Sub Total:</span>
+        <span>S/ {{ subtotal | number:'1.2-2' }}</span>
+      </div>
+      <div class="points-section">
+        <span>Canje de Puntos</span>
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="usePoints">
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="points-control" *ngIf="usePoints">
+        <button (click)="decreasePoints()">&lt;</button>
+        <span>{{ pointsToUse }} Pts.</span>
+        <button (click)="increasePoints()">&gt;</button>
+      </div>
+      <div class="line" *ngIf="usePoints">
+        <span>Saldo de puntos restantes:</span>
+        <span>{{ remainingPoints }} Pts.</span>
+      </div>
+      <div class="total-line">
+        <strong>Monto Total:</strong>
+        <strong>S/ {{ totalAmount | number:'1.2-2' }}</strong>
+      </div>
+      <button class="continue-btn" (click)="onContinuar()">Continuar</button>
+      <button class="cancel-btn" (click)="showPagoDialog=false">Cancelar</button>
+    </div>
+
+  <!-- Modal de pago con PrimeNG -->
+  <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">
+    <ng-template pTemplate="header">
+      <div class="modal-header" >
+        <img src="/img/logo/logo-fasticket.jpg" alt="Fasticket" class="modal-logo" />
+        <button type="button" class="close-button" (click)="onExitCancel()">×</button>
+      </div>
+    </ng-template>
+
+    <div class="modal-body">
+      <div class="brand-icons">
+        <img src="/img/logo/Visa-Logo.png" alt="Visa" />
+        <img src="/img/logo/mastercard-logo.webp" alt="MasterCard" />
+        <img src="/img/logo/American-Express-Logo.png" alt="American Express" />
+      </div>
+      <div class="payment-amount">
+        <h2>Monto:</h2>
+        <p>S/ {{ totalAmount | number:'1.2-2' }}</p>
+      </div>
+      <p class="subtitle">Recuerda activar las compras por internet con tu banco</p>
+      <form class="payment-form">
+        <div class="form-group">
+          <label><i class="pi pi-credit-card"></i> Número de tarjeta *</label>
+          <input type="text" placeholder="Número de tarjeta" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label><i class="pi pi-calendar"></i> Fecha de caducidad *</label>
+            <input type="text" placeholder="MM/AA" />
+          </div>
+          <div class="form-group">
+            <label><i class="pi pi-key"></i> CVV *</label>
+            <input type="text" placeholder="CVV" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label><i class="pi pi-user"></i> Nombre del titular de la tarjeta *</label>
+          <input type="text" placeholder="Nombre del titular de la tarjeta" />
+        </div>
+        <div class="form-group">
+          <label><i class="pi pi-envelope"></i> Correo electrónico *</label>
+          <input type="email" placeholder="Correo electrónico" />
+        </div>
+        <div class="form-group">
+          <label>Cuotas *</label>
+          <select>
+            <option>Sin cuotas</option>
+          </select>
+        </div>
+        <button pButton type="button" label="PAGAR" class="p-button-lg p-button-block p-button-success" (click)="onPagar()"></button>
+      </form>
+    </div>
+  </p-dialog>
+
+  <!-- Modal de confirmación de salida -->
+  <p-dialog header="" [(visible)]="showConfirmExitDialog" modal="true" [closable]="false" [style]="{width: '500px'}">
+    <div class="confirm-exit-modal">
+      <h2>¿Estás seguro que deseas salir de esta página?</h2>
+      <p>Si sales de esta página se perderán los datos que ya habías completado y se cancelará tu reserva</p>
+      <div class="confirm-exit-buttons">
+        <button pButton type="button" label="Sí, salir" class="p-button-success" (click)="onExitConfirm()"></button>
+        <button pButton type="button" label="No, continuar" class="p-button-danger" (click)="ofExitCancel()"></button>
+      </div>
+    </div>
+  </p-dialog>
+</div>
+
+<!-- Modal de éxito de compra -->
+<p-dialog header="" [(visible)]="showSuccessDialog" modal="true" [closable]="false" [style]="{width: '400px'}" (onHide)="showSuccessDialog=false">
+  <div class="success-modal">
+    <h2>¡Compra realizada con éxito!</h2>
+    <i class="pi pi-check-circle success-icon"></i>
+    <p>Su comprobante de pago ha sido enviado a su correo electrónico proporcionado previamente.<br><em>Gracias por su compra</em></p>
+    <div class="success-buttons">
+      <button pButton type="button" label="Ok, continuar" class="p-button-secondary" (click)="onSuccessOk()"></button>
+      <button pButton type="button" label="Ver detalle" class="p-button-success" (click)="onViewDetail()"></button>
+    </div>
+  </div>
+</p-dialog>

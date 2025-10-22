@@ -1,0 +1,56 @@
+/* Contenedor del resumen de carrito */
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 350px;
+}
+
+/* Filas de datos */
+.line {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+/* Input de código promocional */
+.promo-input {
+  width: 60%;
+  padding: 4px 8px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+}
+
+/* Estado del código promocional */
+.promo-status {
+  display: flex;
+  justify-content: flex-start;
+  margin: -8px 0 8px 0;
+}
+
+/* Textos de validación */
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
+}
+
+/* Estilo específico para mostrar descuento en rojo */
+.discount span:last-child {
+  color: red;
+}
+
+/* Botón de compra */
+.buy-btn {
+  width: 100%;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 16px;
+  cursor: pointer;
+}

@@ -1,29 +1,126 @@
-<div class="card">
-    <div class="dentroCard">
-    <form [formGroup]="cambiarContrasenaForm!" (ngSubmit)="onSubmit()" class="form-narrow">
-        <h2>Cambiar mi contraseña</h2>
-        <div class="form-group">
-            <label>Contraseña actual</label>
-            <input type="password" pInputText formControlName="contrasenaActual">
-        </div>
-        
-        <div class="form-group">
-            <label>Contraseña nueva</label>
-            <input type="password" pInputText formControlName="contrasenaNueva">
-        </div>
-        
-        <div class="form-group">
-            <label>Repita la nueva contraseña</label>
-            <input type="password" pInputText formControlName="confirmarContrasena">
-        </div>
+<div class="container">
+    <div class="header-section">
+        <h1 class="title">
+            <i class="pi pi-key"></i>
+            Cambiar Contraseña
+        </h1>
 
-        <div class="button-container">
-            <button pButton type="button" label="Volver" class="p-button-danger" 
-                    [routerLink]="['/administrador/perfilAdministrador']">
-            </button>
-            <button pButton type="submit" label="Cambiar" class="p-button-success">
-            </button>
-        </div>
-    </form>
+        <p-button
+            label="Volver al Perfil"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            [routerLink]="['/administrador/perfilAdministrador']"
+            class="back-button">
+        </p-button>
+    </div>
+
+    <div class="form-content">
+        <p-card class="password-card">
+            <ng-template pTemplate="header">
+                <div class="card-header">
+                    <h3>
+                        <i class="pi pi-shield"></i>
+                        Actualizar Credenciales de Acceso
+                    </h3>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="content">
+                <form [formGroup]="cambiarContrasenaForm!" (ngSubmit)="onSubmit()" class="password-form">
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="contrasenaActual" class="field-label">
+                                <i class="pi pi-lock"></i>
+                                Contraseña Actual *
+                            </label>
+                            <p-password
+                                id="contrasenaActual"
+                                formControlName="contrasenaActual"
+                                placeholder="Ingrese su contraseña actual"
+                                [feedback]="false"
+                                [toggleMask]="true"
+                                styleClass="password-input"
+                                [class.ng-invalid]="hasFieldError('contrasenaActual')">
+                            </p-password>
+                            <small class="error-message" *ngIf="hasFieldError('contrasenaActual')">
+                                <i class="pi pi-exclamation-triangle"></i>
+                                {{ getFieldErrorMessage('contrasenaActual') }}
+                            </small>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="contrasenaNueva" class="field-label">
+                                <i class="pi pi-key"></i>
+                                Nueva Contraseña *
+                            </label>
+                            <p-password
+                                id="contrasenaNueva"
+                                formControlName="contrasenaNueva"
+                                placeholder="Ingrese la nueva contraseña"
+                                [feedback]="true"
+                                [toggleMask]="true"
+                                styleClass="password-input"
+                                [class.ng-invalid]="hasFieldError('contrasenaNueva')">
+                            </p-password>
+                            <small class="error-message" *ngIf="hasFieldError('contrasenaNueva')">
+                                <i class="pi pi-exclamation-triangle"></i>
+                                {{ getFieldErrorMessage('contrasenaNueva') }}
+                            </small>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="confirmarContrasena" class="field-label">
+                                <i class="pi pi-verified"></i>
+                                Confirmar Nueva Contraseña *
+                            </label>
+                            <p-password
+                                id="confirmarContrasena"
+                                formControlName="confirmarContrasena"
+                                placeholder="Confirme la nueva contraseña"
+                                [feedback]="false"
+                                [toggleMask]="true"
+                                styleClass="password-input"
+                                [class.ng-invalid]="hasFieldError('confirmarContrasena')">
+                            </p-password>
+                            <small class="error-message" *ngIf="hasFieldError('confirmarContrasena')">
+                                <i class="pi pi-exclamation-triangle"></i>
+                                {{ getFieldErrorMessage('confirmarContrasena') }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Mensajes de éxito y error -->
+                    <div class="message-container" *ngIf="mensajeExito || mensajeError">
+                        <div class="success-message" *ngIf="mensajeExito">
+                            <i class="pi pi-check-circle"></i>
+                            {{ mensajeExito }}
+                        </div>
+                        <div class="error-global" *ngIf="mensajeError">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            {{ mensajeError }}
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <div class="card-actions">
+                    <p-button
+                        label="Cancelar"
+                        icon="pi pi-times"
+                        severity="secondary"
+                        [routerLink]="['/administrador/perfilAdministrador']">
+                    </p-button>
+                    <p-button
+                        label="Cambiar Contraseña"
+                        icon="pi pi-check"
+                        type="submit"
+                        (click)="onSubmit()"
+                        [disabled]="!cambiarContrasenaForm?.valid || cargando"
+                        [loading]="cargando">
+                    </p-button>
+                </div>
+            </ng-template>
+        </p-card>
     </div>
 </div>

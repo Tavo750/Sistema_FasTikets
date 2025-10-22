@@ -1,0 +1,31 @@
+<div class="summary-card">
+  <div class="line">
+    <span>Precio de las entradas :</span>
+    <span>S/ {{ subtotal | number:'1.2-2' }}</span>
+  </div>
+  <div class="line">
+    <span>Cargos Adicionales :</span>
+    <span>S/ {{ additionalCharges | number:'1.2-2' }}</span>
+  </div>
+  <div class="line">
+    <span>Impuestos :</span>
+    <span>S/ {{ taxes | number:'1.2-2' }}</span>
+  </div>
+  <div class="line">
+    <span>Código promocional :</span>
+    <input [(ngModel)]="promoCode" placeholder="XXXXXX" class="promo-input">
+  </div>
+  <div class="line promo-status" *ngIf="isPromoValid !== null">
+    <span class="valid" *ngIf="isPromoValid">Código válido</span>
+    <span class="invalid" *ngIf="!isPromoValid">Código inválido</span>
+  </div>
+  <div class="line discount">
+    <span>Valor de descuento :</span>
+    <span>- S/ {{ discount | number:'1.2-2' }}</span>
+  </div>
+  <div class="line total">
+    <span>Total a pagar :</span>
+    <span>S/ {{ total | number:'1.2-2' }}</span>
+  </div>
+  <button class="buy-btn">Realizar compra</button>
+</div>

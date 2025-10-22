@@ -1,1 +1,186 @@
-<span>lista </span>
+<div class="contenedor">
+  <!-- HERO SECTION -->
+  <div class="hero-section">
+    <h1 class="titulo-principal">
+      <i class="pi pi-calendar" style="margin-right: 0.5rem;"></i>
+      Próximos Eventos
+    </h1>
+    <p class="subtitulo">Descubre los mejores conciertos y eventos musicales</p>
+  </div>
+
+  <!-- FILTROS CON PRIMENG -->
+  <p-panel header="Filtrar Eventos" [toggleable]="true" styleClass="filtros-panel">
+    <div class="filtros">
+      <div class="filtro">
+        <label for="categoria">Categoría</label>
+        <p-dropdown
+          id="categoria"
+          [options]="categoriasDropdown"
+          [(ngModel)]="categoriaSeleccionada"
+          (onChange)="filtrarPorCategoria($event.value)"
+          placeholder="Todas las categorías"
+          [showClear]="true"
+          styleClass="filtro-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="filtro">
+        <label for="fecha">Fecha</label>
+        <p-calendar
+          id="fecha"
+          [(ngModel)]="fechaSeleccionada"
+          placeholder="Seleccionar fecha"
+          [showIcon]="true"
+          [showClear]="true"
+          styleClass="filtro-calendar">
+        </p-calendar>
+      </div>
+
+      <div class="filtro">
+        <label for="ubicacion">Ubicación</label>
+        <p-dropdown
+          id="ubicacion"
+          [options]="ubicacionesDropdown"
+          [(ngModel)]="ubicacionSeleccionada"
+          (onChange)="filtrarPorUbicacion($event.value)"
+          placeholder="Todas las ubicaciones"
+          [showClear]="true"
+          styleClass="filtro-dropdown">
+        </p-dropdown>
+      </div>
+
+      <div class="filtro">
+        <label for="ordenar">Ordenar por</label>
+        <p-dropdown
+          id="ordenar"
+          [options]="ordenarOpciones"
+          [(ngModel)]="ordenSeleccionado"
+          (onChange)="ordenarEventos($event.value)"
+          placeholder="Relevancia"
+          styleClass="filtro-dropdown">
+        </p-dropdown>
+      </div>
+    </div>
+  </p-panel>
+
+  <!-- ESTADÍSTICAS RÁPIDAS -->
+  <div class="estadisticas">
+    <div class="stat-card">
+      <i class="pi pi-music"></i>
+      <div class="stat-info">
+        <span class="stat-number">{{ eventos.length }}</span>
+        <span class="stat-label">Eventos Disponibles</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="pi pi-map-marker"></i>
+      <div class="stat-info">
+        <span class="stat-number">{{ ubicaciones.length }}</span>
+        <span class="stat-label">Ubicaciones</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="pi pi-tag"></i>
+      <div class="stat-info">
+        <span class="stat-number">{{ categorias.length }}</span>
+        <span class="stat-label">Categorías</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENTOS CON CARDS DE PRIMENG -->
+  <div class="eventos-grid" *ngIf="obtenerEventosPagina().length > 0">
+    <p-card
+      *ngFor="let evento of obtenerEventosPagina(); let i = index"
+      styleClass="evento-card"
+      [style]="{'animation-delay': (i * 0.1) + 's'}">
+
+      <ng-template pTemplate="header">
+        <div class="evento-imagen">
+          <img [src]="evento.imagen" [alt]="evento.nombre" />
+          <div class="categoria-badge">
+            <p-tag [value]="evento.categoria" [severity]="getCategorySeverity(evento.categoria)"></p-tag>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="evento-content">
+        <h3 class="evento-titulo">{{ evento.nombre }}</h3>
+
+        <div class="evento-detalles">
+          <div class="detalle-item">
+            <i class="pi pi-calendar-plus"></i>
+            <span>{{ evento.fecha }}</span>
+          </div>
+
+          <div class="detalle-item">
+            <i class="pi pi-map-marker"></i>
+            <span>{{ evento.lugar }}</span>
+          </div>
+
+          <div class="detalle-item precio-destacado">
+            <i class="pi pi-dollar"></i>
+            <span>Desde S/ {{ evento.precio | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <div class="evento-acciones">
+          <p-button
+            label="Ver Detalles"
+            icon="pi pi-eye"
+            (onClick)="goToEvento()"
+            styleClass="evento-btn-detalle">
+          </p-button>
+          <p-button
+            label="Comprar"
+            icon="pi pi-shopping-cart"
+            (onClick)="comprarEvento(evento)"
+            styleClass="evento-btn-comprar"
+            severity="danger">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- MENSAJE CUANDO NO HAY EVENTOS -->
+  <div class="no-events" *ngIf="obtenerEventosPagina().length === 0">
+    <i class="pi pi-calendar-times"></i>
+    <h3>No se encontraron eventos</h3>
+    <p>Intenta ajustar los filtros para encontrar más eventos disponibles.</p>
+    <p-button
+      label="Limpiar Filtros"
+      icon="pi pi-refresh"
+      (onClick)="limpiarFiltros()"
+      severity="secondary">
+    </p-button>
+  </div>
+
+  <!-- PAGINACIÓN CON PRIMENG -->
+  <div class="paginacion-container" *ngIf="eventosFiltrados.length > eventosPorPagina">
+    <p-paginator
+      [rows]="eventosPorPagina"
+      [totalRecords]="eventosFiltrados.length"
+      [first]="(paginaActual - 1) * eventosPorPagina"
+      (onPageChange)="onPageChange($event)"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} - {last} de {totalRecords} eventos"
+      styleClass="custom-paginator">
+    </p-paginator>
+  </div>
+
+  <!-- SECCIÓN DE INFORMACIÓN ADICIONAL -->
+  <div class="info-adicional">
+    <div class="info-card">
+      <h4>¿Por qué elegirnos?</h4>
+      <ul>
+        <li><i class="pi pi-check-circle"></i> Compra 100% segura</li>
+        <li><i class="pi pi-check-circle"></i> Entradas verificadas</li>
+        <li><i class="pi pi-check-circle"></i> Soporte 24/7</li>
+        <li><i class="pi pi-check-circle"></i> Mejores precios garantizados</li>
+      </ul>
+    </div>
+  </div>
+</div>

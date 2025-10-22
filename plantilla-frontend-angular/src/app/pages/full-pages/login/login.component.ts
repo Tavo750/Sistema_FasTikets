@@ -106,8 +106,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginService.getLogin(this.username, this.password).subscribe({
       next: (resp) => {
         if (resp.ok === true) {
+          // Crear objeto persona a partir de los datos recibidos
+          const persona = {
+            docIdentidad: resp.data.idUsuario.toString(),
+            nombres: resp.data.nombreCompleto.split(' ')[0] || '',
+            apellidos: resp.data.nombreCompleto.split(' ').slice(1).join(' ') || '',
+            email: resp.data.email,
+            rol: resp.data.rol
+          };
+          
           // Guardar la información del usuario en el SessionService
-          this.sessionService.setUser(resp.persona);
+          this.sessionService.setUser(persona);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
           this.router.navigate(['/home/inicio']);
         } else {
@@ -121,7 +130,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.message
+          detail: error.message || 'Error en la autenticación'
         });
         this.hayError = true;
       }

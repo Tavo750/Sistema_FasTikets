@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, Input, Output, ChangeDetectorRef } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sidebar-item',
@@ -18,15 +19,26 @@ export class SidebarItemComponent {
 
   @Input() currentExpandedItemIndex: number[] = [];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+    // Escuchar cambios de navegación para actualizar el estado activo
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.cdr.detectChanges();
+    });
+  }
 
   toggleExpansion(index: number) {
     if (this.item.items && this.item.items.length > 0) {
       // Solo emitir expand/collapse si tiene hijos
       this.expandChange.emit({ depth: this.depth, index: index });
     } else if (this.item.routerLink) {
-      // Solo navegar, sin modificar el estado del sidebar
-      this.router.navigate(Array.isArray(this.item.routerLink) ? this.item.routerLink : [this.item.routerLink]);
+      // Navegar a la ruta
+      const route = Array.isArray(this.item.routerLink) ? this.item.routerLink : [this.item.routerLink];
+      this.router.navigate(route);
     }
   }
 
@@ -42,11 +54,24 @@ export class SidebarItemComponent {
   isActive(): boolean {
     if (!this.item.routerLink) return false;
 
-    const path = Array.isArray(this.item.routerLink)
-      ? '/' + this.item.routerLink.join('/')
-      : '/' + this.item.routerLink;
+    let path: string;
 
-    return this.router.isActive(path, true); // o `true` para exact match
+    if (Array.isArray(this.item.routerLink)) {
+      // Si es array, tomar el primer elemento (que ya debería ser la ruta completa)
+      path = this.item.routerLink[0];
+    } else {
+      // Si es string, usar tal como está
+      path = this.item.routerLink;
+    }
+
+    // Verificar si la URL actual coincide exactamente o es una sub-ruta
+    const currentUrl = this.router.url;
+
+    // Para debug - puedes remover este console.log después
+    console.log('Comparing:', path, 'with current URL:', currentUrl);
+
+    // Verificar coincidencia exacta o si es una sub-ruta
+    return currentUrl === path || currentUrl.startsWith(path + '/');
   }
 
 }
