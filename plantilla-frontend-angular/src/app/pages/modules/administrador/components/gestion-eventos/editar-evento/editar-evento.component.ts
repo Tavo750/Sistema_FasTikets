@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from '../../../../../../core/services/message.service';
+import { ConfirmPopupService } from '../../../../../../core/services/confirm-popup.service';
 interface EstadoOption {
   label: string;
   value: string;
@@ -17,6 +19,7 @@ interface Evento {
   estado: string;
   videoPromocional: string;
   banner?: File | null;
+  bannerUrl?: string;
   local: string;
   mapaUrl?: string;
   mapaFile?: File | null;
@@ -47,7 +50,7 @@ interface LimiteCompra {
   selector: 'app-editar-evento',
   standalone: false,
   templateUrl: './editar-evento.component.html',
-  styleUrl: './editar-evento.component.scss'
+  styleUrl: './editar-evento.component.css'
 })
 export class EditarEventoComponent implements OnInit{
 evento: Evento = {
@@ -62,12 +65,17 @@ evento: Evento = {
     estado: 'publicado',
     videoPromocional: 'Link completamente normal...',
     banner: null,
+    bannerUrl: '',
     local: 'Parque de la exposición',
     mapaUrl: '',
     mapaFile: null,
     moneda: 'Nuevo Sol'
 
   };
+
+  date: Date | undefined;
+  time: Date[] | undefined;
+
 
   estadoOptions: EstadoOption[] = [
     { label: 'PUBLICADO', value: 'publicado' },
@@ -114,6 +122,7 @@ evento: Evento = {
   };
 
   usarMapaDefault: boolean = false;
+  usarBannerDefault: boolean = false;
 
   estadoOption: EstadoOption[] = [
     { label: 'PUBLICADO', value: 'publicado' },
@@ -126,7 +135,11 @@ evento: Evento = {
     { label: 'AGOTADO', value: 'agotado' }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private messageService: MessageService,
+    private confirmPopupService: ConfirmPopupService
+  ) { }
 
   ngOnInit(): void {
     // Aquí puedes cargar datos del evento si estás editando
@@ -137,7 +150,6 @@ evento: Evento = {
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
-    console.log('Cargando evento...');
   }
 
   onFileSelected(event: Event): void {
@@ -147,41 +159,61 @@ evento: Evento = {
 
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        this.messageService.error('Por favor selecciona un archivo de imagen válido', 'Archivo Inválido');
         return;
       }
 
       // Validar tamaño (por ejemplo, máximo 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('La imagen no debe superar los 5MB');
+        this.messageService.error('La imagen no debe superar los 5MB', 'Archivo Muy Grande');
         return;
       }
 
       this.evento.banner = file;
-      console.log('Banner seleccionado:', file.name);
 
-      // Aquí podrías mostrar una preview de la imagen
-      this.mostrarPreview(file);
+      // Crear URL para mostrar preview
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.evento.bannerUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      this.messageService.success('Banner cargado exitosamente', 'Archivo Cargado');
     }
   }
 
   mostrarPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e: any) => {
-      console.log('Preview cargado:', e.target.result);
       // Aquí podrías actualizar una variable para mostrar el preview en el HTML
     };
     reader.readAsDataURL(file);
   }
 
-  onCancelarEvento(): void {
-    if (confirm('¿Estás seguro de que deseas cancelar este evento?')) {
-      console.log('Evento cancelado');
+  onEliminarBanner(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar el banner?',
+      () => {
+        this.evento.banner = null;
+        this.evento.bannerUrl = '';
+        this.usarBannerDefault = false;
+        this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
+      }
+    );
+  }
 
-      // Redirigir a gestión de eventos
-      this.router.navigate(['/administrador/gestionEventos']);
-    }
+  onCancelarEvento(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas cancelar este evento?',
+      () => {
+        this.messageService.info('Evento cancelado exitosamente', 'Operación Completada');
+        // Redirigir a gestión de eventos
+        this.router.navigate(['/administrador/gestionEventos']);
+      }
+    );
   }
 
   onGuardarCambios(): void {
@@ -190,35 +222,31 @@ evento: Evento = {
       return;
     }
 
-    console.log('Guardando cambios del evento:', this.evento);
-
     // Aquí implementarías la lógica para guardar
     // Por ejemplo, llamar a un servicio:
     // this.eventoService.actualizarEvento(this.evento).subscribe(...)
 
-    alert('Cambios guardados exitosamente');
+    this.messageService.success('Cambios guardados exitosamente', 'Evento Actualizado');
   }
 
   validarFormulario(): boolean {
     if (!this.evento.titulo || this.evento.titulo.trim() === '') {
-      alert('El título es obligatorio');
+      this.messageService.error('El título es obligatorio', 'Campo Requerido');
       return false;
     }
 
     if (!this.evento.categoria || this.evento.categoria.trim() === '') {
-      alert('La categoría es obligatoria');
+      this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
       return false;
     }
 
     if (!this.evento.descripcion || this.evento.descripcion.trim() === '') {
-      alert('La descripción es obligatoria');
+      this.messageService.error('La descripción es obligatoria', 'Campo Requerido');
       return false;
     }
 
-
-
     if (!this.evento.hora || !this.evento.minutos) {
-      alert('La hora completa es obligatoria');
+      this.messageService.error('La hora completa es obligatoria', 'Campo Requerido');
       return false;
     }
 
@@ -231,14 +259,14 @@ evento: Evento = {
 
       // Validar que sea una imagen
       if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        this.messageService.error('Por favor selecciona un archivo de imagen válido', 'Archivo Inválido');
         return;
       }
 
       // Validar tamaño (por ejemplo, máximo 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('La imagen no debe superar los 5MB');
+        this.messageService.error('La imagen no debe superar los 5MB', 'Archivo Muy Grande');
         return;
       }
 
@@ -251,8 +279,20 @@ evento: Evento = {
       };
       reader.readAsDataURL(file);
 
-      console.log('Mapa seleccionado:', file.name);
+      this.messageService.success('Mapa seleccionado exitosamente', 'Archivo Cargado');
     }
+  }
+
+  onEliminarMapa(event: any): void {
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar la imagen del mapa?',
+      () => {
+        this.evento.mapaUrl = '';
+        this.evento.mapaFile = null;
+        this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
+      }
+    );
   }
 
 

@@ -1,70 +1,185 @@
-<div class="gestion-locales-container">
-  <h2>Lista de Locales</h2>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-building"></i>
+      Gestión de Locales
+    </h1>
 
-  <div class="acciones">
-    <input type="text" placeholder="Filtrar por nombre, distrito o estado" class="buscador" />
-    <button class="crear-btn" routerLink="/administrador/gestionLocales/crearLocal">+ Crear nuevo local</button>
+    <p-button
+      label="Crear Nuevo Local"
+      icon="pi pi-plus"
+      (onClick)="crearNuevoLocal()"
+      class="add-button">
+    </p-button>
   </div>
 
-  <table class="tabla-locales">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Dirección</th>
-        <th>Distrito</th>
-        <th>Aforo</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1</td>
-        <td>Jockey Plaza Centro de Exposiciones</td>
-        <td>Av. Javier Prado 42000</td>
-        <td>Santiago de Surco</td>
-        <td>5000</td>
-        <td>HABILITADO</td>
-        <td>
-            <button class="editar-btn" [routerLink]="['/administrador/gestionLocales/editarLocal', 1]">Editar</button>
-            <button class="eliminar-btn">Eliminar</button>
-        </td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Mall del Sur</td>
-        <td>Av. Los Lirios 15081</td>
-        <td>San Juan de Miraflores</td>
-        <td>1000</td>
-        <td>HABILITADO</td>
-        <td>
-            <button class="editar-btn" [routerLink]="['/administrador/gestionLocales/editarLocal', 2]">Editar</button>
-            <button class="eliminar-btn">Eliminar</button>
-        </td>
-      </tr>
-      <tr>
-        <td>3</td>
-        <td>Nombre Genérico</td>
-        <td>Av. Brasil 1450</td>
-        <td>Jesús María</td>
-        <td>200</td>
-        <td>HABILITADO</td>
-        <td>
-            <button class="editar-btn" [routerLink]="['/administrador/gestionLocales/editarLocal', 3]">Editar</button>
-            <button class="eliminar-btn">Eliminar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="field">
+        <label for="busqueda">Buscar local:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busqueda"
+            type="text"
+            pInputText
+            placeholder="Filtrar por nombre, distrito o estado"
+            [(ngModel)]="globalFilterValue"
+            (input)="applyGlobalFilter($event)"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+  </p-panel>
 
-  <div class="paginacion">
-    <label for="filas">Filas por página:</label>
-    <select id="filas">
-      <option>5</option>
-      <option selected>10</option>
-      <option>20</option>
-    </select>
-    <span>1 de 10</span>
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Locales encontrados ({{filteredLocales.length}})
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <p-table
+        [value]="filteredLocales"
+        [rows]="rows"
+        [paginator]="true"
+        [first]="first"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '60rem' }"
+        styleClass="custom-table"
+        [loading]="false">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombre">
+              <div class="header-content">
+                <i class="pi pi-building"></i>
+                Nombre
+                <p-sortIcon field="nombre"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="direccion">
+              <div class="header-content">
+                <i class="pi pi-map-marker"></i>
+                Dirección
+                <p-sortIcon field="direccion"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="distrito">
+              <div class="header-content">
+                <i class="pi pi-map"></i>
+                Distrito
+                <p-sortIcon field="distrito"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="aforo">
+              <div class="header-content">
+                <i class="pi pi-users"></i>
+                Aforo
+                <p-sortIcon field="aforo"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="estado">
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Estado
+                <p-sortIcon field="estado"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-local>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{local.id}}</span>
+            </td>
+            <td class="name-cell">
+              <div class="name-content">
+                <i class="pi pi-building name-icon"></i>
+                <span class="name-text">{{local.nombre}}</span>
+              </div>
+            </td>
+            <td class="address-cell">{{local.direccion}}</td>
+            <td class="district-cell">{{local.distrito}}</td>
+            <td class="capacity-cell">
+              <span class="capacity-value">{{local.aforo | number}}</span>
+              <span class="capacity-label">personas</span>
+            </td>
+            <td class="status-cell">
+              <p-tag
+                [value]="local.estado"
+                [severity]="local.estado === 'HABILITADO' ? 'success' : 'danger'"
+                class="status-tag">
+              </p-tag>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Editar local"
+                  tooltipPosition="top"
+                  (onClick)="editarLocal(local.id)">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Eliminar local"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminacion(local, $event)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron locales</h3>
+                <p>Intenta ajustar los filtros de búsqueda o crear un nuevo local.</p>
+                <p-button
+                  label="Crear Primer Local"
+                  icon="pi pi-plus"
+                  (onClick)="crearNuevoLocal()">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </div>
+
+  <!-- Confirmación de eliminación -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toast para mensajes -->
+  <p-toast></p-toast>
 </div>

@@ -4,9 +4,14 @@
 }
 
 .top-bar {
-  background-color: #ffffff;
+  background-color: #dc3546;
   width: 100%;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1002; /* Mayor que el sidebar para aparecer encima */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .main-wrapper {
@@ -14,19 +19,27 @@
   flex-direction: column;
   height: 100vh;
   transition: margin-left 0.3s ease;
+  padding-top: 80px; /* Espacio para el header fijo */
+  overflow: hidden; /* Evitar scroll en el layout principal */
 }
 
 .main-wrapper-shifted {
   margin-left: 250px;
 }
 
+/* Ajustar el header cuando el sidebar está abierto */
+.main-wrapper-shifted .top-bar {
+  left: 250px;
+  width: calc(100% - 250px);
+}
+
 /* Sidebar de pantalla completa */
 .sidebar-fullscreen {
   position: fixed;
   left: 0;
-  top: 0;
+  top: 0; /* Desde la parte superior de la pantalla */
   width: 250px;
-  height: 100vh;
+  height: 100vh; /* Altura completa de la pantalla */
   z-index: 1000;
   background-color: #ffffff;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
@@ -37,6 +50,9 @@
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
+  background-color: #dc3546;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .logo-container.hidden-logo {
@@ -73,11 +89,19 @@
   height: 100%;
 }
 
+.content-wrapper {
+  height: calc(100vh - 80px); /* Altura fija menos header */
+  overflow: hidden; /* Evitar scroll en el wrapper */
+}
+
 .content-container {
   padding: 1rem;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: transparent;
   min-width: 0; /* Permite que el contenido se comprima */
+  height: 100%; /* Usar toda la altura del wrapper */
+  box-sizing: border-box;
 }
 
 .sidebar-hidden {
@@ -110,12 +134,23 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .main-wrapper-shifted {
+    margin-left: 0;
+  }
+
+  /* El header debe ocupar todo el ancho en móvil */
+  .main-wrapper-shifted .top-bar {
+    left: 0;
+    width: 100%;
+  }
+
   .sidebar-container {
     position: fixed;
     left: 0;
-    top: 0;
-    height: 100vh;
-    z-index: 1000;
+    top: 0; /* Desde la parte superior de la pantalla */
+    width: 250px;
+    height: 100vh; /* Altura completa de la pantalla */
+    z-index: 1001; /* Menor que el header para que el header aparezca encima */
     background-color: #ffffff;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     transform: translateX(-100%);
@@ -128,11 +163,6 @@
 
   .content-container {
     width: 100%;
-  }
-
-  /* En mobile, no aplicar el desplazamiento del main-wrapper */
-  .main-wrapper-shifted {
-    margin-left: 0;
   }
 
   /* Ocultar sidebar de pantalla completa en mobile */

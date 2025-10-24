@@ -1,131 +1,315 @@
-/* Igual que en Perfil */
-.card{
-  /*background: var(--surface-card);*/
-  /*max-width: auto;*/
-  /*max-height: 1500px;*/
-  /*margin-left: auto;*/
-  /*margin-right: auto;*/
-  /*min-height: 500px;*//*con esto se ajusta con el footer la altura*/
-  /* borde gris y sombra suave como tarjeta */
-  height: auto;
-  width: auto;
-  border: 1px solid #E2E2E2;
-  box-shadow: 0 1px 2px rgba(0,0,0,.03);
+.container {
+    padding: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-
-/* ancho más angosto para esta página */
-.change-pass-card{
-  max-width: 600px;   /* ajusta a tu gusto (420/500/600) */
-}
-
-.title{
-  font-size: 1.5rem;
-  margin: 0 0 1.25rem 0;
-  color: var(--text-color);
-}
-
-.field{ margin-bottom: 1.1rem; }
-
-:host ::ng-deep .p-inputtext{
-  width: 100%;
-  height: 40px;
-  border-radius: 6px;
-}
-
-.actions{
-  display: flex;
-  gap: 1rem;
-  margin-top: .75rem;
-}
-
-/* Botón rojo y verde (ya usados) */
-:host ::ng-deep .p-button-danger{
-  background-color:#DC3545 !important;
-  border-color:#DC3545 !important;
-  color:#fff !important;
-  border-radius:10px;
-  min-width:110px; height:40px;
-}
-:host ::ng-deep .p-button-success{
-  background-color:#91E345 !important;
-  border-color:#91E345 !important;
-  color:#fff !important;
-  border-radius:10px;
-  min-width:110px; height:40px;
-}
-
-@media (max-width: 480px){
-  .actions{ flex-direction: column; }
-}
-
-:host ::ng-deep .p-inputtext{
-  width: 100%;
-  height: 40px;
-  border-radius: 6px;
-}
-
-
-
-.button-container{
-  display: flex;
-  justify-content: center;        /* centra los botones */
-  gap: 1rem;                      /* separación entre botones */
-  margin-top: .75rem;
-}
-
-.card.change-pass-card{
-  max-width: 1200px;               /* ajusta: 420–520 según tu gusto */
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem 1.25rem;
-}
-
-.h2{
-    text-align: center;
+.header-section {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.title-center{
-  text-align: center;
-  margin-bottom: 1rem;
+.title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Hacer el formulario más angosto y centrado */
-.form-narrow{
-  max-width: 480px;    /* ajusta: 360–520 según tu gusto */
-  margin: 0 auto;
+.title i {
+    font-size: 2rem;
+    color: #1976d2;
 }
 
-/* Espaciado entre campos */
-.form-group{ 
-  margin-bottom: 2rem;
-
+.back-button {
+    height: fit-content;
 }
 
-/* Reducir el alto de los inputs y que no ocupen toda la card */
-:host ::ng-deep .form-narrow .p-inputtext{
-  width: 100%;
-  height: 36px;        /* antes 40–45px */
-  border-radius: 6px;
+/* Contenido del formulario */
+.form-content {
+    margin-top: 2rem;
 }
 
-/* Centrar y espaciar botones */
-.button-container{
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: .75rem;
+.password-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    border: none;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* Responsive: si la pantalla es muy angosta, ocupa el ancho completo */
-@media (max-width: 480px){
-  .form-narrow{ max-width: 100%; }
-  .button-container{ flex-direction: column; }
+/* Header de la tarjeta */
+.card-header {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    padding: 1.5rem;
+    margin: -1rem -1rem 0 -1rem;
 }
 
-.dentroCard{
-  padding-top: 50px;
-  padding-bottom: 100px;
+.card-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.card-header i {
+    font-size: 1.25rem;
+}
+
+/* Formulario */
+.password-form {
+    padding: 1.5rem 0;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-label i {
+    color: #1976d2;
+    font-size: 0.85rem;
+}
+
+/* Mensajes */
+.message-container {
+    margin: 2rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.success-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.success-message i {
+    color: #28a745;
+    font-size: 1.1rem;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #721c24;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.error-message i {
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+.error-global {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.error-global i {
+    color: #dc3545;
+    font-size: 1.1rem;
+}
+
+/* Acciones de la tarjeta */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        max-width: 100%;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .card-actions {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .card-actions .p-button {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+}
+
+/* Mejoras visuales para PrimeNG */
+:host ::ng-deep {
+    .p-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    }
+
+    .p-card .p-card-content {
+        padding: 1.5rem;
+        background: white;
+    }
+
+    .p-card .p-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .p-password {
+        width: 100%;
+    }
+
+    .p-password .p-inputtext {
+        width: 100%;
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.875rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .p-password .p-inputtext:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+
+    .p-password.ng-invalid .p-inputtext {
+        border-color: #dc3545;
+    }
+
+    .p-password .p-password-panel {
+        border: 2px solid #1976d2;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .p-button {
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .p-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+}
+
+/* Estilos para inputs con errores */
+:host ::ng-deep .p-inputtext.ng-invalid.ng-touched {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Estilo para botón deshabilitado */
+:host ::ng-deep .p-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Animación para el botón de carga */
+:host ::ng-deep .p-button[loading] {
+  position: relative;
+}
+
+:host ::ng-deep .p-button[loading]::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

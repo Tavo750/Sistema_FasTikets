@@ -425,3 +425,115 @@
         gap: 1rem;
     }
 }
+
+// Estilos para la sección del banner (iguales a crear-evento)
+.banner-container {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    overflow: hidden;
+    position: relative;
+
+    .banner-display {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        cursor: pointer;
+
+        .banner-imagen {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+
+            .upload-overlay-icon {
+                font-size: 2rem;
+                color: white;
+                margin-bottom: 0.5rem;
+            }
+
+            .upload-overlay-text {
+                color: white;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 500;
+            }
+        }
+
+        &:hover {
+            .banner-overlay {
+                opacity: 1;
+            }
+
+            .banner-imagen {
+                transform: scale(1.05);
+            }
+        }
+    }
+
+    .upload-area-banner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 2rem;
+        transition: all 0.2s;
+        width: 100%;
+        height: 100%;
+
+        &:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin: 0;
+            text-align: center;
+        }
+    }
+}
+
+.banner-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    justify-content: center;
+
+    p-button {
+        .p-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+    }
+}

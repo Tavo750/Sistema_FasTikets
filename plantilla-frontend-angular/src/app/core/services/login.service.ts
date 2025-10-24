@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { BasicResponse, LoginResponse, Usuario, Persona } from '../interfaces/login.interface';
+import { LoginResponse, Data } from '../interfaces/login.interface';
 import * as global from '../../global';
-import { CacheStore } from '../interfaces/cache-store.interface';
+import { CacheStore, Usuario } from '../interfaces/cache-store.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +21,9 @@ export class LoginService {
     persona: undefined
   }
 
+  private token: string = '';
+  private userRole: string = '';
+
   url = global.url;
 
   constructor(private http: HttpClient) {
@@ -29,12 +32,20 @@ export class LoginService {
 
   private saveToSessionStorage() {
     sessionStorage.setItem('cacheStore', JSON.stringify(this.cacheStore));
+    if (this.token) {
+      sessionStorage.setItem('token', this.token);
+    }
+    if (this.userRole) {
+      sessionStorage.setItem('userRole', this.userRole);
+    }
   }
 
   private loadFromSessionStorage() {
     if (!sessionStorage.getItem('cacheStore')) return;
 
     this.cacheStore = JSON.parse(sessionStorage.getItem('cacheStore')!);
+    this.token = sessionStorage.getItem('token') || '';
+    this.userRole = sessionStorage.getItem('userRole') || '';
   }
 
   getLogin(email: string, contrasena: string): Observable<LoginResponse> {
@@ -43,18 +54,22 @@ export class LoginService {
       "contrasena": contrasena,
     };
 
-    return this.http.post<LoginResponse>(`http://localhost:8080/api/personas/login`, filtro)  //${this.url}auth/v1/session
+    return this.http.post<LoginResponse>(`http://localhost:8081/api/v1/auth/login`, filtro)  //${this.url}auth/v1/session
       .pipe(
         tap(login => {
+          // Guardar token y rol
+          this.token = login.data.token;
+          this.userRole = login.data.rol;
+
           this.cacheStore.usuario = {
-            codiPers: login.persona.docIdentidad,
-            nombPers: `${login.persona.nombres} ${login.persona.apellidos}`,
+            codiPers: login.data.idUsuario.toString(),
+            nombPers: login.data.nombreCompleto,
             linkFoto: '',
             codiPues: 0,
             permissions: []
           };
-          // Guardar también la información completa de la persona
-          this.cacheStore.persona = login.persona;
+          // Guardar los datos del usuario directamente
+          this.cacheStore.persona = login.data;
         }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
@@ -70,7 +85,7 @@ export class LoginService {
     if (error.error) {
       const errorMessage = {
         responseCode: error.error.responseCode || 'Unknown',
-        message: error.error.message || 'Ha ocurrido un error desconocido.'
+        message: error.error.mensaje
       };
 
       // Lanza un nuevo error con el mensaje procesado
@@ -92,7 +107,7 @@ export class LoginService {
   }
 
   // Método para obtener la persona actual
-  getCurrentPersona(): Persona | null {
+  getCurrentPersona(): Data | null {
     return this.cacheStore.persona || null;
   }
 
@@ -111,6 +126,27 @@ export class LoginService {
       permissions: []
     };
     this.cacheStore.persona = undefined;
-    this.saveToSessionStorage();
+    this.token = '';
+    this.userRole = '';
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('cacheStore');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userRole');
+  }
+
+  // Método para obtener el token
+  getToken(): string {
+    return this.token;
+  }
+
+  // Método para obtener el rol del usuario
+  getUserRole(): string {
+    return this.userRole;
+  }
+
+  // Método para verificar si el token existe y no ha expirado
+  isTokenValid(): boolean {
+    return !!this.token;
   }
 }

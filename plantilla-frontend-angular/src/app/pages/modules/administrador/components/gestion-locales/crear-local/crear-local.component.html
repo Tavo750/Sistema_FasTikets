@@ -1,60 +1,205 @@
 
-<div class="crear-local-container">
-  <h2>1. Datos del Local</h2>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-plus-circle"></i>
+      Crear Nuevo Local
+    </h1>
 
-  <form>
-    <div class="form-grid">
-      <div class="form-left">
-        <div class="form-group">
-          <label for="nombre">1) Nombre</label>
-          <input type="text" id="nombre" placeholder="Ej. Centro de usos Múltiples..." />
-        </div>
-
-        <div class="form-group">
-          <label for="direccion">2) Dirección</label>
-          <input type="text" id="direccion" placeholder="Ej. Av. Principal 123..." />
-        </div>
-
-        <div class="form-row">
-  <div class="form-group">
-    <label for="distrito">3) Distrito</label>
-    <select id="distrito">
-      <option value="">Seleccionar...</option>
-      <option value="Santiago de Surco">Santiago de Surco</option>
-      <option value="San Juan de Miraflores">San Juan de Miraflores</option>
-      <option value="Jesús María">Jesús María</option>
-    </select>
+    <p-button
+      label="Volver a Gestión"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      routerLink="/administrador/gestionLocales"
+      class="back-button">
+    </p-button>
   </div>
 
-  <div class="form-group">
-    <label for="aforo">4) Aforo máximo</label>
-    <input type="number" id="aforo" placeholder="Ej. 5000" />
-  </div>
-</div>
-
-
-        <div class="form-group">
-          <label for="estado">5) Estado</label>
-          <select id="estado">
-            <option value="HABILITADO" selected>HABILITADO</option>
-            <option value="DESHABILITADO">DESHABILITADO</option>
-          </select>
+  <div class="form-content">
+    <p-card class="local-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>
+            <i class="pi pi-map-marker"></i>
+            Información del Local
+          </h3>
         </div>
-      </div>
+      </ng-template>
 
-      <div class="form-right">
-        <div class="form-group">
-          <label>6) Ubicación</label>
-          <div class="map-placeholder">
-            <p>🗺️ Aquí irá el mapa</p>
+      <ng-template pTemplate="content">
+        <form [formGroup]="localForm" class="local-form">
+          <div class="form-grid">
+            <div class="form-left">
+              <div class="form-field">
+                <label for="nombre" class="field-label">
+                  <i class="pi pi-building"></i>
+                  1) Nombre del Local *
+                </label>
+                <input
+                  id="nombre"
+                  type="text"
+                  pInputText
+                  formControlName="nombre"
+                  placeholder="Ej. Centro de usos Múltiples..."
+                  class="form-input" />
+              </div>
+
+              <div class="form-field">
+                <label for="direccion" class="field-label">
+                  <i class="pi pi-home"></i>
+                  2) Dirección *
+                </label>
+                <input
+                  id="direccion"
+                  type="text"
+                  pInputText
+                  formControlName="direccion"
+                  placeholder="Ej. Av. Principal 123..."
+                  class="form-input" />
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="distrito" class="field-label">
+                    <i class="pi pi-map"></i>
+                    3) Distrito *
+                  </label>
+                  <div class="distrito-container">
+                    <p-dropdown
+                      id="distrito"
+                      formControlName="distrito"
+                      [options]="distritos"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Seleccionar distrito..."
+                      class="distrito-select"
+                      (onChange)="centerMapOnDistrict()">
+                    </p-dropdown>
+                    <p-button
+                      icon="pi pi-crosshairs"
+                      (onClick)="centerMapOnDistrict()"
+                      [disabled]="!localForm.get('distrito')?.value"
+                      class="distrito-btn"
+                      size="small"
+                      severity="info"
+                      [outlined]="true"
+                      pTooltip="Centrar mapa en distrito"
+                      tooltipPosition="top">
+                    </p-button>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label for="aforo" class="field-label">
+                    <i class="pi pi-users"></i>
+                    4) Aforo Máximo *
+                  </label>
+                  <p-inputNumber
+                    id="aforo"
+                    formControlName="aforo"
+                    placeholder="Ej. 5000"
+                    [min]="1"
+                    [useGrouping]="true"
+                    class="form-input">
+                  </p-inputNumber>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="estado" class="field-label">
+                  <i class="pi pi-check-circle"></i>
+                  5) Estado *
+                </label>
+                <p-dropdown
+                  id="estado"
+                  formControlName="estado"
+                  [options]="estados"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Seleccionar estado..."
+                  class="form-input">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <div class="form-right">
+              <div class="form-field">
+                <label class="field-label">
+                  <i class="pi pi-globe"></i>
+                  6) Ubicación en el Mapa *
+                </label>
+
+                <div class="map-section">
+                  <div class="map-wrapper">
+                    <div id="map" class="map-container">
+                      <div class="map-loading" *ngIf="mapLoading">
+                        <div class="loading-spinner">
+                          <p-progressSpinner strokeWidth="4" fill="#1976d2"></p-progressSpinner>
+                        </div>
+                        <p>Cargando mapa...</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="map-info">
+                    <div class="coordinates-display">
+                      <h4>
+                        <i class="pi pi-map-marker"></i>
+                        Coordenadas Seleccionadas
+                      </h4>
+                      <div class="coord-grid">
+                        <div class="coord-item">
+                          <span class="coord-label">Latitud:</span>
+                          <span class="coord-value">{{ selectedCoordinates.lat | number:'1.6-6' }}</span>
+                        </div>
+                        <div class="coord-item">
+                          <span class="coord-label">Longitud:</span>
+                          <span class="coord-value">{{ selectedCoordinates.lng | number:'1.6-6' }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="map-instructions">
+                      <i class="pi pi-info-circle"></i>
+                      <span>💡 Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación exacta del local</span>
+                    </div>
+
+                    <div class="map-actions" *ngIf="!mapLoading">
+                      <p-button
+                        label="Recargar Mapa"
+                        icon="pi pi-refresh"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="reloadMap()">
+                      </p-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </form>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-actions">
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            routerLink="/administrador/gestionLocales">
+          </p-button>
+          <p-button
+            label="Crear Local"
+            icon="pi pi-plus"
+            (onClick)="crearLocal()"
+            [disabled]="localForm.invalid">
+          </p-button>
         </div>
-      </div>
-    </div>
+      </ng-template>
+    </p-card>
+  </div>
 
-    <div class="form-actions">
-      <button type="button" class="crear-btn" (click)="crearLocal()">Crear Local</button>
-
-    </div>
-  </form>
+  <!-- Toast para mensajes -->
+  <p-toast></p-toast>
 </div>

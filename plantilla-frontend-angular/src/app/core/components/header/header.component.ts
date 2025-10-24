@@ -3,7 +3,7 @@ import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { MenuItem } from 'primeng/api';
-import { Usuario, Persona } from '../../interfaces/login.interface';
+import { Data } from '../../interfaces/login.interface';
 import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
 
@@ -22,7 +22,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
   notificationCount: number = 5; // Ejemplo
-  @Input() usuario: Persona | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
+  @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
   /**
    * Getter que retorna los items del menú según el rol del usuario
@@ -99,7 +99,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Mi perfil',
             icon: 'pi pi-user',
-            routerLink: '/usuario/perfilPersonal',
+            routerLink: '/administrador/perfilAdministrador',
           },
           { separator: true },
           {
@@ -142,7 +142,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
 
     // Suscribirse a cambios del usuario autenticado
-    this.userSubscription = this.sessionService.user$.subscribe((user: Persona | null) => {
+    this.userSubscription = this.sessionService.user$.subscribe((user: Data | null) => {
       // Si no hay usuario o el input usuario no está definido, usar el del SessionService
       if (!this.usuario) {
         this.usuario = user;

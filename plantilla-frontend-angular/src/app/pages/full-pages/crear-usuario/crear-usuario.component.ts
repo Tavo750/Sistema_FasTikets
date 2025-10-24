@@ -2,20 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
 import { RegistroUsuarioService } from '../../../core/services/registro-usuario.service';
-import { RegistroUsuario, RegistroResponse } from '../../../core/interfaces/registro_usuario.interface';
+import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/registro_usuario.interface';
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
+import { MessageService } from '../../../core/services/message.service';
 
 @Component({
   selector: 'app-crear-usuario',
   standalone: false,
   templateUrl: './crear-usuario.component.html',
-  styleUrl: './crear-usuario.component.css',
-  providers: [MessageService]
+  styleUrl: './crear-usuario.component.css'
 })
 export class CrearUsuarioComponent implements OnInit {
   private dialogRef: DynamicDialogRef | undefined;
@@ -39,16 +38,16 @@ export class CrearUsuarioComponent implements OnInit {
       departamento: ['', Validators.required],
       distrito: ['', Validators.required],
       direccion: ['', Validators.required],
-      telefono: ['', Validators.required],
+      telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
       tipoDocumento: [TipoDocumento.DNI, Validators.required],
-      numeroDocumento: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+      numeroDocumento: ['', [Validators.required, Validators.pattern('^[0-9]{8}$')]]
     });
   }
 
   ngOnInit(): void {
     // Aquí puedes cargar los datos de departamentos y distritos
   }
-
+  //=========================== se abre el dialogo de terminos y condiciones ==========
   mostrarTerminos(event: Event): void {
     event.preventDefault();
     this.dialogRef = this.dialogService.open(DialogTerminosComponent, {
@@ -65,7 +64,7 @@ export class CrearUsuarioComponent implements OnInit {
     });
   }
 
-
+  //=========================== se abre el dialogo de politicas de privacidad ==========
     mostrarPoliticas(event: Event): void {
     event.preventDefault();
     this.dialogRef = this.dialogService.open(DialogPoliticaComponent, {
@@ -88,14 +87,6 @@ export class CrearUsuarioComponent implements OnInit {
     }
   }
 
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje
-    });
-  }
-
   mostrarDialogExitoso(): void {
     this.dialogRef = this.dialogService.open(DialogExitosoComponent, {
       width: '30%',
@@ -113,7 +104,7 @@ export class CrearUsuarioComponent implements OnInit {
     if (this.registroForm.valid) {
       // Verificar que las contraseñas coincidan
       if (this.registroForm.get('contrasena')?.value !== this.registroForm.get('repitaContrasena')?.value) {
-        this.mostrarError('Las contraseñas no coinciden');
+        this.messageService.error('Las contraseñas no coinciden');
         return;
       }
 
@@ -123,46 +114,59 @@ export class CrearUsuarioComponent implements OnInit {
         fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
 
       const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
-      const rol = email.endsWith('@pucp.edu.pe') ? 'ADMINISTRADOR' : 'CLIENTE';
 
       const usuario: RegistroUsuario = {
+        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
         docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
         nombres: this.registroForm.get('nombres')?.value.trim(),
         apellidos: this.registroForm.get('apellidos')?.value.trim(),
-        telefono: this.registroForm.get('telefono')?.value.trim(),
         email: email,
-        direccion: this.registroForm.get('direccion')?.value.trim(),
         contrasena: this.registroForm.get('contrasena')?.value,
+        telefono: this.registroForm.get('telefono')?.value.trim(),
         fechaNacimiento: fechaFormateada,
-        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
-        rol: rol
+        direccion: this.registroForm.get('direccion')?.value.trim(),
+        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1
       };
 
       // Validar que todos los campos requeridos tengan valor
       for (const [key, value] of Object.entries(usuario)) {
         if (!value && value !== 0) {
-          this.mostrarError(`El campo ${key} es requerido`);
+          this.messageService.error(`El campo ${key} es requerido`);
           return;
         }
       }
 
       this.registroUsuarioService.postRegistro(usuario).subscribe({
         next: (response: RegistroResponse) => {
-          if (response.exito) {
+          if (response.ok && response.data.exito) {
             this.mostrarDialogExitoso();
             this.registroForm.reset();
+          } else {
+            this.messageService.error(response.data.mensaje || 'Error en el registro');
           }
         },
         error: (error) => {
+          console.error('Error completo del endpoint:', error);
+
+          // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
-          if (error instanceof Error) {
+
+          // Verificar diferentes estructuras posibles de la respuesta de error
+          if (error?.mensaje) {
+            mensajeError = error.mensaje;
+          } else if (error?.error?.mensaje) {
+            mensajeError = error.error.mensaje;
+          } else if (error?.error?.message) {
+            mensajeError = error.error.message;
+          } else if (typeof error === 'string') {
+            mensajeError = error;
+          } else if (error?.message) {
             mensajeError = error.message;
           }
-          this.mostrarError(mensajeError);
+
+          console.error('Mensaje de error del endpoint:', mensajeError);
+          this.messageService.error(mensajeError);
         },
-        complete: () => {
-          // Limpieza de recursos si es necesario
-        }
       });
     } else {
       // Marcar todos los campos como tocados para mostrar los errores
@@ -215,14 +219,67 @@ export class CrearUsuarioComponent implements OnInit {
             errorMessage = 'El formato del correo electrónico no es válido';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
-              errorMessage = 'El número de documento solo debe contener números';
+              errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';
+            } else if (key === 'telefono') {
+              errorMessage = 'El número de teléfono debe tener exactamente 9 dígitos numéricos';
             }
           }
-          this.mostrarError(errorMessage);
+          this.messageService.error(errorMessage);
         }
         control?.markAsTouched();
       });
     }
+  }
+
+  /**
+   * Permite solo números en el input
+   * @param event Evento de teclado
+   */
+  onlyNumbers(event: KeyboardEvent): void {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Permitir: backspace, delete, tab, escape, enter
+    if ([8, 9, 27, 13, 46].indexOf(charCode) !== -1 ||
+        // Permitir: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (charCode === 65 && event.ctrlKey === true) ||
+        (charCode === 67 && event.ctrlKey === true) ||
+        (charCode === 86 && event.ctrlKey === true) ||
+        (charCode === 88 && event.ctrlKey === true)) {
+      return;
+    }
+    // Asegurar que solo sea un número
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Maneja el evento paste para asegurar solo números
+   * @param event Evento de pegado
+   * @param fieldName Nombre del campo
+   */
+  onPaste(event: ClipboardEvent, fieldName: string): void {
+    event.preventDefault();
+    const clipboardData = event.clipboardData?.getData('text') || '';
+
+    // Filtrar solo números
+    const numbersOnly = clipboardData.replace(/[^0-9]/g, '');
+
+    // Aplicar límite según el campo
+    let maxLength = 0;
+    if (fieldName === 'telefono') {
+      maxLength = 9;
+    } else if (fieldName === 'numeroDocumento') {
+      maxLength = 8;
+    }
+
+    const limitedValue = numbersOnly.substring(0, maxLength);
+
+    // Actualizar el valor del formulario
+    this.registroForm.get(fieldName)?.setValue(limitedValue);
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/home']);
   }
 
 

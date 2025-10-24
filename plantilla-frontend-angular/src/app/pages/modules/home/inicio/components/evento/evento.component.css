@@ -1,0 +1,608 @@
+.evento-container {
+  padding: 2rem 1rem;
+  padding-bottom: 120px; /* Espacio para la barra flotante */
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+::ng-deep .evento-card-modern {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  background: white !important;
+}
+
+/* Layout principal */
+.evento-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 500px;
+}
+
+/* Columna izquierda - Imagen */
+.evento-imagen-col {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.evento-imagen {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+::ng-deep .evento-image img {
+  border-radius: 12px;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+/* Columna derecha - Información */
+.evento-info-col {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Header de información */
+.evento-header-info {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1.5rem;
+}
+
+.evento-titulo {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+.info-badges {
+  margin-bottom: 1.5rem;
+}
+
+.evento-detalles-basicos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detalle-basico {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detalle-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.detalle-valor {
+  font-size: 0.875rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Sección de tickets */
+.tickets-section {
+  flex: 1;
+}
+
+.tickets-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.ticket-item:last-child {
+  border-bottom: none;
+}
+
+.ticket-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ticket-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ticket-name::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #6b7280;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ticket-price {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.ticket-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #f9fafb;
+  padding: 0.5rem;
+  border-radius: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+::ng-deep .quantity-btn-minus,
+::ng-deep .quantity-btn-plus {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: 50% !important;
+}
+
+::ng-deep .quantity-btn-minus {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #6b7280 !important;
+}
+
+::ng-deep .quantity-btn-plus {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+.quantity-display {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* Aviso de privacidad */
+.privacy-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+/* Botones de acción */
+.botones-accion {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+::ng-deep .btn-comprar-ahora {
+  flex: 1;
+  background: transparent !important;
+  border: 1px solid #000 !important;
+  color: #000 !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .btn-comprar-ahora:hover {
+  background: #f8f9fa !important;
+  border-color: #374151 !important;
+}
+
+::ng-deep .btn-añadir-carrito {
+  flex: 1;
+  background: #000 !important;
+  border: 1px solid #000 !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 6px !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .btn-añadir-carrito:hover {
+  background: #374151 !important;
+  border-color: #374151 !important;
+}
+
+/* Video del evento */
+.video-evento {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.video-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.evento-video {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+/* Sección de detalles adicionales */
+.evento-detalles-adicionales {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 3rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Descripción del evento */
+.descripcion-evento {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.descripcion-titulo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.descripcion-texto {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #4b5563;
+  margin: 0;
+}
+
+/* Diagrama de asientos */
+.diagrama-asientos {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.diagrama-asientos h4 {
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  background: #1f2937;
+  color: white;
+  padding: 0.5rem;
+  margin: 0;
+  border-radius: 4px;
+}
+
+.seating-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 2px solid #374151;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.section {
+  padding: 0.75rem;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.section.platinum {
+  background: #a7f3d0;
+  border: 2px solid #059669;
+}
+
+.section.vip {
+  background: #fed7aa;
+  border: 2px solid #ea580c;
+}
+
+.section.tribuna {
+  background: #fef3c7;
+  border: 2px solid #d97706;
+}
+
+/* Ubicación y mapa */
+.evento-ubicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ubicacion-info h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.direccion {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.25rem 0;
+}
+
+.organizador {
+  font-size: 0.875rem;
+  color: #3b82f6;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mapa-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.evento-mapa {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .evento-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .evento-imagen {
+    border-radius: 12px 12px 0 0;
+    height: 300px;
+  }
+
+  ::ng-deep .evento-image img {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .evento-info-col {
+    padding: 1.5rem;
+  }
+
+  .evento-detalles-adicionales {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+  }
+
+  .evento-mapa {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .evento-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .evento-titulo {
+    font-size: 1.5rem;
+  }
+
+  .ticket-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  .ticket-controls {
+    align-self: flex-end;
+  }
+
+  .botones-accion {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  ::ng-deep .btn-comprar-ahora,
+  ::ng-deep .btn-añadir-carrito {
+    width: 100% !important;
+  }
+
+  .evento-detalles-adicionales {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .descripcion-titulo {
+    font-size: 1.25rem;
+  }
+
+  .seating-chart {
+    padding: 0.75rem;
+  }
+
+  .section {
+    padding: 0.5rem;
+    font-size: 0.6875rem;
+  }
+
+  .video-evento {
+    padding: 0.75rem;
+  }
+
+  .evento-video {
+    max-height: 200px;
+  }
+
+  .video-titulo {
+    font-size: 0.875rem;
+  }
+
+  .evento-footer {
+    padding: 1rem 0.5rem;
+  }
+
+  .resumen-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .resumen-acciones {
+    flex-direction: column;
+  }
+}
+
+/* Footer con resumen flotante */
+.evento-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(100%);
+  animation: slideUpIn 0.4s ease-out forwards;
+}
+
+@keyframes slideUpIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+::ng-deep .resumen-card {
+  margin: 0 auto !important;
+  max-width: 1200px !important;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.resumen-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.resumen-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.resumen-tickets {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.resumen-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.resumen-acciones {
+  display: flex;
+  gap: 1rem;
+}
+
+::ng-deep .resumen-acciones .p-button {
+  padding: 0.75rem 2rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+}
+
+::ng-deep .resumen-acciones .p-button.p-button-secondary {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+::ng-deep .resumen-acciones .p-button.p-button-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+}
+
+::ng-deep .resumen-acciones .p-button.p-button-success {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid white !important;
+  color: #059669 !important;
+  font-weight: 700 !important;
+}
+
+::ng-deep .resumen-acciones .p-button.p-button-success:hover {
+  background-color: white !important;
+  border-color: white !important;
+  color: #047857 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3) !important;
+}

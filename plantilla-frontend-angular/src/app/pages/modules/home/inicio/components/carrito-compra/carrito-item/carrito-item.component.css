@@ -1,0 +1,81 @@
+/* Card container */
+.item-card {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Event poster image */
+.item-img {
+  width: 150px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-right: 16px;
+  background-color: #ffffff;
+}
+
+/* Info section */
+.item-info {
+  flex: 2;
+}
+
+.item-info h5 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+.item-info small {
+  display: block;
+  color: #666666;
+  margin-bottom: 8px;
+}
+
+.price {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* Quantity controls */
+.item-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.decrement-btn,
+.increment-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decrement-btn {
+  background-color: #e0e0e0;
+  color: #333333;
+}
+
+.increment-btn {
+  background-color: #ff4d4f;
+  color: #ffffff;
+}
+
+/* Remove button */
+.remove-btn {
+  margin-left: 16px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #ff4d4f;
+  cursor: pointer;
+}

@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Persona } from '../../core/interfaces/login.interface';
+import { Data } from '../../core/interfaces/login.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionService {
   private readonly USER_KEY = 'current_user';
-  private userSubject = new BehaviorSubject<Persona | null>(null);
+  private userSubject = new BehaviorSubject<Data | null>(null);
   public user$ = this.userSubject.asObservable();
 
   constructor() {
@@ -18,7 +18,7 @@ export class SessionService {
   /**
    * Guarda la información del usuario en el storage y actualiza el observable
    */
-  setUser(persona: Persona): void {
+  setUser(persona: Data): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(persona));
     this.userSubject.next(persona);
   }
@@ -26,7 +26,7 @@ export class SessionService {
   /**
    * Obtiene el usuario actual
    */
-  getCurrentUser(): Persona | null {
+  getCurrentUser(): Data | null {
     return this.userSubject.value;
   }
 
@@ -35,7 +35,7 @@ export class SessionService {
    */
   getUserRole(): string | null {
     const user = this.getCurrentUser();
-    return user ? user.rol : null;
+    return user?.rol || null;
   }
 
   /**
@@ -82,7 +82,7 @@ export class SessionService {
     try {
       const userJson = localStorage.getItem(this.USER_KEY);
       if (userJson) {
-        const user = JSON.parse(userJson) as Persona;
+        const user = JSON.parse(userJson) as Data;
         this.userSubject.next(user);
       }
     } catch (error) {
