@@ -1,0 +1,481 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-calendar-plus"></i>
+      Crear Evento
+    </h1>
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      outlined="true"
+      routerLink="/administrador/gestionEventos"
+      class="back-button"
+    ></p-button>
+  </div>
+
+  <!-- Contenido del formulario -->
+  <div class="form-content">
+    <!-- Sección 1: Datos Generales -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-info-circle"></i>
+          1. Datos Generales
+        </h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Columna Izquierda -->
+        <div class="form-left">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-tag"></i>
+              Título del evento
+            </label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="evento.titulo"
+              placeholder="Ej. Soda Stereo..."
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-list"></i>
+              Categoría del evento
+            </label>
+            <p-dropdown
+              [(ngModel)]="evento.categoria"
+              [options]="categorias"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar categoría..."
+              styleClass="form-input"
+            ></p-dropdown>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-file-edit"></i>
+              Descripción del evento
+            </label>
+            <textarea
+              rows="4"
+              pInputTextarea
+              [(ngModel)]="evento.descripcion"
+              placeholder="Ej. Concierto que conmemora..."
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-calendar"></i>
+                Fecha del evento
+              </label>
+              <p-datepicker
+                [(ngModel)]="date"
+                dateFormat="dd/mm/yy"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-clock"></i>
+                Hora de inicio
+              </label>
+              <p-datepicker
+                [(ngModel)]="time"
+                [timeOnly]="true"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-video"></i>
+              Video promocional (opcional)
+            </label>
+            <input
+              type="url"
+              pInputText
+              [(ngModel)]="evento.videoPromocional"
+              placeholder="https://youtube.com/watch?v=..."
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-send"></i>
+              Publicación del evento
+            </label>
+            <div class="publicar-options">
+              <div class="publicar-option">
+                <p-checkbox
+                  [(ngModel)]="publicarInmediatamente"
+                  binary="true"
+                  inputId="inmediatamente"
+                  (onChange)="onPublicarInmediatamente()"
+                ></p-checkbox>
+                <label for="inmediatamente" class="checkbox-label">Publicar inmediatamente</label>
+              </div>
+
+              <div class="publicar-option">
+                <p-checkbox
+                  [(ngModel)]="publicarAPartirDe"
+                  binary="true"
+                  inputId="apartirDe"
+                  (onChange)="onPublicarAPartirDe()"
+                ></p-checkbox>
+                <label for="apartirDe" class="checkbox-label">Programar publicación:</label>
+                <p-datepicker
+                  [(ngModel)]="fechaPublicacion"
+                  placeholder="Seleccionar fecha..."
+                  [disabled]="!publicarAPartirDe"
+                  styleClass="fecha-publicacion"
+                ></p-datepicker>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="form-right">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-image"></i>
+              Banner del evento
+            </label>
+
+            <div class="banner-section">
+              <!-- Mostrar imagen actual del banner -->
+              <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+                <img
+                  [src]="evento.bannerUrl"
+                  alt="Banner del evento"
+                  class="banner-imagen">
+                <div class="banner-overlay">
+                  <i class="pi pi-camera"></i>
+                  <p>Cambiar imagen</p>
+                </div>
+              </div>
+
+              <!-- Área de subida cuando no hay imagen -->
+              <div class="upload-area" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
+                <i class="pi pi-cloud-upload"></i>
+                <p>Subir imagen del banner</p>
+                <small>JPG, PNG - Máximo 5MB</small>
+              </div>
+
+              <!-- Input file oculto -->
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                style="display: none"
+              />
+
+              <!-- Botones de acción para el banner -->
+              <div class="banner-actions" *ngIf="evento.bannerUrl">
+                <p-button
+                  label="Cambiar"
+                  icon="pi pi-upload"
+                  severity="info"
+                  outlined="true"
+                  (onClick)="fileInput.click()"
+                ></p-button>
+
+                <p-button
+                  label="Eliminar"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="onEliminarBanner($event)"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Sección 2: Local y Asientos -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-building"></i>
+          2. Local y Asientos
+        </h3>
+      </div>
+
+      <div class="local-content">
+        <!-- Selección del local -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="pi pi-map-marker"></i>
+            Seleccionar local
+          </label>
+          <p-dropdown
+            [(ngModel)]="evento.local"
+            [options]="localesOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar local para el evento..."
+            styleClass="form-input"
+          ></p-dropdown>
+        </div>
+
+        <div class="local-asientos-grid">
+          <!-- Categorías -->
+          <div class="categorias-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-tags"></i>
+              Categorías de asientos
+            </h4>
+
+            <div class="categoria-input-row">
+              <div class="input-group">
+                <label>Nombre de categoría</label>
+                <input
+                  type="text"
+                  pInputText
+                  [(ngModel)]="nuevaCategoria.nombre"
+                  placeholder="Ej. General, VIP..."
+                  class="form-input"
+                />
+              </div>
+
+              <div class="input-group">
+                <label>Aforo máximo</label>
+                <p-inputNumber
+                  [(ngModel)]="nuevaCategoria.aforoMaximo"
+                  placeholder="1000"
+                  [min]="1"
+                  [useGrouping]="false"
+                  styleClass="form-input"
+                ></p-inputNumber>
+              </div>
+
+              <div class="add-button-container">
+                <p-button
+                  icon="pi pi-plus"
+                  severity="success"
+                  outlined="true"
+                  (onClick)="onAgregarCategoria()"
+                  pTooltip="Agregar categoría"
+                ></p-button>
+              </div>
+            </div>
+
+            <!-- Lista de categorías agregadas -->
+            <div class="categorias-agregadas" *ngIf="categoriasLocal && categoriasLocal.length > 0">
+              <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
+                <div class="categoria-info">
+                  <span class="categoria-nombre">{{ categoria.nombre }}</span>
+                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMaximo }}</span>
+                </div>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  text="true"
+                  (onClick)="onEliminarCategoria(i, $event)"
+                  pTooltip="Eliminar categoría"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapa del local -->
+          <div class="mapa-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-map"></i>
+              Mapa del local
+            </h4>
+
+            <div class="mapa-container">
+              <!-- Mostrar imagen actual o por defecto -->
+              <div class="mapa-display" *ngIf="evento.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
+                <img
+                  [src]="evento.mapaUrl"
+                  alt="Mapa del local"
+                  class="mapa-imagen">
+                <div class="mapa-overlay">
+                  <i class="pi pi-camera"></i>
+                  <p>Cambiar mapa</p>
+                </div>
+              </div>
+
+              <!-- Área de subida cuando no hay imagen -->
+              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+                <i class="pi pi-cloud-upload"></i>
+                <p>Subir mapa del local</p>
+                <small>JPG, PNG - Máximo 5MB</small>
+              </div>
+
+              <!-- Input file oculto -->
+              <input
+                #fileInputMapa
+                type="file"
+                accept="image/*"
+                (change)="onMapaSelected($event)"
+                style="display: none"
+              />
+
+              <!-- Botones de acción para el mapa -->
+              <div class="mapa-actions" *ngIf="evento.mapaUrl">
+                <p-button
+                  label="Cambiar"
+                  icon="pi pi-upload"
+                  severity="info"
+                  outlined="true"
+                  (onClick)="fileInputMapa.click()"
+                ></p-button>
+                <p-button
+                  label="Eliminar"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="onEliminarMapa($event)"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Sección 3: Entradas -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-ticket"></i>
+          3. Entradas
+        </h3>
+      </div>
+
+      <div class="entradas-content">
+        <!-- Moneda -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="pi pi-dollar"></i>
+            Moneda
+          </label>
+          <p-dropdown
+            [(ngModel)]="evento.moneda"
+            [options]="monedaOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar moneda..."
+            styleClass="form-input"
+          ></p-dropdown>
+        </div>
+
+        <!-- Entrada Row -->
+        <div class="entrada-row">
+          <div class="entrada-field">
+            <label class="field-label">
+              <i class="pi pi-tag"></i>
+              Nombre de entrada
+            </label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="entradaNombre"
+              placeholder="Ej. Regular, VIP..."
+              class="form-input"
+            />
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
+              <i class="pi pi-check"></i>
+              Válido para
+            </label>
+            <p-dropdown
+              [(ngModel)]="validoPara"
+              [options]="validoParaOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar categoría..."
+              styleClass="form-input"
+            ></p-dropdown>
+          </div>
+
+          <div class="entrada-actions">
+            <p-button
+              label="Agregar Entrada"
+              icon="pi pi-plus"
+              severity="success"
+              outlined="true"
+              (onClick)="onAgregarEntrada()"
+            ></p-button>
+          </div>
+        </div>
+
+        <!-- Límite de compra -->
+        <div class="limite-compra-section">
+          <label class="field-label">
+            <i class="pi pi-shield"></i>
+            Límite de compra por persona
+          </label>
+          <div class="limite-options">
+            <div class="limite-option">
+              <p-radioButton
+                [(ngModel)]="limiteCompra.tipo"
+                name="limiteCompra"
+                value="sinLimite"
+                inputId="sinLimite"
+              ></p-radioButton>
+              <label for="sinLimite">Sin límite</label>
+            </div>
+
+            <div class="limite-option">
+              <p-radioButton
+                [(ngModel)]="limiteCompra.tipo"
+                name="limiteCompra"
+                value="conMaximo"
+                inputId="conMaximo"
+              ></p-radioButton>
+              <label for="conMaximo">Máximo de:</label>
+              <p-inputNumber
+                [(ngModel)]="limiteCompra.maximo"
+                placeholder="10"
+                [min]="1"
+                [max]="50"
+                [disabled]="limiteCompra.tipo !== 'conMaximo'"
+                styleClass="maximo-input"
+              ></p-inputNumber>
+              <span>entradas</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Acciones finales -->
+    <div class="card-actions final-actions">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined="true"
+        (onClick)="onCancelarEvento($event)"
+      ></p-button>
+      <p-button
+        label="Crear Evento"
+        icon="pi pi-check"
+        (onClick)="onGuardarCambios()"
+      ></p-button>
+    </div>
+  </div>
+</div>
+

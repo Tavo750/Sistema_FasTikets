@@ -1,0 +1,185 @@
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-building"></i>
+      Gestión de Locales
+    </h1>
+
+    <p-button
+      label="Crear Nuevo Local"
+      icon="pi pi-plus"
+      (onClick)="crearNuevoLocal()"
+      class="add-button">
+    </p-button>
+  </div>
+
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="field">
+        <label for="busqueda">Buscar local:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busqueda"
+            type="text"
+            pInputText
+            placeholder="Filtrar por nombre, distrito o estado"
+            [(ngModel)]="globalFilterValue"
+            (input)="applyGlobalFilter($event)"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+  </p-panel>
+
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Locales encontrados ({{filteredLocales.length}})
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <p-table
+        [value]="filteredLocales"
+        [rows]="rows"
+        [paginator]="true"
+        [first]="first"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '60rem' }"
+        styleClass="custom-table"
+        [loading]="false">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombre">
+              <div class="header-content">
+                <i class="pi pi-building"></i>
+                Nombre
+                <p-sortIcon field="nombre"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="direccion">
+              <div class="header-content">
+                <i class="pi pi-map-marker"></i>
+                Dirección
+                <p-sortIcon field="direccion"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="distrito">
+              <div class="header-content">
+                <i class="pi pi-map"></i>
+                Distrito
+                <p-sortIcon field="distrito"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="aforo">
+              <div class="header-content">
+                <i class="pi pi-users"></i>
+                Aforo
+                <p-sortIcon field="aforo"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="estado">
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Estado
+                <p-sortIcon field="estado"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-local>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{local.id}}</span>
+            </td>
+            <td class="name-cell">
+              <div class="name-content">
+                <i class="pi pi-building name-icon"></i>
+                <span class="name-text">{{local.nombre}}</span>
+              </div>
+            </td>
+            <td class="address-cell">{{local.direccion}}</td>
+            <td class="district-cell">{{local.distrito}}</td>
+            <td class="capacity-cell">
+              <span class="capacity-value">{{local.aforo | number}}</span>
+              <span class="capacity-label">personas</span>
+            </td>
+            <td class="status-cell">
+              <p-tag
+                [value]="local.estado"
+                [severity]="local.estado === 'HABILITADO' ? 'success' : 'danger'"
+                class="status-tag">
+              </p-tag>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Editar local"
+                  tooltipPosition="top"
+                  (onClick)="editarLocal(local.id)">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Eliminar local"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminacion(local, $event)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron locales</h3>
+                <p>Intenta ajustar los filtros de búsqueda o crear un nuevo local.</p>
+                <p-button
+                  label="Crear Primer Local"
+                  icon="pi pi-plus"
+                  (onClick)="crearNuevoLocal()">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- Confirmación de eliminación -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toast para mensajes -->
+  <p-toast></p-toast>
+</div>

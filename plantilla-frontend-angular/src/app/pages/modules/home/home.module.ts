@@ -7,6 +7,9 @@ import { InicioComponent } from './inicio/inicio.component';
 import { CarritoCompraComponent } from './inicio/components/carrito-compra/carrito-compra.component';
 import { CompraEntradasComponent } from './inicio/components/compra-entradas/compra-entradas.component';
 import { EventoComponent } from './inicio/components/evento/evento.component';
+import { CarritoItemComponent }   from './inicio/components/carrito-compra/carrito-item/carrito-item.component';
+import { ResumenCarritoCompraComponent } from './inicio/components/carrito-compra/resumen-carrito-compra/resumen-carrito-compra.component';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -15,13 +18,16 @@ import { EventoComponent } from './inicio/components/evento/evento.component';
     InicioComponent,
     CarritoCompraComponent,
     CompraEntradasComponent,
-    EventoComponent
+    EventoComponent,
+    CarritoItemComponent,
+    ResumenCarritoCompraComponent
   ],
   imports: [
     CommonModule,
     PrimeNgModule,
     SharedModule,
-    HomeRoutingModule
+    HomeRoutingModule,
+    FormsModule,
   ]
 })
 export class HomeModule { }

@@ -5,6 +5,8 @@ import { CarritoCompraComponent } from './inicio/components/carrito-compra/carri
 import { CompraEntradasComponent } from './inicio/components/compra-entradas/compra-entradas.component';
 import { EventoComponent } from './inicio/components/evento/evento.component';
 
+
+
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
   { path: 'inicio', component: InicioComponent },

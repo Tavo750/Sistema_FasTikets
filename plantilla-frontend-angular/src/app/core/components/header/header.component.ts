@@ -1,9 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { MenuItem } from 'primeng/api';
-import { Usuario } from '../../interfaces/login.interface';
+import { Data } from '../../interfaces/login.interface';
+import { SessionService } from '../../../shared/services/session.service';
+import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-header',
@@ -11,21 +13,35 @@ import { Usuario } from '../../interfaces/login.interface';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   currentLabel: string = '';
   breadcrumbDisplay = '';     // Para la vista
   breadcrumbFull = '';        // Para el tooltip completo
   items: MenuItem[] | undefined;
+  itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
   notificationCount: number = 5; // Ejemplo
-  @Input() usuario: Usuario | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
+  @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
+
+  /**
+   * Getter que retorna los items del menú según el rol del usuario
+   */
+  get menuItems(): MenuItem[] | undefined {
+    if (!this.usuario) {
+      return undefined;
+    }
+    return this.usuario.rol === 'ADMINISTRADOR' ? this.itemsAdmin : this.items;
+  }
 
   private routerSubscription!: Subscription;
+  private userSubscription!: Subscription;
 
   constructor(
     private router: Router,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private sessionService: SessionService,
+    private loginService: LoginService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -43,35 +59,69 @@ export class HeaderComponent implements OnInit {
    * Actualiza los items del menú según el estado de autenticación
    */
   private actualizarMenuItems(): void {
+    // Menú para usuarios con rol CLIENTE
     this.items = [
       {
-        label: 'usuario',
+        label: 'Usuario',
         items: [
           { separator: true },
           {
             label: 'Mi perfil',
             icon: 'pi pi-user',
-            routerLink: '/usuario'
+            routerLink: '/usuario/perfilPersonal',
           },
-          // {
-          //   label: 'Configuración',
-          //   icon: 'pi pi-cog',
-          //   routerLink: '/home/configuracion'
-          // },
-          // {
-          //   label: 'Ayuda y Asistencia',
-          //   icon: 'pi pi-question',
-          //   routerLink: '/home/configuracion'
-          // },
           {
-            label: 'Regresar al menu',
+            label: 'Mis entradas',
+            icon: 'pi pi-ticket',
+            routerLink: '/usuario/misEntradas',
+          },
+          {
+            label: 'Regresar a Inicio',
             icon: 'pi pi-home',
-            command: () => {
-              // Redirigir al menú principal
-              //TODO: Hacer una validación que desea regresar al menú principal
-              window.location.href = 'https://nocb.nettalco.com.pe/intranet/sso/menu';
+            routerLink: '/home/inicio',
+          },
+          { separator: true },
+          {
+            label: 'Cerrar sesión',
+            icon: 'pi pi-sign-out',
+            command: () => this.cerrarSesion()
+          }
+        ]
+      }
+    ];
 
-            },
+    // Menú para usuarios con rol ADMINISTRADOR
+    this.itemsAdmin = [
+      {
+        label: 'Administrador',
+        items: [
+          { separator: true },
+          {
+            label: 'Mi perfil',
+            icon: 'pi pi-user',
+            routerLink: '/administrador/perfilAdministrador',
+          },
+          { separator: true },
+          {
+            label: 'Gestión de clientes',
+            icon: 'pi pi-users',
+            routerLink: '/administrador/gestionClientes',
+          },
+          {
+            label: 'Auditoría',
+            icon: 'pi pi-chart-bar',
+            routerLink: '/administrador/auditoria',
+          },
+          { separator: true },
+          {
+            label: 'Regresar a Inicio',
+            icon: 'pi pi-home',
+            routerLink: '/home/inicio',
+          },
+          {
+            label: 'Cerrar sesión',
+            icon: 'pi pi-sign-out',
+            command: () => this.cerrarSesion()
           }
         ]
       }
@@ -82,6 +132,7 @@ export class HeaderComponent implements OnInit {
     const currentUrl = this.router.url;
     this.findLabelForUrl(currentUrl);
 
+    // Suscribirse a cambios de ruta
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -89,10 +140,21 @@ export class HeaderComponent implements OnInit {
         this.findLabelForUrl(newUrl);
         console.log('hola')
       });
+
+    // Suscribirse a cambios del usuario autenticado
+    this.userSubscription = this.sessionService.user$.subscribe((user: Data | null) => {
+      // Si no hay usuario o el input usuario no está definido, usar el del SessionService
+      if (!this.usuario) {
+        this.usuario = user;
+      }
+    });
   }
 
   ngOnDestroy() {
     this.routerSubscription.unsubscribe();
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   private findLabelForUrl(url: string) {
@@ -138,6 +200,17 @@ export class HeaderComponent implements OnInit {
     if (typeof routerLink === 'string') return routerLink.replace(/^\/+|\/+$/g, '').toLowerCase();
     if (Array.isArray(routerLink)) return routerLink.join('/').replace(/^\/+|\/+$/g, '').toLowerCase();
     return '';
+  }
+
+  /**
+   * Cierra la sesión del usuario actual
+   */
+  cerrarSesion(): void {
+    // Limpiar ambos servicios de sesión
+    this.sessionService.clearUser();
+    this.loginService.logout();
+    this.usuario = null; // Limpiar el usuario del componente
+    this.router.navigate(['/home']);
   }
 
 }

@@ -1,0 +1,210 @@
+<div class="container">
+    <div class="header-section">
+        <h1 class="title">
+            <i class="pi pi-calendar-times"></i>
+            Gestión de Eventos
+        </h1>
+
+        <p-button
+            label="Agregar Evento"
+            icon="pi pi-plus"
+            (click)="crearEvento(0)"
+            class="add-button">
+        </p-button>
+    </div>
+
+    <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+        <div class="search-container">
+            <div class="field">
+                <label for="busqueda">Buscar evento:</label>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input
+                        id="busqueda"
+                        type="text"
+                        pInputText
+                        placeholder="Escribir el nombre del evento"
+                        [(ngModel)]="terminoBusqueda"
+                        (input)="onBusquedaChange()"
+                        class="w-full"/>
+                </span>
+            </div>
+
+            <div class="field">
+                <label for="tipo">Tipo de evento:</label>
+                <p-dropdown
+                    id="tipo"
+                    [options]="tiposConcierto"
+                    optionLabel="name"
+                    placeholder="Seleccionar tipo"
+                    [(ngModel)]="tipoSeleccionado"
+                    (onChange)="onTipoChange()"
+                    class="w-full">
+                </p-dropdown>
+            </div>
+        </div>
+    </p-panel>
+
+    <div class="results-section">
+        <div class="results-header">
+            <h3>
+                <i class="pi pi-list"></i>
+                Eventos encontrados ({{eventosFiltrados.length}})
+            </h3>
+        </div>
+
+        <div class="events-grid" *ngIf="eventosFiltrados.length > 0; else noResults">
+            <p-card *ngFor="let evento of eventosFiltrados" class="event-card">
+                <ng-template pTemplate="header">
+                    <div class="event-header">
+                        <div class="event-title-section">
+                            <div class="title-with-id">
+                                <span class="event-id">ID: {{evento.id}}</span>
+                                <h2 class="event-name">
+                                    <i class="pi pi-music"></i>
+                                    {{evento.nombre}}
+                                </h2>
+                            </div>
+                            <p-tag
+                                [value]="evento.estado"
+                                [severity]="getEstadoSeverity(evento.estado)">
+                            </p-tag>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="content">
+                    <!-- Información básica del evento -->
+                    <div class="event-details-section">
+                        <h4 class="section-title">
+                            <i class="pi pi-info-circle"></i>
+                            Información del Evento
+                        </h4>
+                        <div class="event-details-grid">
+                            <div class="detail-item">
+                                <label class="detail-label">
+                                    <i class="pi pi-hashtag"></i>
+                                    ID:
+                                </label>
+                                <span class="detail-value">{{evento.id}}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label class="detail-label">
+                                    <i class="pi pi-music"></i>
+                                    Nombre:
+                                </label>
+                                <span class="detail-value">{{evento.nombre}}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label class="detail-label">
+                                    <i class="pi pi-tag"></i>
+                                    Tipo:
+                                </label>
+                                <span class="detail-value">{{evento.tipo}}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label class="detail-label">
+                                    <i class="pi pi-calendar"></i>
+                                    Fecha:
+                                </label>
+                                <span class="detail-value">{{evento.fecha | date:'dd/MM/yyyy'}}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <label class="detail-label">
+                                    <i class="pi pi-map-marker"></i>
+                                    Lugar:
+                                </label>
+                                <span class="detail-value">{{evento.lugar}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas del evento -->
+                    <div class="event-stats-section">
+                        <h4 class="section-title">
+                            <i class="pi pi-chart-bar"></i>
+                            Estadísticas
+                        </h4>
+                        <div class="event-stats">
+                            <div class="stat-card">
+                                <div class="stat-value">{{formatearNumero(evento.capacidad)}}</div>
+                                <div class="stat-label">
+                                    <i class="pi pi-users"></i>
+                                    Capacidad Total
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-value sold">{{formatearNumero(evento.vendidos)}}</div>
+                                <div class="stat-label">
+                                    <i class="pi pi-ticket"></i>
+                                    Entradas Vendidas
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-value percentage">{{evento.ocupacion}}%</div>
+                                <div class="stat-label">
+                                    <i class="pi pi-chart-bar"></i>
+                                    Ocupación
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-value income">{{formatearMoneda(evento.ingresos)}}</div>
+                                <div class="stat-label">
+                                    <i class="pi pi-dollar"></i>
+                                    Ingresos
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="footer">
+                    <div class="event-actions">
+                        <p-button
+                            label="Reporte"
+                            icon="pi pi-download"
+                            severity="secondary"
+                            size="small"
+                            (click)="generarReporte(evento)">
+                        </p-button>
+
+                        <p-button
+                            label="Detalles"
+                            icon="pi pi-eye"
+                            severity="info"
+                            size="small"
+                            (click)="verDetalles(evento)">
+                        </p-button>
+
+                        <p-button
+                            icon="pi pi-pencil"
+                            severity="warn"
+                            [rounded]="true"
+                            [text]="true"
+                            size="small"
+                            pTooltip="Editar evento"
+                            tooltipPosition="top"
+                            (click)="editarEvento(evento.id)">
+                        </p-button>
+                    </div>
+                </ng-template>
+            </p-card>
+        </div>
+
+        <ng-template #noResults>
+            <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron eventos</h3>
+                <p>Intenta ajustar los filtros de búsqueda o crear un nuevo evento.</p>
+                <p-button
+                    label="Crear Primer Evento"
+                    icon="pi pi-plus"
+                    (click)="crearEvento(0)">
+                </p-button>
+            </div>
+        </ng-template>
+    </div>
+</div>

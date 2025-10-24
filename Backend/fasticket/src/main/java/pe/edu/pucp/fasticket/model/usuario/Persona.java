@@ -9,6 +9,8 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @Entity
+@Table(name = "persona")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

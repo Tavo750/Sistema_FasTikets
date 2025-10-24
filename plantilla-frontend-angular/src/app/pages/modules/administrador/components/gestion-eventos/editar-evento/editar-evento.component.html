@@ -1,0 +1,451 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-pencil"></i>
+      Editar Evento
+    </h1>
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      outlined="true"
+      routerLink="/administrador/gestionEventos"
+      class="back-button"
+    ></p-button>
+  </div>
+
+  <!-- Contenido del formulario -->
+  <div class="form-content">
+    <!-- Sección 1: Datos Generales -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-info-circle"></i>
+          Datos Generales del Evento
+        </h3>
+      </div>
+
+      <div class="form-grid">
+        <!-- Columna Izquierda -->
+        <div class="form-left">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-tag"></i>
+              Título del evento
+            </label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="evento.titulo"
+              placeholder="Electronic Festival"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-list"></i>
+              Categoría del evento
+            </label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="evento.categoria"
+              placeholder="Electrónica"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-file-edit"></i>
+              Descripción del evento
+            </label>
+            <textarea
+              rows="4"
+              pInputTextarea
+              [(ngModel)]="evento.descripcion"
+              placeholder="Descripción detallada del evento..."
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-calendar"></i>
+                Fecha del evento
+              </label>
+              <p-datepicker
+                [(ngModel)]="date"
+                dateFormat="dd/mm/yy"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-clock"></i>
+                Hora de inicio
+              </label>
+              <p-datepicker
+                [(ngModel)]="time"
+                [timeOnly]="true"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-video"></i>
+              Video promocional (opcional)
+            </label>
+            <input
+              type="url"
+              pInputText
+              [(ngModel)]="evento.videoPromocional"
+              placeholder="https://youtube.com/watch?v=..."
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-send"></i>
+              Estado del evento
+            </label>
+            <div class="estado-info">
+              <p-tag value="Activo" severity="success" *ngIf="evento.estado === 'activo'"></p-tag>
+              <p-tag value="Inactivo" severity="warning" *ngIf="evento.estado === 'inactivo'"></p-tag>
+              <p-tag value="Borrador" severity="info" *ngIf="!evento.estado"></p-tag>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha -->
+        <div class="form-right">
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-image"></i>
+              Banner del evento
+            </label>
+
+            <div class="banner-section">
+              <!-- Mostrar imagen actual del banner -->
+              <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+                <img
+                  [src]="evento.bannerUrl"
+                  alt="Banner del evento"
+                  class="banner-imagen">
+                <div class="banner-overlay">
+                  <i class="pi pi-camera"></i>
+                  <p>Cambiar imagen</p>
+                </div>
+              </div>
+
+              <!-- Área de subida cuando no hay imagen -->
+              <div class="upload-area" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
+                <i class="pi pi-cloud-upload"></i>
+                <p>Subir imagen del banner</p>
+                <small>JPG, PNG - Máximo 5MB</small>
+              </div>
+
+              <!-- Input file oculto -->
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                style="display: none"
+              />
+
+              <!-- Botones de acción para el banner -->
+              <div class="banner-actions" *ngIf="evento.bannerUrl">
+                <p-button
+                  label="Cambiar"
+                  icon="pi pi-upload"
+                  severity="info"
+                  outlined="true"
+                  (onClick)="fileInput.click()"
+                ></p-button>
+                <p-button
+                  label="Eliminar"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="onEliminarBanner($event)"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Sección 2: Local y Asientos -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-building"></i>
+          Local y Configuración de Asientos
+        </h3>
+      </div>
+
+      <div class="local-content">
+        <!-- Selección del local -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="pi pi-map-marker"></i>
+            Local del evento
+          </label>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="evento.local"
+            placeholder="Local del evento..."
+            class="form-input"
+            readonly
+          />
+        </div>
+
+        <div class="local-asientos-grid">
+          <!-- Categorías existentes -->
+          <div class="categorias-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-tags"></i>
+              Categorías configuradas
+            </h4>
+
+            <!-- Lista de categorías existentes -->
+            <div class="categorias-agregadas" *ngIf="categoriasLocal && categoriasLocal.length > 0">
+              <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
+                <div class="categoria-info">
+                  <span class="categoria-nombre">{{ categoria.nombre }}</span>
+                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMaximo }}</span>
+                  <span class="categoria-disponible">Disponible: {{ categoria.aforoDisponible || categoria.aforoMaximo }}</span>
+                </div>
+                <div class="categoria-actions">
+                  <p-button
+                    icon="pi pi-eye"
+                    severity="info"
+                    text="true"
+                    pTooltip="Ver detalles"
+                  ></p-button>
+                </div>
+              </div>
+            </div>
+
+            <div class="categorias-info" *ngIf="!categoriasLocal || categoriasLocal.length === 0">
+              <p class="info-text">
+                <i class="pi pi-info-circle"></i>
+                No hay categorías configuradas para este evento.
+              </p>
+            </div>
+          </div>
+
+          <!-- Mapa del local -->
+          <div class="mapa-section">
+            <h4 class="subsection-title">
+              <i class="pi pi-map"></i>
+              Mapa del local
+            </h4>
+
+            <div class="mapa-container">
+              <!-- Mostrar imagen actual o por defecto -->
+              <div class="mapa-display" *ngIf="evento.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
+                <img
+                  [src]="evento.mapaUrl"
+                  alt="Mapa del local"
+                  class="mapa-imagen">
+                <div class="mapa-overlay">
+                  <i class="pi pi-camera"></i>
+                  <p>Actualizar mapa</p>
+                </div>
+              </div>
+
+              <!-- Área de subida cuando no hay imagen -->
+              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+                <i class="pi pi-cloud-upload"></i>
+                <p>Subir mapa del local</p>
+                <small>JPG, PNG - Máximo 5MB</small>
+              </div>
+
+              <!-- Input file oculto -->
+              <input
+                #fileInputMapa
+                type="file"
+                accept="image/*"
+                (change)="onMapaSelected($event)"
+                style="display: none"
+              />
+
+              <!-- Botones de acción para el mapa -->
+              <div class="mapa-actions" *ngIf="evento.mapaUrl">
+                <p-button
+                  label="Cambiar"
+                  icon="pi pi-upload"
+                  severity="info"
+                  outlined="true"
+                  (onClick)="fileInputMapa.click()"
+                ></p-button>
+                <p-button
+                  label="Eliminar"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  (onClick)="onEliminarMapa($event)"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Sección 3: Entradas -->
+    <p-card class="evento-card mb-4">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-ticket"></i>
+          Configuración de Entradas
+        </h3>
+      </div>
+
+      <div class="entradas-content">
+        <!-- Información de entradas -->
+        <div class="form-field">
+          <label class="field-label">
+            <i class="pi pi-dollar"></i>
+            Moneda del evento
+          </label>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="evento.moneda"
+            placeholder="Moneda..."
+            class="form-input"
+            readonly
+          />
+        </div>
+
+        <!-- Lista de entradas configuradas -->
+        <div class="entradas-configuradas">
+          <h4 class="subsection-title">
+            <i class="pi pi-ticket"></i>
+            Entradas configuradas
+          </h4>
+
+          <!-- Entrada Regular -->
+          <div class="entrada-card">
+            <div class="entrada-header">
+              <h5>
+                <i class="pi pi-tag"></i>
+                Entrada Regular
+              </h5>
+              <p-tag value="Activa" severity="success"></p-tag>
+            </div>
+            <div class="entrada-details">
+              <div class="entrada-info">
+                <span class="info-label">Válido para:</span>
+                <span class="info-value">General, Premium</span>
+              </div>
+              <div class="entrada-info">
+                <span class="info-label">Precio base:</span>
+                <span class="info-value">{{ evento.moneda || 'S/' }} 50.00</span>
+              </div>
+              <div class="entrada-actions-small">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  text="true"
+                  pTooltip="Ver precios detallados"
+                ></p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text="true"
+                  pTooltip="Editar entrada"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Entrada Preventa -->
+          <div class="entrada-card">
+            <div class="entrada-header">
+              <h5>
+                <i class="pi pi-tag"></i>
+                Entrada Preventa
+              </h5>
+              <p-tag value="Activa" severity="success"></p-tag>
+            </div>
+            <div class="entrada-details">
+              <div class="entrada-info">
+                <span class="info-label">Válido para:</span>
+                <span class="info-value">General</span>
+              </div>
+              <div class="entrada-info">
+                <span class="info-label">Precio base:</span>
+                <span class="info-value">{{ evento.moneda || 'S/' }} 35.00</span>
+              </div>
+              <div class="entrada-actions-small">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  text="true"
+                  pTooltip="Ver precios detallados"
+                ></p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  text="true"
+                  pTooltip="Editar entrada"
+                ></p-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Límite de compra -->
+        <div class="limite-compra-section">
+          <label class="field-label">
+            <i class="pi pi-shield"></i>
+            Límite de compra por persona
+          </label>
+          <div class="limite-display">
+            <div class="limite-info">
+              <span class="limite-label">Límite actual:</span>
+              <span class="limite-value">
+                <p-tag value="10 entradas máximo" severity="info"></p-tag>
+              </span>
+            </div>
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              text="true"
+              pTooltip="Modificar límite"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Acciones finales -->
+    <div class="card-actions final-actions">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined="true"
+        (onClick)="onCancelarEvento($event)"
+      ></p-button>
+      <p-button
+        label="Guardar Cambios"
+        icon="pi pi-check"
+        (onClick)="onGuardarCambios()"
+      ></p-button>
+    </div>
+  </div>
+</div>

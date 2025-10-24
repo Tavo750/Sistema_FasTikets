@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { BasicResponse, LoginResponse, Usuario } from '../interfaces/login.interface';
+import { LoginResponse, Data } from '../interfaces/login.interface';
 import * as global from '../../global';
-import { CacheStore } from '../interfaces/cache-store.interface';
+import { CacheStore, Usuario } from '../interfaces/cache-store.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,12 @@ export class LoginService {
       linkFoto: '',
       codiPues: 0,
       permissions: []
-    }
+    },
+    persona: undefined
   }
+
+  private token: string = '';
+  private userRole: string = '';
 
   url = global.url;
 
@@ -28,12 +32,20 @@ export class LoginService {
 
   private saveToSessionStorage() {
     sessionStorage.setItem('cacheStore', JSON.stringify(this.cacheStore));
+    if (this.token) {
+      sessionStorage.setItem('token', this.token);
+    }
+    if (this.userRole) {
+      sessionStorage.setItem('userRole', this.userRole);
+    }
   }
 
   private loadFromSessionStorage() {
     if (!sessionStorage.getItem('cacheStore')) return;
 
     this.cacheStore = JSON.parse(sessionStorage.getItem('cacheStore')!);
+    this.token = sessionStorage.getItem('token') || '';
+    this.userRole = sessionStorage.getItem('userRole') || '';
   }
 
   getLogin(email: string, contrasena: string): Observable<LoginResponse> {
@@ -42,32 +54,26 @@ export class LoginService {
       "contrasena": contrasena,
     };
 
-    return this.http.post<LoginResponse>(`http://localhost:8080/api/personas/login`, filtro)  //${this.url}auth/v1/session
+    return this.http.post<LoginResponse>(`http://localhost:8081/api/v1/auth/login`, filtro)  //${this.url}auth/v1/session
       .pipe(
         tap(login => {
+          // Guardar token y rol
+          this.token = login.data.token;
+          this.userRole = login.data.rol;
+
           this.cacheStore.usuario = {
-            codiPers: login.persona.docIdentidad,
-            nombPers: `${login.persona.nombres} ${login.persona.apellidos}`,
+            codiPers: login.data.idUsuario.toString(),
+            nombPers: login.data.nombreCompleto,
             linkFoto: '',
             codiPues: 0,
             permissions: []
           };
+          // Guardar los datos del usuario directamente
+          this.cacheStore.persona = login.data;
         }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
       );
-  }
-
-  cerrarSesion(usuario: string, codiPuesto: number): Observable<BasicResponse> {
-
-    const filtro = {
-      "userCode": usuario,
-      "workstationCode": codiPuesto
-    };
-
-    return this.http.post<BasicResponse>(this.url + 'auth/v1/closeSession', filtro).pipe(
-      catchError(this.handleError) // Maneja errores
-    );
   }
 
   //------------------
@@ -79,7 +85,7 @@ export class LoginService {
     if (error.error) {
       const errorMessage = {
         responseCode: error.error.responseCode || 'Unknown',
-        message: error.error.message || 'Ha ocurrido un error desconocido.'
+        message: error.error.mensaje
       };
 
       // Lanza un nuevo error con el mensaje procesado
@@ -93,5 +99,54 @@ export class LoginService {
 
       return throwError(() => defaultError);
     }
+  }
+
+  // Método para obtener el usuario actual
+  getCurrentUser(): Usuario | null {
+    return this.cacheStore.usuario?.codiPers ? this.cacheStore.usuario : null;
+  }
+
+  // Método para obtener la persona actual
+  getCurrentPersona(): Data | null {
+    return this.cacheStore.persona || null;
+  }
+
+  // Método para verificar si el usuario está autenticado
+  isLoggedIn(): boolean {
+    return !!this.cacheStore.usuario?.codiPers;
+  }
+
+  // Método para cerrar sesión
+  logout(): void {
+    this.cacheStore.usuario = {
+      codiPers: '',
+      nombPers: '',
+      linkFoto: '',
+      codiPues: 0,
+      permissions: []
+    };
+    this.cacheStore.persona = undefined;
+    this.token = '';
+    this.userRole = '';
+
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('cacheStore');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userRole');
+  }
+
+  // Método para obtener el token
+  getToken(): string {
+    return this.token;
+  }
+
+  // Método para obtener el rol del usuario
+  getUserRole(): string {
+    return this.userRole;
+  }
+
+  // Método para verificar si el token existe y no ha expirado
+  isTokenValid(): boolean {
+    return !!this.token;
   }
 }

@@ -4,31 +4,104 @@
 }
 
 .top-bar {
-  background-color: #ffffff;
+  background-color: #dc3546;
   width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1002; /* Mayor que el sidebar para aparecer encima */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+  padding-top: 80px; /* Espacio para el header fijo */
+  overflow: hidden; /* Evitar scroll en el layout principal */
+}
+
+.main-wrapper-shifted {
+  margin-left: 250px;
+}
+
+/* Ajustar el header cuando el sidebar está abierto */
+.main-wrapper-shifted .top-bar {
+  left: 250px;
+  width: calc(100% - 250px);
+}
+
+/* Sidebar de pantalla completa */
+.sidebar-fullscreen {
+  position: fixed;
+  left: 0;
+  top: 0; /* Desde la parte superior de la pantalla */
+  width: 250px;
+  height: 100vh; /* Altura completa de la pantalla */
+  z-index: 1000;
+  background-color: #ffffff;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
 .logo-container {
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
+  transition: all 0.3s ease;
+  background-color: #dc3546;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.clase {
-  border: 1px solid red;
+.logo-container.hidden-logo {
+  opacity: 0;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
 }
+
 .logo {
   height: 40px;
   width: auto;
   object-fit: contain;
 }
 
-.sidebar {
+.sidebar-container {
   width: 250px;
   background-color: transparent;
-  transition: width 0.5s ease, opacity 0.5s ease;
-  overflow: hidden;
-  /* border-right: 0.5px solid #f0f9f2; */
+  transition: width 0.3s ease;
+  flex-shrink: 0;
+}
+
+/* Solo en desktop cuando el sidebar está cerrado */
+@media (min-width: 769px) {
+  .sidebar-container {
+    position: relative;
+    height: auto;
+  }
+}
+
+.sidebar {
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+}
+
+.content-wrapper {
+  height: calc(100vh - 80px); /* Altura fija menos header */
+  overflow: hidden; /* Evitar scroll en el wrapper */
+}
+
+.content-container {
+  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: transparent;
+  min-width: 0; /* Permite que el contenido se comprima */
+  height: 100%; /* Usar toda la altura del wrapper */
+  box-sizing: border-box;
 }
 
 .sidebar-hidden {
@@ -57,4 +130,43 @@
 
 .boton-toggle-sidebar {
   padding-left: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-wrapper-shifted {
+    margin-left: 0;
+  }
+
+  /* El header debe ocupar todo el ancho en móvil */
+  .main-wrapper-shifted .top-bar {
+    left: 0;
+    width: 100%;
+  }
+
+  .sidebar-container {
+    position: fixed;
+    left: 0;
+    top: 0; /* Desde la parte superior de la pantalla */
+    width: 250px;
+    height: 100vh; /* Altura completa de la pantalla */
+    z-index: 1001; /* Menor que el header para que el header aparezca encima */
+    background-color: #ffffff;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-container.open {
+    transform: translateX(0);
+  }
+
+  .content-container {
+    width: 100%;
+  }
+
+  /* Ocultar sidebar de pantalla completa en mobile */
+  .sidebar-fullscreen {
+    display: none;
+  }
 }

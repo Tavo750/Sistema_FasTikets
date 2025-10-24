@@ -1,7 +1,7 @@
 <p-toast></p-toast>
 
 <header class="header">
-  <div class="logo">
+  <div class="logo" (click)="navigateToHome()">
     <img src="img/logo/logo-fasticket.jpg" alt="FASTICKET">
   </div>
   <div class="header-buttons">
@@ -50,14 +50,22 @@
       <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>
 
       <div class="form-row">
-        <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono" required>
+        <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"
+               maxlength="9"
+               (keypress)="onlyNumbers($event)"
+               (paste)="onPaste($event, 'telefono')"
+               required>
         <select formControlName="tipoDocumento" required>
           <option value="">Tipo de Documento *</option>
           <option value="DNI">DNI</option>
           <option value="PASAPORTE">Pasaporte</option>
           <option value="ce">Carnet de Extranjería</option>
         </select>
-        <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento" required>
+        <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"
+               maxlength="8"
+               (keypress)="onlyNumbers($event)"
+               (paste)="onPaste($event, 'numeroDocumento')"
+               required>
       </div>
 
       <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>

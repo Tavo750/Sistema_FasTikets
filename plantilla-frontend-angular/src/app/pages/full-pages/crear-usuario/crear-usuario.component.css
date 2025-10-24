@@ -11,6 +11,7 @@ body { margin: 0; overflow-x: hidden; }
   padding:12px 24px; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,.08);
   z-index:1000;
 }
+.logo { cursor: pointer; }
 .logo img{ height:40px; display:block; }
 .header-buttons{ display:flex; gap:12px; }
 .btn-header{

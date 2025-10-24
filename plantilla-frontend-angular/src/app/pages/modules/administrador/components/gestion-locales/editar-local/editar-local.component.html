@@ -1,0 +1,201 @@
+
+<p-toast></p-toast>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-map-marker"></i>
+      Editar Local
+    </h1>
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      outlined="true"
+      routerLink="/dashboard/administrador/gestion-locales"
+      class="back-button"
+    ></p-button>
+  </div>
+
+  <!-- Contenido del formulario -->
+  <div class="form-content">
+    <p-card class="local-card">
+      <!-- Header de la tarjeta -->
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-pencil"></i>
+          Modificar información del local
+        </h3>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="localForm" class="local-form">
+        <div class="form-grid">
+          <!-- Columna izquierda -->
+          <div class="form-left">
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-tag"></i>
+                Nombre del local
+              </label>
+              <input
+                type="text"
+                pInputText
+                formControlName="nombre"
+                placeholder="Ej. Centro de usos Múltiples..."
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-map"></i>
+                Dirección completa
+              </label>
+              <input
+                type="text"
+                pInputText
+                formControlName="direccion"
+                placeholder="Ej. Av. Principal 123..."
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="field-label">
+                  <i class="pi pi-map-marker"></i>
+                  Distrito
+                </label>
+                <div class="distrito-container">
+                  <p-dropdown
+                    formControlName="distrito"
+                    [options]="distritos"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Seleccionar distrito..."
+                    styleClass="distrito-select"
+                    (onChange)="centerMapOnDistrict()"
+                  ></p-dropdown>
+                  <p-button
+                    icon="pi pi-crosshairs"
+                    (onClick)="centerMapOnDistrict()"
+                    [disabled]="!localForm.get('distrito')?.value"
+                    class="distrito-btn"
+                    severity="info"
+                    outlined="true"
+                    pTooltip="Centrar mapa en distrito"
+                  ></p-button>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">
+                  <i class="pi pi-users"></i>
+                  Aforo máximo
+                </label>
+                <p-inputNumber
+                  formControlName="aforo"
+                  placeholder="Ej. 5000"
+                  [min]="1"
+                  [useGrouping]="false"
+                  styleClass="form-input"
+                ></p-inputNumber>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-check-circle"></i>
+                Estado del local
+              </label>
+              <p-dropdown
+                formControlName="estado"
+                [options]="estados"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Seleccionar estado..."
+                styleClass="form-input"
+              ></p-dropdown>
+            </div>
+          </div>
+
+          <!-- Columna derecha - Mapa -->
+          <div class="form-right">
+            <div class="map-section">
+              <label class="field-label">
+                <i class="pi pi-globe"></i>
+                Ubicación en el mapa
+              </label>
+
+              <div class="map-wrapper">
+                <div id="map" class="map-container">
+                  <div class="map-loading" *ngIf="mapLoading">
+                    <div class="loading-spinner">
+                      <p-progressSpinner strokeWidth="4" fill="#f0f0f0"></p-progressSpinner>
+                    </div>
+                    <p>Cargando mapa...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información del mapa -->
+              <div class="map-info">
+                <div class="coordinates-display">
+                  <h4>
+                    <i class="pi pi-compass"></i>
+                    Coordenadas seleccionadas
+                  </h4>
+                  <div class="coord-grid">
+                    <div class="coord-item">
+                      <span class="coord-label">Latitud</span>
+                      <span class="coord-value">{{ selectedCoordinates.lat | number:'1.6-6' }}</span>
+                    </div>
+                    <div class="coord-item">
+                      <span class="coord-label">Longitud</span>
+                      <span class="coord-value">{{ selectedCoordinates.lng | number:'1.6-6' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="map-instructions">
+                  <i class="pi pi-info-circle"></i>
+                  Haz clic en el mapa o arrastra el marcador para actualizar la ubicación
+                </div>
+
+                <div class="map-actions">
+                  <p-button
+                    *ngIf="!mapLoading"
+                    label="Recargar Mapa"
+                    icon="pi pi-refresh"
+                    severity="info"
+                    outlined="true"
+                    (onClick)="reloadMap()"
+                  ></p-button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones del formulario -->
+        <div class="card-actions">
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            outlined="true"
+            routerLink="/dashboard/administrador/gestion-locales"
+          ></p-button>
+          <p-button
+            label="Guardar Cambios"
+            icon="pi pi-check"
+            (onClick)="guardarCambiosLocal()"
+            [disabled]="localForm.invalid"
+          ></p-button>
+        </div>
+      </form>
+    </p-card>
+  </div>
+</div>

@@ -1,18 +1,24 @@
-export interface RegistroResponse {
-  email:   string;
-  mensaje: string;
-  exito:   boolean;
-}
-
 export interface RegistroUsuario {
+  tipoDocumento: string;
   docIdentidad: string;
   nombres: string;
   apellidos: string;
-  telefono: string;
   email: string;
-  direccion: string;
   contrasena: string;
+  telefono: string;
   fechaNacimiento: string;
-  tipoDocumento: string;
-  rol: string;
+  direccion: string;
+  idDistrito: number;
+}
+
+export interface RegistroResponse {
+  ok:      boolean;
+  mensaje: string;
+  data:    Data;
+}
+
+export interface Data {
+  email:   string;
+  mensaje: string;
+  exito:   boolean;
 }

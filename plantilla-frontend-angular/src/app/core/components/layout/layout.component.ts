@@ -1,7 +1,10 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import * as global from '../../../global'
-import { Usuario } from '../../interfaces/login.interface';
-import { AuthService } from '../../services/auth.service';
+import { Data } from '../../interfaces/login.interface';
+import { SessionService } from '../../../shared/services/session.service';
+import { LoginService } from '../../services/login.service';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter, Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-layout',
@@ -9,21 +12,34 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.css'
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit, OnDestroy {
 
   isSidebarOpen = true; // Inicialmente abierto
   isSidebarOpenMobile = false; // Inicialmente cerrado
   isMobile = false;
+  shouldShowSidebar = false; // Controla si el sidebar debe mostrarse
 
-  usuario: Usuario | null = null;
+  usuario: Data | null = null;
+  private routerSubscription!: Subscription;
+  private authCheckSubscription!: Subscription;
 
   constructor(
-    private authService: AuthService
+    private sessionService: SessionService,
+    private loginService: LoginService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
 
-    this.usuario = this.authService.getDecodedToken();
+    this.usuario = this.loginService.getCurrentPersona();
+
+    // Verificar periódicamente el estado de autenticación
+    this.authCheckSubscription = interval(1000).subscribe(() => {
+      const currentUser = this.loginService.getCurrentPersona();
+      if (this.usuario !== currentUser) {
+        this.usuario = currentUser;
+      }
+    });
 
     const windowWidth = window.innerWidth;
 
@@ -36,6 +52,33 @@ export class LayoutComponent {
       this.isSidebarOpenMobile = false;
       this.isMobile = false;
     }
+
+    // Verificar la ruta inicial
+    this.checkRoute(this.router.url);
+
+    // Suscribirse a cambios de ruta
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.checkRoute(event.urlAfterRedirects);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+    if (this.authCheckSubscription) {
+      this.authCheckSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Verifica si el sidebar debe mostrarse basado en la ruta actual
+   */
+  private checkRoute(url: string): void {
+    // Mostrar sidebar en rutas de usuario y administrador
+    this.shouldShowSidebar = url.includes('/usuario') || url.includes('/administrador');
   }
 
   toggleSidebar() {
@@ -44,6 +87,10 @@ export class LayoutComponent {
     } else {
       this.isSidebarOpen = !this.isSidebarOpen;
     }
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/home']);
   }
 
   @HostListener('window:resize', ['$event'])

@@ -2,29 +2,36 @@
   class="sidebar d-flex flex-column h-100"
   [ngClass]="{ 'sidebar-mini': !open }"
 >
-  <div class="titulo-wrapper" [ngClass]="{ 'titulo-wrapper-colapsado': !open }">
-    <span class="titulo">{{ titulo }}</span>
+  <!-- Header con logo y título -->
+  <div class="sidebar-header" [ngClass]="{ 'sidebar-header-collapsed': !open }">
+    <div class="logo-container" (click)="navigateToHome()">
+       <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo-image">
+    </div>
   </div>
 
   <!-- Menú principal -->
-  <ul class="menu">
-    <li
-      *ngFor="let item of menuItems; let i = index"
-      class="elemento menu-item"
-      [ngClass]="{ 'item-activo': currentExpandedItemIndex[0] === i }"
-    >
-      <!-- Llamamos al componente recursivo -->
-      <app-sidebar-item
-        [item]="item"
-        [depth]="0"
-        [index]="i"
-        [expanded]="currentExpandedItemIndex[0] === i"
-        [currentExpandedItemIndex]="currentExpandedItemIndex"
-        (expandChange)="handleExpandChange($event)"
-      >
-      </app-sidebar-item>
-    </li>
-  </ul>
+  <div class="menu-container">
+    <nav class="menu-nav">
+      <ul class="menu-list">
+        <li
+          *ngFor="let item of menuItems; let i = index"
+          class="menu-item"
+          [ngClass]="{ 'item-activo': currentExpandedItemIndex[0] === i }"
+        >
+          <!-- Llamamos al componente recursivo -->
+          <app-sidebar-item
+            [item]="item"
+            [depth]="0"
+            [index]="i"
+            [expanded]="currentExpandedItemIndex[0] === i"
+            [currentExpandedItemIndex]="currentExpandedItemIndex"
+            (expandChange)="handleExpandChange($event)"
+          >
+          </app-sidebar-item>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
 
 <ng-template #iconInicio>

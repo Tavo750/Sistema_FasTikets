@@ -1,14 +1,30 @@
 <div class="d-flex flex-column vh-100">
-  <div class="top-bar d-flex align-items-center">
-    <div class="logo-container">
-      <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo">
-    </div>
-    <app-header class="flex-grow-1" [usuario]="usuario"></app-header>
-  </div>
-  <div class="flex-grow-1 clase">
-    <!-- <app-sidebar class="sidebar"></app-sidebar> -->
-    <router-outlet></router-outlet>
+  <!-- Sidebar de pantalla completa -->
+  <div *ngIf="shouldShowSidebar && isSidebarOpen && !isMobile" class="sidebar-fullscreen">
+    <app-sidebar class="sidebar" [open]="isSidebarOpen"></app-sidebar>
   </div>
 
-  <app-footer class="w-100"></app-footer>
+  <!-- Contenedor principal con desplazamiento -->
+  <div class="main-wrapper" [class.main-wrapper-shifted]="shouldShowSidebar && isSidebarOpen && !isMobile">
+    <div class="top-bar d-flex align-items-center">
+      <div class="logo-container" [class.hidden-logo]="shouldShowSidebar && isSidebarOpen && !isMobile" (click)="navigateToHome()">
+        <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo">
+      </div>
+      <app-header class="flex-grow-1" [usuario]="usuario"></app-header>
+    </div>
+
+    <div class="content-wrapper d-flex">
+      <!-- Sidebar para mobile y cuando está cerrado -->
+      <div *ngIf="shouldShowSidebar && (isMobile || !isSidebarOpen)" class="sidebar-container" [class.open]="isSidebarOpenMobile">
+        <app-sidebar class="sidebar" [open]="isMobile ? isSidebarOpenMobile : isSidebarOpen"></app-sidebar>
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="content-container flex-grow-1">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <app-footer class="w-100"></app-footer>
+  </div>
 </div>

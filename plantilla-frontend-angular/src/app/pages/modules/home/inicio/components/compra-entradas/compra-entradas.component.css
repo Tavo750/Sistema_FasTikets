@@ -1,0 +1,417 @@
+/* Contenedor principal */
+.compra-container {
+  display: flex;
+  gap: 4.2rem;
+  padding: 16px;
+  background-color: #e5e5e5;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Sección de formulario */
+.form-section {
+  flex: 0 0 60%;
+  max-width: 60%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 24px;
+  overflow-y: auto;
+}
+.form-section h2 {
+  margin-bottom: 16px;
+  color: #333333;
+}
+.participant-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+  transition: transform 0.2s ease;
+  padding: 16px;
+}
+.participant-card:hover {
+  transform: translateY(-3px);
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.ticket-type h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #555555;
+}
+.ticket-type p {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: #222222;
+}
+.auto-complete {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #444444;
+  cursor: pointer;
+}
+.auto-complete input {
+  margin-right: 6px;
+}
+.check-icon {
+  margin-left: 6px;
+  color: #28a745;
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #333333;
+}
+.form-group select,
+.form-group input {
+  padding: 8px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+.card-footer {
+  margin-top: 8px;
+}
+.card-footer small {
+  font-size: 0.8rem;
+  color: #666666;
+}
+.info-icon {
+  margin-right: 4px;
+}
+.required {
+  color: #d9534f;
+}
+
+/* Sección de resumen */
+.summary-section {
+  width: 23%;         /* fuerza 40% siempre */
+  height: 72%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.details-card  {
+  height: 500px;
+  width: 100%;
+  max-width: 450px;         /* ancho máximo deseado */
+  min-height: 900;       /* altura mínima deseada */
+  margin: 4rem ;           /* espacio arriba y abajo */
+  padding: 2rem;          /* relleno interno */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  border: 1px solid #000;
+
+}
+.event-info {
+    margin-top: 1.8rem;
+  font-size: 0.95rem;
+  color: #555555;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+.event-title {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #000;
+}
+.event-date-time {
+  display: block;
+  color: #555555;
+  margin-bottom: 4px;
+}
+.event-venue {
+  display: block;
+  color: #555555;
+  margin-bottom: 20px;
+}
+.ticket-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #173ab5;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1.27rem;
+  margin-bottom: 12px;
+  cursor: default;
+}
+.line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.points-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 20px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  transition: .4s;
+  border-radius: 50%;
+}
+.switch input:checked + .slider {
+  background-color: #007bff;
+}
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+.points-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.points-control button {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.points-control span {
+  min-width: 60px;
+  text-align: center;
+  font-weight: 500;
+}
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 16px 0;
+}
+.continue-btn {
+  width: 100%;
+  background-color: #28a745;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.continue-btn:hover {
+  background-color: #218838;
+}
+.cancel-btn {
+  width: 100%;
+  background-color: #dc3545;
+  color: #ffffff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+.event-info .event-date-time {
+  font-size: 1.03rem;    /* Aumenta el tamaño de fecha y hora */
+  margin: 0.25rem 0;      /* Ajusta separación */
+}
+
+.event-info .event-venue {
+  font-size: 1.03rem;    /* Aumenta el tamaño del lugar */
+  margin-top: 1.03rem;
+}
+
+/* Estilos del modal de pago */
+.modal-header {
+  display: flex;
+  justify-content: center;  /* centra la imagen horizontalmente */
+  align-items: center;      /* centra la imagen verticalmente */
+  position: relative;       /* permite posicionar el botón de cerrar */
+  width: 100%;             /* ocupar todo el ancho del diálogo */
+}
+.modal-logo {
+  display: block;
+  margin: 0;               /* reset centering */
+  margin-left: 0.1rem;       /* desplaza el logo hacia la derecha */
+  max-width: 150px;         /* ajusta según necesites */
+  height: auto;
+  cursor: pointer;
+}
+.close-button {
+  position: absolute;    /* posicionar en esquina */
+  top: 0.1rem;       /* ajusta más arriba */
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+}
+.modal-body {
+  padding: 1rem 2rem 2rem;
+  text-align: center;
+}
+.brand-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.brand-icons img {
+  height: 32px;
+}
+.payment-amount h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.payment-amount p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0.5rem 0 1rem;
+}
+.subtitle {
+  font-size: 0.875rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+.payment-form .form-row {
+  display: flex;
+  gap: 1rem;
+}
+.payment-form .form-group label {
+  display: block;
+  font-size: 0.875rem;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+.payment-form .form-group input,
+.payment-form .form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Modal de confirmación de salida */
+.confirm-exit-modal {
+  text-align: center;
+  padding: 1rem 2rem;
+}
+.confirm-exit-modal h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.confirm-exit-modal p {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+.confirm-exit-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+.confirm-exit-buttons button {
+  width: auto;
+  min-width: 120px;
+}
+
+/* Estilos del modal de éxito de compra */
+.success-modal {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+.success-modal h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.success-icon {
+  font-size: 4rem;
+  color: #28a745;
+  margin: 1rem 0;
+}
+.success-modal p {
+  font-size: 1rem;
+  color: #555555;
+  margin-bottom: 1.5rem;
+}
+.success-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+/* Botón Ok, continuar: negro */
+.success-buttons .p-button-secondary {
+  background-color: #000000 !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+/* Botón Ver detalle: verde */
+.success-buttons .p-button-success {
+  background-color: #28a745 !important;
+  border: none !important;
+  color: #ffffff !important;
+}

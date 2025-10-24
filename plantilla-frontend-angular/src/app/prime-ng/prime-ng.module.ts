@@ -6,8 +6,10 @@ import { CardModule } from 'primeng/card';
 import { CarouselModule } from 'primeng/carousel';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
+import { DividerModule } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -27,6 +29,7 @@ import { PanelMenuModule } from 'primeng/panelmenu';
 import { PasswordModule } from 'primeng/password';
 import { PopoverModule } from 'primeng/popover';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
@@ -38,9 +41,7 @@ import { PanelModule } from 'primeng/panel';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
 import { TooltipModule } from 'primeng/tooltip';
-
-
-
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   exports: [
@@ -50,8 +51,10 @@ import { TooltipModule } from 'primeng/tooltip';
     CarouselModule,
     CheckboxModule,
     ConfirmDialogModule,
+    ConfirmPopupModule,
     DatePickerModule,
     DialogModule,
+    DividerModule,
     DynamicDialogModule,
     DrawerModule,
     FieldsetModule,
@@ -73,6 +76,7 @@ import { TooltipModule } from 'primeng/tooltip';
     PopoverModule,
     PanelModule,
     ProgressSpinnerModule,
+    RadioButtonModule,
     SelectModule,
     TableModule,
     TabsModule,
@@ -81,7 +85,8 @@ import { TooltipModule } from 'primeng/tooltip';
     ToggleButtonModule,
     CalendarModule,
     DropdownModule,
-    TooltipModule
+    TooltipModule,
+    TagModule
   ]
 })
 export class PrimeNgModule { }
