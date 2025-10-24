@@ -105,6 +105,7 @@ export class CrearUsuarioComponent implements OnInit {
 
     this.dialogRef.onClose.subscribe((result: any) => {
       console.log('Dialog exitoso cerrado');
+      this.router.navigate(['/login']);
     });
   }
 

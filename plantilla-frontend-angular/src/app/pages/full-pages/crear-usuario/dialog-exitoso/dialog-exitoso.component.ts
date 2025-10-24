@@ -14,4 +14,10 @@ export class DialogExitosoComponent {
     private dialogRef: DynamicDialogRef,
     public router: Router,
   ) {}
+
+  cerrarYRedirigir(): void {
+    this.dialogRef.close();
+    // Redirigir al login después de cerrar el diálogo
+    this.router.navigate(['/login']);
+  }
 }

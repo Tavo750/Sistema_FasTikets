@@ -14,7 +14,7 @@ export class RegistroUsuarioService {
   constructor(private http: HttpClient) { }
 
   postRegistro(usuario: RegistroUsuario): Observable<RegistroResponse> {
-    const url = `${this.baseUrl}/api/personas/registrar`;
+    const url = `${this.baseUrl}/api/v1/auth/registro`;
     return this.http.post<RegistroResponse>(url, usuario).pipe(
       catchError(this.handleError)
     );
