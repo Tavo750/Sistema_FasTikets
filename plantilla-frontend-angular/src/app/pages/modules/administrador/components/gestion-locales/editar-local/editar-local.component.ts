@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import { LocalService } from '../../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
+import { ListarLocalesResponse, Data } from '../../../interfaces/gestion-locales/local.interface';
 
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -99,27 +100,32 @@ localForm: FormGroup;
     // Primero necesitamos obtener la lista de locales y encontrar el que coincida con el ID
     // Ya que el servicio actual no tiene un método getLocalById
     this.localService.getlistarLocales().subscribe({
-      next: (locales) => {
-        const localEncontrado = locales.find(local => local.data.idLocal === this.localId);
+      next: (response: ListarLocalesResponse) => {
+        if (response && response.ok && response.data) {
+          const localEncontrado: Data | undefined = response.data.find((local: Data) => local.idLocal === this.localId);
 
-        if (localEncontrado) {
-          // Rellenar el formulario con los datos del local
-          this.localForm.patchValue({
-            nombre: localEncontrado.data.nombre,
-            direccion: localEncontrado.data.direccion,
-            distrito: localEncontrado.data.nombreDistrito,
-            aforo: localEncontrado.data.aforoTotal,
-            estado: localEncontrado.data.activo ? 'HABILITADO' : 'DESHABILITADO'
-          });
+          if (localEncontrado) {
+            // Rellenar el formulario con los datos del local
+            this.localForm.patchValue({
+              nombre: localEncontrado.nombre,
+              direccion: localEncontrado.direccion,
+              distrito: localEncontrado.nombreDistrito,
+              aforo: localEncontrado.aforoTotal,
+              estado: localEncontrado.activo ? 'HABILITADO' : 'DESHABILITADO'
+            });
 
-          this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+            this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+          } else {
+            this.customMessageService.error('No se encontró el local especificado', 'Error');
+            this.router.navigate(['/administrador/gestionLocales']);
+          }
         } else {
-          this.customMessageService.error('No se encontró el local especificado', 'Error');
+          this.customMessageService.error('No se pudieron cargar los locales', 'Error');
           this.router.navigate(['/administrador/gestionLocales']);
         }
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al cargar los datos del local:', error);
         this.customMessageService.error('Error al cargar los datos del local', 'Error');
         this.isLoading = false;

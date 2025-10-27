@@ -4,6 +4,12 @@ export interface LocalResponse {
     data:    Data;
 }
 
+export interface ListarLocalesResponse {
+    ok:      boolean;
+    mensaje: string;
+    data:    Data[];
+}
+
 export interface Data {
     idLocal:        number;
     nombre:         string;

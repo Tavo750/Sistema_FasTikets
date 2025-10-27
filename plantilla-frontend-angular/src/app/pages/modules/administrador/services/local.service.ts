@@ -3,7 +3,7 @@ import { baseUrl } from '../../../../global';
 import { HttpClient } from '@angular/common/http';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
 import { Observable, catchError } from 'rxjs';
-import { LocalResponse } from '../interfaces/gestion-locales/local.interface';
+import { LocalResponse, ListarLocalesResponse } from '../interfaces/gestion-locales/local.interface';
 import { CrearLocalRequest } from '../interfaces/gestion-locales/crear-local.interface';
 import { DeleteLocalResponse } from '../interfaces/gestion-locales/delete-local.interface';
 @Injectable({
@@ -44,11 +44,11 @@ export class LocalService {
   }
   /**
    * Obtiene la lista de todos los locales
-   * @returns Observable con la lista de locales
+   * @returns Observable con la respuesta que contiene la lista de locales
    */
-  getlistarLocales(): Observable<LocalResponse[]> {
+  getlistarLocales(): Observable<ListarLocalesResponse> {
     const url = `${baseUrl}/locales`;
-    return this.http.get<LocalResponse[]>(url)
+    return this.http.get<ListarLocalesResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );

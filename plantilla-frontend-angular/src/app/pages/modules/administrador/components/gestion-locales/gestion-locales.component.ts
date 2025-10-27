@@ -4,7 +4,7 @@ import { ConfirmationService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { LocalService } from '../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
-import { LocalResponse } from '../../interfaces/gestion-locales/local.interface';
+import { ListarLocalesResponse } from '../../interfaces/gestion-locales/local.interface';
 
 interface Local {
   idLocal: number;
@@ -48,20 +48,28 @@ export class GestionLocalesComponent implements OnInit {
     this.customMessageService.info('Cargando locales...', 'Cargando');
 
     this.localService.getlistarLocales().subscribe({
-      next: (responses: LocalResponse[]) => {
-        // Mapear las respuestas del backend a la interfaz Local
-        this.locales = responses.map(response => response.data);
-        this.filteredLocales = [...this.locales];
-        this.isLoading = false;
+      next: (response: ListarLocalesResponse) => {
+        console.log('Respuesta del servicio:', response);
 
-        if (this.locales.length > 0) {
-          this.customMessageService.success(
-            `Se cargaron ${this.locales.length} locales correctamente`,
-            'Carga completada'
-          );
+        // Verificar si la respuesta es exitosa y tiene datos
+        if (response && response.ok && response.data) {
+          this.locales = response.data;
+          this.filteredLocales = [...this.locales];
+
+          if (this.locales.length > 0) {
+            this.customMessageService.success(
+              `Se cargaron ${this.locales.length} locales correctamente`,
+              'Carga completada'
+            );
+          } else {
+            this.customMessageService.info('No se encontraron locales registrados', 'Sin resultados');
+          }
         } else {
+          console.warn('Estructura de respuesta inesperada:', response);
           this.customMessageService.info('No se encontraron locales registrados', 'Sin resultados');
         }
+
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error al cargar locales:', error);
@@ -116,7 +124,7 @@ export class GestionLocalesComponent implements OnInit {
     this.filteredLocales = this.locales.filter(local =>
       local.nombre.toLowerCase().includes(this.globalFilterValue.toLowerCase()) ||
       local.nombreDistrito.toLowerCase().includes(this.globalFilterValue.toLowerCase()) ||
-      (local.activo ? 'HABILITADO' : 'DESHABILITADO').toLowerCase().includes(this.globalFilterValue.toLowerCase())
+      this.getEstadoLocal(local.activo).toLowerCase().includes(this.globalFilterValue.toLowerCase())
     );
   }
 
