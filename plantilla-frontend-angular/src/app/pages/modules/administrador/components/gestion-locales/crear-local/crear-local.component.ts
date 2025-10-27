@@ -1,7 +1,9 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '../../../../../../core/services/message.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LocalService } from '../../../services/local.service';
+import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 import * as L from 'leaflet';
 
 // Configuración para corregir los iconos de Leaflet usando CDN
@@ -39,10 +41,10 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
   };
 
   distritos = [
-    { label: 'Seleccionar...', value: '' },
-    { label: 'Santiago de Surco', value: 'Santiago de Surco' },
-    { label: 'San Juan de Miraflores', value: 'San Juan de Miraflores' },
-    { label: 'Jesús María', value: 'Jesús María' }
+    { label: 'Seleccionar...', value: null },
+    { label: 'Santiago de Surco', value: 1 },
+    { label: 'San Juan de Miraflores', value: 2 },
+    { label: 'Jesús María', value: 3 }
   ];
 
   estados = [
@@ -53,13 +55,14 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
   constructor(
       public router: Router,
       private messageService: MessageService,
-      private fb: FormBuilder
+      private fb: FormBuilder,
+      private localService: LocalService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
         direccion: ['', [Validators.required]],
-        distrito: ['', [Validators.required]],
-        aforo: ['', [Validators.required, Validators.min(1)]],
+        idDistrito: [null, [Validators.required]],
+        aforoTotal: ['', [Validators.required, Validators.min(1)]],
         estado: ['HABILITADO', [Validators.required]],
         latitud: [this.defaultLat, [Validators.required]],
         longitud: [this.defaultLng, [Validators.required]]
@@ -161,12 +164,11 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
       this.showMapError();
 
       // Mostrar mensaje de error al usuario
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error del mapa',
-        detail: 'No se pudo cargar el mapa. Por favor, recarga la página.',
-        life: 5000
-      });
+      this.messageService.error(
+        'No se pudo cargar el mapa. Por favor, recarga la página.',
+        'Error del mapa',
+        5000
+      );
     }
   }
 
@@ -187,12 +189,11 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
     });
 
     // Mostrar mensaje informativo
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Ubicación actualizada',
-      detail: `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-      life: 2000
-    });
+    this.messageService.info(
+      `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      'Ubicación actualizada',
+      2000
+    );
   }
   reloadMap(): void {
     this.mapLoading = true;
@@ -210,17 +211,17 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
   }
 
   centerMapOnDistrict(): void {
-    const distrito = this.localForm.get('distrito')?.value;
+    const distritoId = this.localForm.get('idDistrito')?.value;
 
     // Coordenadas aproximadas de algunos distritos de Lima
-    const distritosCoords: { [key: string]: [number, number] } = {
-      'Santiago de Surco': [-12.1267, -76.9956],
-      'San Juan de Miraflores': [-12.1586, -76.9733],
-      'Jesús María': [-12.0722, -77.0461]
+    const distritosCoords: { [key: number]: [number, number] } = {
+      1: [-12.1267, -76.9956], // Santiago de Surco
+      2: [-12.1586, -76.9733], // San Juan de Miraflores
+      3: [-12.0722, -77.0461]  // Jesús María
     };
 
-    if (distrito && distritosCoords[distrito]) {
-      const coords = distritosCoords[distrito];
+    if (distritoId && distritosCoords[distritoId]) {
+      const coords = distritosCoords[distritoId];
       if (this.map) {
         this.map.setView(coords, 15);
         this.updateMarkerPosition(coords[0], coords[1]);
@@ -236,38 +237,52 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
 
   crearLocal(): void {
     if (this.localForm.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Campos incompletos',
-        detail: 'Por favor complete todos los campos correctamente antes de continuar',
-        life: 3000
-      });
+      this.messageService.warn(
+        'Por favor complete todos los campos correctamente antes de continuar',
+        'Campos incompletos',
+        3000
+      );
       this.localForm.markAllAsTouched();
       return;
     }
 
     const formData = this.localForm.value;
 
-    // Incluir las coordenadas en los datos del formulario
-    console.log('Datos del local:', {
-      ...formData,
-      ubicacion: {
-        latitud: formData.latitud,
-        longitud: formData.longitud
+    // Crear el objeto de datos según la interfaz CrearLocalRequest
+    const localData: CrearLocalRequest = {
+      nombre: formData.nombre,
+      direccion: formData.direccion,
+      aforoTotal: formData.aforoTotal,
+      idDistrito: formData.idDistrito
+    };
+
+    // Llamar al servicio para crear el local
+    this.localService.postCrearLocal(localData).subscribe({
+      next: (response) => {
+        console.log('Local creado exitosamente:', response);
+
+        // Mostrar mensaje de éxito
+        this.messageService.success(
+          `Local "${localData.nombre}" registrado exitosamente en las coordenadas: ${formData.latitud.toFixed(6)}, ${formData.longitud.toFixed(6)}`,
+          'Local creado',
+          4000
+        );
+
+        // Redirigir después de 2 segundos
+        setTimeout(() => {
+          this.router.navigate(['/administrador/gestionLocales']);
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Error al crear el local:', error);
+
+        // Mostrar mensaje de error
+        this.messageService.error(
+          'No se pudo crear el local. Por favor, inténtelo de nuevo.',
+          'Error al crear local',
+          5000
+        );
       }
     });
-
-    // Mostrar mensaje de éxito
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Local creado',
-      detail: `Local registrado exitosamente en las coordenadas: ${formData.latitud.toFixed(6)}, ${formData.longitud.toFixed(6)}`,
-      life: 4000
-    });
-
-    // Redirigir después de 2 segundos
-    setTimeout(() => {
-      this.router.navigate(['/administrador/gestionLocales']);
-    }, 2000);
   }
 }

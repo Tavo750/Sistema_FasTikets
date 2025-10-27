@@ -1,8 +1,11 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as L from 'leaflet';
+import { LocalService } from '../../../services/local.service';
+import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
+import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -21,11 +24,13 @@ const iconDefault = L.icon({
   templateUrl: './editar-local.component.html',
   styleUrls: ['./editar-local.component.css']
 })
-export class EditarLocalComponent implements AfterViewInit {
+export class EditarLocalComponent implements AfterViewInit, OnInit, OnDestroy {
 localForm: FormGroup;
   map!: L.Map;
   private marker!: L.Marker;
   mapLoading = true;
+  localId!: number; // ID del local a editar
+  isLoading = false; // Para mostrar estado de carga
 
   // Coordenadas por defecto (Lima, Perú)
   private defaultLat = -12.0464;
@@ -48,10 +53,20 @@ localForm: FormGroup;
     { label: 'DESHABILITADO', value: 'DESHABILITADO' }
   ];
 
+  // Mapeo de distritos a sus IDs (esto debería venir de un servicio en una implementación real)
+  private distritosMap = new Map([
+    ['Santiago de Surco', 1],
+    ['San Juan de Miraflores', 2],
+    ['Jesús María', 3]
+  ]);
+
   constructor(
       public router: Router,
+      private route: ActivatedRoute,
       private messageService: MessageService,
-      private fb: FormBuilder
+      private fb: FormBuilder,
+      private localService: LocalService,
+      private customMessageService: CustomMessageService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
@@ -63,6 +78,54 @@ localForm: FormGroup;
         longitud: [this.defaultLng, [Validators.required]]
       });
     }
+
+  ngOnInit(): void {
+    // Obtener el ID del local desde los parámetros de la ruta
+    this.route.params.subscribe(params => {
+      this.localId = +params['id']; // El + convierte string a número
+      if (this.localId) {
+        this.cargarDatosLocal();
+      }
+    });
+  }
+
+  /**
+   * Carga los datos del local existente para edición
+   */
+  private cargarDatosLocal(): void {
+    this.isLoading = true;
+    this.customMessageService.info('Cargando datos del local...', 'Cargando');
+
+    // Primero necesitamos obtener la lista de locales y encontrar el que coincida con el ID
+    // Ya que el servicio actual no tiene un método getLocalById
+    this.localService.getlistarLocales().subscribe({
+      next: (locales) => {
+        const localEncontrado = locales.find(local => local.data.idLocal === this.localId);
+
+        if (localEncontrado) {
+          // Rellenar el formulario con los datos del local
+          this.localForm.patchValue({
+            nombre: localEncontrado.data.nombre,
+            direccion: localEncontrado.data.direccion,
+            distrito: localEncontrado.data.nombreDistrito,
+            aforo: localEncontrado.data.aforoTotal,
+            estado: localEncontrado.data.activo ? 'HABILITADO' : 'DESHABILITADO'
+          });
+
+          this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+        } else {
+          this.customMessageService.error('No se encontró el local especificado', 'Error');
+          this.router.navigate(['/administrador/gestionLocales']);
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar los datos del local:', error);
+        this.customMessageService.error('Error al cargar los datos del local', 'Error');
+        this.isLoading = false;
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     // Verificar si Leaflet está disponible
@@ -158,13 +221,11 @@ localForm: FormGroup;
       console.error('Error al inicializar el mapa:', error);
       this.showMapError();
 
-      // Mostrar mensaje de error al usuario
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error del mapa',
-        detail: 'No se pudo cargar el mapa. Por favor, recarga la página.',
-        life: 5000
-      });
+      // Mostrar mensaje de error al usuario usando customMessageService
+      this.customMessageService.error(
+        'No se pudo cargar el mapa. Por favor, recarga la página.',
+        'Error del mapa'
+      );
     }
   }
 
@@ -184,13 +245,11 @@ localForm: FormGroup;
       longitud: lng
     });
 
-    // Mostrar mensaje informativo
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Ubicación actualizada',
-      detail: `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-      life: 2000
-    });
+    // Mostrar mensaje informativo usando el customMessageService
+    this.customMessageService.info(
+      `Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+      'Ubicación actualizada'
+    );
   }
   reloadMap(): void {
     this.mapLoading = true;
@@ -234,38 +293,52 @@ localForm: FormGroup;
 
   guardarCambiosLocal(): void {
     if (this.localForm.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Campos incompletos',
-        detail: 'Por favor complete todos los campos correctamente antes de continuar',
-        life: 3000
-      });
+      this.customMessageService.warn('Por favor complete todos los campos correctamente antes de continuar', 'Campos incompletos');
       this.localForm.markAllAsTouched();
       return;
     }
 
     const formData = this.localForm.value;
 
-    // Incluir las coordenadas en los datos del formulario
-    console.log('Datos del local:', {
-      ...formData,
-      ubicacion: {
-        latitud: formData.latitud,
-        longitud: formData.longitud
+    // Preparar los datos para enviar al API según la interfaz CrearLocalRequest
+    const localData: CrearLocalRequest = {
+      nombre: formData.nombre,
+      direccion: formData.direccion,
+      aforoTotal: formData.aforo,
+      idDistrito: this.distritosMap.get(formData.distrito) || 1 // Obtener el ID del distrito
+    };
+
+    this.isLoading = true;
+    this.customMessageService.info('Actualizando datos del local...', 'Procesando');
+
+    // Llamar al servicio para actualizar el local
+    this.localService.putActualizarLocal(this.localId, localData).subscribe({
+      next: (response) => {
+        console.log('Local actualizado:', response);
+
+        if (response.ok) {
+          this.customMessageService.success(
+            `Local "${localData.nombre}" actualizado exitosamente`,
+            'Actualización completada'
+          );
+
+          // Redirigir después de mostrar el mensaje de éxito
+          setTimeout(() => {
+            this.router.navigate(['/administrador/gestionLocales']);
+          }, 2000);
+        } else {
+          this.customMessageService.error(response.mensaje || 'Error al actualizar el local', 'Error');
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al actualizar el local:', error);
+        this.customMessageService.error(
+          'Error al actualizar el local. Por favor, inténtelo de nuevo.',
+          'Error de conexión'
+        );
+        this.isLoading = false;
       }
     });
-
-    // Mostrar mensaje de éxito
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Local creado',
-      detail: `Local registrado exitosamente en las coordenadas: ${formData.latitud.toFixed(6)}, ${formData.longitud.toFixed(6)}`,
-      life: 4000
-    });
-
-    // Redirigir después de 2 segundos
-    setTimeout(() => {
-      this.router.navigate(['/administrador/gestionLocales']);
-    }, 2000);
   }
 }

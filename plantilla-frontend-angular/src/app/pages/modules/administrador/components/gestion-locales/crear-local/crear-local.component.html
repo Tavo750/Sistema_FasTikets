@@ -67,7 +67,7 @@
                   <div class="distrito-container">
                     <p-dropdown
                       id="distrito"
-                      formControlName="distrito"
+                      formControlName="idDistrito"
                       [options]="distritos"
                       optionLabel="label"
                       optionValue="value"
@@ -78,7 +78,7 @@
                     <p-button
                       icon="pi pi-crosshairs"
                       (onClick)="centerMapOnDistrict()"
-                      [disabled]="!localForm.get('distrito')?.value"
+                      [disabled]="!localForm.get('idDistrito')?.value"
                       class="distrito-btn"
                       size="small"
                       severity="info"
@@ -96,7 +96,7 @@
                   </label>
                   <p-inputNumber
                     id="aforo"
-                    formControlName="aforo"
+                    formControlName="aforoTotal"
                     placeholder="Ej. 5000"
                     [min]="1"
                     [useGrouping]="true"

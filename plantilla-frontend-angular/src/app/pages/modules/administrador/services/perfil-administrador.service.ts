@@ -5,13 +5,12 @@ import { CambiarContrasenaRequest, CambiarContrasenaResponse } from '../interfac
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
 import { PerfilAdministradorResponse } from '../interfaces/perfil-administrador/perfilAdministradorResponse.interface';
 import { ActualizarPerfilRequest } from '../interfaces/perfil-administrador/actualizar-perfil.interface';
+import { baseUrl } from '../../../../global';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PerfilAdministradorService {
-
-  private baseUrl = 'http://localhost:8081/api/v1';
 
   constructor(
     private http: HttpClient,
@@ -24,7 +23,7 @@ export class PerfilAdministradorService {
    * @returns Observable con la respuesta del servidor
    */
   putCambiarContrasena(requestData: CambiarContrasenaRequest): Observable<CambiarContrasenaResponse> {
-    const url = `${this.baseUrl}/auth/cambiar-contrasena`;
+    const url = `${baseUrl}/auth/cambiar-contrasena`;
 
     return this.http.put<CambiarContrasenaResponse>(url, requestData)
       .pipe(
@@ -40,7 +39,7 @@ export class PerfilAdministradorService {
    * @returns Observable con la respuesta del servidor
    */
   getPerfilAdministrador(id: number): Observable<PerfilAdministradorResponse> {
-    const url = `${this.baseUrl}/clientes/${id}/perfil`;
+    const url = `${baseUrl}/clientes/${id}/perfil`;
     return this.http.get<PerfilAdministradorResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
@@ -53,7 +52,7 @@ export class PerfilAdministradorService {
    * @returns Observable con la respuesta del servidor
    */
   putActualizarPerfilAdministrador(id: number, perfilData: ActualizarPerfilRequest): Observable<PerfilAdministradorResponse> {
-    const url = `${this.baseUrl}/clientes/${id}/perfil`;
+    const url = `${baseUrl}/clientes/${id}/perfil`;
     return this.http.put<PerfilAdministradorResponse>(url, perfilData)
       .pipe(
         catchError(this.httpUtils.handleError)
