@@ -1,4 +1,5 @@
 import { Component, Input, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import * as L from 'leaflet';
 
 interface TicketType {
@@ -14,6 +15,10 @@ interface TicketType {
   styleUrl: './evento.component.css'
 })
 export class EventoComponent implements AfterViewInit {
+  constructor(
+    private router: Router
+  ) {}
+
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
 
   @Input() imageUrl: string = 'assets/images/ub40.jpg';
@@ -81,6 +86,7 @@ export class EventoComponent implements AfterViewInit {
         return;
       }
       // aquí disparar flujo de compra inmediata
+      this.router.navigate(['compraEntradas']);
 
       console.log('Comprar ahora', selectedTickets);
 
