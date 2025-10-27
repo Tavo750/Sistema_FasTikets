@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from '../../../../../../core/services/message.service';
 import { ConfirmPopupService } from '../../../../../../core/services/confirm-popup.service';
+import { LocalService } from '../../../services/local.service';
+import { Data as LocalData } from '../../../interfaces/gestion-locales/local.interface';
 interface EstadoOption {
   label: string;
   value: string;
@@ -156,13 +158,9 @@ export class CrearEventoComponent implements OnInit{
   validoPara: string = '';
 
   // Nuevas propiedades para la sección de Local y asientos
-  localesOptions: EstadoOption[] = [
-    { label: 'Seleccionar', value: '' },
-    { label: 'Estadio Nacional', value: 'estadio-nacional' },
-    { label: 'Arena Lima', value: 'arena-lima' },
-    { label: 'Parque de la Exposición', value: 'parque-exposicion' },
-    { label: 'Club Nacional', value: 'club-nacional' }
-  ];
+  localesOptions: EstadoOption[] = [];
+  localesDisponibles: LocalData[] = [];
+  cargandoLocales: boolean = false;
 
   nuevaCategoria = {
     nombre: '',
@@ -172,18 +170,90 @@ export class CrearEventoComponent implements OnInit{
   constructor(
     private router: Router,
     private messageService: MessageService,
-    private confirmPopupService: ConfirmPopupService
+    private confirmPopupService: ConfirmPopupService,
+    private localService: LocalService
   ) { }
 
   ngOnInit(): void {
+    // Cargar locales disponibles
+    this.cargarLocales();
     // Aquí puedes cargar datos del evento si estás editando
-
     this.cargarEvento();
   }
 
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
+  }
+
+  cargarLocales(): void {
+    this.cargandoLocales = true;
+
+    this.localService.getlistarLocales().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.localesDisponibles = response.data;
+
+          // Transformar los datos para el dropdown
+          this.localesOptions = [
+            { label: 'Seleccionar local', value: '' },
+            ...response.data
+              .filter(local => local.activo) // Solo locales activos
+              .map(local => ({
+                label: `${local.nombre} - ${local.nombreDistrito}`,
+                value: local.idLocal.toString()
+              }))
+          ];
+
+          this.messageService.success('Locales cargados exitosamente', 'Carga Completada');
+        } else {
+          this.messageService.error('No se pudieron cargar los locales', 'Error de Carga');
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar locales:', error);
+        this.messageService.error('Error al conectar con el servidor', 'Error de Conexión');
+
+        // Cargar opciones por defecto en caso de error
+        this.localesOptions = [
+          { label: 'Seleccionar local', value: '' },
+          { label: 'No hay locales disponibles', value: '' }
+        ];
+      },
+      complete: () => {
+        this.cargandoLocales = false;
+      }
+    });
+  }
+
+  /**
+   * Obtiene los datos completos del local seleccionado
+   * @param idLocal ID del local seleccionado
+   * @returns Datos del local o null si no se encuentra
+   */
+  obtenerDatosLocal(idLocal: string): LocalData | null {
+    if (!idLocal || !this.localesDisponibles) return null;
+
+    const local = this.localesDisponibles.find(l => l.idLocal.toString() === idLocal);
+    return local || null;
+  }
+
+  /**
+   * Maneja el cambio de selección del local
+   * @param event Evento del dropdown
+   */
+  onLocalSeleccionado(event: any): void {
+    const idLocal = event.value;
+    if (idLocal) {
+      const localSeleccionado = this.obtenerDatosLocal(idLocal);
+      if (localSeleccionado) {
+        // Actualizar información adicional del local si es necesario
+        console.log('Local seleccionado:', localSeleccionado);
+
+        // Puedes agregar lógica adicional aquí, como cargar categorías específicas del local
+        this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
+      }
+    }
   }
 
   // Manejo de banner subida de imagenes
@@ -282,6 +352,11 @@ export class CrearEventoComponent implements OnInit{
 
     if (!this.evento.hora || !this.evento.minutos) {
       this.messageService.error('La hora completa es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.local || this.evento.local.trim() === '') {
+      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return false;
     }
 

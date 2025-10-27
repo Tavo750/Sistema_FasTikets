@@ -231,7 +231,16 @@
             optionValue="value"
             placeholder="Seleccionar local para el evento..."
             styleClass="form-input"
+            [loading]="cargandoLocales"
+            [disabled]="cargandoLocales"
+            (onChange)="onLocalSeleccionado($event)"
           ></p-dropdown>
+
+          <!-- Indicador de carga -->
+          <div *ngIf="cargandoLocales" class="loading-indicator">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Cargando locales disponibles...</span>
+          </div>
         </div>
 
         <div class="local-asientos-grid">

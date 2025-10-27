@@ -549,6 +549,20 @@
   border-color: #1565c0;
 }
 
+/* Loading Indicator */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.loading-indicator i {
+  color: #1976d2;
+}
+
 ::ng-deep .p-checkbox .p-checkbox-box {
   border-radius: 4px;
   border: 2px solid #d1d5db;
