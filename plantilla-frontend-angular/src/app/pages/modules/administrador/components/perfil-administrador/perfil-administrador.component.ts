@@ -5,6 +5,7 @@ import { PerfilAdministradorService } from '../../services/perfil-administrador.
 import { SessionService } from '../../../../../shared/services/session.service';
 import { MessageService } from '../../../../../core/services/message.service';
 import { Data as PerfilData } from '../../interfaces/perfil-administrador/perfilAdministradorResponse.interface';
+import { ActualizarPerfilRequest } from '../../interfaces/perfil-administrador/actualizar-perfil.interface';
 
 interface TipoDocumento {
   nombre: string;
@@ -140,34 +141,68 @@ export class PerfilAdministradorComponent implements OnInit {
       return;
     }
 
-    // TODO: Aquí implementarías la lógica para guardar los cambios en el backend
-    // Ejemplo de lo que se enviaría al servicio:
-    console.log('Datos a guardar:', this.editForm.value);
-
-    // Actualizar el formulario de visualización con los nuevos datos
-    this.perfilForm.patchValue({
-      nombres: this.editForm.get('nombres')?.value,
-      apellidos: this.editForm.get('apellidos')?.value,
-      correo: this.editForm.get('correo')?.value,
-      telefono: this.editForm.get('telefono')?.value,
-      direccion: this.editForm.get('direccion')?.value
-    });
-
-    // Actualizar también los datos locales
-    if (this.perfilData) {
-      this.perfilData.nombres = this.editForm.get('nombres')?.value;
-      this.perfilData.apellidos = this.editForm.get('apellidos')?.value;
-      this.perfilData.email = this.editForm.get('correo')?.value;
-      this.perfilData.telefono = this.editForm.get('telefono')?.value;
-      this.perfilData.direccion = this.editForm.get('direccion')?.value;
+    const currentUser = this.sessionService.getCurrentUser();
+    if (!currentUser || !currentUser.idUsuario) {
+      this.messageService.error(
+        'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
+        'Error de sesión'
+      );
+      this.router.navigate(['/login']);
+      return;
     }
 
-    this.messageService.success(
-      'Los datos del perfil han sido actualizados exitosamente',
-      'Perfil actualizado'
-    );
+    // Preparar los datos para el servicio
+    const actualizarData: ActualizarPerfilRequest = {
+      nombres: this.editForm.get('nombres')?.value,
+      apellidos: this.editForm.get('apellidos')?.value,
+      telefono: this.editForm.get('telefono')?.value,
+      direccion: this.editForm.get('direccion')?.value,
+      email: this.editForm.get('correo')?.value
+    };
 
-    this.isEditing = false;
+    this.isLoading = true;
+
+    this.perfilService.putActualizarPerfilAdministrador(currentUser.idUsuario, actualizarData).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Actualizar el formulario de visualización con los nuevos datos
+          this.perfilForm.patchValue({
+            nombres: actualizarData.nombres,
+            apellidos: actualizarData.apellidos,
+            correo: actualizarData.email,
+            telefono: actualizarData.telefono,
+            direccion: actualizarData.direccion
+          });
+
+          // Actualizar también los datos locales
+          if (this.perfilData) {
+            this.perfilData.nombres = actualizarData.nombres;
+            this.perfilData.apellidos = actualizarData.apellidos;
+            this.perfilData.email = actualizarData.email;
+            this.perfilData.telefono = actualizarData.telefono;
+            this.perfilData.direccion = actualizarData.direccion;
+          }
+
+          this.messageService.success(
+            response.mensaje || 'Los datos del perfil han sido actualizados exitosamente',
+            'Perfil actualizado'
+          );
+
+          this.isEditing = false;
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo actualizar el perfil',
+            'Error'
+          );
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al actualizar perfil:', error);
+        this.messageService.handleHttpError(error);
+        this.isLoading = false;
+      }
+    });
   }
 
   cambiarContrasena(): void {
