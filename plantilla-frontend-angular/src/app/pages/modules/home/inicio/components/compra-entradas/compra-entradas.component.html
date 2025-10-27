@@ -74,6 +74,20 @@
         <ng-template pTemplate="content">
           <div class="tickets-section">
             <div class="ticket-details-grid">
+              <!-- Mostrar resumen de tickets seleccionados -->
+              <div class="tickets-summary" *ngIf="purchaseData">
+                <h4><i class="pi pi-ticket"></i> Entradas Seleccionadas</h4>
+                <div class="ticket-summary-item" *ngFor="let ticket of purchaseData.tickets">
+                  <div class="ticket-summary-info">
+                    <span class="ticket-name">{{ ticket.name }}</span>
+                    <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
+                    <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
+                    <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información básica de entradas (legacy) -->
               <div class="ticket-item" *ngFor="let p of participants; let i = index">
                 <div class="detail-item">
                   <label class="detail-label">

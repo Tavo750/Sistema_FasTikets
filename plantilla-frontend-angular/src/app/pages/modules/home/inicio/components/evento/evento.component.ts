@@ -2,6 +2,7 @@ import { Component, Input, AfterViewInit, ViewChild, ElementRef } from '@angular
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { CartService } from '../../../../../../shared/services/cart.service';
+import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { MessageService } from 'primeng/api';
 
 interface TicketType {
@@ -20,6 +21,7 @@ export class EventoComponent implements AfterViewInit {
   constructor(
     private router: Router,
     private cartService: CartService,
+    private purchaseService: PurchaseService,
     private messageService: MessageService
   ) {}
 
@@ -121,13 +123,43 @@ export class EventoComponent implements AfterViewInit {
     onBuyNow() {
       const selectedTickets = this.tickets.filter(t => t.quantity > 0);
       if (selectedTickets.length === 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'Selecciona al menos una entrada para comprar'
+        });
         return;
       }
-      // aquí disparar flujo de compra inmediata
+
+      // Preparar datos para el componente de compra
+      const purchaseData = {
+        eventInfo: {
+          title: this.title,
+          date: this.date,
+          time: this.time,
+          venue: this.venue,
+          address: this.address,
+          organizer: this.organizer,
+          image: this.imageUrl
+        },
+        tickets: selectedTickets.map(ticket => ({
+          name: ticket.name,
+          price: ticket.price,
+          quantity: ticket.quantity,
+          description: this.getTicketDescription(ticket.name)
+        })),
+        totalTickets: this.getTotalTickets(),
+        totalPrice: this.getTotalPrice(),
+        source: 'evento' as const
+      };
+
+      // Enviar datos al servicio de compra
+      this.purchaseService.setPurchaseDataFromEvent(purchaseData);
+
+      // Navegar al componente de compra
       this.router.navigate(['/home/compraEntradas']);
 
       console.log('Comprar ahora', selectedTickets);
-
     }
 
     ngAfterViewInit() {

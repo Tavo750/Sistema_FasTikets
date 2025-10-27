@@ -1,6 +1,7 @@
 import { Component, Input, Output, OnInit, TrackByFunction, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../../../../../../shared/services/cart.service';
+import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -15,7 +16,8 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private cartService: CartService
+    private cartService: CartService,
+    private purchaseService: PurchaseService
   ) {}
 
   ngOnInit(): void {
@@ -87,10 +89,17 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   proceedToCheckout(): void {
+    if (this.cartItems.length === 0) {
+      console.log('No hay items en el carrito');
+      return;
+    }
+
+    // Enviar datos del carrito al servicio de compra
+    this.purchaseService.setPurchaseDataFromCart(this.cartItems);
+
     // Navegar al proceso de pago
     this.router.navigate(['/home/compraEntradas']);
     console.log('Proceder al pago');
-    // Aquí podrías usar el Router para navegar al checkout
   }
 
   exploreEvents(): void {
