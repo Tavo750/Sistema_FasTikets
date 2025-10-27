@@ -279,7 +279,7 @@
                   icon="pi pi-plus"
                   severity="success"
                   outlined="true"
-                  (onClick)="onAgregarCategoria()"
+                  (click)="onAgregarCategoria()"
                   pTooltip="Agregar categoría"
                 ></p-button>
               </div>
@@ -287,6 +287,7 @@
 
             <!-- Lista de categorías agregadas -->
             <div class="categorias-agregadas" *ngIf="categoriasLocal && categoriasLocal.length > 0">
+              <h5>Categorías agregadas:</h5>
               <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
                 <div class="categoria-info">
                   <span class="categoria-nombre">{{ categoria.nombre }}</span>
@@ -296,7 +297,7 @@
                   icon="pi pi-trash"
                   severity="danger"
                   text="true"
-                  (onClick)="onEliminarCategoria(i, $event)"
+                  (click)="onEliminarCategoria(i, $event)"
                   pTooltip="Eliminar categoría"
                 ></p-button>
               </div>

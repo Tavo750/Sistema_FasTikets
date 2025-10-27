@@ -164,7 +164,7 @@ export class CrearEventoComponent implements OnInit{
 
   nuevaCategoria = {
     nombre: '',
-    aforoMaximo: ''
+    aforoMaximo: null as number | null
   };
 
   constructor(
@@ -204,14 +204,11 @@ export class CrearEventoComponent implements OnInit{
                 value: local.idLocal.toString()
               }))
           ];
-
-          this.messageService.success('Locales cargados exitosamente', 'Carga Completada');
         } else {
           this.messageService.error('No se pudieron cargar los locales', 'Error de Carga');
         }
       },
       error: (error) => {
-        console.error('Error al cargar locales:', error);
         this.messageService.error('Error al conectar con el servidor', 'Error de Conexión');
 
         // Cargar opciones por defecto en caso de error
@@ -248,8 +245,6 @@ export class CrearEventoComponent implements OnInit{
       const localSeleccionado = this.obtenerDatosLocal(idLocal);
       if (localSeleccionado) {
         // Actualizar información adicional del local si es necesario
-        console.log('Local seleccionado:', localSeleccionado);
-
         // Puedes agregar lógica adicional aquí, como cargar categorías específicas del local
         this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
       }
@@ -433,23 +428,16 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    if (!this.nuevaCategoria.aforoMaximo.trim()) {
-      this.messageService.error('Por favor ingresa el aforo máximo', 'Campo Requerido');
-      return;
-    }
-
-    // Verificar que el aforo sea un número válido
-    const aforo = parseInt(this.nuevaCategoria.aforoMaximo);
-    if (isNaN(aforo) || aforo <= 0) {
-      this.messageService.error('El aforo máximo debe ser un número válido mayor a 0', 'Valor Inválido');
+    if (!this.nuevaCategoria.aforoMaximo || this.nuevaCategoria.aforoMaximo <= 0) {
+      this.messageService.error('Por favor ingresa un aforo máximo válido mayor a 0', 'Campo Requerido');
       return;
     }
 
     // Agregar la nueva categoría
     const nuevaCat: Categoria = {
       nombre: this.nuevaCategoria.nombre,
-      aforoMaximo: this.nuevaCategoria.aforoMaximo,
-      aforoDisponible: this.nuevaCategoria.aforoMaximo // Inicialmente todo disponible
+      aforoMaximo: this.nuevaCategoria.aforoMaximo.toString(),
+      aforoDisponible: this.nuevaCategoria.aforoMaximo.toString() // Inicialmente todo disponible
     };
 
     this.categoriasLocal.push(nuevaCat);
@@ -457,7 +445,7 @@ export class CrearEventoComponent implements OnInit{
     // Limpiar los campos
     this.nuevaCategoria = {
       nombre: '',
-      aforoMaximo: ''
+      aforoMaximo: null
     };
 
     this.messageService.success('Categoría agregada exitosamente', 'Operación Exitosa');
