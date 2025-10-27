@@ -12,10 +12,10 @@
       <i class="pi pi-search search-icon"></i>
     </div>
 
-    <button class="action-btn" (click)="navegarA('/home/compraEntradas')">
+    <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')">
       <i class="pi pi-shopping-cart"></i>
       <span class="action-label">Carrito</span>
-
+      <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
     </button>
 
     <button class="action-btn" >

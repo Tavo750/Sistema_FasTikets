@@ -1,14 +1,7 @@
-import { Component, Input, Output, OnInit, TrackByFunction } from '@angular/core';
+import { Component, Input, Output, OnInit, TrackByFunction, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-
-export interface CartItem {
-  id: number;
-  title: string;
-  category: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
+import { CartService, CartItem } from '../../../../../../shared/services/cart.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-carrito-compra',
@@ -16,40 +9,27 @@ export interface CartItem {
   templateUrl: './carrito-compra.component.html',
   styleUrls: ['./carrito-compra.component.css']
 })
-export class CarritoCompraComponent implements OnInit {
+export class CarritoCompraComponent implements OnInit, OnDestroy {
   cartItems: CartItem[] = [];
+  private cartSubscription: Subscription = new Subscription();
+
   constructor(
-    private router: Router
+    private router: Router,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
-    // Datos de ejemplo
-    this.cartItems = [
-      {
-        id: 1,
-        image: 'https://via.placeholder.com/150x150/3498db/ffffff?text=UB40',
-        title: 'UB40 Ft. Ali Campbell - Concierto en Vivo',
-        category: 'Platinum',
-        price: 410,
-        quantity: 2
-      },
-      {
-        id: 2,
-        image: 'https://via.placeholder.com/150x150/e74c3c/ffffff?text=EVENTO',
-        title: 'Festival de Rock Internacional 2025',
-        category: 'VIP',
-        price: 150,
-        quantity: 1
-      },
-      {
-        id: 3,
-        image: 'https://via.placeholder.com/150x150/2ecc71/ffffff?text=CONCIERTO',
-        title: 'Noche de Jazz en el Teatro Nacional',
-        category: 'General',
-        price: 85,
-        quantity: 3
+    // Suscribirse a los cambios del carrito
+    this.cartSubscription = this.cartService.getCartItems$().subscribe(
+      (items: CartItem[]) => {
+        this.cartItems = items;
       }
-    ];
+    );
+  }
+
+  ngOnDestroy(): void {
+    // Limpiar suscripciones
+    this.cartSubscription.unsubscribe();
   }
 
   // TrackBy function para mejorar el rendimiento
@@ -71,7 +51,7 @@ export class CarritoCompraComponent implements OnInit {
 
   // Cálculos del carrito
   getSubtotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.cartService.getTotalPrice();
   }
 
   getTaxes(): number {
@@ -93,14 +73,11 @@ export class CarritoCompraComponent implements OnInit {
 
   // Métodos de acciones
   removeItem(item: CartItem): void {
-    this.cartItems = this.cartItems.filter(i => i.id !== item.id);
+    this.cartService.removeItem(item.id);
   }
 
   updateQuantity(id: number, quantity: number): void {
-    const item = this.cartItems.find(i => i.id === id);
-    if (item) {
-      item.quantity = quantity;
-    }
+    this.cartService.updateQuantity(id, quantity);
   }
 
   continueShopping(): void {

@@ -1,6 +1,8 @@
 import { Component, Input, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
+import { CartService } from '../../../../../../shared/services/cart.service';
+import { MessageService } from 'primeng/api';
 
 interface TicketType {
   name: string;
@@ -16,7 +18,9 @@ interface TicketType {
 })
 export class EventoComponent implements AfterViewInit {
   constructor(
-    private router: Router
+    private router: Router,
+    private cartService: CartService,
+    private messageService: MessageService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -74,10 +78,44 @@ export class EventoComponent implements AfterViewInit {
     onAddToCart() {
       const selectedTickets = this.tickets.filter(t => t.quantity > 0);
       if (selectedTickets.length === 0) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'Selecciona al menos una entrada para añadir al carrito'
+        });
         return;
       }
-      // aquí disparar lógica para añadir al carrito
-      console.log('Añadir al carrito', selectedTickets);
+
+      // Preparar información del evento
+      const eventInfo = {
+        title: this.title,
+        image: this.imageUrl,
+        date: this.date,
+        venue: this.venue,
+        eventId: this.title.toLowerCase().replace(/\s+/g, '-') // Generar ID basado en el título
+      };
+
+      // Añadir tickets al carrito
+      this.cartService.addEventTicketsToCart(selectedTickets, eventInfo);
+
+      // Mostrar mensaje de éxito
+      const totalTickets = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: `${totalTickets} entrada(s) añadida(s) al carrito correctamente`
+      });
+
+      // Opcional: limpiar selección de tickets
+      this.resetTicketQuantities();
+
+      console.log('Entradas añadidas al carrito:', selectedTickets);
+    }
+
+    resetTicketQuantities() {
+      this.tickets.forEach(ticket => {
+        ticket.quantity = 0;
+      });
     }
 
     onBuyNow() {

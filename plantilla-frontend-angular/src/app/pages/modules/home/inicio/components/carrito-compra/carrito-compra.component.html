@@ -28,7 +28,7 @@
                        [severity]="getCategorySeverity(item.category)"
                        class="category-tag">
                 </p-tag>
-                <p class="item-price">{{ item.price | currency:'USD':'symbol':'1.2-2' }}</p>
+                <p class="item-price">S/ {{ item.price | number:'1.2-2' }}</p>
               </div>
 
               <div class="item-actions">
@@ -49,7 +49,7 @@
 
                 <div class="item-total">
                   <span class="total-label">Subtotal:</span>
-                  <span class="total-amount">{{ (item.price * item.quantity) | currency:'USD':'symbol':'1.2-2' }}</span>
+                  <span class="total-amount">S/ {{ (item.price * item.quantity) | number:'1.2-2' }}</span>
                 </div>
 
                 <p-button
@@ -74,20 +74,20 @@
           <div class="summary-content">
             <div class="summary-row">
               <span>Subtotal:</span>
-              <span>{{ getSubtotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+              <span>S/ {{ getSubtotal() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
               <span>Impuestos (16%):</span>
-              <span>{{ getTaxes() | currency:'USD':'symbol':'1.2-2' }}</span>
+              <span>S/ {{ getTaxes() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
               <span>Envío:</span>
-              <span>{{ getShipping() | currency:'USD':'symbol':'1.2-2' }}</span>
+              <span>S/ {{ getShipping() | number:'1.2-2' }}</span>
             </div>
             <p-divider></p-divider>
             <div class="summary-row total-row">
               <span class="total-label">Total:</span>
-              <span class="total-amount">{{ getTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+              <span class="total-amount">S/ {{ getTotal() | number:'1.2-2' }}</span>
             </div>
 
             <div class="checkout-actions">

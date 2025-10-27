@@ -6,6 +6,7 @@ import { MenuItem } from 'primeng/api';
 import { Data } from '../../interfaces/login.interface';
 import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
+import { CartService } from '../../../shared/services/cart.service';
 
 @Component({
   selector: 'app-header',
@@ -22,6 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
   notificationCount: number = 5; // Ejemplo
+  cartItemCount: number = 0; // Contador de items del carrito
   @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
   /**
@@ -36,12 +38,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private routerSubscription!: Subscription;
   private userSubscription!: Subscription;
+  private cartSubscription!: Subscription;
 
   constructor(
     private router: Router,
     private menuService: MenuService,
     private sessionService: SessionService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private cartService: CartService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -148,12 +152,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.usuario = user;
       }
     });
+
+    // Suscribirse a cambios del carrito
+    this.cartSubscription = this.cartService.getCartItems$().subscribe(items => {
+      this.cartItemCount = this.cartService.getTotalItems();
+    });
   }
 
   ngOnDestroy() {
     this.routerSubscription.unsubscribe();
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
     }
   }
 
