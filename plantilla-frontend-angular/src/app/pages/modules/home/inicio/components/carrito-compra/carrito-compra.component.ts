@@ -1,4 +1,5 @@
 import { Component, Input, Output, OnInit, TrackByFunction } from '@angular/core';
+import { Router } from '@angular/router';
 
 export interface CartItem {
   id: number;
@@ -17,6 +18,9 @@ export interface CartItem {
 })
 export class CarritoCompraComponent implements OnInit {
   cartItems: CartItem[] = [];
+  constructor(
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     // Datos de ejemplo
@@ -107,6 +111,7 @@ export class CarritoCompraComponent implements OnInit {
 
   proceedToCheckout(): void {
     // Navegar al proceso de pago
+    this.router.navigate(['/home/compraEntradas']);
     console.log('Proceder al pago');
     // Aquí podrías usar el Router para navegar al checkout
   }

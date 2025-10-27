@@ -86,7 +86,7 @@ export class EventoComponent implements AfterViewInit {
         return;
       }
       // aquí disparar flujo de compra inmediata
-      this.router.navigate(['compraEntradas']);
+      this.router.navigate(['/home/compraEntradas']);
 
       console.log('Comprar ahora', selectedTickets);
 
