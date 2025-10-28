@@ -1,0 +1,144 @@
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-key"></i>
+      Cambiar Contraseña
+    </h1>
+
+    <p-button
+      label="Volver al Perfil"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      [routerLink]="['/usuario/perfilPersonal']"
+      class="back-button">
+    </p-button>
+  </div>
+
+  <div class="form-content">
+    <p-card class="password-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>
+            <i class="pi pi-shield"></i>
+            Actualizar Credenciales de Acceso
+          </h3>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <!-- SIN el ! para evitar error -->
+        <form [formGroup]="cambiarContrasenaForm" (ngSubmit)="onSubmit()" class="password-form">
+          <div class="form-grid">
+            <!-- Contraseña actual -->
+            <div class="form-field">
+              <label for="contrasenaActual" class="field-label">
+                <i class="pi pi-lock"></i>
+                Contraseña Actual *
+              </label>
+
+              <p-password
+                id="contrasenaActual"
+                formControlName="contrasenaActual"
+                placeholder="Ingrese su contraseña actual"
+                [feedback]="false"
+                [toggleMask]="true"
+                styleClass="password-input">
+              </p-password>
+
+              <small class="error-message"
+                     *ngIf="cambiarContrasenaForm.get('contrasenaActual')?.invalid && (cambiarContrasenaForm.get('contrasenaActual')?.touched || cambiarContrasenaForm.get('contrasenaActual')?.dirty)">
+                <i class="pi pi-exclamation-triangle"></i>
+                Este campo es requerido
+              </small>
+            </div>
+
+            <!-- Nueva -->
+            <div class="form-field">
+              <label for="contrasenaNueva" class="field-label">
+                <i class="pi pi-key"></i>
+                Nueva Contraseña *
+              </label>
+
+              <p-password
+                id="contrasenaNueva"
+                formControlName="contrasenaNueva"
+                placeholder="Ingrese la nueva contraseña"
+                [feedback]="true"
+                [toggleMask]="true"
+                styleClass="password-input">
+              </p-password>
+
+              <small class="error-message"
+                     *ngIf="cambiarContrasenaForm.get('contrasenaNueva')?.invalid && (cambiarContrasenaForm.get('contrasenaNueva')?.touched || cambiarContrasenaForm.get('contrasenaNueva')?.dirty)">
+                <i class="pi pi-exclamation-triangle"></i>
+                Este campo es requerido
+              </small>
+            </div>
+
+            <!-- Confirmar -->
+            <div class="form-field">
+              <label for="confirmarContrasena" class="field-label">
+                <i class="pi pi-verified"></i>
+                Confirmar Nueva Contraseña *
+              </label>
+
+              <p-password
+                id="confirmarContrasena"
+                formControlName="confirmarContrasena"
+                placeholder="Confirme la nueva contraseña"
+                [feedback]="false"
+                [toggleMask]="true"
+                styleClass="password-input">
+              </p-password>
+
+              <small class="error-message"
+                     *ngIf="cambiarContrasenaForm.get('confirmarContrasena')?.invalid && (cambiarContrasenaForm.get('confirmarContrasena')?.touched || cambiarContrasenaForm.get('confirmarContrasena')?.dirty)">
+                <i class="pi pi-exclamation-triangle"></i>
+                Este campo es requerido
+              </small>
+
+              <!-- Mensaje de no-coincidencia (si luego agregas el validador en TS) -->
+              <small class="error-message"
+                     *ngIf="cambiarContrasenaForm.hasError('passwordsMismatch') && (cambiarContrasenaForm.get('confirmarContrasena')?.touched || cambiarContrasenaForm.get('confirmarContrasena')?.dirty)">
+                <i class="pi pi-exclamation-triangle"></i>
+                Las contraseñas no coinciden
+              </small>
+            </div>
+          </div>
+
+          <!-- Mensajes globales opcionales (si los usas en TS) -->
+          <div class="message-container" *ngIf="mensajeExito || mensajeError">
+            <div class="success-message" *ngIf="mensajeExito">
+              <i class="pi pi-check-circle"></i>
+              {{ mensajeExito }}
+            </div>
+            <div class="error-global" *ngIf="mensajeError">
+              <i class="pi pi-exclamation-triangle"></i>
+              {{ mensajeError }}
+            </div>
+          </div>
+        </form>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-actions">
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            [routerLink]="['/usuario/perfilPersonal']">
+          </p-button>
+
+          <p-button
+            label="Cambiar Contraseña"
+            icon="pi pi-check"
+            type="submit"
+            (click)="onSubmit()"
+            [disabled]="!cambiarContrasenaForm.valid || cargando"
+            [loading]="cargando">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
