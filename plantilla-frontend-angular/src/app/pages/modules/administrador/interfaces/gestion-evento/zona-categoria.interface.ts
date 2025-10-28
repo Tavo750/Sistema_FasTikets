@@ -6,12 +6,12 @@ export interface ZonaCategoriaResponse {
 
 export interface Data {
   idZona:               number;
-  nombre:               string;
   aforoMax:             number;
+  usuarioCreacion:      null;
+  usuarioActualizacion: null;
+  nombre:               string;
   activo:               boolean;
-  usuarioCreacion:      number;
-  fechaCreacion:        Date;
-  usuarioActualizacion: number;
-  fechaActualizacion:   Date;
-  local:                null;
+  fechaCreacion:        null;
+  fechaActualizacion:   null;
+  idLocal:              number;
 }
