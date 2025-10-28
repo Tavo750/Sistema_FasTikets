@@ -39,7 +39,7 @@ export class PerfilAdministradorService {
    * @returns Observable con la respuesta del servidor
    */
   getPerfilAdministrador(id: number): Observable<PerfilAdministradorResponse> {
-    const url = `${baseUrl}/clientes/${id}/perfil`;
+    const url = `${baseUrl}/administrador/perfil`;
     return this.http.get<PerfilAdministradorResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
@@ -52,7 +52,7 @@ export class PerfilAdministradorService {
    * @returns Observable con la respuesta del servidor
    */
   putActualizarPerfilAdministrador(id: number, perfilData: ActualizarPerfilRequest): Observable<PerfilAdministradorResponse> {
-    const url = `${baseUrl}/clientes/${id}/perfil`;
+    const url = `${baseUrl}/administrador/perfil`;
     return this.http.put<PerfilAdministradorResponse>(url, perfilData)
       .pipe(
         catchError(this.httpUtils.handleError)
