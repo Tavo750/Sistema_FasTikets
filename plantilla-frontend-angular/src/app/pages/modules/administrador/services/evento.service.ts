@@ -52,7 +52,7 @@ export class EventoService {
    */
   deleteZona(id: number): Observable<EliminaZonaResponse> {
     const url = `${baseUrl}/zonas/${id}`;
-    return this.http.delete<ZonaCategoriaResponse>(url)
+    return this.http.delete<EliminaZonaResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );

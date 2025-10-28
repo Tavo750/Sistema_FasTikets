@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MessageService } from '../../../../../../core/services/message.service';
 import { ConfirmPopupService } from '../../../../../../core/services/confirm-popup.service';
 import { LocalService } from '../../../services/local.service';
+import { EventoService } from '../../../services/evento.service';
 import { Data as LocalData } from '../../../interfaces/gestion-locales/local.interface';
 interface EstadoOption {
   label: string;
@@ -29,6 +30,7 @@ interface Evento {
 }
 
 interface Categoria {
+  idZona: number;
   nombre: string;
   aforoMaximo: string;
   aforoDisponible: string;
@@ -47,6 +49,19 @@ interface LimiteCompra {
   tipo: 'sinLimite' | 'conMaximo';
   maximo: number;
 }
+
+interface ZonaEvento {
+  idZona: number;
+  aforoMax: number;
+  nombre: string;
+  activo: boolean;
+  idLocal: number;
+  usuarioCreacion?: any;
+  usuarioActualizacion?: any;
+  fechaCreacion?: any;
+  fechaActualizacion?: any;
+}
+
 @Component({
   selector: 'app-crear-evento',
   standalone: false,
@@ -93,31 +108,15 @@ export class CrearEventoComponent implements OnInit{
     { label: 'Pop', value: 'Pop' },
     { label: 'Jazz', value: 'Jazz' }
   ];
-  categoriasLocal: Categoria[] = [
-    {
-      nombre: 'General',
-      aforoMaximo: '25000',
-      aforoDisponible: '914'
-    },
-    {
-      nombre: 'Premium',
-      aforoMaximo: '15000',
-      aforoDisponible: 'VENDIDO'
-    }
-  ];
+  categoriasLocal: Categoria[] = [];
   entradas: { regular: TipoEntrada; preventa: TipoEntrada } = {
     regular: {
       nombre: 'Regular',
-      categorias: [
-        { nombre: 'General', estado: 'activo' },
-        { nombre: 'Premium', estado: 'activo' }
-      ]
+      categorias: []
     },
     preventa: {
       nombre: 'Preventa',
-      categorias: [
-        { nombre: 'General', estado: 'activo' }
-      ]
+      categorias: []
     }
   };
 
@@ -162,6 +161,10 @@ export class CrearEventoComponent implements OnInit{
   localesDisponibles: LocalData[] = [];
   cargandoLocales: boolean = false;
 
+  // Propiedades para el manejo de zonas/categorías
+  zonasDisponibles: ZonaEvento[] = [];
+  cargandoZonas: boolean = false;
+
   nuevaCategoria = {
     nombre: '',
     aforoMaximo: null as number | null
@@ -171,12 +174,15 @@ export class CrearEventoComponent implements OnInit{
     private router: Router,
     private messageService: MessageService,
     private confirmPopupService: ConfirmPopupService,
-    private localService: LocalService
+    private localService: LocalService,
+    private eventoService: EventoService
   ) { }
 
   ngOnInit(): void {
     // Cargar locales disponibles
     this.cargarLocales();
+    // Cargar zonas disponibles
+    this.cargarZonas();
     // Aquí puedes cargar datos del evento si estás editando
     this.cargarEvento();
   }
@@ -223,6 +229,113 @@ export class CrearEventoComponent implements OnInit{
     });
   }
 
+  cargarZonas(): void {
+    this.cargandoZonas = true;
+
+    this.eventoService.getListarZonas().subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Verificar si response.data es un array o un objeto
+          if (Array.isArray(response.data)) {
+            this.zonasDisponibles = response.data;
+          } else if (response.data) {
+            // Si es un objeto único, convertirlo a array
+            this.zonasDisponibles = [response.data];
+          } else {
+            this.zonasDisponibles = [];
+          }
+
+          this.messageService.success(
+            `Se encontraron ${this.zonasDisponibles.length} zonas disponibles en total`,
+            'Sistema Cargado'
+          );
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudieron cargar las zonas',
+            'Error de Carga'
+          );
+          this.zonasDisponibles = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar zonas:', error);
+        this.messageService.handleHttpError(error);
+        this.zonasDisponibles = [];
+      },
+      complete: () => {
+        this.cargandoZonas = false;
+      }
+    });
+  }
+
+  /**
+   * Obtiene las zonas filtradas por el local seleccionado
+   * @param idLocal ID del local seleccionado
+   * @returns Array de zonas del local especificado
+   */
+  obtenerZonasPorLocal(idLocal: string): ZonaEvento[] {
+    if (!idLocal || !this.zonasDisponibles) return [];
+
+    return this.zonasDisponibles.filter(zona =>
+      zona.idLocal.toString() === idLocal && zona.activo
+    );
+  }
+
+  /**
+   * Actualiza la lista de categorías locales basada en las zonas del local seleccionado
+   * @param idLocal ID del local seleccionado
+   */
+  actualizarCategoriasLocal(idLocal: string): void {
+    const zonasLocal = this.obtenerZonasPorLocal(idLocal);
+
+    // Convertir zonas a formato de categorías locales
+    this.categoriasLocal = zonasLocal.map(zona => ({
+      idZona: zona.idZona,
+      nombre: zona.nombre,
+      aforoMaximo: zona.aforoMax.toString(),
+      aforoDisponible: zona.aforoMax.toString() // Inicialmente todo disponible
+    }));
+
+    // Actualizar también las entradas con las categorías cargadas
+    this.actualizarEntradasConCategorias(zonasLocal);
+
+    if (zonasLocal.length > 0) {
+      this.messageService.info(
+        `Se cargaron ${zonasLocal.length} categorías para el local seleccionado`,
+        'Categorías Actualizadas'
+      );
+    } else {
+      this.messageService.warn(
+        'No se encontraron categorías para el local seleccionado',
+        'Sin Categorías'
+      );
+    }
+  }
+
+  /**
+   * Actualiza las entradas con las categorías disponibles
+   * @param zonas Array de zonas del local
+   */
+  actualizarEntradasConCategorias(zonas: ZonaEvento[]): void {
+    const categoriasEntrada = zonas.map(zona => ({
+      nombre: zona.nombre,
+      estado: 'activo'
+    }));
+
+    // Actualizar entradas regular y preventa
+    this.entradas.regular.categorias = [...categoriasEntrada];
+    this.entradas.preventa.categorias = [...categoriasEntrada];
+
+    // Actualizar las opciones del dropdown de validoPara
+    this.validoParaOptions = [
+      { label: 'Seleccionar', value: '' },
+      ...zonas.map(zona => ({
+        label: zona.nombre,
+        value: zona.nombre.toLowerCase()
+      }))
+    ];
+  }
+
   /**
    * Obtiene los datos completos del local seleccionado
    * @param idLocal ID del local seleccionado
@@ -244,11 +357,63 @@ export class CrearEventoComponent implements OnInit{
     if (idLocal) {
       const localSeleccionado = this.obtenerDatosLocal(idLocal);
       if (localSeleccionado) {
-        // Actualizar información adicional del local si es necesario
-        // Puedes agregar lógica adicional aquí, como cargar categorías específicas del local
+        // Actualizar información adicional del local
         this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
+
+        // Cargar las categorías/zonas específicas del local seleccionado
+        this.actualizarCategoriasLocal(idLocal);
       }
+    } else {
+      // Si no hay local seleccionado, limpiar las categorías y entradas
+      this.categoriasLocal = [];
+      this.entradas.regular.categorias = [];
+      this.entradas.preventa.categorias = [];
+      this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
     }
+  }
+
+  /**
+   * Refresca la lista de zonas manualmente
+   */
+  refrescarZonas(): void {
+    this.messageService.info('Actualizando lista de zonas...', 'Cargando');
+    this.cargarZonas();
+  }
+
+  /**
+   * Obtiene información detallada de una zona específica
+   * @param idZona ID de la zona
+   * @returns Datos de la zona o null si no se encuentra
+   */
+  obtenerDetalleZona(idZona: number): ZonaEvento | null {
+    if (!this.zonasDisponibles) return null;
+
+    return this.zonasDisponibles.find(zona => zona.idZona === idZona) || null;
+  }
+
+  /**
+   * Obtiene todas las zonas disponibles (sin filtrar por local)
+   * @returns Array de todas las zonas activas
+   */
+  obtenerTodasLasZonas(): ZonaEvento[] {
+    return this.zonasDisponibles.filter(zona => zona.activo);
+  }
+
+  /**
+   * Obtiene la cantidad de zonas por local
+   * @returns Objeto con idLocal como key y cantidad como value
+   */
+  obtenerConteoZonasPorLocal(): { [idLocal: string]: number } {
+    const conteo: { [idLocal: string]: number } = {};
+
+    this.zonasDisponibles
+      .filter(zona => zona.activo)
+      .forEach(zona => {
+        const idLocal = zona.idLocal.toString();
+        conteo[idLocal] = (conteo[idLocal] || 0) + 1;
+      });
+
+    return conteo;
   }
 
   // Manejo de banner subida de imagenes
@@ -433,33 +598,167 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Agregar la nueva categoría
-    const nuevaCat: Categoria = {
+    if (!this.evento.local || this.evento.local.trim() === '') {
+      this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
+      return;
+    }
+
+    // Preparar datos para el servicio
+    const datosZona = {
       nombre: this.nuevaCategoria.nombre,
-      aforoMaximo: this.nuevaCategoria.aforoMaximo.toString(),
-      aforoDisponible: this.nuevaCategoria.aforoMaximo.toString() // Inicialmente todo disponible
+      aforoMax: this.nuevaCategoria.aforoMaximo,
+      idLocal: parseInt(this.evento.local)
     };
 
-    this.categoriasLocal.push(nuevaCat);
+    // Llamar al servicio para crear la zona
+    this.eventoService.postCrearZona(datosZona).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Agregar la nueva categoría a la lista local
+          const aforoMaximo = this.nuevaCategoria.aforoMaximo!.toString();
+          const nuevaCat: Categoria = {
+            idZona: response.data.idZona,
+            nombre: this.nuevaCategoria.nombre,
+            aforoMaximo: aforoMaximo,
+            aforoDisponible: aforoMaximo // Inicialmente todo disponible
+          };
 
-    // Limpiar los campos
-    this.nuevaCategoria = {
-      nombre: '',
-      aforoMaximo: null
-    };
+          this.categoriasLocal.push(nuevaCat);
 
-    this.messageService.success('Categoría agregada exitosamente', 'Operación Exitosa');
+          // Limpiar los campos
+          this.nuevaCategoria = {
+            nombre: '',
+            aforoMaximo: null
+          };
+
+          this.messageService.success(
+            response.mensaje || 'Categoría creada exitosamente',
+            'Operación Exitosa'
+          );
+        } else {
+          this.messageService.error(
+            response.mensaje || 'Error al crear la categoría',
+            'Error en la Operación'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear zona:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
   }
 
   onEliminarCategoria(index: number, event: any): void {
+    const categoria = this.categoriasLocal[index];
+
+    if (!categoria || !categoria.idZona) {
+      this.messageService.error('No se puede eliminar la categoría: datos inválidos', 'Error de Datos');
+      return;
+    }
+
     this.confirmPopupService.confirmDelete(
       event,
-      '¿Estás seguro de que deseas eliminar esta categoría?',
+      `¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"?`,
       () => {
-        this.categoriasLocal.splice(index, 1);
-        this.messageService.success('Categoría eliminada exitosamente', 'Operación Exitosa');
+        // Llamar al servicio para eliminar la zona del backend
+        this.eventoService.deleteZona(categoria.idZona).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Eliminar de la lista local solo si la eliminación en el backend fue exitosa
+              this.categoriasLocal.splice(index, 1);
+
+              // Actualizar las entradas para reflejar la eliminación
+              this.actualizarEntradasTrasEliminacion(categoria.nombre);
+
+              this.messageService.success(
+                response.mensaje || `Categoría "${categoria.nombre}" eliminada exitosamente`,
+                'Operación Exitosa'
+              );
+            } else {
+              this.messageService.error(
+                response.mensaje || 'Error al eliminar la categoría',
+                'Error en la Operación'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al eliminar zona:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
       }
     );
+  }
+
+  /**
+   * Actualiza las entradas tras eliminar una categoría
+   * @param nombreCategoria Nombre de la categoría eliminada
+   */
+  actualizarEntradasTrasEliminacion(nombreCategoria: string): void {
+    // Filtrar la categoría eliminada de las entradas regular y preventa
+    this.entradas.regular.categorias = this.entradas.regular.categorias
+      .filter(cat => cat.nombre !== nombreCategoria);
+
+    this.entradas.preventa.categorias = this.entradas.preventa.categorias
+      .filter(cat => cat.nombre !== nombreCategoria);
+
+    // Actualizar las opciones del dropdown validoPara
+    this.validoParaOptions = this.validoParaOptions
+      .filter(option => option.label !== nombreCategoria);
+  }
+
+  /**
+   * Elimina una categoría por su ID de zona directamente
+   * @param idZona ID de la zona a eliminar
+   */
+  eliminarCategoriaPorId(idZona: number): void {
+    const index = this.categoriasLocal.findIndex(cat => cat.idZona === idZona);
+
+    if (index !== -1) {
+      // Simular el evento para usar el método existente
+      const fakeEvent = { target: null };
+      this.onEliminarCategoria(index, fakeEvent);
+    } else {
+      this.messageService.warn('No se encontró la categoría a eliminar', 'Categoría No Encontrada');
+    }
+  }
+
+  /**
+   * Refresca las categorías del local actual después de cambios
+   */
+  refrescarCategoriasLocal(): void {
+    if (this.evento.local && this.evento.local.trim() !== '') {
+      this.messageService.info('Actualizando categorías...', 'Cargando');
+
+      // Volver a cargar las zonas desde el servidor
+      this.cargarZonas();
+
+      // Después de cargar, actualizar las categorías del local actual
+      setTimeout(() => {
+        this.actualizarCategoriasLocal(this.evento.local);
+      }, 1000); // Dar tiempo para que se carguen las zonas
+    }
+  }
+
+  /**
+   * Elimina todas las categorías del local actual (solo del frontend)
+   * Útil cuando se cambia de local
+   */
+  limpiarCategoriasLocal(): void {
+    this.categoriasLocal = [];
+    this.entradas.regular.categorias = [];
+    this.entradas.preventa.categorias = [];
+    this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
+  }
+
+  /**
+   * Verifica si una categoría existe antes de realizar operaciones
+   * @param idZona ID de la zona a verificar
+   * @returns true si existe, false si no
+   */
+  verificarExistenciaCategoria(idZona: number): boolean {
+    return this.categoriasLocal.some(cat => cat.idZona === idZona);
   }
 
   onPublicarInmediatamente(): void {
