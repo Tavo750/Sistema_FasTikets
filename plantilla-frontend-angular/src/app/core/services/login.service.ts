@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
-import { BasicResponse, LoginResponse, Usuario, Persona } from '../interfaces/login.interface';
+import { LoginResponse, Data } from '../interfaces/login.interface';
 import * as global from '../../global';
-import { CacheStore } from '../interfaces/cache-store.interface';
+import { CacheStore, Usuario } from '../interfaces/cache-store.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -60,7 +60,7 @@ export class LoginService {
           // Guardar token y rol
           this.token = login.data.token;
           this.userRole = login.data.rol;
-          
+
           this.cacheStore.usuario = {
             codiPers: login.data.idUsuario.toString(),
             nombPers: login.data.nombreCompleto,
@@ -68,14 +68,8 @@ export class LoginService {
             codiPues: 0,
             permissions: []
           };
-          // Crear objeto persona basado en los datos recibidos
-          this.cacheStore.persona = {
-            docIdentidad: login.data.idUsuario.toString(),
-            nombres: login.data.nombreCompleto.split(' ')[0] || '',
-            apellidos: login.data.nombreCompleto.split(' ').slice(1).join(' ') || '',
-            email: login.data.email,
-            rol: login.data.rol
-          };
+          // Guardar los datos del usuario directamente
+          this.cacheStore.persona = login.data;
         }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
@@ -91,7 +85,7 @@ export class LoginService {
     if (error.error) {
       const errorMessage = {
         responseCode: error.error.responseCode || 'Unknown',
-        message: error.error.mensaje 
+        message: error.error.mensaje
       };
 
       // Lanza un nuevo error con el mensaje procesado
@@ -113,7 +107,7 @@ export class LoginService {
   }
 
   // Método para obtener la persona actual
-  getCurrentPersona(): Persona | null {
+  getCurrentPersona(): Data | null {
     return this.cacheStore.persona || null;
   }
 
@@ -134,7 +128,7 @@ export class LoginService {
     this.cacheStore.persona = undefined;
     this.token = '';
     this.userRole = '';
-    
+
     // Limpiar sessionStorage
     sessionStorage.removeItem('cacheStore');
     sessionStorage.removeItem('token');

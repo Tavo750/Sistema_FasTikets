@@ -1,22 +1,3 @@
-export interface RegistroResponse {
-  ok:      boolean;
-  mensaje: string;
-  data:    Data;
-}
-
-export interface Data {
-  email:   string;
-  mensaje: string;
-  exito:   boolean;
-  timestamp: Date;
-  status:    number;
-  error:     string;
-  message:   string;
-  path:      string;
-  details:   null;
-
-}
-
 export interface RegistroUsuario {
   tipoDocumento: string;
   docIdentidad: string;
@@ -30,4 +11,14 @@ export interface RegistroUsuario {
   idDistrito: number;
 }
 
+export interface RegistroResponse {
+  ok:      boolean;
+  mensaje: string;
+  data:    Data;
+}
 
+export interface Data {
+  email:   string;
+  mensaje: string;
+  exito:   boolean;
+}

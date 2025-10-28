@@ -1,20 +1,143 @@
 <div class="cart-container">
-  <h2 class="title">Carrito de Compra</h2>
+  <div class="cart-header">
+    <h1 class="cart-title">
+      <i class="pi pi-shopping-cart"></i>
+      Carrito de Compras
+    </h1>
+    <p-tag [value]="cartItems.length + ' artículo(s)'" severity="info" icon="pi pi-shopping-bag"></p-tag>
+  </div>
 
-  <div class="cart-content">
-    <!-- Lista de items -->
+  <div class="cart-content" *ngIf="cartItems.length > 0">
     <div class="cart-items">
-      <app-carrito-item
-        *ngFor="let item of cartItems"
-        [item]="item"
-        (remove)="removeItem($event)"
-        (updateQuantity)="updateQuantity($event.id, $event.quantity)">
-      </app-carrito-item>
+      <p-panel header="Artículos del Carrito" [toggleable]="false">
+        <p-card *ngFor="let item of cartItems; trackBy: trackByFn" class="cart-item-card">
+          <ng-template #content>
+            <div class="item-content">
+              <div class="item-image">
+                <p-image [src]="item.image"
+                         [alt]="item.title"
+                         width="100"
+                         height="100"
+                         [preview]="true">
+                </p-image>
+              </div>
+
+              <div class="item-details">
+                <h3 class="item-title">{{ item.title }}</h3>
+                <p-tag [value]="item.category"
+                       [severity]="getCategorySeverity(item.category)"
+                       class="category-tag">
+                </p-tag>
+                <p class="item-price">{{ item.price | currency:'USD':'symbol':'1.2-2' }}</p>
+              </div>
+
+              <div class="item-actions">
+                <div class="quantity-control">
+                  <label for="quantity-{{item.id}}" class="quantity-label">Cantidad:</label>
+                  <p-inputnumber
+                    id="quantity-{{item.id}}"
+                    [(ngModel)]="item.quantity"
+                    [showButtons]="true"
+                    [min]="1"
+                    [max]="10"
+                    (onInput)="updateQuantity(item.id, item.quantity)"
+                    buttonLayout="horizontal"
+                    decrementButtonIcon="pi pi-minus"
+                    incrementButtonIcon="pi pi-plus">
+                  </p-inputnumber>
+                </div>
+
+                <div class="item-total">
+                  <span class="total-label">Subtotal:</span>
+                  <span class="total-amount">{{ (item.price * item.quantity) | currency:'USD':'symbol':'1.2-2' }}</span>
+                </div>
+
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [outlined]="true"
+                  size="small"
+                  pTooltip="Eliminar artículo"
+                  tooltipPosition="top"
+                  (onClick)="removeItem(item)">
+                </p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </p-panel>
     </div>
 
-    <!-- Resumen -->
     <div class="cart-summary">
-      <app-resumen-carrito-compra [total]="total"></app-resumen-carrito-compra>
+      <p-panel header="Resumen del Pedido" class="summary-panel">
+        <ng-template #content>
+          <div class="summary-content">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>{{ getSubtotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Impuestos (16%):</span>
+              <span>{{ getTaxes() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Envío:</span>
+              <span>{{ getShipping() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <p-divider></p-divider>
+            <div class="summary-row total-row">
+              <span class="total-label">Total:</span>
+              <span class="total-amount">{{ getTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="checkout-actions">
+              <p-button
+                label="Continuar Comprando"
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                [outlined]="true"
+                size="large"
+                class="w-full mb-2"
+                (onClick)="continueShopping()">
+              </p-button>
+
+              <p-button
+                label="Proceder al Pago"
+                icon="pi pi-credit-card"
+                severity="success"
+                size="large"
+                class="w-full"
+                (onClick)="proceedToCheckout()">
+              </p-button>
+            </div>
+
+            <div class="security-info">
+              <i class="pi pi-shield security-icon"></i>
+              <span>Compra 100% segura y protegida</span>
+            </div>
+          </div>
+        </ng-template>
+      </p-panel>
     </div>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-cart" *ngIf="cartItems.length === 0">
+    <p-card class="empty-cart-card">
+      <ng-template #content>
+        <div class="empty-cart-content">
+          <i class="pi pi-shopping-cart empty-icon"></i>
+          <h2>Tu carrito está vacío</h2>
+          <p>Explora nuestros eventos y encuentra algo increíble</p>
+          <p-button
+            label="Explorar Eventos"
+            icon="pi pi-search"
+            severity="info"
+            size="large"
+            (onClick)="exploreEvents()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-card>
   </div>
 </div>

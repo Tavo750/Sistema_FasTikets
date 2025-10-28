@@ -1,13 +1,13 @@
 <p-toast></p-toast>
 
 <header class="header">
-  <div class="logo">
+  <div class="logo" (click)="navigateToHome()">
     <img src="img/logo/logo-fasticket.jpg" alt="FASTICKET">
   </div>
   <div class="header-buttons">
     <button class="btn-header-dark" (click)="router.navigate(['/login'])">Iniciar Sesión</button>
     <button class="btn-header" (click)="router.navigate(['/crear_usuario'])">Registrarse</button>
-    <button class="btn-icon" title="Ir a Página Principal">
+    <button class="btn-icon" title="Ir a Página Principal" (click)="navigateToHome()">
       <img src="img/logo/home.jpg" alt="Inicio">
     </button>
   </div>
@@ -26,10 +26,10 @@
 
     <form (submit)="enviarCorreo($event)">
       <label class="input-label">Correo Electrónico</label>
-      <input 
-        type="email" 
+      <input
+        type="email"
         id="correoElectronico"
-        placeholder="ejemplo@correo.com" 
+        placeholder="ejemplo@correo.com"
         required>
 
       <button type="submit" class="btn-login">Enviar Correo</button>
@@ -69,17 +69,17 @@
       <p class="subtitle">Ingrese su nueva contraseña</p>
 
       <label class="input-label">Nueva contraseña</label>
-      <input 
-        type="password" 
+      <input
+        type="password"
         id="nuevaContrasena"
-        placeholder="Ingrese su nueva contraseña" 
+        placeholder="Ingrese su nueva contraseña"
         required>
-      
+
       <label class="input-label">Repita la nueva contraseña</label>
-      <input 
-        type="password" 
+      <input
+        type="password"
         id="repetirContrasena"
-        placeholder="Repita su nueva contraseña" 
+        placeholder="Repita su nueva contraseña"
         required>
 
       <div class="button-group">

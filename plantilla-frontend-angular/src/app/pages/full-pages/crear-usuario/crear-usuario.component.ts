@@ -2,21 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
 import { DialogTerminosComponent } from './dialog-terminos/dialog-terminos.component';
 import { DialogPoliticaComponent } from './dialog-politica/dialog-politica.component';
 import { DialogExitosoComponent } from './dialog-exitoso/dialog-exitoso.component';
 import { RegistroUsuarioService } from '../../../core/services/registro-usuario.service';
-import { RegistroUsuario, RegistroResponse } from '../../../core/interfaces/registro_usuario.interface';
+import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/registro_usuario.interface';
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
+import { MessageService } from '../../../core/services/message.service';
 
 
 @Component({
   selector: 'app-crear-usuario',
   standalone: false,
   templateUrl: './crear-usuario.component.html',
-  styleUrl: './crear-usuario.component.css',
-  providers: [MessageService]
+  styleUrl: './crear-usuario.component.css'
 })
 export class CrearUsuarioComponent implements OnInit {
   private dialogRef: DynamicDialogRef | undefined;
@@ -49,7 +48,7 @@ export class CrearUsuarioComponent implements OnInit {
   ngOnInit(): void {
     // Aquí puedes cargar los datos de departamentos y distritos
   }
-
+  //=========================== se abre el dialogo de terminos y condiciones ==========
   mostrarTerminos(event: Event): void {
     event.preventDefault();
     this.dialogRef = this.dialogService.open(DialogTerminosComponent, {
@@ -66,7 +65,7 @@ export class CrearUsuarioComponent implements OnInit {
     });
   }
 
-
+  //=========================== se abre el dialogo de politicas de privacidad ==========
     mostrarPoliticas(event: Event): void {
     event.preventDefault();
     this.dialogRef = this.dialogService.open(DialogPoliticaComponent, {
@@ -89,14 +88,6 @@ export class CrearUsuarioComponent implements OnInit {
     }
   }
 
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje
-    });
-  }
-
   mostrarDialogExitoso(): void {
     this.dialogRef = this.dialogService.open(DialogExitosoComponent, {
       width: '30%',
@@ -113,7 +104,7 @@ export class CrearUsuarioComponent implements OnInit {
     if (this.registroForm.valid) {
       // Verificar que las contraseñas coincidan
       if (this.registroForm.get('contrasena')?.value !== this.registroForm.get('repitaContrasena')?.value) {
-        this.mostrarError('Las contraseñas no coinciden');
+        this.messageService.error('Las contraseñas no coinciden');
         return;
       }
 
@@ -140,7 +131,7 @@ export class CrearUsuarioComponent implements OnInit {
       // Validar que todos los campos requeridos tengan valor
       for (const [key, value] of Object.entries(usuario)) {
         if (!value && value !== 0) {
-          this.mostrarError(`El campo ${key} es requerido`);
+          this.messageService.error(`El campo ${key} es requerido`);
           return;
         }
       }
@@ -151,32 +142,31 @@ export class CrearUsuarioComponent implements OnInit {
             this.mostrarDialogExitoso();
             this.registroForm.reset();
           } else {
-            this.mostrarError(response.data.mensaje || 'Error en el registro');
+            this.messageService.error(response.data.mensaje || 'Error en el registro');
           }
         },
         error: (error) => {
           console.error('Error completo del endpoint:', error);
-          
+
           // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
-          
-          if (error.mensaje) {
-            // El mensaje que viene del HttpUtilsService
-            mensajeError = error?.mensaje;
+
+          // Verificar diferentes estructuras posibles de la respuesta de error
+          if (error?.mensaje) {
+            mensajeError = error.mensaje;
+          } else if (error?.error?.mensaje) {
+            mensajeError = error.error.mensaje;
+          } else if (error?.error?.message) {
+            mensajeError = error.error.message;
           } else if (typeof error === 'string') {
             mensajeError = error;
-          } else if (error.error?.message) {
-            mensajeError = error.error.message;
-          } else if (error.error?.mensaje) {
-            mensajeError = error.error.mensaje;
+          } else if (error?.message) {
+            mensajeError = error.message;
           }
-          
+
           console.error('Mensaje de error del endpoint:', mensajeError);
-          this.mostrarError(mensajeError);
+          this.messageService.error(mensajeError);
         },
-        complete: () => {
-          // Limpieza de recursos si es necesario
-        }
       });
     } else {
       // Marcar todos los campos como tocados para mostrar los errores
@@ -234,7 +224,7 @@ export class CrearUsuarioComponent implements OnInit {
               errorMessage = 'El número de teléfono debe tener exactamente 9 dígitos numéricos';
             }
           }
-          this.mostrarError(errorMessage);
+          this.messageService.error(errorMessage);
         }
         control?.markAsTouched();
       });
@@ -270,10 +260,10 @@ export class CrearUsuarioComponent implements OnInit {
   onPaste(event: ClipboardEvent, fieldName: string): void {
     event.preventDefault();
     const clipboardData = event.clipboardData?.getData('text') || '';
-    
+
     // Filtrar solo números
     const numbersOnly = clipboardData.replace(/[^0-9]/g, '');
-    
+
     // Aplicar límite según el campo
     let maxLength = 0;
     if (fieldName === 'telefono') {
@@ -281,11 +271,15 @@ export class CrearUsuarioComponent implements OnInit {
     } else if (fieldName === 'numeroDocumento') {
       maxLength = 8;
     }
-    
+
     const limitedValue = numbersOnly.substring(0, maxLength);
-    
+
     // Actualizar el valor del formulario
     this.registroForm.get(fieldName)?.setValue(limitedValue);
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/home']);
   }
 
 

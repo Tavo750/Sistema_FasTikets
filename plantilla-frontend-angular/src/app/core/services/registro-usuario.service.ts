@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../environment/environment';
-import { RegistroUsuario, RegistroResponse } from '../interfaces/registro_usuario.interface';
+import { RegistroResponse, RegistroUsuario } from '../interfaces/registro_usuario.interface';
 import { HttpUtilsService } from '../../shared/services/http-utils.service';
 
 @Injectable({

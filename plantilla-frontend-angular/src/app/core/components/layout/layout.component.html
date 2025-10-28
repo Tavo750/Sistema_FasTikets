@@ -7,7 +7,7 @@
   <!-- Contenedor principal con desplazamiento -->
   <div class="main-wrapper" [class.main-wrapper-shifted]="shouldShowSidebar && isSidebarOpen && !isMobile">
     <div class="top-bar d-flex align-items-center">
-      <div class="logo-container" [class.hidden-logo]="shouldShowSidebar && isSidebarOpen && !isMobile">
+      <div class="logo-container" [class.hidden-logo]="shouldShowSidebar && isSidebarOpen && !isMobile" (click)="navigateToHome()">
         <img src="/img/logo/logo-fasticket.jpg" alt="FasTicket Logo" class="logo">
       </div>
       <app-header class="flex-grow-1" [usuario]="usuario"></app-header>
