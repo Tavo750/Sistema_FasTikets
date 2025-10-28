@@ -55,14 +55,14 @@ interface LimiteCompra {
 export class EditarEventoComponent implements OnInit{
 evento: Evento = {
     titulo: 'Electronic Festival',
-    categoria: 'Electrónica',
+    categoria: 'ELECTRONICA',
     descripcion: 'Descripción genérica de concierto porque no ando creativo.',
      dia: '30',
     mes: 'Julio',
     anio: '2025',
     hora: '23',
     minutos: '00',
-    estado: 'publicado',
+    estado: 'PUBLICADO',
     videoPromocional: 'Link completamente normal...',
     banner: null,
     bannerUrl: '',
@@ -75,18 +75,36 @@ evento: Evento = {
 
   date: Date | undefined;
   time: Date[] | undefined;
+  timeEnd: Date[] | undefined;
 
 
   estadoOptions: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
-    { label: 'FINALIZADO', value: 'finalizado' },
-    { label: 'AGOTADO', value: 'agotado' }
+    { label: 'PUBLICADO', value: 'PUBLICADO' },
+    { label: 'ACTIVO', value: 'ACTIVO' },
+    { label: 'CANCELADO', value: 'CANCELADO' },
+    { label: 'AGOTADO', value: 'AGOTADO' },
+    { label: 'FINALIZADO', value: 'FINALIZADO' },
   ];
   categorias = [
-    { label: 'Electrónica', value: 'Electrónica' },
-    { label: 'Rock', value: 'Rock' },
-    { label: 'Pop', value: 'Pop' },
-    { label: 'Jazz', value: 'Jazz' }
+    //{ label: 'Conferencia', value: 'CONFERENCIA' },
+    { label: 'Punk', value: 'PUNK' },
+    //{ label: 'Deporte', value: 'DEPORTE' },
+    { label: 'Rock', value: 'ROCK' },
+    { label: 'Metal', value: 'METAL' },
+    //{ label: 'Feria', value: 'FERIA' },
+    //{ label: 'Exposición', value: 'EXPOSICION' },
+    //{ label: 'Concierto', value: 'CONCIERTO' },
+    { label: 'Pop', value: 'POP' },
+    { label: 'Reggae', value: 'REGGAE' },
+    //{ label: 'Festival', value: 'FESTIVAL' },
+    //{ label: 'Taller', value: 'TALLER' },
+    { label: 'Reggaetón', value: 'REGGAETON' },
+    //{ label: 'Cine', value: 'CINE' },
+    //{ label: 'Otro', value: 'OTRO' },
+    { label: 'Electrónica', value: 'ELECTRONICA' },
+    { label: 'Rock Pop', value: 'ROCK_POP' },
+    { label: 'Urbano', value: 'URBANO' },
+    //{ label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
   ];
   categoriasLocal: Categoria[] = [
     {
@@ -123,12 +141,6 @@ evento: Evento = {
 
   usarMapaDefault: boolean = false;
   usarBannerDefault: boolean = false;
-
-  estadoOption: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
-    { label: 'FINALIZADO', value: 'finalizado' },
-    { label: 'AGOTADO', value: 'agotado' }
-  ];
     estadoEntradaOptions: EstadoOption[] = [
     { label: 'ACTIVO', value: 'activo' },
     { label: 'INACTIVO', value: 'inactivo' },

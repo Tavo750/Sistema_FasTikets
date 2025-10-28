@@ -48,13 +48,14 @@
               <i class="pi pi-list"></i>
               Categoría del evento
             </label>
-            <input
-              type="text"
-              pInputText
+            <p-dropdown
               [(ngModel)]="evento.categoria"
-              placeholder="Electrónica"
-              class="form-input"
-            />
+              [options]="categorias"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar categoría"
+              styleClass="form-input"
+            ></p-dropdown>
           </div>
 
           <div class="form-field">
@@ -95,6 +96,18 @@
                 styleClass="form-input"
               ></p-datepicker>
             </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-clock"></i>
+                Hora de final.
+              </label>
+              <p-datepicker
+                [(ngModel)]="timeEnd"
+                [timeOnly]="true"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
           </div>
 
           <div class="form-field">
@@ -116,11 +129,14 @@
               <i class="pi pi-send"></i>
               Estado del evento
             </label>
-            <div class="estado-info">
-              <p-tag value="Activo" severity="success" *ngIf="evento.estado === 'activo'"></p-tag>
-              <p-tag value="Inactivo" severity="warning" *ngIf="evento.estado === 'inactivo'"></p-tag>
-              <p-tag value="Borrador" severity="info" *ngIf="!evento.estado"></p-tag>
-            </div>
+            <p-dropdown
+              [(ngModel)]="evento.estado"
+              [options]="estadoOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar estado"
+              styleClass="form-input"
+            ></p-dropdown>
           </div>
         </div>
 

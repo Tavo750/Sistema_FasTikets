@@ -47,8 +47,8 @@ interface LimiteCompra {
 })
 export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
-  time: Date[] | undefined;
-  timeFinal: Date[] | undefined;
+  time: Date | undefined; // Cambiar de array a Date único para timeOnly
+  timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;
@@ -81,29 +81,31 @@ export class CrearEventoComponent implements OnInit{
 
   estadoOptions: EstadoOption[] = [
     { label: 'PUBLICADO', value: 'PUBLICADO' },
-    { label: 'FINALIZADO', value: 'finalizado' },
-    { label: 'AGOTADO', value: 'agotado' }
+    { label: 'ACTIVO', value: 'ACTIVO' },
+    { label: 'CANCELADO', value: 'CANCELADO' },
+    { label: 'AGOTADO', value: 'AGOTADO' },
+    { label: 'FINALIZADO', value: 'FINALIZADO' },
   ];
   categorias = [
-    { label: 'Conferencia', value: 'CONFERENCIA' },
+    //{ label: 'Conferencia', value: 'CONFERENCIA' },
     { label: 'Punk', value: 'PUNK' },
-    { label: 'Deporte', value: 'DEPORTE' },
+    //{ label: 'Deporte', value: 'DEPORTE' },
     { label: 'Rock', value: 'ROCK' },
     { label: 'Metal', value: 'METAL' },
-    { label: 'Feria', value: 'FERIA' },
-    { label: 'Exposición', value: 'EXPOSICION' },
-    { label: 'Concierto', value: 'CONCIERTO' },
+    //{ label: 'Feria', value: 'FERIA' },
+    //{ label: 'Exposición', value: 'EXPOSICION' },
+    //{ label: 'Concierto', value: 'CONCIERTO' },
     { label: 'Pop', value: 'POP' },
     { label: 'Reggae', value: 'REGGAE' },
-    { label: 'Festival', value: 'FESTIVAL' },
-    { label: 'Taller', value: 'TALLER' },
+    //{ label: 'Festival', value: 'FESTIVAL' },
+    //{ label: 'Taller', value: 'TALLER' },
     { label: 'Reggaetón', value: 'REGGAETON' },
-    { label: 'Cine', value: 'CINE' },
-    { label: 'Otro', value: 'OTRO' },
+    //{ label: 'Cine', value: 'CINE' },
+    //{ label: 'Otro', value: 'OTRO' },
     { label: 'Electrónica', value: 'ELECTRONICA' },
     { label: 'Rock Pop', value: 'ROCK_POP' },
     { label: 'Urbano', value: 'URBANO' },
-    { label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
+    //{ label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
   ];
   categoriasLocal: ZonaData[] = [];
   entradas: { regular: TipoEntrada; preventa: TipoEntrada } = {
@@ -145,18 +147,24 @@ export class CrearEventoComponent implements OnInit{
 
 
   entradaNombre: string = '';
+  entradaDescripcion: string = '';
   entradaPrecio: number | null = null;
+  entradaStock: number | null = null;
   validoPara: string = '';
 
   // Array para almacenar las entradas agregadas
   entradasAgregadas: EntradaAgregada[] = [];
   proximoIdEntrada: number = 1;
 
+  // Array para almacenar todas las entradas disponibles del sistema
+  entradasDisponibles: any[] = [];
+  cargandoEntradas: boolean = false;
+
   // Opciones dinámicas para el dropdown "Válido para" - se llena con datos de getListarZonas
   validoParaOptions: EstadoOption[] = [{ label: 'Seleccionar', value: '' }];
 
   // Nuevas propiedades para la sección de Local y asientos
-  localesOptions: EstadoOption[] = [];
+  localesOptions: EstadoOption[] = [{ label: 'Seleccionar local', value: '' }];
   localesDisponibles: LocalData[] = [];
   cargandoLocales: boolean = false;
 
@@ -183,9 +191,38 @@ export class CrearEventoComponent implements OnInit{
   ngOnInit(): void {
     // Cargar locales disponibles
     this.cargarLocales();
+
+    // Cargar entradas disponibles del sistema
+    this.cargarEntradas();
+
+    // Inicializar horas por defecto para ayudar con la interacción
+    this.inicializarHorasPorDefecto();
+
     // Las zonas se cargarán cuando se seleccione un local
     // Aquí puedes cargar datos del evento si estás editando
     this.cargarEvento();
+  }
+
+  /**
+   * Inicializa horas por defecto para mejorar la experiencia de usuario
+   */
+  private inicializarHorasPorDefecto(): void {
+    const ahora = new Date();
+
+    // Hora de inicio: próxima hora en punto
+    const horaInicio = new Date();
+    horaInicio.setHours(ahora.getHours() + 1, 0, 0, 0);
+    this.time = horaInicio;
+
+    // Hora final: 2 horas después de la hora de inicio
+    const horaFinal = new Date();
+    horaFinal.setHours(ahora.getHours() + 3, 0, 0, 0);
+    this.timeFinal = horaFinal;
+
+    console.log('Horas inicializadas por defecto:', {
+      inicio: this.time,
+      final: this.timeFinal
+    });
   }
 
   cargarEvento(): void {
@@ -210,7 +247,7 @@ export class CrearEventoComponent implements OnInit{
       const [hora, minutos] = this.evento.horaInicio.split(':');
       const fechaInicio = new Date();
       fechaInicio.setHours(parseInt(hora), parseInt(minutos), 0, 0);
-      this.time = [fechaInicio];
+      this.time = fechaInicio;
     }
 
     // Extraer hora de horaFin (formato: HH:MM:SS) y establecer en el datepicker
@@ -218,7 +255,7 @@ export class CrearEventoComponent implements OnInit{
       const [horaFinal, minutosFinal] = this.evento.horaFin.split(':');
       const fechaFinal = new Date();
       fechaFinal.setHours(parseInt(horaFinal), parseInt(minutosFinal), 0, 0);
-      this.timeFinal = [fechaFinal];
+      this.timeFinal = fechaFinal;
     }
 
     // Extraer banner de imagenUrl
@@ -226,8 +263,9 @@ export class CrearEventoComponent implements OnInit{
       this.formulario.bannerUrl = this.evento.imagenUrl;
     }
 
-    // Inicializar localString con idLocal si existe
-    if (this.evento.idLocal) {
+    // Inicializar localString con idLocal solo si estamos editando un evento existente
+    // Para eventos nuevos, mantener vacío para mostrar "Seleccionar local"
+    if (this.idEvento && this.evento.idLocal && this.evento.idLocal !== 1) {
       this.formulario.localString = this.evento.idLocal.toString();
     }
   }
@@ -241,11 +279,11 @@ export class CrearEventoComponent implements OnInit{
     this.evento.fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
     // Construir horaInicio y horaFin desde los datepickers
-    this.evento.horaInicio = this.time && this.time[0] ?
-      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    this.evento.horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '';
 
-    this.evento.horaFin = this.timeFinal && this.timeFinal[0] ?
-      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    this.evento.horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '';
 
     // Sincronizar idLocal desde localString
     if (this.formulario.localString) {
@@ -256,6 +294,31 @@ export class CrearEventoComponent implements OnInit{
   }
 
   /**
+   * Método de debug para verificar el estado de los datepickers
+   */
+  private verificarDatepickers(): void {
+    console.log('=== VERIFICACIÓN DE DATEPICKERS ===');
+    console.log('this.date:', this.date);
+    console.log('this.time:', this.time);
+    console.log('this.timeFinal:', this.timeFinal);
+
+    if (this.time) {
+      console.log('Hora inicio - valor:', this.time);
+      console.log('Hora inicio - horas:', this.time.getHours());
+      console.log('Hora inicio - minutos:', this.time.getMinutes());
+    } else {
+      console.log('⚠️ PROBLEMA: this.time está vacío o undefined');
+    }
+
+    if (this.timeFinal) {
+      console.log('Hora final - valor:', this.timeFinal);
+      console.log('Hora final - horas:', this.timeFinal.getHours());
+      console.log('Hora final - minutos:', this.timeFinal.getMinutes());
+    } else {
+      console.log('⚠️ PROBLEMA: this.timeFinal está vacío o undefined');
+    }
+    console.log('=== FIN VERIFICACIÓN ===');
+  }  /**
    * Maneja la selección de fecha del datepicker
    */
   onFechaSeleccionada(fecha: Date): void {
@@ -372,6 +435,46 @@ export class CrearEventoComponent implements OnInit{
   }
 
   /**
+   * Carga todas las entradas disponibles del sistema
+   */
+  cargarEntradas(): void {
+    this.cargandoEntradas = true;
+
+    this.eventoService.getListarEntradas().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          // Verificar si response.data es un array o un objeto
+          if (Array.isArray(response.data)) {
+            this.entradasDisponibles = response.data;
+          } else {
+            // Si es un objeto único, convertirlo a array
+            this.entradasDisponibles = [response.data];
+          }
+
+          this.messageService.searchSuccess(
+            `Se encontraron ${this.entradasDisponibles.length} entrada(s) en el sistema`
+          );
+
+          console.log('Entradas cargadas:', this.entradasDisponibles);
+        } else {
+          this.messageService.searchNoResults(
+            response.mensaje || 'No se pudieron cargar las entradas disponibles'
+          );
+          this.entradasDisponibles = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar entradas:', error);
+        this.messageService.handleHttpError(error);
+        this.entradasDisponibles = [];
+      },
+      complete: () => {
+        this.cargandoEntradas = false;
+      }
+    });
+  }
+
+  /**
    * Actualiza las entradas con las categorías disponibles
    * @param zonas Array de zonas del local
    */
@@ -448,6 +551,14 @@ export class CrearEventoComponent implements OnInit{
   }
 
   /**
+   * Refresca la lista de entradas manualmente
+   */
+  refrescarEntradas(): void {
+    this.messageService.info('Actualizando lista de entradas...', 'Cargando');
+    this.cargarEntradas();
+  }
+
+  /**
    * Obtiene información detallada de una zona específica
    * @param idZona ID de la zona
    * @returns Datos de la zona o null si no se encuentra
@@ -478,6 +589,55 @@ export class CrearEventoComponent implements OnInit{
       .forEach(zona => {
         const idLocal = zona.idLocal.toString();
         conteo[idLocal] = (conteo[idLocal] || 0) + 1;
+      });
+
+    return conteo;
+  }
+
+  // ==================== MÉTODOS PARA ENTRADAS ====================
+
+  /**
+   * Obtiene todas las entradas disponibles activas
+   * @returns Array de todas las entradas activas
+   */
+  obtenerTodasLasEntradas(): any[] {
+    return this.entradasDisponibles.filter(entrada => entrada.activo);
+  }
+
+  /**
+   * Obtiene información detallada de una entrada específica
+   * @param idEntrada ID de la entrada
+   * @returns Datos de la entrada o null si no se encuentra
+   */
+  obtenerDetalleEntrada(idEntrada: number): any | null {
+    if (!this.entradasDisponibles) return null;
+
+    return this.entradasDisponibles.find(entrada => entrada.idTipoTicket === idEntrada) || null;
+  }
+
+  /**
+   * Obtiene las entradas filtradas por zona
+   * @param idZona ID de la zona para filtrar
+   * @returns Array de entradas para la zona especificada
+   */
+  obtenerEntradasPorZona(idZona: number): any[] {
+    return this.entradasDisponibles.filter(entrada =>
+      entrada.idZona === idZona && entrada.activo
+    );
+  }
+
+  /**
+   * Obtiene el conteo de entradas por zona
+   * @returns Objeto con idZona como key y cantidad como value
+   */
+  obtenerConteoEntradasPorZona(): { [idZona: string]: number } {
+    const conteo: { [idZona: string]: number } = {};
+
+    this.entradasDisponibles
+      .filter(entrada => entrada.activo)
+      .forEach(entrada => {
+        const idZona = entrada.idZona.toString();
+        conteo[idZona] = (conteo[idZona] || 0) + 1;
       });
 
     return conteo;
@@ -560,48 +720,15 @@ export class CrearEventoComponent implements OnInit{
     );
   }
 
+
+
   /**
-   * Método para guardar solo los datos generales del evento (sección 1)
-   * Utiliza postCrearEvento para crear un nuevo evento
+   * Método para crear el evento
+   * Asigna el idLocal del local seleccionado y llama a postCrearEvento
    */
-  onGuardarCambiosGenerales(): void {
-    // Validaciones básicas de los datos generales
-    if (!this.validarDatosGenerales()) {
-      return;
-    }
-
-    // Preparar datos básicos del evento
-    const datosEvento = this.prepararDatosEventoBasicos();
-
-    // Mostrar mensaje de carga
-    this.messageService.info('Guardando datos generales del evento...', 'Procesando');
-
-    // Llamar al servicio para crear el evento
-    this.eventoService.postCrearEvento(datosEvento).subscribe({
-      next: (response) => {
-        this.messageService.handleBackendResponse(response, false, 'Datos Generales Guardados');
-
-        if (response.ok && response.data) {
-          // Guardar el ID del evento para futuras actualizaciones
-          this.idEvento = response.data.idEvento;
-          this.messageService.success('Datos generales guardados exitosamente. Ahora puedes continuar configurando el local y entradas.', 'Evento Creado');
-        }
-      },
-      error: (error) => {
-        console.error('Error al guardar datos generales:', error);
-        this.messageService.handleHttpError(error);
-      }
-    });
-  }
-
-  onGuardarCambios(): void {
+  onCrearEvento(): void {
     // Validaciones básicas
     if (!this.validarFormulario()) {
-      return;
-    }
-
-    // Validaciones adicionales específicas para crear evento
-    if (!this.validarDatosCompletos()) {
       return;
     }
 
@@ -611,58 +738,40 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Mostrar resumen del evento
-    this.mostrarResumenEvento();
+    // Verificar estado de los datepickers antes de preparar datos
+    this.verificarDatepickers();
+
+    // Asignar el idLocal del local seleccionado al evento
+    this.evento.idLocal = parseInt(this.formulario.localString);
 
     // Preparar datos para el servicio
     const datosEvento = this.prepararDatosEvento();
 
-    if (this.idEvento) {
-      // Si ya existe un evento (se guardaron datos generales), actualizar con putActualizarEvento
-      this.messageService.info('Actualizando evento con información del local...', 'Procesando');
+    // Mostrar mensaje de carga
+    this.messageService.info('Creando evento...', 'Procesando');
 
-      this.eventoService.putActualizarEvento(this.idEvento, datosEvento).subscribe({
-        next: (response) => {
-          this.messageService.handleBackendResponse(response, false, 'Evento Actualizado');
+    // Llamar al servicio para crear el evento
+    this.eventoService.postCrearEvento(datosEvento).subscribe({
+      next: (response) => {
+        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
 
-          if (response.ok && response.data) {
-            this.messageService.success('Evento creado exitosamente con toda la información', 'Proceso Completado');
+        if (response.ok && response.data) {
+          this.messageService.success('Evento creado exitosamente', 'Proceso Completado');
 
-            // Redirigir a la gestión de eventos después de completar exitosamente
-            setTimeout(() => {
-              this.router.navigate(['/administrador/gestionEventos']);
-            }, 2000);
-          }
-        },
-        error: (error) => {
-          console.error('Error al actualizar evento:', error);
-          this.messageService.handleHttpError(error);
+          // Limpiar formulario después de crear exitosamente
+          this.limpiarFormulario();
+
+          // Redirigir a la gestión de eventos después de crear exitosamente
+          setTimeout(() => {
+            this.router.navigate(['/administrador/gestionEventos']);
+          }, 2000);
         }
-      });
-    } else {
-      // Si no existe evento, crear uno nuevo (caso original)
-      this.messageService.info('Creando evento...', 'Procesando');
-
-      this.eventoService.postCrearEvento(datosEvento).subscribe({
-        next: (response) => {
-          this.messageService.handleBackendResponse(response, false, 'Evento Creado');
-
-          if (response.ok && response.data) {
-            // Limpiar formulario después de crear exitosamente
-            this.limpiarFormulario();
-
-            // Redirigir a la gestión de eventos después de crear exitosamente
-            setTimeout(() => {
-              this.router.navigate(['/administrador/gestionEventos']);
-            }, 2000);
-          }
-        },
-        error: (error) => {
-          console.error('Error al crear evento:', error);
-          this.messageService.handleHttpError(error);
-        }
-      });
-    }
+      },
+      error: (error) => {
+        console.error('Error al crear evento:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
   }
 
   validarFormulario(): boolean {
@@ -681,26 +790,21 @@ export class CrearEventoComponent implements OnInit{
       return false;
     }
 
-    if (!this.time || this.time.length === 0) {
+    if (!this.time) {
       this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
       return false;
     }
 
-    if (!this.timeFinal || this.timeFinal.length === 0) {
+    if (!this.timeFinal) {
       this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
       return false;
     }
 
     // Validar que la hora final sea posterior a la hora de inicio
-    const horaInicio = this.time[0];
-    const horaFinal = this.timeFinal[0];
-
-    if (horaFinal && horaInicio && horaFinal <= horaInicio) {
+    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
       this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
-    }
-
-    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+    }    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return false;
     }
@@ -734,27 +838,22 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Validar hora de inicio usando directamente el datepicker
-    if (!this.time || this.time.length === 0) {
+    if (!this.time) {
       this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
       return false;
     }
 
     // Validar hora final usando directamente el datepicker
-    if (!this.timeFinal || this.timeFinal.length === 0) {
+    if (!this.timeFinal) {
       this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
       return false;
     }
 
     // Validar que la hora final sea posterior a la hora de inicio
-    const horaInicio = this.time[0];
-    const horaFinal = this.timeFinal[0];
-
-    if (horaFinal && horaInicio && horaFinal <= horaInicio) {
+    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
       this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
-    }
-
-    return true;
+    }    return true;
   }
 
   /**
@@ -767,14 +866,20 @@ export class CrearEventoComponent implements OnInit{
     // Convertir la fecha del datepicker a formato ISO
     const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
-    // Formatear horas desde los datepickers
-    const horaInicio = this.time && this.time[0] ?
-      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    // Formatear horas desde los datepickers con validación mejorada
+    console.log('Debug - this.time:', this.time);
+    console.log('Debug - this.timeFinal:', this.timeFinal);
 
-    const horaFin = this.timeFinal && this.timeFinal[0] ?
-      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    const horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
-    return {
+    const horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    console.log('Debug - horaInicio formateada:', horaInicio);
+    console.log('Debug - horaFin formateada:', horaFin);
+
+    const datosEvento = {
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
@@ -786,6 +891,9 @@ export class CrearEventoComponent implements OnInit{
       aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
       idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
     };
+
+    console.log('Debug - Datos evento preparados:', datosEvento);
+    return datosEvento;
   }
 
   /**
@@ -856,19 +964,25 @@ export class CrearEventoComponent implements OnInit{
     // Convertir la fecha del datepicker a formato ISO
     const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
-    // Formatear horas desde los datepickers
-    const horaInicio = this.time && this.time[0] ?
-      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    // Formatear horas desde los datepickers con validación mejorada
+    console.log('Debug CREAR - this.time:', this.time);
+    console.log('Debug CREAR - this.timeFinal:', this.timeFinal);
 
-    const horaFin = this.timeFinal && this.timeFinal[0] ?
-      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+    const horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    const horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    console.log('Debug CREAR - horaInicio formateada:', horaInicio);
+    console.log('Debug CREAR - horaFin formateada:', horaFin);
 
     // Calcular aforo disponible total (suma de todas las categorías)
     const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
       return total + categoria.aforoMax;
     }, 0);
 
-    return {
+    const datosEvento = {
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
@@ -880,6 +994,9 @@ export class CrearEventoComponent implements OnInit{
       aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
       idLocal: parseInt(this.formulario.localString)
     };
+
+    console.log('Debug CREAR - Datos evento preparados:', datosEvento);
+    return datosEvento;
   }
 
   /**
@@ -912,13 +1029,15 @@ export class CrearEventoComponent implements OnInit{
 
     // Limpiar datepickers
     this.date = undefined;
-    this.time = [];
-    this.timeFinal = [];
+    this.time = undefined;
+    this.timeFinal = undefined;
 
     // Limpiar entradas agregadas
     this.entradasAgregadas = [];
     this.entradaNombre = '';
+    this.entradaDescripcion = '';
     this.entradaPrecio = null;
+    this.entradaStock = null;
     this.validoPara = '';
 
     // Limpiar categorías
@@ -937,6 +1056,9 @@ export class CrearEventoComponent implements OnInit{
     this.usarMapaDefault = false;
     this.usarBannerDefault = false;
 
+    // Resetear ID del evento (vuelve a modo creación)
+    this.idEvento = null;
+
     this.messageService.info('Formulario limpiado', 'Información');
   }
 
@@ -953,14 +1075,14 @@ export class CrearEventoComponent implements OnInit{
       }) : 'No seleccionada';
 
     // Formatear horas desde los datepickers
-    const horaInicio = this.time && this.time[0] ?
-      this.time[0].toLocaleTimeString('es-ES', {
+    const horaInicio = this.time ?
+      this.time.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit'
       }) : 'No seleccionada';
 
-    const horaFinal = this.timeFinal && this.timeFinal[0] ?
-      this.timeFinal[0].toLocaleTimeString('es-ES', {
+    const horaFinal = this.timeFinal ?
+      this.timeFinal.toLocaleTimeString('es-ES', {
         hour: '2-digit',
         minute: '2-digit'
       }) : 'No seleccionada';
@@ -1265,6 +1387,7 @@ export class CrearEventoComponent implements OnInit{
   }
 
   onAgregarEntrada(): void {
+    // Validaciones esenciales únicamente
     if (!this.entradaNombre.trim()) {
       this.messageService.error('Por favor ingresa un nombre para la entrada', 'Campo Requerido');
       return;
@@ -1280,41 +1403,134 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Buscar el label de la categoría seleccionada
-    const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
-    const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+    // Buscar la zona seleccionada para obtener el idZona
+    const zonaSeleccionada = this.zonasDisponibles.find(zona =>
+      zona.nombre.toLowerCase() === this.validoPara.toLowerCase()
+    );
 
-    // Crear la nueva entrada
-    const nuevaEntrada: EntradaAgregada = {
-      id: this.proximoIdEntrada++,
+    if (!zonaSeleccionada) {
+      this.messageService.error('No se pudo encontrar la zona seleccionada', 'Error de Validación');
+      return;
+    }
+
+    // Preparar datos para la API (usando valores por defecto para campos omitidos)
+    const datosEntrada = {
       nombre: this.entradaNombre.trim(),
+      descripcion: this.entradaDescripcion?.trim() || 'Sin descripción',
       precio: this.entradaPrecio,
-      validoPara: this.validoPara,
-      validoParaLabel: validoParaLabel,
-      moneda: this.formulario.moneda || 'PEN'
+      stock: this.entradaStock || 100, // Valor por defecto si no se especifica
+      activo: true,
+      idZona: zonaSeleccionada.idZona,
+      limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10
     };
 
-    // Agregar la entrada al array
-    this.entradasAgregadas.push(nuevaEntrada);
+    // Mostrar mensaje de procesamiento
+    this.messageService.info('Creando entrada...', 'Procesando');
 
-    // Limpiar los campos después de agregar
+    // Llamar al servicio para crear la entrada
+    this.eventoService.postCrearEntrada(datosEntrada).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Buscar el label de la categoría seleccionada para mostrar
+          const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
+          const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+
+          // Crear la nueva entrada para el array local
+          const nuevaEntrada: EntradaAgregada = {
+            id: response.data.idTipoTicket,
+            nombre: response.data.nombre,
+            precio: response.data.precio,
+            validoPara: this.validoPara,
+            validoParaLabel: validoParaLabel,
+            moneda: this.formulario.moneda || 'PEN'
+          };
+
+          // Agregar la entrada al array local
+          this.entradasAgregadas.push(nuevaEntrada);
+
+          // Limpiar los campos después de agregar
+          this.limpiarCamposEntrada();
+
+          // Mostrar mensaje de éxito
+          this.messageService.success(
+            `Entrada "${response.data.nombre}" creada exitosamente`,
+            'Entrada Creada'
+          );
+
+          // Mostrar mensaje adicional si existe
+          if (response.mensaje) {
+            this.messageService.info(response.mensaje, 'Información');
+          }
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo crear la entrada',
+            'Error al Crear Entrada'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear entrada:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
+  }  /**
+   * Limpia todos los campos del formulario de entrada
+   */
+  private limpiarCamposEntrada(): void {
     this.entradaNombre = '';
+    this.entradaDescripcion = '';
     this.entradaPrecio = null;
+    this.entradaStock = null;
     this.validoPara = '';
-
-    this.messageService.success('Entrada agregada exitosamente', 'Operación Exitosa');
   }
 
   onEliminarEntrada(entradaId: number, event: Event): void {
     event.stopPropagation();
 
+    // Buscar la entrada en el array local para obtener información
+    const entradaAEliminar = this.entradasAgregadas.find(entrada => entrada.id === entradaId);
+
+    if (!entradaAEliminar) {
+      this.messageService.error('No se encontró la entrada a eliminar', 'Error de Datos');
+      return;
+    }
+
     this.confirmPopupService.confirmDelete(
       event,
-      '¿Estás seguro de que deseas eliminar esta entrada?',
+      `¿Estás seguro de que deseas eliminar la entrada "${entradaAEliminar.nombre}"?`,
       () => {
-        // Filtrar el array para eliminar la entrada con el ID especificado
-        this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.id !== entradaId);
-        this.messageService.success('Entrada eliminada exitosamente', 'Operación Exitosa');
+        // Mostrar mensaje de procesamiento
+        this.messageService.info('Eliminando entrada...', 'Procesando');
+
+        // Llamar al servicio para eliminar la entrada del backend
+        this.eventoService.deleteEntrada(entradaId).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Eliminar de la lista local solo si la eliminación en el backend fue exitosa
+              this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.id !== entradaId);
+
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                response.mensaje || `Entrada "${entradaAEliminar.nombre}" eliminada exitosamente`,
+                'Entrada Eliminada'
+              );
+
+              // Mostrar mensaje adicional si existe
+              if (response.mensaje) {
+                this.messageService.info(response.mensaje, 'Información');
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo eliminar la entrada',
+                'Error al Eliminar Entrada'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al eliminar entrada:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
       }
     );
   }

@@ -94,7 +94,11 @@
               <p-datepicker
                 [(ngModel)]="time"
                 [timeOnly]="true"
+                [showTime]="true"
+                hourFormat="24"
+                [showSeconds]="false"
                 styleClass="form-input"
+                placeholder="Seleccionar hora"
                 (onSelect)="onHoraInicioSeleccionada($event)"
               ></p-datepicker>
             </div>
@@ -107,7 +111,11 @@
               <p-datepicker
                 [(ngModel)]="timeFinal"
                 [timeOnly]="true"
+                [showTime]="true"
+                hourFormat="24"
+                [showSeconds]="false"
                 styleClass="form-input"
+                placeholder="Seleccionar hora"
                 (onSelect)="onHoraFinalSeleccionada($event)"
               ></p-datepicker>
             </div>
@@ -225,22 +233,7 @@
         </div>
       </div>
 
-      <!-- Botón para guardar datos generales -->
-      <div class="card-actions">
-        <p-button
-          label="Guardar Cambios"
-          icon="pi pi-save"
-          severity="success"
-          outlined="true"
-          (onClick)="onGuardarCambiosGenerales()"
-          [disabled]="idEvento !== null"
-          pTooltip="Guarda los datos generales del evento. Después podrás configurar el local y entradas."
-        ></p-button>
-        <small *ngIf="idEvento" class="saved-indicator">
-          <i class="pi pi-check-circle"></i>
-          Datos generales guardados
-        </small>
-      </div>
+
     </p-card>
 
     <!-- Sección 2: Local y Asientos -->
@@ -564,7 +557,7 @@
       <p-button
         label="Crear Evento"
         icon="pi pi-check"
-        (onClick)="onGuardarCambios()"
+        (onClick)="onCrearEvento()"
       ></p-button>
     </div>
   </div>

@@ -35,7 +35,7 @@
                 <p-dropdown
                     id="tipo"
                     [options]="tiposConcierto"
-                    optionLabel="name"
+                    optionLabel="label"
                     placeholder="Seleccionar tipo"
                     [(ngModel)]="tipoSeleccionado"
                     (onChange)="onTipoChange()"
@@ -53,21 +53,21 @@
             </h3>
         </div>
 
-        <div class="events-grid" *ngIf="eventosFiltrados.length > 0; else noResults">
+        <div class="events-grid" *ngIf="!cargando && eventosFiltrados.length > 0; else noResults">
             <p-card *ngFor="let evento of eventosFiltrados" class="event-card">
                 <ng-template pTemplate="header">
                     <div class="event-header">
                         <div class="event-title-section">
                             <div class="title-with-id">
-                                <span class="event-id">ID: {{evento.id}}</span>
+                                <span class="event-id">ID: {{evento.idEvento}}</span>
                                 <h2 class="event-name">
                                     <i class="pi pi-music"></i>
                                     {{evento.nombre}}
                                 </h2>
                             </div>
                             <p-tag
-                                [value]="evento.estado"
-                                [severity]="getEstadoSeverity(evento.estado)">
+                                [value]="evento.estadoEvento"
+                                [severity]="getEstadoSeverity(evento.estadoEvento)">
                             </p-tag>
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                                     <i class="pi pi-hashtag"></i>
                                     ID:
                                 </label>
-                                <span class="detail-value">{{evento.id}}</span>
+                                <span class="detail-value">{{evento.idEvento}}</span>
                             </div>
                             <div class="detail-item">
                                 <label class="detail-label">
@@ -100,21 +100,35 @@
                                     <i class="pi pi-tag"></i>
                                     Tipo:
                                 </label>
-                                <span class="detail-value">{{evento.tipo}}</span>
+                                <span class="detail-value">{{evento.tipoEvento}}</span>
                             </div>
                             <div class="detail-item">
                                 <label class="detail-label">
                                     <i class="pi pi-calendar"></i>
                                     Fecha:
                                 </label>
-                                <span class="detail-value">{{evento.fecha | date:'dd/MM/yyyy'}}</span>
+                                <span class="detail-value">{{evento.fechaEvento | date:'dd/MM/yyyy'}}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label class="detail-label">
+                                    <i class="pi pi-clock"></i>
+                                    Hora:
+                                </label>
+                                <span class="detail-value">{{evento.horaInicio}} - {{evento.horaFin}}</span>
                             </div>
                             <div class="detail-item full-width">
                                 <label class="detail-label">
                                     <i class="pi pi-map-marker"></i>
                                     Lugar:
                                 </label>
-                                <span class="detail-value">{{evento.lugar}}</span>
+                                <span class="detail-value">{{evento.nombreLocal}}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <label class="detail-label">
+                                    <i class="pi pi-file-text"></i>
+                                    Descripción:
+                                </label>
+                                <span class="detail-value">{{evento.descripcion}}</span>
                             </div>
                         </div>
                     </div>
@@ -123,38 +137,14 @@
                     <div class="event-stats-section">
                         <h4 class="section-title">
                             <i class="pi pi-chart-bar"></i>
-                            Estadísticas
+                            Información de Capacidad
                         </h4>
                         <div class="event-stats">
                             <div class="stat-card">
-                                <div class="stat-value">{{formatearNumero(evento.capacidad)}}</div>
+                                <div class="stat-value">{{formatearNumero(evento.aforoDisponible)}}</div>
                                 <div class="stat-label">
                                     <i class="pi pi-users"></i>
-                                    Capacidad Total
-                                </div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-value sold">{{formatearNumero(evento.vendidos)}}</div>
-                                <div class="stat-label">
-                                    <i class="pi pi-ticket"></i>
-                                    Entradas Vendidas
-                                </div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-value percentage">{{evento.ocupacion}}%</div>
-                                <div class="stat-label">
-                                    <i class="pi pi-chart-bar"></i>
-                                    Ocupación
-                                </div>
-                            </div>
-
-                            <div class="stat-card">
-                                <div class="stat-value income">{{formatearMoneda(evento.ingresos)}}</div>
-                                <div class="stat-label">
-                                    <i class="pi pi-dollar"></i>
-                                    Ingresos
+                                    Aforo Disponible
                                 </div>
                             </div>
                         </div>
@@ -187,7 +177,7 @@
                             size="small"
                             pTooltip="Editar evento"
                             tooltipPosition="top"
-                            (click)="editarEvento(evento.id)">
+                            (click)="editarEvento(evento.idEvento)">
                         </p-button>
                     </div>
                 </ng-template>
@@ -195,7 +185,7 @@
         </div>
 
         <ng-template #noResults>
-            <div class="no-results">
+            <div class="no-results" *ngIf="!cargando">
                 <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
                 <h3>No se encontraron eventos</h3>
                 <p>Intenta ajustar los filtros de búsqueda o crear un nuevo evento.</p>
@@ -204,6 +194,11 @@
                     icon="pi pi-plus"
                     (click)="crearEvento(0)">
                 </p-button>
+            </div>
+
+            <div class="loading-container" *ngIf="cargando">
+                <p-progressSpinner></p-progressSpinner>
+                <p>Cargando eventos...</p>
             </div>
         </ng-template>
     </div>

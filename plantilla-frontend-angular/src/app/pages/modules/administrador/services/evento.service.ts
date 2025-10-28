@@ -8,6 +8,8 @@ import { baseUrl } from '../../../../global';
 import { EliminaZonaResponse } from '../interfaces/gestion-evento/elimina-zona.interface';
 import { CrearEventoResponse, CrearEventoRequest } from '../interfaces/gestion-evento/evento.interface';
 import { EliminaEventoResponse } from '../interfaces/gestion-evento/elimina-evento.interface';
+import { EntradaResponse } from '../interfaces/gestion-evento/entrada.interface';
+import { EliminaEntradaResponse } from '../interfaces/gestion-evento/elimina-entrada.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -110,4 +112,40 @@ export class EventoService {
       );
   }
 
+
+// ========================= entradas ======================
+  /**
+   * Obtiene la lista de entradas
+   * @returns Observable con la respuesta que contiene la lista de entradas
+   */
+
+  getListarEntradas(): Observable<EntradaResponse> {
+    const url = `${baseUrl}/tipos-ticket`;
+    return this.http.get<EntradaResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+  /**
+   *
+   * @param body  Datos de la entrada a crear
+   * @returns
+   */
+  postCrearEntrada(body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number }): Observable<EntradaResponse> {
+    const url = `${baseUrl}/tipos-ticket`;
+    return this.http.post<EntradaResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  deleteEntrada(id: number): Observable<EliminaEntradaResponse> {
+    const url = `${baseUrl}/tipos-ticket/${id}`;
+    return this.http.delete<EliminaEntradaResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
 }
+
