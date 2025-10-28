@@ -1,131 +1,295 @@
 .container {
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .title {
-  font-size: 2.5rem;
-  margin: 0;
-  color: #1c224d;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 2.5rem;
+    margin: 0;
+    color: #1c224d;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .title i {
-  font-size: 2rem;
-  color: #1976d2;
+    font-size: 2rem;
+    color: #1976d2;
+}
+
+.edit-button {
+    height: fit-content;
 }
 
 /* Contenido del perfil */
 .profile-content {
-  margin-top: 2rem;
+    margin-top: 2rem;
 }
 
 .profile-card {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-  border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    border: none;
+}
+
+.profile-card.edit-mode {
+    border: 2px solid #dc3545;
 }
 
 /* Header de la tarjeta */
 .card-header {
-  background: linear-gradient(135deg, #dc3545,#dc3545);
-  color: white;
-  padding: 1.5rem;
+    background: linear-gradient(135deg, #dc3545, #dc3545);
+    color: white;
+    padding: 1.5rem;
+    margin: -1rem -1rem 0 -1rem;
 }
 
 .card-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
 }
 
-/* Campos del perfil */
+.card-header i {
+    font-size: 1.25rem;
+}
+
+/* Formulario de perfil */
+.profile-form {
+    padding: 1.5rem 0;
+}
+
 .profile-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
 }
 
+.edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+/* Campos del perfil (vista de lectura) */
 .profile-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #dc3545;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
 }
 
 .profile-field.full-width {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
 .field-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #495057;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-label i {
+    color: #dc3545;
+    font-size: 0.85rem;
 }
 
 .field-value {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #212529;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #212529;
+    padding: 0.5rem 0;
+    min-height: 1.5rem;
 }
 
-.card-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  border-top: 2px solid #e9ecef;
-  padding-top: 1rem;
-}
-
-/* Responsividad */
-@media (max-width: 768px) {
-  .profile-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .header-section {
+/* Campos del formulario (vista de edición) */
+.form-field {
+    display: flex;
     flex-direction: column;
-    align-items: stretch;
-  }
-
-  .card-actions {
-    justify-content: center;
-  }
+    gap: 0.5rem;
 }
 
-.field-label .pi,
-.profile-field .pi,
-.form-field .pi {
-  color: #dc3545 ;
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-input {
+    padding: 0.875rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Acciones de la tarjeta */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .profile-grid,
+    .edit-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .profile-field.full-width,
+    .form-field.full-width {
+        grid-column: 1;
+    }
+
+    .card-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .field-value {
+        font-size: 1rem;
+    }
+
+    .form-input {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Mejoras visuales para PrimeNG */
+:host ::ng-deep {
+    .p-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    }
+
+    .p-card .p-card-content {
+        padding: 1.5rem;
+        background: white;
+    }
+
+    .p-card .p-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .p-button {
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .p-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .p-inputtext {
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.875rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .p-inputtext:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+}
+:host ::ng-deep .p-inputtext:enabled:focus {
+    border-color: #91E345 !important;
+    box-shadow: 0 0 0 1px #91E345 !important;
+}
+
+
+.sticky-actions{
+  position: sticky;
+  bottom: 0;                       /* se “pega” al borde inferior visible */
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  margin-top: 3rem;
+
+  /* fondo para que no se vea “transparente” al hacer scroll */
+  background: var(--surface-card);
+  box-shadow: 0 -4px 12px rgba(0,0,0,.05);
+  z-index: 5;                      /* por encima del contenido */
+}
+
+/* Un poco más de aire al fondo de la card para que no tape contenido */
+.card{
+  padding-bottom: 2.5rem;
 }
