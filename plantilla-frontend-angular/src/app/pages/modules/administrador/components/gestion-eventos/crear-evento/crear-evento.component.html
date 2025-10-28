@@ -407,6 +407,22 @@
 
           <div class="entrada-field">
             <label class="field-label">
+              <i class="pi pi-dollar"></i>
+              Precio
+            </label>
+            <p-inputNumber
+              [(ngModel)]="entradaPrecio"
+              placeholder="50.00"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [useGrouping]="false"
+              styleClass="form-input"
+            ></p-inputNumber>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
               <i class="pi pi-check"></i>
               Válido para
             </label>
@@ -420,13 +436,17 @@
             ></p-dropdown>
           </div>
 
-          <div class="entrada-actions">
+          <div class="entrada-field">
+            <label class="field-label" style="visibility: hidden;">
+              &nbsp;
+            </label>
             <p-button
               label="Agregar Entrada"
               icon="pi pi-plus"
               severity="success"
               outlined="true"
               (onClick)="onAgregarEntrada()"
+              class="form-input agregar-btn"
             ></p-button>
           </div>
         </div>

@@ -146,15 +146,13 @@ export class CrearEventoComponent implements OnInit{
     { label: 'Euro', value: 'EUR' }
   ];
 
-  validoParaOptions: EstadoOption[] = [
-    { label: 'Seleccionar', value: '' },
-    { label: 'General', value: 'general' },
-    { label: 'Premium', value: 'premium' },
-    { label: 'VIP', value: 'vip' }
-  ];
 
   entradaNombre: string = '';
+  entradaPrecio: number | null = null;
   validoPara: string = '';
+
+  // Opciones dinámicas para el dropdown "Válido para" - se llena con datos de getListarZonas
+  validoParaOptions: EstadoOption[] = [{ label: 'Seleccionar', value: '' }];
 
   // Nuevas propiedades para la sección de Local y asientos
   localesOptions: EstadoOption[] = [];
@@ -181,8 +179,7 @@ export class CrearEventoComponent implements OnInit{
   ngOnInit(): void {
     // Cargar locales disponibles
     this.cargarLocales();
-    // Cargar zonas disponibles
-    this.cargarZonas();
+    // Las zonas se cargarán cuando se seleccione un local
     // Aquí puedes cargar datos del evento si estás editando
     this.cargarEvento();
   }
@@ -229,10 +226,22 @@ export class CrearEventoComponent implements OnInit{
     });
   }
 
-  cargarZonas(): void {
+  cargarZonas(idLocal?: number): void {
+    if (!idLocal) {
+      // Si no hay local seleccionado, limpiar las zonas
+      this.zonasDisponibles = [];
+      this.categoriasLocal = [];
+      // Limpiar también las opciones del dropdown "Válido para"
+      this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
+      this.entradas.regular.categorias = [];
+      this.entradas.preventa.categorias = [];
+      this.cargandoZonas = false;
+      return;
+    }
+
     this.cargandoZonas = true;
 
-    this.eventoService.getListarZonas().subscribe({
+    this.eventoService.getListarZonas(idLocal).subscribe({
       next: (response) => {
         if (response.ok) {
           // Verificar si response.data es un array o un objeto
@@ -245,13 +254,24 @@ export class CrearEventoComponent implements OnInit{
             this.zonasDisponibles = [];
           }
 
+          // Actualizar categorías locales con las zonas cargadas
+          this.categoriasLocal = this.zonasDisponibles.map(zona => ({
+            idZona: zona.idZona,
+            nombre: zona.nombre,
+            aforoMaximo: zona.aforoMax.toString(),
+            aforoDisponible: zona.aforoMax.toString()
+          }));
+
+          // Actualizar entradas con las categorías cargadas
+          this.actualizarEntradasConCategorias(this.zonasDisponibles);
+
           this.messageService.success(
-            `Se encontraron ${this.zonasDisponibles.length} zonas disponibles en total`,
-            'Sistema Cargado'
+            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`,
+            'Zonas Cargadas'
           );
         } else {
           this.messageService.error(
-            response.mensaje || 'No se pudieron cargar las zonas',
+            response.mensaje || 'No se pudieron cargar las zonas del local',
             'Error de Carga'
           );
           this.zonasDisponibles = [];
@@ -266,50 +286,6 @@ export class CrearEventoComponent implements OnInit{
         this.cargandoZonas = false;
       }
     });
-  }
-
-  /**
-   * Obtiene las zonas filtradas por el local seleccionado
-   * @param idLocal ID del local seleccionado
-   * @returns Array de zonas del local especificado
-   */
-  obtenerZonasPorLocal(idLocal: string): ZonaEvento[] {
-    if (!idLocal || !this.zonasDisponibles) return [];
-
-    return this.zonasDisponibles.filter(zona =>
-      zona.idLocal.toString() === idLocal && zona.activo
-    );
-  }
-
-  /**
-   * Actualiza la lista de categorías locales basada en las zonas del local seleccionado
-   * @param idLocal ID del local seleccionado
-   */
-  actualizarCategoriasLocal(idLocal: string): void {
-    const zonasLocal = this.obtenerZonasPorLocal(idLocal);
-
-    // Convertir zonas a formato de categorías locales
-    this.categoriasLocal = zonasLocal.map(zona => ({
-      idZona: zona.idZona,
-      nombre: zona.nombre,
-      aforoMaximo: zona.aforoMax.toString(),
-      aforoDisponible: zona.aforoMax.toString() // Inicialmente todo disponible
-    }));
-
-    // Actualizar también las entradas con las categorías cargadas
-    this.actualizarEntradasConCategorias(zonasLocal);
-
-    if (zonasLocal.length > 0) {
-      this.messageService.info(
-        `Se cargaron ${zonasLocal.length} categorías para el local seleccionado`,
-        'Categorías Actualizadas'
-      );
-    } else {
-      this.messageService.warn(
-        'No se encontraron categorías para el local seleccionado',
-        'Sin Categorías'
-      );
-    }
   }
 
   /**
@@ -360,15 +336,12 @@ export class CrearEventoComponent implements OnInit{
         // Actualizar información adicional del local
         this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
 
-        // Cargar las categorías/zonas específicas del local seleccionado
-        this.actualizarCategoriasLocal(idLocal);
+        // Cargar las zonas específicas del local seleccionado
+        this.cargarZonas(parseInt(idLocal));
       }
     } else {
       // Si no hay local seleccionado, limpiar las categorías y entradas
-      this.categoriasLocal = [];
-      this.entradas.regular.categorias = [];
-      this.entradas.preventa.categorias = [];
-      this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
+      this.cargarZonas(); // Esto limpiará las zonas ya que no se pasa parámetro
     }
   }
 
@@ -376,8 +349,12 @@ export class CrearEventoComponent implements OnInit{
    * Refresca la lista de zonas manualmente
    */
   refrescarZonas(): void {
-    this.messageService.info('Actualizando lista de zonas...', 'Cargando');
-    this.cargarZonas();
+    if (this.evento.local && this.evento.local.trim() !== '') {
+      this.messageService.info('Actualizando lista de zonas...', 'Cargando');
+      this.cargarZonas(parseInt(this.evento.local));
+    } else {
+      this.messageService.warn('Debe seleccionar un local para cargar las zonas', 'Local Requerido');
+    }
   }
 
   /**
@@ -572,6 +549,11 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
+    if (!this.entradaPrecio || this.entradaPrecio <= 0) {
+      this.messageService.error('Por favor ingresa un precio válido mayor a 0', 'Campo Requerido');
+      return;
+    }
+
     if (!this.validoPara) {
       this.messageService.error('Por favor selecciona para qué categoría es válida la entrada', 'Campo Requerido');
       return;
@@ -582,6 +564,7 @@ export class CrearEventoComponent implements OnInit{
 
     // Limpiar los campos después de agregar
     this.entradaNombre = '';
+    this.entradaPrecio = null;
     this.validoPara = '';
 
     this.messageService.success('Entrada agregada exitosamente', 'Operación Exitosa');
@@ -731,13 +714,10 @@ export class CrearEventoComponent implements OnInit{
     if (this.evento.local && this.evento.local.trim() !== '') {
       this.messageService.info('Actualizando categorías...', 'Cargando');
 
-      // Volver a cargar las zonas desde el servidor
-      this.cargarZonas();
-
-      // Después de cargar, actualizar las categorías del local actual
-      setTimeout(() => {
-        this.actualizarCategoriasLocal(this.evento.local);
-      }, 1000); // Dar tiempo para que se carguen las zonas
+      // Volver a cargar las zonas desde el servidor para el local actual
+      this.cargarZonas(parseInt(this.evento.local));
+    } else {
+      this.messageService.warn('Debe seleccionar un local para actualizar las categorías', 'Local Requerido');
     }
   }
 

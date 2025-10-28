@@ -17,7 +17,7 @@ export class EventoService {
     private httpUtils: HttpUtilsService
   ) { }
 
-  /// zonas
+  /// ========================= local y asientos  ======================
 
   /*
     * Crea una nueva zona
@@ -33,12 +33,13 @@ export class EventoService {
       );
   }
   /**
-   * Obtiene la lista de zonas
+   * Obtiene la lista de zonas filtradas por local
+   * @param idLocal ID del local para filtrar las zonas
    * @returns Observable con la respuesta que contiene la lista de zonas
    */
 
-  getListarZonas(): Observable<ZonaCategoriaResponse> {
-    const url = `${baseUrl}/zonas`;
+  getListarZonas(idLocal: number): Observable<ZonaCategoriaResponse> {
+    const url = `${baseUrl}/zonas?local=${idLocal}`;
     return this.http.get<ZonaCategoriaResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
@@ -57,6 +58,10 @@ export class EventoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  // ========================= datos generales evento  ======================
+
+
 
 
 }
