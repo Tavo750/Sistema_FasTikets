@@ -102,4 +102,12 @@ export class EventoService {
       );
   }
 
+  putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
+    const url = `${baseUrl}/eventos/${id}`;
+    return this.http.put<CrearEventoResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
 }

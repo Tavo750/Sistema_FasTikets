@@ -25,9 +25,9 @@ interface Evento {
   horaFinal: string;
   minutosFinal: string;
   estado: string;
-  videoPromocional: string;
+  videoPromocional: string; // Almacena la imagen del banner en base64 (se mapea a imagenUrl)
   banner?: File | null;
-  bannerUrl?: string;
+  bannerUrl?: string; // URL temporal para mostrar preview
   local: string;
   mapaUrl?: string;
   mapaFile?: File | null;
@@ -83,7 +83,7 @@ export class CrearEventoComponent implements OnInit{
 
   evento: Evento = {
     titulo: 'Electronic Festival',
-    categoria: 'Electrónica',
+    categoria: 'ELECTRONICA',
     descripcion: 'Descripción genérica de concierto porque no ando creativo.',
      dia: '30',
     mes: 'Julio',
@@ -93,7 +93,7 @@ export class CrearEventoComponent implements OnInit{
     horaFinal: '01',
     minutosFinal: '00',
     estado: 'publicado',
-    videoPromocional: 'Link completamente normal...',
+    videoPromocional: '', // Se llenará con la imagen del banner en base64
     banner: null,
     bannerUrl: '',
     local: 'Parque de la exposición',
@@ -109,10 +109,25 @@ export class CrearEventoComponent implements OnInit{
     { label: 'AGOTADO', value: 'agotado' }
   ];
   categorias = [
-    { label: 'Electrónica', value: 'Electrónica' },
-    { label: 'Rock', value: 'Rock' },
-    { label: 'Pop', value: 'Pop' },
-    { label: 'Jazz', value: 'Jazz' }
+    { label: 'Conferencia', value: 'CONFERENCIA' },
+    { label: 'Punk', value: 'PUNK' },
+    { label: 'Deporte', value: 'DEPORTE' },
+    { label: 'Rock', value: 'ROCK' },
+    { label: 'Metal', value: 'METAL' },
+    { label: 'Feria', value: 'FERIA' },
+    { label: 'Exposición', value: 'EXPOSICION' },
+    { label: 'Concierto', value: 'CONCIERTO' },
+    { label: 'Pop', value: 'POP' },
+    { label: 'Reggae', value: 'REGGAE' },
+    { label: 'Festival', value: 'FESTIVAL' },
+    { label: 'Taller', value: 'TALLER' },
+    { label: 'Reggaetón', value: 'REGGAETON' },
+    { label: 'Cine', value: 'CINE' },
+    { label: 'Otro', value: 'OTRO' },
+    { label: 'Electrónica', value: 'ELECTRONICA' },
+    { label: 'Rock Pop', value: 'ROCK_POP' },
+    { label: 'Urbano', value: 'URBANO' },
+    { label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
   ];
   categoriasLocal: Categoria[] = [];
   entradas: { regular: TipoEntrada; preventa: TipoEntrada } = {
@@ -172,6 +187,9 @@ export class CrearEventoComponent implements OnInit{
   // Propiedades para el manejo de zonas/categorías
   zonasDisponibles: ZonaData[] = [];
   cargandoZonas: boolean = false;
+
+  // ID del evento (para identificar si estamos editando)
+  idEvento: number | null = null;
 
   nuevaCategoria = {
     nombre: '',
@@ -429,14 +447,25 @@ export class CrearEventoComponent implements OnInit{
 
       this.evento.banner = file;
 
-      // Crear URL para mostrar preview
+      // Convertir imagen a base64 para guardar en imagenUrl
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.evento.bannerUrl = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        const base64String = e.target.result;
 
-      this.messageService.success('Banner cargado exitosamente', 'Archivo Cargado');
+        // Guardar la imagen en base64 para mostrar preview
+        this.evento.bannerUrl = base64String;
+
+        // Guardar la imagen en base64 en videoPromocional (que se mapea a imagenUrl)
+        this.evento.videoPromocional = base64String;
+
+        this.messageService.success('Banner cargado y convertido exitosamente', 'Archivo Procesado');
+      };
+
+      reader.onerror = () => {
+        this.messageService.error('Error al procesar la imagen', 'Error de Archivo');
+      };
+
+      reader.readAsDataURL(file);
     }
   }
 
@@ -455,6 +484,7 @@ export class CrearEventoComponent implements OnInit{
       () => {
         this.evento.bannerUrl = '';
         this.evento.banner = null;
+        this.evento.videoPromocional = ''; // Limpiar también el campo que se envía al backend
         this.usarBannerDefault = false;
         this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
       }
@@ -473,6 +503,40 @@ export class CrearEventoComponent implements OnInit{
     );
   }
 
+  /**
+   * Método para guardar solo los datos generales del evento (sección 1)
+   * Utiliza postCrearEvento para crear un nuevo evento
+   */
+  onGuardarCambiosGenerales(): void {
+    // Validaciones básicas de los datos generales
+    if (!this.validarDatosGenerales()) {
+      return;
+    }
+
+    // Preparar datos básicos del evento
+    const datosEvento = this.prepararDatosEventoBasicos();
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Guardando datos generales del evento...', 'Procesando');
+
+    // Llamar al servicio para crear el evento
+    this.eventoService.postCrearEvento(datosEvento).subscribe({
+      next: (response) => {
+        this.messageService.handleBackendResponse(response, false, 'Datos Generales Guardados');
+
+        if (response.ok && response.data) {
+          // Guardar el ID del evento para futuras actualizaciones
+          this.idEvento = response.data.idEvento;
+          this.messageService.success('Datos generales guardados exitosamente. Ahora puedes continuar configurando el local y entradas.', 'Evento Creado');
+        }
+      },
+      error: (error) => {
+        console.error('Error al guardar datos generales:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
+  }
+
   onGuardarCambios(): void {
     // Validaciones básicas
     if (!this.validarFormulario()) {
@@ -484,35 +548,64 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
+    // Verificar que se haya seleccionado un local
+    if (!this.evento.local || this.evento.local.trim() === '') {
+      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
+      return;
+    }
+
     // Mostrar resumen del evento
     this.mostrarResumenEvento();
 
     // Preparar datos para el servicio
     const datosEvento = this.prepararDatosEvento();
 
-    // Mostrar mensaje de carga
-    this.messageService.info('Creando evento...', 'Procesando');
+    if (this.idEvento) {
+      // Si ya existe un evento (se guardaron datos generales), actualizar con putActualizarEvento
+      this.messageService.info('Actualizando evento con información del local...', 'Procesando');
 
-    // Llamar al servicio para crear el evento
-    this.eventoService.postCrearEvento(datosEvento).subscribe({
-      next: (response) => {
-        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
+      this.eventoService.putActualizarEvento(this.idEvento, datosEvento).subscribe({
+        next: (response) => {
+          this.messageService.handleBackendResponse(response, false, 'Evento Actualizado');
 
-        if (response.ok && response.data) {
-          // Limpiar formulario después de crear exitosamente
-          this.limpiarFormulario();
+          if (response.ok && response.data) {
+            this.messageService.success('Evento creado exitosamente con toda la información', 'Proceso Completado');
 
-          // Redirigir a la gestión de eventos después de crear exitosamente
-          setTimeout(() => {
-            this.router.navigate(['/administrador/gestionEventos']);
-          }, 2000);
+            // Redirigir a la gestión de eventos después de completar exitosamente
+            setTimeout(() => {
+              this.router.navigate(['/administrador/gestionEventos']);
+            }, 2000);
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar evento:', error);
+          this.messageService.handleHttpError(error);
         }
-      },
-      error: (error) => {
-        console.error('Error al crear evento:', error);
-        this.messageService.handleHttpError(error);
-      }
-    });
+      });
+    } else {
+      // Si no existe evento, crear uno nuevo (caso original)
+      this.messageService.info('Creando evento...', 'Procesando');
+
+      this.eventoService.postCrearEvento(datosEvento).subscribe({
+        next: (response) => {
+          this.messageService.handleBackendResponse(response, false, 'Evento Creado');
+
+          if (response.ok && response.data) {
+            // Limpiar formulario después de crear exitosamente
+            this.limpiarFormulario();
+
+            // Redirigir a la gestión de eventos después de crear exitosamente
+            setTimeout(() => {
+              this.router.navigate(['/administrador/gestionEventos']);
+            }, 2000);
+          }
+        },
+        error: (error) => {
+          console.error('Error al crear evento:', error);
+          this.messageService.handleHttpError(error);
+        }
+      });
+    }
   }
 
   validarFormulario(): boolean {
@@ -556,6 +649,70 @@ export class CrearEventoComponent implements OnInit{
     }
 
     return true;
+  }
+
+  /**
+   * Validaciones específicas para los datos generales (sección 1)
+   */
+  validarDatosGenerales(): boolean {
+    if (!this.evento.titulo || this.evento.titulo.trim() === '') {
+      this.messageService.error('El título es obligatorio', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.categoria || this.evento.categoria.trim() === '') {
+      this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.descripcion || this.evento.descripcion.trim() === '') {
+      this.messageService.error('La descripción es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar fecha del evento
+    if (!this.evento.dia || !this.evento.mes || !this.evento.anio) {
+      this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar horas
+    if (!this.evento.hora || !this.evento.minutos) {
+      this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.horaFinal || !this.evento.minutosFinal) {
+      this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Prepara los datos básicos del evento para la creación inicial
+   */
+  prepararDatosEventoBasicos(): CrearEventoRequest {
+    // Convertir la fecha a formato ISO
+    const fechaEvento = this.construirFechaEvento();
+
+    // Formatear horas
+    const horaInicio = `${this.evento.hora.padStart(2, '0')}:${this.evento.minutos.padStart(2, '0')}:00`;
+    const horaFin = `${this.evento.horaFinal.padStart(2, '0')}:${this.evento.minutosFinal.padStart(2, '0')}:00`;
+
+    return {
+      nombre: this.evento.titulo.trim(),
+      descripcion: this.evento.descripcion.trim(),
+      fechaEvento: fechaEvento,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      imagenUrl: this.evento.videoPromocional || '',
+      tipoEvento: this.evento.categoria,
+      estadoEvento: this.evento.estado,
+      aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
+      idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
+    };
   }
 
   /**

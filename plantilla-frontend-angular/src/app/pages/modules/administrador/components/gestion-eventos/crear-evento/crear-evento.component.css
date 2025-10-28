@@ -454,6 +454,22 @@
 .card-actions {
   display: flex;
   gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.saved-indicator {
+  color: #28a745;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.saved-indicator i {
+  font-size: 1.1rem;
 }
 
 /* Margin utilities */
