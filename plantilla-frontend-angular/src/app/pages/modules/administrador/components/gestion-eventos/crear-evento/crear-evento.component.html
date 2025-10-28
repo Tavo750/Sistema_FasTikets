@@ -37,7 +37,7 @@
             <input
               type="text"
               pInputText
-              [(ngModel)]="evento.titulo"
+              [(ngModel)]="evento.nombre"
               placeholder="Ej. Soda Stereo..."
               class="form-input"
             />
@@ -49,7 +49,7 @@
               Categoría del evento
             </label>
             <p-dropdown
-              [(ngModel)]="evento.categoria"
+              [(ngModel)]="evento.tipoEvento"
               [options]="categorias"
               optionLabel="label"
               optionValue="value"
@@ -82,6 +82,7 @@
                 [(ngModel)]="date"
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
+                (onSelect)="onFechaSeleccionada($event)"
               ></p-datepicker>
             </div>
 
@@ -94,6 +95,7 @@
                 [(ngModel)]="time"
                 [timeOnly]="true"
                 styleClass="form-input"
+                (onSelect)="onHoraInicioSeleccionada($event)"
               ></p-datepicker>
             </div>
 
@@ -106,6 +108,7 @@
                 [(ngModel)]="timeFinal"
                 [timeOnly]="true"
                 styleClass="form-input"
+                (onSelect)="onHoraFinalSeleccionada($event)"
               ></p-datepicker>
             </div>
           </div>
@@ -172,9 +175,9 @@
 
             <div class="banner-section">
               <!-- Mostrar imagen actual del banner -->
-              <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+              <div class="banner-display" *ngIf="formulario.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
                 <img
-                  [src]="evento.bannerUrl"
+                  [src]="formulario.bannerUrl"
                   alt="Banner del evento"
                   class="banner-imagen">
                 <div class="banner-overlay">
@@ -184,7 +187,7 @@
               </div>
 
               <!-- Área de subida cuando no hay imagen -->
-              <div class="upload-area" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
+              <div class="upload-area" (click)="fileInput.click()" *ngIf="!formulario.bannerUrl && !usarBannerDefault">
                 <i class="pi pi-cloud-upload"></i>
                 <p>Subir imagen del banner</p>
                 <small>JPG, PNG - Máximo 5MB</small>
@@ -200,7 +203,7 @@
               />
 
               <!-- Botones de acción para el banner -->
-              <div class="banner-actions" *ngIf="evento.bannerUrl">
+              <div class="banner-actions" *ngIf="formulario.bannerUrl">
                 <p-button
                   label="Cambiar"
                   icon="pi pi-upload"
@@ -257,7 +260,7 @@
             Seleccionar local
           </label>
           <p-dropdown
-            [(ngModel)]="evento.local"
+            [(ngModel)]="formulario.localString"
             [options]="localesOptions"
             optionLabel="label"
             optionValue="value"
@@ -323,7 +326,7 @@
               <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
                 <div class="categoria-info">
                   <span class="categoria-nombre">{{ categoria.nombre }}</span>
-                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMaximo }}</span>
+                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMax }}</span>
                 </div>
                 <p-button
                   icon="pi pi-trash"
@@ -345,9 +348,9 @@
 
             <div class="mapa-container">
               <!-- Mostrar imagen actual o por defecto -->
-              <div class="mapa-display" *ngIf="evento.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
+              <div class="mapa-display" *ngIf="formulario.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
                 <img
-                  [src]="evento.mapaUrl"
+                  [src]="formulario.mapaUrl"
                   alt="Mapa del local"
                   class="mapa-imagen">
                 <div class="mapa-overlay">
@@ -357,7 +360,7 @@
               </div>
 
               <!-- Área de subida cuando no hay imagen -->
-              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!formulario.mapaUrl && !usarMapaDefault">
                 <i class="pi pi-cloud-upload"></i>
                 <p>Subir mapa del local</p>
                 <small>JPG, PNG - Máximo 5MB</small>
@@ -373,7 +376,7 @@
               />
 
               <!-- Botones de acción para el mapa -->
-              <div class="mapa-actions" *ngIf="evento.mapaUrl">
+              <div class="mapa-actions" *ngIf="formulario.mapaUrl">
                 <p-button
                   label="Cambiar"
                   icon="pi pi-upload"
@@ -412,7 +415,7 @@
             Moneda
           </label>
           <p-dropdown
-            [(ngModel)]="evento.moneda"
+            [(ngModel)]="formulario.moneda"
             [options]="monedaOptions"
             optionLabel="label"
             optionValue="value"

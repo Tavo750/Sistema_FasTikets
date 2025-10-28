@@ -8,38 +8,12 @@ import { Data as LocalData } from '../../../interfaces/gestion-locales/local.int
 import { Data as ZonaData } from '../../../interfaces/gestion-evento/zona-categoria.interface';
 import { CrearEventoRequest } from '../../../interfaces/gestion-evento/evento.interface';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
+
 interface EstadoOption {
   label: string;
   value: string;
 }
 
-interface Evento {
-  titulo: string;
-  categoria: string;
-  descripcion: string;
-  dia: string;
-  mes: string;
-  anio: string;
-  hora: string;
-  minutos: string;
-  horaFinal: string;
-  minutosFinal: string;
-  estado: string;
-  videoPromocional: string; // Almacena la imagen del banner en base64 (se mapea a imagenUrl)
-  banner?: File | null;
-  bannerUrl?: string; // URL temporal para mostrar preview
-  local: string;
-  mapaUrl?: string;
-  mapaFile?: File | null;
-  moneda: string;
-}
-
-interface Categoria {
-  idZona: number;
-  nombre: string;
-  aforoMaximo: string;
-  aforoDisponible: string;
-}
 interface CategoriaEntrada {
   nombre: string;
   estado: string;
@@ -81,30 +55,32 @@ export class CrearEventoComponent implements OnInit{
   publicarAPartirDe: boolean = false;
   fechaPublicacion: Date | undefined;
 
-  evento: Evento = {
-    titulo: 'Electronic Festival',
-    categoria: 'ELECTRONICA',
-    descripcion: 'Descripción genérica de concierto porque no ando creativo.',
-     dia: '30',
-    mes: 'Julio',
-    anio: '2025',
-    hora: '23',
-    minutos: '00',
-    horaFinal: '01',
-    minutosFinal: '00',
-    estado: 'publicado',
-    videoPromocional: '', // Se llenará con la imagen del banner en base64
-    banner: null,
-    bannerUrl: '',
-    local: 'Parque de la exposición',
-    mapaUrl: '',
-    mapaFile: null,
-    moneda: 'Nuevo Sol'
+  // Evento principal usando la interfaz del backend
+  evento: CrearEventoRequest = {
+    nombre: '',
+    tipoEvento: '',
+    descripcion: '',
+    fechaEvento: '',
+    horaInicio: '',
+    horaFin: '',
+    estadoEvento: 'PUBLICADO',
+    imagenUrl: '', // Se llenará con la imagen del banner en base64
+    aforoDisponible: 1000,
+    idLocal: 1
+  };
 
+  // Campos auxiliares para el formulario (solo los necesarios)
+  formulario = {
+    localString: '', // Para el dropdown (string)
+    banner: null as File | null,
+    bannerUrl: '',
+    mapaUrl: '',
+    mapaFile: null as File | null,
+    moneda: 'Nuevo Sol'
   };
 
   estadoOptions: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
+    { label: 'PUBLICADO', value: 'PUBLICADO' },
     { label: 'FINALIZADO', value: 'finalizado' },
     { label: 'AGOTADO', value: 'agotado' }
   ];
@@ -129,7 +105,7 @@ export class CrearEventoComponent implements OnInit{
     { label: 'Urbano', value: 'URBANO' },
     { label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
   ];
-  categoriasLocal: Categoria[] = [];
+  categoriasLocal: ZonaData[] = [];
   entradas: { regular: TipoEntrada; preventa: TipoEntrada } = {
     regular: {
       nombre: 'Regular',
@@ -150,7 +126,7 @@ export class CrearEventoComponent implements OnInit{
   usarBannerDefault: boolean = false;
 
   estadoOption: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
+    { label: 'PUBLICADO', value: 'PUBLICADO' },
     { label: 'FINALIZADO', value: 'finalizado' },
     { label: 'AGOTADO', value: 'agotado' }
   ];
@@ -215,6 +191,92 @@ export class CrearEventoComponent implements OnInit{
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
+
+    // Inicializar formulario con datos del evento
+    this.inicializarFormularioDesdeEvento();
+  }
+
+  /**
+   * Inicializa los campos del formulario extrayendo los datos del evento
+   */
+  private inicializarFormularioDesdeEvento(): void {
+    // Extraer fecha de fechaEvento (formato: YYYY-MM-DD) y establecer en el datepicker
+    if (this.evento.fechaEvento) {
+      this.date = new Date(this.evento.fechaEvento);
+    }
+
+    // Extraer hora de horaInicio (formato: HH:MM:SS) y establecer en el datepicker
+    if (this.evento.horaInicio) {
+      const [hora, minutos] = this.evento.horaInicio.split(':');
+      const fechaInicio = new Date();
+      fechaInicio.setHours(parseInt(hora), parseInt(minutos), 0, 0);
+      this.time = [fechaInicio];
+    }
+
+    // Extraer hora de horaFin (formato: HH:MM:SS) y establecer en el datepicker
+    if (this.evento.horaFin) {
+      const [horaFinal, minutosFinal] = this.evento.horaFin.split(':');
+      const fechaFinal = new Date();
+      fechaFinal.setHours(parseInt(horaFinal), parseInt(minutosFinal), 0, 0);
+      this.timeFinal = [fechaFinal];
+    }
+
+    // Extraer banner de imagenUrl
+    if (this.evento.imagenUrl) {
+      this.formulario.bannerUrl = this.evento.imagenUrl;
+    }
+
+    // Inicializar localString con idLocal si existe
+    if (this.evento.idLocal) {
+      this.formulario.localString = this.evento.idLocal.toString();
+    }
+  }
+
+  /**
+   * Sincroniza los datos del formulario hacia el evento
+   * Se debe llamar antes de enviar datos al backend
+   */
+  private sincronizarFormularioAEvento(): void {
+    // Construir fechaEvento desde el datepicker
+    this.evento.fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Construir horaInicio y horaFin desde los datepickers
+    this.evento.horaInicio = this.time && this.time[0] ?
+      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    this.evento.horaFin = this.timeFinal && this.timeFinal[0] ?
+      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    // Sincronizar idLocal desde localString
+    if (this.formulario.localString) {
+      this.evento.idLocal = parseInt(this.formulario.localString);
+    }
+
+    // imagenUrl ya se sincroniza automáticamente cuando se carga el banner
+  }
+
+  /**
+   * Maneja la selección de fecha del datepicker
+   */
+  onFechaSeleccionada(fecha: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+    console.log('Fecha seleccionada:', fecha);
+  }
+
+  /**
+   * Maneja la selección de hora de inicio del datepicker
+   */
+  onHoraInicioSeleccionada(hora: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+    console.log('Hora inicio seleccionada:', hora);
+  }
+
+  /**
+   * Maneja la selección de hora final del datepicker
+   */
+  onHoraFinalSeleccionada(hora: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+    console.log('Hora final seleccionada:', hora);
   }
 
   cargarLocales(): void {
@@ -283,12 +345,7 @@ export class CrearEventoComponent implements OnInit{
           }
 
           // Actualizar categorías locales con las zonas cargadas
-          this.categoriasLocal = this.zonasDisponibles.map(zona => ({
-            idZona: zona.idZona,
-            nombre: zona.nombre,
-            aforoMaximo: zona.aforoMax.toString(),
-            aforoDisponible: zona.aforoMax.toString()
-          }));
+          this.categoriasLocal = this.zonasDisponibles;
 
           // Actualizar entradas con las categorías cargadas
           this.actualizarEntradasConCategorias(this.zonasDisponibles);
@@ -382,9 +439,9 @@ export class CrearEventoComponent implements OnInit{
    * Refresca la lista de zonas manualmente
    */
   refrescarZonas(): void {
-    if (this.evento.local && this.evento.local.trim() !== '') {
+    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
       this.messageService.info('Actualizando lista de zonas...', 'Cargando');
-      this.cargarZonas(parseInt(this.evento.local));
+      this.cargarZonas(parseInt(this.formulario.localString));
     } else {
       this.messageService.warn('Debe seleccionar un local para cargar las zonas', 'Local Requerido');
     }
@@ -445,7 +502,7 @@ export class CrearEventoComponent implements OnInit{
         return;
       }
 
-      this.evento.banner = file;
+      this.formulario.banner = file;
 
       // Convertir imagen a base64 para guardar en imagenUrl
       const reader = new FileReader();
@@ -453,10 +510,10 @@ export class CrearEventoComponent implements OnInit{
         const base64String = e.target.result;
 
         // Guardar la imagen en base64 para mostrar preview
-        this.evento.bannerUrl = base64String;
+        this.formulario.bannerUrl = base64String;
 
-        // Guardar la imagen en base64 en videoPromocional (que se mapea a imagenUrl)
-        this.evento.videoPromocional = base64String;
+        // Guardar la imagen en base64 en imagenUrl del evento
+        this.evento.imagenUrl = base64String;
 
         this.messageService.success('Banner cargado y convertido exitosamente', 'Archivo Procesado');
       };
@@ -482,9 +539,9 @@ export class CrearEventoComponent implements OnInit{
       event,
       '¿Estás seguro de que deseas eliminar el banner?',
       () => {
-        this.evento.bannerUrl = '';
-        this.evento.banner = null;
-        this.evento.videoPromocional = ''; // Limpiar también el campo que se envía al backend
+        this.formulario.bannerUrl = '';
+        this.formulario.banner = null;
+        this.evento.imagenUrl = ''; // Limpiar también el campo que se envía al backend
         this.usarBannerDefault = false;
         this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
       }
@@ -549,7 +606,7 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Verificar que se haya seleccionado un local
-    if (!this.evento.local || this.evento.local.trim() === '') {
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return;
     }
@@ -609,12 +666,12 @@ export class CrearEventoComponent implements OnInit{
   }
 
   validarFormulario(): boolean {
-    if (!this.evento.titulo || this.evento.titulo.trim() === '') {
+    if (!this.evento.nombre || this.evento.nombre.trim() === '') {
       this.messageService.error('El título es obligatorio', 'Campo Requerido');
       return false;
     }
 
-    if (!this.evento.categoria || this.evento.categoria.trim() === '') {
+    if (!this.evento.tipoEvento || this.evento.tipoEvento.trim() === '') {
       this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
       return false;
     }
@@ -624,26 +681,26 @@ export class CrearEventoComponent implements OnInit{
       return false;
     }
 
-    if (!this.evento.hora || !this.evento.minutos) {
+    if (!this.time || this.time.length === 0) {
       this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
       return false;
     }
 
-    if (!this.evento.horaFinal || !this.evento.minutosFinal) {
+    if (!this.timeFinal || this.timeFinal.length === 0) {
       this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
       return false;
     }
 
     // Validar que la hora final sea posterior a la hora de inicio
-    const horaInicio = parseInt(this.evento.hora) * 60 + parseInt(this.evento.minutos);
-    const horaFin = parseInt(this.evento.horaFinal) * 60 + parseInt(this.evento.minutosFinal);
+    const horaInicio = this.time[0];
+    const horaFinal = this.timeFinal[0];
 
-    if (horaFin <= horaInicio) {
+    if (horaFinal && horaInicio && horaFinal <= horaInicio) {
       this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
     }
 
-    if (!this.evento.local || this.evento.local.trim() === '') {
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return false;
     }
@@ -655,12 +712,12 @@ export class CrearEventoComponent implements OnInit{
    * Validaciones específicas para los datos generales (sección 1)
    */
   validarDatosGenerales(): boolean {
-    if (!this.evento.titulo || this.evento.titulo.trim() === '') {
+    if (!this.evento.nombre || this.evento.nombre.trim() === '') {
       this.messageService.error('El título es obligatorio', 'Campo Requerido');
       return false;
     }
 
-    if (!this.evento.categoria || this.evento.categoria.trim() === '') {
+    if (!this.evento.tipoEvento || this.evento.tipoEvento.trim() === '') {
       this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
       return false;
     }
@@ -670,20 +727,30 @@ export class CrearEventoComponent implements OnInit{
       return false;
     }
 
-    // Validar fecha del evento
-    if (!this.evento.dia || !this.evento.mes || !this.evento.anio) {
+    // Validar fecha del evento usando directamente el datepicker
+    if (!this.date) {
       this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
       return false;
     }
 
-    // Validar horas
-    if (!this.evento.hora || !this.evento.minutos) {
+    // Validar hora de inicio usando directamente el datepicker
+    if (!this.time || this.time.length === 0) {
       this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
       return false;
     }
 
-    if (!this.evento.horaFinal || !this.evento.minutosFinal) {
+    // Validar hora final usando directamente el datepicker
+    if (!this.timeFinal || this.timeFinal.length === 0) {
       this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que la hora final sea posterior a la hora de inicio
+    const horaInicio = this.time[0];
+    const horaFinal = this.timeFinal[0];
+
+    if (horaFinal && horaInicio && horaFinal <= horaInicio) {
+      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
     }
 
@@ -694,22 +761,28 @@ export class CrearEventoComponent implements OnInit{
    * Prepara los datos básicos del evento para la creación inicial
    */
   prepararDatosEventoBasicos(): CrearEventoRequest {
-    // Convertir la fecha a formato ISO
-    const fechaEvento = this.construirFechaEvento();
+    // Sincronizar datos del formulario al evento antes de preparar
+    this.sincronizarFormularioAEvento();
 
-    // Formatear horas
-    const horaInicio = `${this.evento.hora.padStart(2, '0')}:${this.evento.minutos.padStart(2, '0')}:00`;
-    const horaFin = `${this.evento.horaFinal.padStart(2, '0')}:${this.evento.minutosFinal.padStart(2, '0')}:00`;
+    // Convertir la fecha del datepicker a formato ISO
+    const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Formatear horas desde los datepickers
+    const horaInicio = this.time && this.time[0] ?
+      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    const horaFin = this.timeFinal && this.timeFinal[0] ?
+      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
 
     return {
-      nombre: this.evento.titulo.trim(),
+      nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.evento.videoPromocional || '',
-      tipoEvento: this.evento.categoria,
-      estadoEvento: this.evento.estado,
+      imagenUrl: this.evento.imagenUrl || '',
+      tipoEvento: this.evento.tipoEvento,
+      estadoEvento: this.evento.estadoEvento,
       aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
       idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
     };
@@ -719,29 +792,33 @@ export class CrearEventoComponent implements OnInit{
    * Validaciones adicionales específicas para crear evento
    */
   validarDatosCompletos(): boolean {
-    // Validar fecha del evento
-    if (!this.evento.dia || !this.evento.mes || !this.evento.anio) {
+    // Validar fecha del evento usando directamente el datepicker
+    if (!this.date) {
       this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
       return false;
     }
 
-    // Validar que el año sea válido
-    const anioActual = new Date().getFullYear();
-    const anioEvento = parseInt(this.evento.anio);
-    if (anioEvento < anioActual) {
-      this.messageService.error('El año del evento no puede ser anterior al año actual', 'Fecha Inválida');
+    // Validar que el año sea válido (no sea en el pasado)
+    const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparar solo fechas
+
+    const fechaEvento = new Date(this.date);
+    fechaEvento.setHours(0, 0, 0, 0);
+
+    if (fechaEvento < fechaActual) {
+      this.messageService.error('La fecha del evento no puede ser anterior a hoy', 'Fecha Inválida');
       return false;
     }
 
     // Validar que se haya seleccionado un local válido
-    if (!this.evento.local || this.evento.local === '') {
+    if (!this.formulario.localString || this.formulario.localString === '') {
       this.messageService.error('Debe seleccionar un local válido', 'Local Requerido');
       return false;
     }
 
     // Validar que el local seleccionado exista en la lista
     const localValido = this.localesDisponibles.find(local =>
-      local.idLocal.toString() === this.evento.local
+      local.idLocal.toString() === this.formulario.localString
     );
     if (!localValido) {
       this.messageService.error('El local seleccionado no es válido', 'Local Inválido');
@@ -773,74 +850,70 @@ export class CrearEventoComponent implements OnInit{
    * Prepara los datos del evento en el formato requerido por la API
    */
   prepararDatosEvento(): CrearEventoRequest {
-    // Convertir la fecha a formato ISO
-    const fechaEvento = this.construirFechaEvento();
+    // Sincronizar datos del formulario al evento antes de preparar
+    this.sincronizarFormularioAEvento();
 
-    // Formatear horas
-    const horaInicio = `${this.evento.hora.padStart(2, '0')}:${this.evento.minutos.padStart(2, '0')}:00`;
-    const horaFin = `${this.evento.horaFinal.padStart(2, '0')}:${this.evento.minutosFinal.padStart(2, '0')}:00`;
+    // Convertir la fecha del datepicker a formato ISO
+    const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Formatear horas desde los datepickers
+    const horaInicio = this.time && this.time[0] ?
+      `${this.time[0].getHours().toString().padStart(2, '0')}:${this.time[0].getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    const horaFin = this.timeFinal && this.timeFinal[0] ?
+      `${this.timeFinal[0].getHours().toString().padStart(2, '0')}:${this.timeFinal[0].getMinutes().toString().padStart(2, '0')}:00` : '';
 
     // Calcular aforo disponible total (suma de todas las categorías)
     const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
-      return total + parseInt(categoria.aforoMaximo);
+      return total + categoria.aforoMax;
     }, 0);
 
     return {
-      nombre: this.evento.titulo.trim(),
+      nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.evento.videoPromocional || '',
-      tipoEvento: this.evento.categoria,
-      estadoEvento: this.evento.estado,
+      imagenUrl: this.evento.imagenUrl || '',
+      tipoEvento: this.evento.tipoEvento,
+      estadoEvento: this.evento.estadoEvento,
       aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
-      idLocal: parseInt(this.evento.local)
+      idLocal: parseInt(this.formulario.localString)
     };
-  }
-
-  /**
-   * Construye la fecha del evento en formato ISO
-   */
-  private construirFechaEvento(): string {
-    const meses: { [key: string]: string } = {
-      'Enero': '01', 'Febrero': '02', 'Marzo': '03', 'Abril': '04',
-      'Mayo': '05', 'Junio': '06', 'Julio': '07', 'Agosto': '08',
-      'Septiembre': '09', 'Octubre': '10', 'Noviembre': '11', 'Diciembre': '12'
-    };
-
-    const mes = meses[this.evento.mes] || '01';
-    const dia = this.evento.dia.padStart(2, '0');
-    const anio = this.evento.anio;
-
-    return `${anio}-${mes}-${dia}`;
   }
 
   /**
    * Limpia todos los campos del formulario
    */
   private limpiarFormulario(): void {
-    // Resetear datos del evento
+    // Resetear datos del evento (backend)
     this.evento = {
-      titulo: '',
-      categoria: '',
+      nombre: '',
+      tipoEvento: '',
       descripcion: '',
-      dia: '',
-      mes: '',
-      anio: '',
-      hora: '',
-      minutos: '',
-      horaFinal: '',
-      minutosFinal: '',
-      estado: 'publicado',
-      videoPromocional: '',
+      fechaEvento: '',
+      horaInicio: '',
+      horaFin: '',
+      imagenUrl: '',
+      estadoEvento: 'PUBLICADO',
+      aforoDisponible: 1000,
+      idLocal: 1
+    };
+
+    // Resetear datos del formulario (UI) - solo campos necesarios
+    this.formulario = {
+      localString: '',
       banner: null,
       bannerUrl: '',
-      local: '',
       mapaUrl: '',
       mapaFile: null,
       moneda: 'Nuevo Sol'
     };
+
+    // Limpiar datepickers
+    this.date = undefined;
+    this.time = [];
+    this.timeFinal = [];
 
     // Limpiar entradas agregadas
     this.entradasAgregadas = [];
@@ -871,11 +944,32 @@ export class CrearEventoComponent implements OnInit{
    * Muestra un resumen del evento antes de crearlo
    */
   mostrarResumenEvento(): void {
+    // Formatear fecha desde el datepicker
+    const fechaFormateada = this.date ?
+      this.date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }) : 'No seleccionada';
+
+    // Formatear horas desde los datepickers
+    const horaInicio = this.time && this.time[0] ?
+      this.time[0].toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'No seleccionada';
+
+    const horaFinal = this.timeFinal && this.timeFinal[0] ?
+      this.timeFinal[0].toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'No seleccionada';
+
     const resumen = `
-      Título: ${this.evento.titulo}
-      Categoría: ${this.evento.categoria}
-      Fecha: ${this.evento.dia} de ${this.evento.mes} de ${this.evento.anio}
-      Hora: ${this.evento.hora}:${this.evento.minutos} - ${this.evento.horaFinal}:${this.evento.minutosFinal}
+      Título: ${this.evento.nombre}
+      Categoría: ${this.evento.tipoEvento}
+      Fecha: ${fechaFormateada}
+      Hora: ${horaInicio} - ${horaFinal}
       Local: ${this.obtenerNombreLocal()}
       Categorías: ${this.categoriasLocal.length}
       Entradas: ${this.entradasAgregadas.length}
@@ -888,10 +982,10 @@ export class CrearEventoComponent implements OnInit{
    * Obtiene el nombre del local seleccionado
    */
   private obtenerNombreLocal(): string {
-    if (!this.evento.local) return 'No seleccionado';
+    if (!this.formulario.localString) return 'No seleccionado';
 
     const local = this.localesDisponibles.find(l =>
-      l.idLocal.toString() === this.evento.local
+      l.idLocal.toString() === this.formulario.localString
     );
 
     return local ? `${local.nombre} - ${local.nombreDistrito}` : 'Local no encontrado';
@@ -915,12 +1009,12 @@ export class CrearEventoComponent implements OnInit{
       }
 
       // Validar que se haya seleccionado un local
-      if (!this.evento.local || this.evento.local.trim() === '') {
+      if (!this.formulario.localString || this.formulario.localString.trim() === '') {
         this.messageService.error('Primero debes seleccionar un local antes de subir la imagen del mapa', 'Local Requerido');
         return;
       }
 
-      this.evento.mapaFile = file;
+      this.formulario.mapaFile = file;
 
       // Convertir imagen a base64 y actualizar el local
       this.convertirImagenABase64YActualizarLocal(file);
@@ -945,7 +1039,7 @@ export class CrearEventoComponent implements OnInit{
         }
 
         // Guardar para preview
-        this.evento.mapaUrl = imagenComprimida;
+        this.formulario.mapaUrl = imagenComprimida;
 
         // Actualizar el local con la nueva imagen
         this.actualizarLocalConMapa(imagenComprimida);
@@ -1040,7 +1134,7 @@ export class CrearEventoComponent implements OnInit{
    * @param imagenBase64 String en base64 de la imagen
    */
   private actualizarLocalConMapa(imagenBase64: string): void {
-    const idLocal = parseInt(this.evento.local);
+    const idLocal = parseInt(this.formulario.localString);
 
     if (!idLocal || isNaN(idLocal)) {
       this.messageService.error('ID del local no válido', 'Error');
@@ -1086,8 +1180,8 @@ export class CrearEventoComponent implements OnInit{
         console.error('Error al actualizar local con mapa:', error);
 
         // Limpiar la imagen en caso de error
-        this.evento.mapaUrl = '';
-        this.evento.mapaFile = null;
+        this.formulario.mapaUrl = '';
+        this.formulario.mapaFile = null;
       }
     });
   }
@@ -1098,7 +1192,7 @@ export class CrearEventoComponent implements OnInit{
       '¿Estás seguro de que deseas eliminar la imagen del mapa? Esto también eliminará la imagen del local.',
       () => {
         // Limpiar la imagen del local si hay un local seleccionado
-        if (this.evento.local && this.evento.local.trim() !== '') {
+        if (this.formulario.localString && this.formulario.localString.trim() !== '') {
           this.eliminarImagenMapaDelLocal();
         } else {
           // Solo limpiar localmente si no hay local seleccionado
@@ -1112,7 +1206,7 @@ export class CrearEventoComponent implements OnInit{
    * Elimina la imagen del mapa del local en el servidor
    */
   private eliminarImagenMapaDelLocal(): void {
-    const idLocal = parseInt(this.evento.local);
+    const idLocal = parseInt(this.formulario.localString);
 
     if (!idLocal || isNaN(idLocal)) {
       this.messageService.error('ID del local no válido', 'Error');
@@ -1165,8 +1259,8 @@ export class CrearEventoComponent implements OnInit{
    * Limpia la imagen del mapa solo localmente (en el componente)
    */
   private limpiarImagenMapaLocal(): void {
-    this.evento.mapaUrl = '';
-    this.evento.mapaFile = null;
+    this.formulario.mapaUrl = '';
+    this.formulario.mapaFile = null;
     this.usarMapaDefault = false;
   }
 
@@ -1197,7 +1291,7 @@ export class CrearEventoComponent implements OnInit{
       precio: this.entradaPrecio,
       validoPara: this.validoPara,
       validoParaLabel: validoParaLabel,
-      moneda: this.evento.moneda || 'PEN'
+      moneda: this.formulario.moneda || 'PEN'
     };
 
     // Agregar la entrada al array
@@ -1236,7 +1330,7 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    if (!this.evento.local || this.evento.local.trim() === '') {
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
       return;
     }
@@ -1245,7 +1339,7 @@ export class CrearEventoComponent implements OnInit{
     const datosZona = {
       nombre: this.nuevaCategoria.nombre,
       aforoMax: this.nuevaCategoria.aforoMaximo,
-      idLocal: parseInt(this.evento.local)
+      idLocal: parseInt(this.formulario.localString)
     };
 
     // Llamar al servicio para crear la zona
@@ -1257,12 +1351,16 @@ export class CrearEventoComponent implements OnInit{
 
           if (zonaCreada) {
             // Agregar la nueva categoría a la lista local
-            const aforoMaximo = this.nuevaCategoria.aforoMaximo!.toString();
-            const nuevaCat: Categoria = {
+            const nuevaCat: ZonaData = {
               idZona: zonaCreada.idZona,
               nombre: this.nuevaCategoria.nombre,
-              aforoMaximo: aforoMaximo,
-              aforoDisponible: aforoMaximo // Inicialmente todo disponible
+              aforoMax: this.nuevaCategoria.aforoMaximo!,
+              usuarioCreacion: null,
+              usuarioActualizacion: null,
+              activo: true,
+              fechaCreacion: null,
+              fechaActualizacion: null,
+              idLocal: zonaCreada.idLocal
             };
 
             this.categoriasLocal.push(nuevaCat);
@@ -1388,11 +1486,11 @@ export class CrearEventoComponent implements OnInit{
    * Refresca las categorías del local actual después de cambios
    */
   refrescarCategoriasLocal(): void {
-    if (this.evento.local && this.evento.local.trim() !== '') {
+    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
       this.messageService.info('Actualizando categorías...', 'Cargando');
 
       // Volver a cargar las zonas desde el servidor para el local actual
-      this.cargarZonas(parseInt(this.evento.local));
+      this.cargarZonas(parseInt(this.formulario.localString));
     } else {
       this.messageService.warn('Debe seleccionar un local para actualizar las categorías', 'Local Requerido');
     }
