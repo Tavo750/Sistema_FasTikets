@@ -252,6 +252,7 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
     const localData: CrearLocalRequest = {
       nombre: formData.nombre,
       direccion: formData.direccion,
+      urlMapa:formData.urlMapa,
       aforoTotal: formData.aforoTotal,
       idDistrito: formData.idDistrito
     };

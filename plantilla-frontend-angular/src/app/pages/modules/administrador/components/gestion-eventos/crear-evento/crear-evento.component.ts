@@ -6,6 +6,8 @@ import { LocalService } from '../../../services/local.service';
 import { EventoService } from '../../../services/evento.service';
 import { Data as LocalData } from '../../../interfaces/gestion-locales/local.interface';
 import { Data as ZonaData } from '../../../interfaces/gestion-evento/zona-categoria.interface';
+import { CrearEventoRequest } from '../../../interfaces/gestion-evento/evento.interface';
+import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 interface EstadoOption {
   label: string;
   value: string;
@@ -216,11 +218,11 @@ export class CrearEventoComponent implements OnInit{
               }))
           ];
         } else {
-          this.messageService.error('No se pudieron cargar los locales', 'Error de Carga');
+          this.messageService.searchNoResults('No se pudieron cargar los locales');
         }
       },
       error: (error) => {
-        this.messageService.error('Error al conectar con el servidor', 'Error de Conexión');
+        this.messageService.handleHttpError(error);
 
         // Cargar opciones por defecto en caso de error
         this.localesOptions = [
@@ -273,14 +275,12 @@ export class CrearEventoComponent implements OnInit{
           // Actualizar entradas con las categorías cargadas
           this.actualizarEntradasConCategorias(this.zonasDisponibles);
 
-          this.messageService.success(
-            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`,
-            'Zonas Cargadas'
+          this.messageService.searchSuccess(
+            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`
           );
         } else {
-          this.messageService.error(
-            response.mensaje || 'No se pudieron cargar las zonas del local',
-            'Error de Carga'
+          this.messageService.searchNoResults(
+            response.mensaje || 'No se pudieron cargar las zonas del local'
           );
           this.zonasDisponibles = [];
         }
@@ -479,11 +479,40 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Aquí implementarías la lógica para guardar
-    // Por ejemplo, llamar a un servicio:
-    // this.eventoService.crearEvento(this.evento).subscribe(...)
+    // Validaciones adicionales específicas para crear evento
+    if (!this.validarDatosCompletos()) {
+      return;
+    }
 
-    this.messageService.success('Evento creado exitosamente', 'Evento Guardado');
+    // Mostrar resumen del evento
+    this.mostrarResumenEvento();
+
+    // Preparar datos para el servicio
+    const datosEvento = this.prepararDatosEvento();
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Creando evento...', 'Procesando');
+
+    // Llamar al servicio para crear el evento
+    this.eventoService.postCrearEvento(datosEvento).subscribe({
+      next: (response) => {
+        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
+
+        if (response.ok && response.data) {
+          // Limpiar formulario después de crear exitosamente
+          this.limpiarFormulario();
+
+          // Redirigir a la gestión de eventos después de crear exitosamente
+          setTimeout(() => {
+            this.router.navigate(['/administrador/gestionEventos']);
+          }, 2000);
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear evento:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
   }
 
   validarFormulario(): boolean {
@@ -528,6 +557,188 @@ export class CrearEventoComponent implements OnInit{
 
     return true;
   }
+
+  /**
+   * Validaciones adicionales específicas para crear evento
+   */
+  validarDatosCompletos(): boolean {
+    // Validar fecha del evento
+    if (!this.evento.dia || !this.evento.mes || !this.evento.anio) {
+      this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que el año sea válido
+    const anioActual = new Date().getFullYear();
+    const anioEvento = parseInt(this.evento.anio);
+    if (anioEvento < anioActual) {
+      this.messageService.error('El año del evento no puede ser anterior al año actual', 'Fecha Inválida');
+      return false;
+    }
+
+    // Validar que se haya seleccionado un local válido
+    if (!this.evento.local || this.evento.local === '') {
+      this.messageService.error('Debe seleccionar un local válido', 'Local Requerido');
+      return false;
+    }
+
+    // Validar que el local seleccionado exista en la lista
+    const localValido = this.localesDisponibles.find(local =>
+      local.idLocal.toString() === this.evento.local
+    );
+    if (!localValido) {
+      this.messageService.error('El local seleccionado no es válido', 'Local Inválido');
+      return false;
+    }
+
+    // Validar que existan categorías/zonas para el evento
+    if (this.categoriasLocal.length === 0) {
+      this.messageService.warn(
+        'Debe crear al menos una categoría/zona para el evento',
+        'Categorías Requeridas'
+      );
+      return false;
+    }
+
+    // Validar que existan entradas para el evento
+    if (this.entradasAgregadas.length === 0) {
+      this.messageService.warn(
+        'Debe agregar al menos un tipo de entrada para el evento',
+        'Entradas Requeridas'
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Prepara los datos del evento en el formato requerido por la API
+   */
+  prepararDatosEvento(): CrearEventoRequest {
+    // Convertir la fecha a formato ISO
+    const fechaEvento = this.construirFechaEvento();
+
+    // Formatear horas
+    const horaInicio = `${this.evento.hora.padStart(2, '0')}:${this.evento.minutos.padStart(2, '0')}:00`;
+    const horaFin = `${this.evento.horaFinal.padStart(2, '0')}:${this.evento.minutosFinal.padStart(2, '0')}:00`;
+
+    // Calcular aforo disponible total (suma de todas las categorías)
+    const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
+      return total + parseInt(categoria.aforoMaximo);
+    }, 0);
+
+    return {
+      nombre: this.evento.titulo.trim(),
+      descripcion: this.evento.descripcion.trim(),
+      fechaEvento: fechaEvento,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      imagenUrl: this.evento.videoPromocional || '',
+      tipoEvento: this.evento.categoria,
+      estadoEvento: this.evento.estado,
+      aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
+      idLocal: parseInt(this.evento.local)
+    };
+  }
+
+  /**
+   * Construye la fecha del evento en formato ISO
+   */
+  private construirFechaEvento(): string {
+    const meses: { [key: string]: string } = {
+      'Enero': '01', 'Febrero': '02', 'Marzo': '03', 'Abril': '04',
+      'Mayo': '05', 'Junio': '06', 'Julio': '07', 'Agosto': '08',
+      'Septiembre': '09', 'Octubre': '10', 'Noviembre': '11', 'Diciembre': '12'
+    };
+
+    const mes = meses[this.evento.mes] || '01';
+    const dia = this.evento.dia.padStart(2, '0');
+    const anio = this.evento.anio;
+
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  /**
+   * Limpia todos los campos del formulario
+   */
+  private limpiarFormulario(): void {
+    // Resetear datos del evento
+    this.evento = {
+      titulo: '',
+      categoria: '',
+      descripcion: '',
+      dia: '',
+      mes: '',
+      anio: '',
+      hora: '',
+      minutos: '',
+      horaFinal: '',
+      minutosFinal: '',
+      estado: 'publicado',
+      videoPromocional: '',
+      banner: null,
+      bannerUrl: '',
+      local: '',
+      mapaUrl: '',
+      mapaFile: null,
+      moneda: 'Nuevo Sol'
+    };
+
+    // Limpiar entradas agregadas
+    this.entradasAgregadas = [];
+    this.entradaNombre = '';
+    this.entradaPrecio = null;
+    this.validoPara = '';
+
+    // Limpiar categorías
+    this.categoriasLocal = [];
+    this.nuevaCategoria = {
+      nombre: '',
+      aforoMaximo: null
+    };
+
+    // Resetear opciones de publicación
+    this.publicarInmediatamente = true;
+    this.publicarAPartirDe = false;
+    this.fechaPublicacion = undefined;
+
+    // Resetear configuraciones de archivos
+    this.usarMapaDefault = false;
+    this.usarBannerDefault = false;
+
+    this.messageService.info('Formulario limpiado', 'Información');
+  }
+
+  /**
+   * Muestra un resumen del evento antes de crearlo
+   */
+  mostrarResumenEvento(): void {
+    const resumen = `
+      Título: ${this.evento.titulo}
+      Categoría: ${this.evento.categoria}
+      Fecha: ${this.evento.dia} de ${this.evento.mes} de ${this.evento.anio}
+      Hora: ${this.evento.hora}:${this.evento.minutos} - ${this.evento.horaFinal}:${this.evento.minutosFinal}
+      Local: ${this.obtenerNombreLocal()}
+      Categorías: ${this.categoriasLocal.length}
+      Entradas: ${this.entradasAgregadas.length}
+    `;
+
+    this.messageService.info(resumen, 'Resumen del Evento');
+  }
+
+  /**
+   * Obtiene el nombre del local seleccionado
+   */
+  private obtenerNombreLocal(): string {
+    if (!this.evento.local) return 'No seleccionado';
+
+    const local = this.localesDisponibles.find(l =>
+      l.idLocal.toString() === this.evento.local
+    );
+
+    return local ? `${local.nombre} - ${local.nombreDistrito}` : 'Local no encontrado';
+  }
   onMapaSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -546,30 +757,260 @@ export class CrearEventoComponent implements OnInit{
         return;
       }
 
+      // Validar que se haya seleccionado un local
+      if (!this.evento.local || this.evento.local.trim() === '') {
+        this.messageService.error('Primero debes seleccionar un local antes de subir la imagen del mapa', 'Local Requerido');
+        return;
+      }
+
       this.evento.mapaFile = file;
 
-      // Crear URL para mostrar preview
+      // Convertir imagen a base64 y actualizar el local
+      this.convertirImagenABase64YActualizarLocal(file);
+    }
+  }
+
+  /**
+   * Convierte la imagen del mapa a base64 y actualiza el local
+   * @param file Archivo de imagen seleccionado
+   */
+  private convertirImagenABase64YActualizarLocal(file: File): void {
+    // Comprimir y redimensionar la imagen antes de convertirla
+    this.comprimirImagen(file)
+      .then((imagenComprimida) => {
+        // Verificar que la imagen comprimida no exceda 500 caracteres
+        if (imagenComprimida.length > 500) {
+          this.messageService.error(
+            'La imagen es demasiado grande. Por favor, selecciona una imagen más pequeña o de menor resolución.',
+            'Imagen Muy Grande'
+          );
+          return;
+        }
+
+        // Guardar para preview
+        this.evento.mapaUrl = imagenComprimida;
+
+        // Actualizar el local con la nueva imagen
+        this.actualizarLocalConMapa(imagenComprimida);
+      })
+      .catch((error) => {
+        console.error('Error al comprimir imagen:', error);
+        this.messageService.error('Error al procesar la imagen. Por favor, intenta con otra imagen.', 'Error de Procesamiento');
+      });
+  }
+
+  /**
+   * Comprime y redimensiona una imagen para que sea lo más pequeña posible
+   * @param file Archivo de imagen original
+   * @returns Promise con la imagen comprimida en base64
+   */
+  private comprimirImagen(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      img.onload = () => {
+        // Calcular nuevas dimensiones (máximo 100x100 px para mantener tamaño pequeño)
+        const maxWidth = 100;
+        const maxHeight = 100;
+        let { width, height } = img;
+
+        // Mantener proporción
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+
+        // Configurar canvas
+        canvas.width = width;
+        canvas.height = height;
+
+        // Dibujar imagen redimensionada
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Intentar diferentes calidades de compresión hasta encontrar una que funcione
+        let quality = 0.1; // Comenzar con calidad muy baja
+        let imagenComprimida = '';
+
+        const intentarCompresion = () => {
+          imagenComprimida = canvas.toDataURL('image/jpeg', quality);
+
+          // Si la imagen es menor a 500 caracteres, usarla
+          if (imagenComprimida.length <= 500) {
+            resolve(imagenComprimida);
+            return;
+          }
+
+          // Si aún es muy grande y podemos reducir más la calidad
+          if (quality > 0.05) {
+            quality -= 0.02;
+            setTimeout(intentarCompresion, 10);
+          } else {
+            // Intentar con PNG si JPEG no funciona
+            imagenComprimida = canvas.toDataURL('image/png');
+            if (imagenComprimida.length <= 500) {
+              resolve(imagenComprimida);
+            } else {
+              reject(new Error('No se pudo comprimir la imagen lo suficiente'));
+            }
+          }
+        };
+
+        intentarCompresion();
+      };
+
+      img.onerror = () => {
+        reject(new Error('Error al cargar la imagen'));
+      };
+
+      // Crear URL de la imagen para cargarla
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.evento.mapaUrl = e.target.result;
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    });
+  }  /**
+   * Actualiza el local con la nueva imagen del mapa
+   * @param imagenBase64 String en base64 de la imagen
+   */
+  private actualizarLocalConMapa(imagenBase64: string): void {
+    const idLocal = parseInt(this.evento.local);
 
-      this.messageService.success('Imagen del mapa cargada exitosamente', 'Archivo Cargado');
+    if (!idLocal || isNaN(idLocal)) {
+      this.messageService.error('ID del local no válido', 'Error');
+      return;
     }
+
+    // Buscar los datos del local seleccionado
+    const localSeleccionado = this.localesDisponibles.find(local =>
+      local.idLocal === idLocal
+    );
+
+    if (!localSeleccionado) {
+      this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
+      return;
+    }
+
+    // Preparar datos para actualizar el local
+    const datosLocal: CrearLocalRequest = {
+      nombre: localSeleccionado.nombre,
+      direccion: localSeleccionado.direccion,
+      urlMapa: imagenBase64, // Aquí se guarda la imagen en base64
+      aforoTotal: localSeleccionado.aforoTotal,
+      idDistrito: localSeleccionado.idDistrito
+    };
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Actualizando imagen del mapa...', 'Procesando');
+
+    // Llamar al servicio para actualizar el local
+    this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
+      next: (response) => {
+        this.messageService.success(
+          'Imagen del mapa actualizada exitosamente en el local',
+          'Operación Exitosa'
+        );
+        console.log('Local actualizado con imagen del mapa:', response);
+      },
+      error: (error) => {
+        this.messageService.error(
+          'Error al actualizar la imagen del mapa en el local: ' + (error.message || 'Error desconocido'),
+          'Error'
+        );
+        console.error('Error al actualizar local con mapa:', error);
+
+        // Limpiar la imagen en caso de error
+        this.evento.mapaUrl = '';
+        this.evento.mapaFile = null;
+      }
+    });
   }
 
   onEliminarMapa(event: any): void {
     this.confirmPopupService.confirmDelete(
       event,
-      '¿Estás seguro de que deseas eliminar la imagen del mapa?',
+      '¿Estás seguro de que deseas eliminar la imagen del mapa? Esto también eliminará la imagen del local.',
       () => {
-        this.evento.mapaUrl = '';
-        this.evento.mapaFile = null;
-        this.usarMapaDefault = false;
-        this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
+        // Limpiar la imagen del local si hay un local seleccionado
+        if (this.evento.local && this.evento.local.trim() !== '') {
+          this.eliminarImagenMapaDelLocal();
+        } else {
+          // Solo limpiar localmente si no hay local seleccionado
+          this.limpiarImagenMapaLocal();
+        }
       }
     );
+  }
+
+  /**
+   * Elimina la imagen del mapa del local en el servidor
+   */
+  private eliminarImagenMapaDelLocal(): void {
+    const idLocal = parseInt(this.evento.local);
+
+    if (!idLocal || isNaN(idLocal)) {
+      this.messageService.error('ID del local no válido', 'Error');
+      return;
+    }
+
+    // Buscar los datos del local seleccionado
+    const localSeleccionado = this.localesDisponibles.find(local =>
+      local.idLocal === idLocal
+    );
+
+    if (!localSeleccionado) {
+      this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
+      return;
+    }
+
+    // Preparar datos para actualizar el local (sin imagen del mapa)
+    const datosLocal: CrearLocalRequest = {
+      nombre: localSeleccionado.nombre,
+      direccion: localSeleccionado.direccion,
+      urlMapa: '', // Eliminar la imagen del mapa
+      aforoTotal: localSeleccionado.aforoTotal,
+      idDistrito: localSeleccionado.idDistrito
+    };
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Eliminando imagen del mapa...', 'Procesando');
+
+    // Llamar al servicio para actualizar el local
+    this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
+      next: (response) => {
+        this.limpiarImagenMapaLocal();
+        this.messageService.success(
+          'Imagen del mapa eliminada exitosamente del local',
+          'Operación Exitosa'
+        );
+        console.log('Local actualizado - imagen del mapa eliminada:', response);
+      },
+      error: (error) => {
+        this.messageService.error(
+          'Error al eliminar la imagen del mapa del local: ' + (error.message || 'Error desconocido'),
+          'Error'
+        );
+        console.error('Error al eliminar imagen del mapa del local:', error);
+      }
+    });
+  }
+
+  /**
+   * Limpia la imagen del mapa solo localmente (en el componente)
+   */
+  private limpiarImagenMapaLocal(): void {
+    this.evento.mapaUrl = '';
+    this.evento.mapaFile = null;
+    this.usarMapaDefault = false;
   }
 
   onAgregarEntrada(): void {

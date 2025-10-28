@@ -1,3 +1,4 @@
+import { url } from './../../../../../../global';
 import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -310,6 +311,7 @@ localForm: FormGroup;
     const localData: CrearLocalRequest = {
       nombre: formData.nombre,
       direccion: formData.direccion,
+      urlMapa:formData.urlMapa,
       aforoTotal: formData.aforo,
       idDistrito: this.distritosMap.get(formData.distrito) || 1 // Obtener el ID del distrito
     };
