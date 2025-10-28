@@ -6,6 +6,8 @@ import { HttpUtilsService } from '../../../../shared/services/http-utils.service
 import { ZonaCategoriaResponse } from '../interfaces/gestion-evento/zona-categoria.interface';
 import { baseUrl } from '../../../../global';
 import { EliminaZonaResponse } from '../interfaces/gestion-evento/elimina-zona.interface';
+import { CrearEventoResponse, CrearEventoRequest } from '../interfaces/gestion-evento/evento.interface';
+import { EliminaEventoResponse } from '../interfaces/gestion-evento/elimina-evento.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +63,43 @@ export class EventoService {
 
   // ========================= datos generales evento  ======================
 
+  /**
+   * Crea un nuevo evento
+   * @param body Datos del evento a crear
+   * @returns Observable con la respuesta del servidor
+   */
+  postCrearEvento(body: CrearEventoRequest): Observable<CrearEventoResponse> {
+    const url = `${baseUrl}/eventos`;
+    return this.http.post<CrearEventoResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
 
+  /**
+   *  Obtiene la lista de eventos
+   * @returns   Observable con la respuesta que contiene la lista de eventos
+   *
+   */
+  getListarEventos(): Observable<CrearEventoResponse> {
+    const url = `${baseUrl}/eventos`;
+    return this.http.get<CrearEventoResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+  /**
+   *
+   * @param id
+   * @returns
+   */
 
+  deleteEvento(id: number): Observable<EliminaEventoResponse> {
+    const url = `${baseUrl}/eventos/${id}`;
+    return this.http.delete<CrearEventoResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
 
 }

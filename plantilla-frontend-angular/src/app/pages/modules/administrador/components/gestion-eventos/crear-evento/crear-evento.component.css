@@ -135,6 +135,10 @@
   gap: 1rem;
 }
 
+.form-row.three-columns {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 /* Banner Section */
 .banner-section {
   display: flex;
@@ -498,6 +502,10 @@
     grid-template-columns: 1fr;
   }
 
+  .form-row.three-columns {
+    grid-template-columns: 1fr;
+  }
+
   .limite-option {
     flex-direction: column;
     align-items: flex-start;
@@ -590,4 +598,84 @@
 ::ng-deep .p-radiobutton .p-radiobutton-box.p-highlight {
   background: #1976d2;
   border-color: #1976d2;
+}
+
+/* Entradas Agregadas Section - Mismo estilo que categorías */
+.entradas-agregadas-section {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.entradas-agregadas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.entrada-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #10b981;
+}
+
+.entrada-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.entrada-nombre {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.entrada-precio {
+  font-size: 0.85rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.entrada-categoria {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Mensaje cuando no hay entradas - Estilo simplificado */
+.no-entradas-message {
+  text-align: center;
+  padding: 1.5rem;
+  color: #64748b;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.no-entradas-message i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #94a3b8;
+}
+
+.no-entradas-message p {
+  margin: 0;
+}
+
+/* Responsive para entradas agregadas - Mismo comportamiento que categorías */
+@media (max-width: 768px) {
+  .entrada-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .entrada-info {
+    align-items: flex-start;
+  }
 }

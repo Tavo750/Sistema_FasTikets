@@ -5,6 +5,7 @@ import { ConfirmPopupService } from '../../../../../../core/services/confirm-pop
 import { LocalService } from '../../../services/local.service';
 import { EventoService } from '../../../services/evento.service';
 import { Data as LocalData } from '../../../interfaces/gestion-locales/local.interface';
+import { Data as ZonaData } from '../../../interfaces/gestion-evento/zona-categoria.interface';
 interface EstadoOption {
   label: string;
   value: string;
@@ -19,6 +20,8 @@ interface Evento {
   anio: string;
   hora: string;
   minutos: string;
+  horaFinal: string;
+  minutosFinal: string;
   estado: string;
   videoPromocional: string;
   banner?: File | null;
@@ -45,22 +48,20 @@ interface TipoEntrada {
   categorias: CategoriaEntrada[];
 }
 
+interface EntradaAgregada {
+  id: number;
+  nombre: string;
+  precio: number;
+  validoPara: string;
+  validoParaLabel: string;
+  moneda: string;
+}
+
 interface LimiteCompra {
   tipo: 'sinLimite' | 'conMaximo';
   maximo: number;
 }
 
-interface ZonaEvento {
-  idZona: number;
-  aforoMax: number;
-  nombre: string;
-  activo: boolean;
-  idLocal: number;
-  usuarioCreacion?: any;
-  usuarioActualizacion?: any;
-  fechaCreacion?: any;
-  fechaActualizacion?: any;
-}
 
 @Component({
   selector: 'app-crear-evento',
@@ -71,6 +72,7 @@ interface ZonaEvento {
 export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
   time: Date[] | undefined;
+  timeFinal: Date[] | undefined;
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;
@@ -86,6 +88,8 @@ export class CrearEventoComponent implements OnInit{
     anio: '2025',
     hora: '23',
     minutos: '00',
+    horaFinal: '01',
+    minutosFinal: '00',
     estado: 'publicado',
     videoPromocional: 'Link completamente normal...',
     banner: null,
@@ -151,6 +155,10 @@ export class CrearEventoComponent implements OnInit{
   entradaPrecio: number | null = null;
   validoPara: string = '';
 
+  // Array para almacenar las entradas agregadas
+  entradasAgregadas: EntradaAgregada[] = [];
+  proximoIdEntrada: number = 1;
+
   // Opciones dinámicas para el dropdown "Válido para" - se llena con datos de getListarZonas
   validoParaOptions: EstadoOption[] = [{ label: 'Seleccionar', value: '' }];
 
@@ -160,7 +168,7 @@ export class CrearEventoComponent implements OnInit{
   cargandoLocales: boolean = false;
 
   // Propiedades para el manejo de zonas/categorías
-  zonasDisponibles: ZonaEvento[] = [];
+  zonasDisponibles: ZonaData[] = [];
   cargandoZonas: boolean = false;
 
   nuevaCategoria = {
@@ -292,7 +300,7 @@ export class CrearEventoComponent implements OnInit{
    * Actualiza las entradas con las categorías disponibles
    * @param zonas Array de zonas del local
    */
-  actualizarEntradasConCategorias(zonas: ZonaEvento[]): void {
+  actualizarEntradasConCategorias(zonas: ZonaData[]): void {
     const categoriasEntrada = zonas.map(zona => ({
       nombre: zona.nombre,
       estado: 'activo'
@@ -338,10 +346,17 @@ export class CrearEventoComponent implements OnInit{
 
         // Cargar las zonas específicas del local seleccionado
         this.cargarZonas(parseInt(idLocal));
+
+        // Limpiar entradas agregadas cuando se cambia el local
+        if (this.entradasAgregadas.length > 0) {
+          this.entradasAgregadas = [];
+          this.messageService.info('Se limpiaron las entradas debido al cambio de local', 'Información');
+        }
       }
     } else {
       // Si no hay local seleccionado, limpiar las categorías y entradas
       this.cargarZonas(); // Esto limpiará las zonas ya que no se pasa parámetro
+      this.entradasAgregadas = [];
     }
   }
 
@@ -362,7 +377,7 @@ export class CrearEventoComponent implements OnInit{
    * @param idZona ID de la zona
    * @returns Datos de la zona o null si no se encuentra
    */
-  obtenerDetalleZona(idZona: number): ZonaEvento | null {
+  obtenerDetalleZona(idZona: number): ZonaData | null {
     if (!this.zonasDisponibles) return null;
 
     return this.zonasDisponibles.find(zona => zona.idZona === idZona) || null;
@@ -372,7 +387,7 @@ export class CrearEventoComponent implements OnInit{
    * Obtiene todas las zonas disponibles (sin filtrar por local)
    * @returns Array de todas las zonas activas
    */
-  obtenerTodasLasZonas(): ZonaEvento[] {
+  obtenerTodasLasZonas(): ZonaData[] {
     return this.zonasDisponibles.filter(zona => zona.activo);
   }
 
@@ -488,7 +503,21 @@ export class CrearEventoComponent implements OnInit{
     }
 
     if (!this.evento.hora || !this.evento.minutos) {
-      this.messageService.error('La hora completa es obligatoria', 'Campo Requerido');
+      this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.horaFinal || !this.evento.minutosFinal) {
+      this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que la hora final sea posterior a la hora de inicio
+    const horaInicio = parseInt(this.evento.hora) * 60 + parseInt(this.evento.minutos);
+    const horaFin = parseInt(this.evento.horaFinal) * 60 + parseInt(this.evento.minutosFinal);
+
+    if (horaFin <= horaInicio) {
+      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
     }
 
@@ -559,8 +588,22 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Aquí puedes implementar la lógica para agregar la entrada a una lista
-    // Por ejemplo, agregar a un array de entradas
+    // Buscar el label de la categoría seleccionada
+    const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
+    const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+
+    // Crear la nueva entrada
+    const nuevaEntrada: EntradaAgregada = {
+      id: this.proximoIdEntrada++,
+      nombre: this.entradaNombre.trim(),
+      precio: this.entradaPrecio,
+      validoPara: this.validoPara,
+      validoParaLabel: validoParaLabel,
+      moneda: this.evento.moneda || 'PEN'
+    };
+
+    // Agregar la entrada al array
+    this.entradasAgregadas.push(nuevaEntrada);
 
     // Limpiar los campos después de agregar
     this.entradaNombre = '';
@@ -568,6 +611,20 @@ export class CrearEventoComponent implements OnInit{
     this.validoPara = '';
 
     this.messageService.success('Entrada agregada exitosamente', 'Operación Exitosa');
+  }
+
+  onEliminarEntrada(entradaId: number, event: Event): void {
+    event.stopPropagation();
+
+    this.confirmPopupService.confirmDelete(
+      event,
+      '¿Estás seguro de que deseas eliminar esta entrada?',
+      () => {
+        // Filtrar el array para eliminar la entrada con el ID especificado
+        this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.id !== entradaId);
+        this.messageService.success('Entrada eliminada exitosamente', 'Operación Exitosa');
+      }
+    );
   }
 
   onAgregarCategoria(): void {
@@ -596,28 +653,38 @@ export class CrearEventoComponent implements OnInit{
     // Llamar al servicio para crear la zona
     this.eventoService.postCrearZona(datosZona).subscribe({
       next: (response) => {
-        if (response.ok) {
-          // Agregar la nueva categoría a la lista local
-          const aforoMaximo = this.nuevaCategoria.aforoMaximo!.toString();
-          const nuevaCat: Categoria = {
-            idZona: response.data.idZona,
-            nombre: this.nuevaCategoria.nombre,
-            aforoMaximo: aforoMaximo,
-            aforoDisponible: aforoMaximo // Inicialmente todo disponible
-          };
+        if (response.ok && response.data) {
+          // Para postCrearZona, response.data debería ser un objeto único, no un array
+          const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
 
-          this.categoriasLocal.push(nuevaCat);
+          if (zonaCreada) {
+            // Agregar la nueva categoría a la lista local
+            const aforoMaximo = this.nuevaCategoria.aforoMaximo!.toString();
+            const nuevaCat: Categoria = {
+              idZona: zonaCreada.idZona,
+              nombre: this.nuevaCategoria.nombre,
+              aforoMaximo: aforoMaximo,
+              aforoDisponible: aforoMaximo // Inicialmente todo disponible
+            };
 
-          // Limpiar los campos
-          this.nuevaCategoria = {
-            nombre: '',
-            aforoMaximo: null
-          };
+            this.categoriasLocal.push(nuevaCat);
 
-          this.messageService.success(
-            response.mensaje || 'Categoría creada exitosamente',
-            'Operación Exitosa'
-          );
+            // Limpiar los campos
+            this.nuevaCategoria = {
+              nombre: '',
+              aforoMaximo: null
+            };
+
+            this.messageService.success(
+              response.mensaje || 'Categoría creada exitosamente',
+              'Operación Exitosa'
+            );
+          } else {
+            this.messageService.error(
+              'No se recibieron datos de la zona creada',
+              'Error en la Operación'
+            );
+          }
         } else {
           this.messageService.error(
             response.mensaje || 'Error al crear la categoría',
@@ -686,9 +753,21 @@ export class CrearEventoComponent implements OnInit{
     this.entradas.preventa.categorias = this.entradas.preventa.categorias
       .filter(cat => cat.nombre !== nombreCategoria);
 
+    // Filtrar las entradas agregadas que correspondan a la categoría eliminada
+    const entradasEliminadas = this.entradasAgregadas.filter(entrada => entrada.validoParaLabel === nombreCategoria);
+    this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.validoParaLabel !== nombreCategoria);
+
     // Actualizar las opciones del dropdown validoPara
     this.validoParaOptions = this.validoParaOptions
       .filter(option => option.label !== nombreCategoria);
+
+    // Mostrar mensaje si se eliminaron entradas
+    if (entradasEliminadas.length > 0) {
+      this.messageService.info(
+        `Se eliminaron ${entradasEliminadas.length} entrada(s) asociada(s) a la categoría "${nombreCategoria}"`,
+        'Entradas Actualizadas'
+      );
+    }
   }
 
   /**
@@ -752,6 +831,20 @@ export class CrearEventoComponent implements OnInit{
     if (this.publicarAPartirDe) {
       this.publicarInmediatamente = false;
     }
+  }
+
+  /**
+   * Obtiene el símbolo de la moneda basado en el código
+   * @param monedaCodigo Código de la moneda (PEN, USD, EUR)
+   * @returns Símbolo de la moneda
+   */
+  obtenerSimboloMoneda(monedaCodigo: string): string {
+    const simbolos: { [key: string]: string } = {
+      'PEN': 'S/.',
+      'USD': '$',
+      'EUR': '€'
+    };
+    return simbolos[monedaCodigo] || monedaCodigo;
   }
 
 }

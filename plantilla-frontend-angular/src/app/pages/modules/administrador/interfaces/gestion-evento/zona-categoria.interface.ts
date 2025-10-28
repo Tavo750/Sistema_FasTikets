@@ -1,7 +1,7 @@
 export interface ZonaCategoriaResponse {
   ok:      boolean;
   mensaje: string;
-  data:    Data;
+  data:    Data | Data[];
 }
 
 export interface Data {

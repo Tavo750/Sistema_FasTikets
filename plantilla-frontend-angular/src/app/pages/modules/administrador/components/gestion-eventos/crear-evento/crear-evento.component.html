@@ -72,7 +72,7 @@
             ></textarea>
           </div>
 
-          <div class="form-row">
+          <div class="form-row three-columns">
             <div class="form-field">
               <label class="field-label">
                 <i class="pi pi-calendar"></i>
@@ -92,6 +92,18 @@
               </label>
               <p-datepicker
                 [(ngModel)]="time"
+                [timeOnly]="true"
+                styleClass="form-input"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-clock"></i>
+                Hora de finalización
+              </label>
+              <p-datepicker
+                [(ngModel)]="timeFinal"
                 [timeOnly]="true"
                 styleClass="form-input"
               ></p-datepicker>
@@ -448,6 +460,32 @@
               (onClick)="onAgregarEntrada()"
               class="form-input agregar-btn"
             ></p-button>
+          </div>
+        </div>
+
+        <!-- Lista de entradas agregadas -->
+        <div class="entradas-agregadas-section" *ngIf="entradasAgregadas && entradasAgregadas.length > 0">
+          <h4 class="subsection-title">
+            <i class="pi pi-list"></i>
+            Entradas agregadas ({{ entradasAgregadas.length }})
+          </h4>
+
+          <div class="entradas-agregadas">
+            <h5>Entradas agregadas:</h5>
+            <div class="entrada-item" *ngFor="let entrada of entradasAgregadas">
+              <div class="entrada-info">
+                <span class="entrada-nombre">{{ entrada.nombre }}</span>
+                <span class="entrada-precio">{{ obtenerSimboloMoneda(entrada.moneda) }} {{ entrada.precio | number:'1.2-2' }}</span>
+                <span class="entrada-categoria">{{ entrada.validoParaLabel }}</span>
+              </div>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                text="true"
+                (click)="onEliminarEntrada(entrada.id, $event)"
+                pTooltip="Eliminar entrada"
+              ></p-button>
+            </div>
           </div>
         </div>
 
