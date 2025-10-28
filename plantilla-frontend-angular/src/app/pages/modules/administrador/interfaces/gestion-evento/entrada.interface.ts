@@ -4,6 +4,12 @@ export interface EntradaResponse {
   data:    Data;
 }
 
+export interface EntradaResponseArray {
+  ok:      boolean;
+  mensaje: string;
+  data:    Data[];
+}
+
 export interface Data {
   idTipoTicket:     number;
   nombre:           string;

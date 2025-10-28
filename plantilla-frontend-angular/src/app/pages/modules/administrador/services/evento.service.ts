@@ -8,7 +8,7 @@ import { baseUrl } from '../../../../global';
 import { EliminaZonaResponse } from '../interfaces/gestion-evento/elimina-zona.interface';
 import { CrearEventoResponse, CrearEventoRequest } from '../interfaces/gestion-evento/evento.interface';
 import { EliminaEventoResponse } from '../interfaces/gestion-evento/elimina-evento.interface';
-import { EntradaResponse } from '../interfaces/gestion-evento/entrada.interface';
+import { EntradaResponse, EntradaResponseArray } from '../interfaces/gestion-evento/entrada.interface';
 import { EliminaEntradaResponse } from '../interfaces/gestion-evento/elimina-entrada.interface';
 
 @Injectable({
@@ -90,6 +90,19 @@ export class EventoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Obtiene un evento por su ID
+   * @param id ID del evento a obtener
+   * @returns Observable con la respuesta que contiene los datos del evento
+   */
+  getEventoPorId(id: number): Observable<CrearEventoResponse> {
+    const url = `${baseUrl}/eventos/${id}`;
+    return this.http.get<CrearEventoResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
   /**
    *
    * @param id
@@ -122,6 +135,14 @@ export class EventoService {
   getListarEntradas(): Observable<EntradaResponse> {
     const url = `${baseUrl}/tipos-ticket`;
     return this.http.get<EntradaResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  getListarEntradasID(idZona: number): Observable<EntradaResponseArray> {
+    const url = `${baseUrl}/tipos-ticket?idZona=${idZona}`;
+    return this.http.get<EntradaResponseArray>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );

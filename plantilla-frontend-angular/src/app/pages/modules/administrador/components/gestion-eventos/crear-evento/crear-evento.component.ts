@@ -99,7 +99,7 @@ export class CrearEventoComponent implements OnInit{
     { label: 'Reggae', value: 'REGGAE' },
     //{ label: 'Festival', value: 'FESTIVAL' },
     //{ label: 'Taller', value: 'TALLER' },
-    { label: 'Reggaetón', value: 'REGGAETON' },
+    //{ label: 'Reggaetón', value: 'REGGAETON' },
     //{ label: 'Cine', value: 'CINE' },
     //{ label: 'Otro', value: 'OTRO' },
     { label: 'Electrónica', value: 'ELECTRONICA' },
