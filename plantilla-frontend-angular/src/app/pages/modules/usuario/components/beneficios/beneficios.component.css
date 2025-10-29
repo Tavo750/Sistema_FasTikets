@@ -1,0 +1,41 @@
+.beneficios-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.greeting-card { padding: .75rem 1rem; }
+
+.tier-badge {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.points-card .points-number {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.progress-banner {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: .75rem;
+}
+
+.membership-item {
+  background: #f7f8f9;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  gap: .5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.membership-item img {
+  width: 110px; /* ajusta al tamaño de tus svg/png */
+  height: auto;
+  display: block;
+}
+

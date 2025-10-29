@@ -293,3 +293,38 @@
 .card{
   padding-bottom: 2.5rem;
 }
+
+/* Contenedor en fila */
+.membership-row {
+  display: flex;
+  gap: 24px;                  /* separación entre tarjetas */
+  justify-content: space-around;
+  align-items: stretch;
+  flex-wrap: wrap;            /* permite pasar a otra línea en pantallas chicas */
+  padding: 8px 4px;
+}
+
+/* Cada lingote (columna fija) */
+.membership-item {
+  flex: 0 1 160px;            /* ancho objetivo ~160px, permite wrap */
+  background: #f7f8f9;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  transition: box-shadow .2s ease, transform .15s ease;
+}
+
+.membership-item img {
+  width: 110px;
+  height: auto;
+  display: block;
+}
+
+/* (Opcional) hover bonito */
+.membership-item:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+}
