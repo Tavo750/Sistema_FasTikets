@@ -59,7 +59,7 @@ export class EditarEventoComponent implements OnInit{
       horaInicio: '',
       horaFin: '',
       estadoEvento: 'PUBLICADO',
-      imagenUrl: '', // Se llenará con la imagen del banner en base64
+      imagenUrl: null as any, // Se llenará con el archivo del banner
       aforoDisponible: 1000,
       idLocal: 1
     };
@@ -222,11 +222,6 @@ export class EditarEventoComponent implements OnInit{
       const horaFinal = new Date();
       horaFinal.setHours(ahora.getHours() + 3, 0, 0, 0);
       this.timeFinal = horaFinal;
-
-      console.log('Horas inicializadas por defecto:', {
-        inicio: this.time,
-        final: this.timeFinal
-      });
     }
 
     cargarEvento(): void {
@@ -237,13 +232,11 @@ export class EditarEventoComponent implements OnInit{
         this.idEvento = parseInt(eventoId, 10);
         this.modoEdicion = true;
         this.cargandoEvento = true;
-        console.log('ID del evento a editar:', this.idEvento);
 
         // Cargar los datos del evento desde el backend
         this.eventoService.getEventoPorId(this.idEvento).subscribe({
           next: (response) => {
             if (response.ok && response.data) {
-              console.log('Datos del evento cargados:', response.data);
 
               // Si data es un array, tomar el primer elemento
               const eventoData = Array.isArray(response.data) ? response.data[0] : response.data;
@@ -289,7 +282,6 @@ export class EditarEventoComponent implements OnInit{
         // Si no hay ID, estamos en modo creación
         this.modoEdicion = false;
         this.idEvento = null;
-        console.log('Modo creación de evento');
 
         // Inicializar formulario con datos por defecto
         this.inicializarFormularioDesdeEvento();
@@ -321,9 +313,16 @@ export class EditarEventoComponent implements OnInit{
         this.timeFinal = fechaFinal;
       }
 
-      // Extraer banner de imagenUrl
+      // Extraer banner de imagenUrl (ahora es un File, no string)
       if (this.evento.imagenUrl) {
-        this.formulario.bannerUrl = this.evento.imagenUrl;
+        // Si estamos editando un evento existente y hay una imagen File
+        // Crear un preview para mostrar en la UI
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.formulario.bannerUrl = e.target.result;
+        };
+        reader.readAsDataURL(this.evento.imagenUrl);
+        this.formulario.banner = this.evento.imagenUrl;
       }
 
       // Inicializar localString con idLocal solo si estamos editando un evento existente
@@ -360,33 +359,12 @@ export class EditarEventoComponent implements OnInit{
      * Método de debug para verificar el estado de los datepickers
      */
     private verificarDatepickers(): void {
-      console.log('=== VERIFICACIÓN DE DATEPICKERS ===');
-      console.log('this.date:', this.date);
-      console.log('this.time:', this.time);
-      console.log('this.timeFinal:', this.timeFinal);
-
-      if (this.time) {
-        console.log('Hora inicio - valor:', this.time);
-        console.log('Hora inicio - horas:', this.time.getHours());
-        console.log('Hora inicio - minutos:', this.time.getMinutes());
-      } else {
-        console.log('⚠️ PROBLEMA: this.time está vacío o undefined');
-      }
-
-      if (this.timeFinal) {
-        console.log('Hora final - valor:', this.timeFinal);
-        console.log('Hora final - horas:', this.timeFinal.getHours());
-        console.log('Hora final - minutos:', this.timeFinal.getMinutes());
-      } else {
-        console.log('⚠️ PROBLEMA: this.timeFinal está vacío o undefined');
-      }
-      console.log('=== FIN VERIFICACIÓN ===');
+      // Verificación de datepickers para debug interno
     }  /**
      * Maneja la selección de fecha del datepicker
      */
     onFechaSeleccionada(fecha: Date): void {
       // Ya no necesitamos sincronización manual - el datepicker maneja todo
-      console.log('Fecha seleccionada:', fecha);
     }
 
     /**
@@ -394,7 +372,6 @@ export class EditarEventoComponent implements OnInit{
      */
     onHoraInicioSeleccionada(hora: Date): void {
       // Ya no necesitamos sincronización manual - el datepicker maneja todo
-      console.log('Hora inicio seleccionada:', hora);
     }
 
     /**
@@ -402,7 +379,6 @@ export class EditarEventoComponent implements OnInit{
      */
     onHoraFinalSeleccionada(hora: Date): void {
       // Ya no necesitamos sincronización manual - el datepicker maneja todo
-      console.log('Hora final seleccionada:', hora);
     }
 
     cargarLocales(): void {
@@ -517,8 +493,6 @@ export class EditarEventoComponent implements OnInit{
             this.messageService.searchSuccess(
               `Se encontraron ${this.entradasDisponibles.length} entrada(s) en el sistema`
             );
-
-            console.log('Entradas cargadas:', this.entradasDisponibles);
           } else {
             this.messageService.searchNoResults(
               response.mensaje || 'No se pudieron cargar las entradas disponibles'
@@ -669,8 +643,6 @@ export class EditarEventoComponent implements OnInit{
             // Ahora response.data es un array de entradas
             this.entradasPorZonaSeleccionada = response.data;
 
-            console.log('Entradas cargadas para la zona:', this.entradasPorZonaSeleccionada);
-
             this.messageService.success(
               `Se encontraron ${response.data.length} entrada(s) para esta zona`,
               'Entradas Cargadas'
@@ -794,18 +766,15 @@ export class EditarEventoComponent implements OnInit{
 
         this.formulario.banner = file;
 
-        // Convertir imagen a base64 para guardar en imagenUrl
+        // Convertir imagen a base64 solo para mostrar preview
         const reader = new FileReader();
         reader.onload = (e: any) => {
           const base64String = e.target.result;
 
-          // Guardar la imagen en base64 para mostrar preview
+          // Guardar la imagen en base64 solo para mostrar preview
           this.formulario.bannerUrl = base64String;
 
-          // Guardar la imagen en base64 en imagenUrl del evento
-          this.evento.imagenUrl = base64String;
-
-          this.messageService.success('Banner cargado y convertido exitosamente', 'Archivo Procesado');
+          this.messageService.success('Banner cargado exitosamente', 'Archivo Procesado');
         };
 
         reader.onerror = () => {
@@ -831,7 +800,6 @@ export class EditarEventoComponent implements OnInit{
         () => {
           this.formulario.bannerUrl = '';
           this.formulario.banner = null;
-          this.evento.imagenUrl = ''; // Limpiar también el campo que se envía al backend
           this.usarBannerDefault = false;
           this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
         }
@@ -1004,7 +972,15 @@ export class EditarEventoComponent implements OnInit{
       if (this.timeFinal && this.time && this.timeFinal <= this.time) {
         this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
         return false;
-      }    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+      }
+
+      // Validar que se haya seleccionado un banner
+      if (!this.formulario.banner) {
+        this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+        return false;
+      }
+
+      if (!this.formulario.localString || this.formulario.localString.trim() === '') {
         this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
         return false;
       }
@@ -1067,17 +1043,11 @@ export class EditarEventoComponent implements OnInit{
       const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
       // Formatear horas desde los datepickers con validación mejorada
-      console.log('Debug - this.time:', this.time);
-      console.log('Debug - this.timeFinal:', this.timeFinal);
-
       const horaInicio = this.time ?
         `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
-
-      console.log('Debug - horaInicio formateada:', horaInicio);
-      console.log('Debug - horaFin formateada:', horaFin);
 
       const datosEvento = {
         nombre: this.evento.nombre.trim(),
@@ -1085,14 +1055,13 @@ export class EditarEventoComponent implements OnInit{
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
-        imagenUrl: this.evento.imagenUrl || '',
+        imagenUrl: this.formulario.banner!,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
         aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
         idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
       };
 
-      console.log('Debug - Datos evento preparados:', datosEvento);
       return datosEvento;
     }
 
@@ -1165,17 +1134,11 @@ export class EditarEventoComponent implements OnInit{
       const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
       // Formatear horas desde los datepickers con validación mejorada
-      console.log('Debug CREAR - this.time:', this.time);
-      console.log('Debug CREAR - this.timeFinal:', this.timeFinal);
-
       const horaInicio = this.time ?
         `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
-
-      console.log('Debug CREAR - horaInicio formateada:', horaInicio);
-      console.log('Debug CREAR - horaFin formateada:', horaFin);
 
       // Calcular aforo disponible total (suma de todas las categorías)
       const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
@@ -1188,14 +1151,13 @@ export class EditarEventoComponent implements OnInit{
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
-        imagenUrl: this.evento.imagenUrl || '',
+        imagenUrl: this.formulario.banner!,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
         aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
         idLocal: parseInt(this.formulario.localString)
       };
 
-      console.log('Debug CREAR - Datos evento preparados:', datosEvento);
       return datosEvento;
     }
 
@@ -1211,7 +1173,7 @@ export class EditarEventoComponent implements OnInit{
         fechaEvento: '',
         horaInicio: '',
         horaFin: '',
-        imagenUrl: '',
+        imagenUrl: null as any,
         estadoEvento: 'PUBLICADO',
         aforoDisponible: 1000,
         idLocal: 1
@@ -1337,39 +1299,21 @@ export class EditarEventoComponent implements OnInit{
 
         this.formulario.mapaFile = file;
 
-        // Convertir imagen a base64 y actualizar el local
-        this.convertirImagenABase64YActualizarLocal(file);
+        // Mostrar preview de la imagen
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.formulario.mapaUrl = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        // Actualizar el local con la nueva imagen del mapa
+        this.actualizarLocalConMapa(file);
+
+        this.messageService.success('Imagen del mapa seleccionada correctamente', 'Mapa Agregado');
       }
     }
 
-    /**
-     * Convierte la imagen del mapa a base64 y actualiza el local
-     * @param file Archivo de imagen seleccionado
-     */
-    private convertirImagenABase64YActualizarLocal(file: File): void {
-      // Comprimir y redimensionar la imagen antes de convertirla
-      this.comprimirImagen(file)
-        .then((imagenComprimida) => {
-          // Verificar que la imagen comprimida no exceda 500 caracteres
-          if (imagenComprimida.length > 500) {
-            this.messageService.error(
-              'La imagen es demasiado grande. Por favor, selecciona una imagen más pequeña o de menor resolución.',
-              'Imagen Muy Grande'
-            );
-            return;
-          }
 
-          // Guardar para preview
-          this.formulario.mapaUrl = imagenComprimida;
-
-          // Actualizar el local con la nueva imagen
-          this.actualizarLocalConMapa(imagenComprimida);
-        })
-        .catch((error) => {
-          console.error('Error al comprimir imagen:', error);
-          this.messageService.error('Error al procesar la imagen. Por favor, intenta con otra imagen.', 'Error de Procesamiento');
-        });
-    }
 
     /**
      * Comprime y redimensiona una imagen para que sea lo más pequeña posible
@@ -1454,7 +1398,7 @@ export class EditarEventoComponent implements OnInit{
      * Actualiza el local con la nueva imagen del mapa
      * @param imagenBase64 String en base64 de la imagen
      */
-    private actualizarLocalConMapa(imagenBase64: string): void {
+    private actualizarLocalConMapa(file: File): void {
       const idLocal = parseInt(this.formulario.localString);
 
       if (!idLocal || isNaN(idLocal)) {
@@ -1476,7 +1420,7 @@ export class EditarEventoComponent implements OnInit{
       const datosLocal: CrearLocalRequest = {
         nombre: localSeleccionado.nombre,
         direccion: localSeleccionado.direccion,
-        urlMapa: imagenBase64, // Aquí se guarda la imagen en base64
+        urlMapa: file, // Ahora se guarda el archivo directamente
         aforoTotal: localSeleccionado.aforoTotal,
         idDistrito: localSeleccionado.idDistrito
       };
@@ -1491,7 +1435,6 @@ export class EditarEventoComponent implements OnInit{
             'Imagen del mapa actualizada exitosamente en el local',
             'Operación Exitosa'
           );
-          console.log('Local actualizado con imagen del mapa:', response);
         },
         error: (error) => {
           this.messageService.error(
@@ -1548,7 +1491,7 @@ export class EditarEventoComponent implements OnInit{
       const datosLocal: CrearLocalRequest = {
         nombre: localSeleccionado.nombre,
         direccion: localSeleccionado.direccion,
-        urlMapa: '', // Eliminar la imagen del mapa
+        urlMapa: null as any, // Eliminar la imagen del mapa
         aforoTotal: localSeleccionado.aforoTotal,
         idDistrito: localSeleccionado.idDistrito
       };
@@ -1564,7 +1507,6 @@ export class EditarEventoComponent implements OnInit{
             'Imagen del mapa eliminada exitosamente del local',
             'Operación Exitosa'
           );
-          console.log('Local actualizado - imagen del mapa eliminada:', response);
         },
         error: (error) => {
           this.messageService.error(

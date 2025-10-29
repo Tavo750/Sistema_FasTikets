@@ -31,12 +31,23 @@ export class AuthInterceptor implements HttpInterceptor {
       const currentUser = this.sessionService.getCurrentUser();
 
       if (currentUser && currentUser.token) {
+        // Detectar si se está enviando FormData (para archivos)
+        const isFormData = req.body instanceof FormData;
+
+        // Preparar headers base
+        const headers: { [key: string]: string } = {
+          'Authorization': `Bearer ${currentUser.token}`
+        };
+
+        // Solo agregar Content-Type si NO es FormData
+        // El navegador establecerá automáticamente el Content-Type correcto para FormData
+        if (!isFormData) {
+          headers['Content-Type'] = 'application/json';
+        }
+
         // Clonar la petición y agregar el header de autorización
         const authReq = req.clone({
-          setHeaders: {
-            'Authorization': `Bearer ${currentUser.token}`,
-            'Content-Type': 'application/json'
-          }
+          setHeaders: headers
         });
 
         return next.handle(authReq).pipe(

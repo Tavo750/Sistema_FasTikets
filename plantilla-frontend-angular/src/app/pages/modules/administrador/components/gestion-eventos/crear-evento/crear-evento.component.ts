@@ -64,7 +64,7 @@ export class CrearEventoComponent implements OnInit{
     horaInicio: '',
     horaFin: '',
     estadoEvento: 'PUBLICADO',
-    imagenUrl: '', // Se llenará con la imagen del banner en base64
+    imagenUrl: null as any, // Se llenará con el archivo del banner
     aforoDisponible: 1000,
     idLocal: 1
   };
@@ -218,17 +218,11 @@ export class CrearEventoComponent implements OnInit{
     const horaFinal = new Date();
     horaFinal.setHours(ahora.getHours() + 3, 0, 0, 0);
     this.timeFinal = horaFinal;
-
-    console.log('Horas inicializadas por defecto:', {
-      inicio: this.time,
-      final: this.timeFinal
-    });
   }
 
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
-
     // Inicializar formulario con datos del evento
     this.inicializarFormularioDesdeEvento();
   }
@@ -258,9 +252,16 @@ export class CrearEventoComponent implements OnInit{
       this.timeFinal = fechaFinal;
     }
 
-    // Extraer banner de imagenUrl
+    // Extraer banner de imagenUrl (ahora es un File, no string)
     if (this.evento.imagenUrl) {
-      this.formulario.bannerUrl = this.evento.imagenUrl;
+      // Si estamos editando un evento existente y hay una imagen File
+      // Crear un preview para mostrar en la UI
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.formulario.bannerUrl = e.target.result;
+      };
+      reader.readAsDataURL(this.evento.imagenUrl);
+      this.formulario.banner = this.evento.imagenUrl;
     }
 
     // Inicializar localString con idLocal solo si estamos editando un evento existente
@@ -297,33 +298,12 @@ export class CrearEventoComponent implements OnInit{
    * Método de debug para verificar el estado de los datepickers
    */
   private verificarDatepickers(): void {
-    console.log('=== VERIFICACIÓN DE DATEPICKERS ===');
-    console.log('this.date:', this.date);
-    console.log('this.time:', this.time);
-    console.log('this.timeFinal:', this.timeFinal);
-
-    if (this.time) {
-      console.log('Hora inicio - valor:', this.time);
-      console.log('Hora inicio - horas:', this.time.getHours());
-      console.log('Hora inicio - minutos:', this.time.getMinutes());
-    } else {
-      console.log('⚠️ PROBLEMA: this.time está vacío o undefined');
-    }
-
-    if (this.timeFinal) {
-      console.log('Hora final - valor:', this.timeFinal);
-      console.log('Hora final - horas:', this.timeFinal.getHours());
-      console.log('Hora final - minutos:', this.timeFinal.getMinutes());
-    } else {
-      console.log('⚠️ PROBLEMA: this.timeFinal está vacío o undefined');
-    }
-    console.log('=== FIN VERIFICACIÓN ===');
+    // Método mantenidc para compatibilidad, pero sin logging
   }  /**
    * Maneja la selección de fecha del datepicker
    */
   onFechaSeleccionada(fecha: Date): void {
     // Ya no necesitamos sincronización manual - el datepicker maneja todo
-    console.log('Fecha seleccionada:', fecha);
   }
 
   /**
@@ -331,7 +311,7 @@ export class CrearEventoComponent implements OnInit{
    */
   onHoraInicioSeleccionada(hora: Date): void {
     // Ya no necesitamos sincronización manual - el datepicker maneja todo
-    console.log('Hora inicio seleccionada:', hora);
+
   }
 
   /**
@@ -339,7 +319,6 @@ export class CrearEventoComponent implements OnInit{
    */
   onHoraFinalSeleccionada(hora: Date): void {
     // Ya no necesitamos sincronización manual - el datepicker maneja todo
-    console.log('Hora final seleccionada:', hora);
   }
 
   cargarLocales(): void {
@@ -454,8 +433,6 @@ export class CrearEventoComponent implements OnInit{
           this.messageService.searchSuccess(
             `Se encontraron ${this.entradasDisponibles.length} entrada(s) en el sistema`
           );
-
-          console.log('Entradas cargadas:', this.entradasDisponibles);
         } else {
           this.messageService.searchNoResults(
             response.mensaje || 'No se pudieron cargar las entradas disponibles'
@@ -664,18 +641,15 @@ export class CrearEventoComponent implements OnInit{
 
       this.formulario.banner = file;
 
-      // Convertir imagen a base64 para guardar en imagenUrl
+      // Convertir imagen a base64 solo para mostrar preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const base64String = e.target.result;
 
-        // Guardar la imagen en base64 para mostrar preview
+        // Guardar la imagen en base64 solo para mostrar preview
         this.formulario.bannerUrl = base64String;
 
-        // Guardar la imagen en base64 en imagenUrl del evento
-        this.evento.imagenUrl = base64String;
-
-        this.messageService.success('Banner cargado y convertido exitosamente', 'Archivo Procesado');
+        this.messageService.success('Banner cargado exitosamente', 'Archivo Procesado');
       };
 
       reader.onerror = () => {
@@ -701,7 +675,6 @@ export class CrearEventoComponent implements OnInit{
       () => {
         this.formulario.bannerUrl = '';
         this.formulario.banner = null;
-        this.evento.imagenUrl = ''; // Limpiar también el campo que se envía al backend
         this.usarBannerDefault = false;
         this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
       }
@@ -804,7 +777,15 @@ export class CrearEventoComponent implements OnInit{
     if (this.timeFinal && this.time && this.timeFinal <= this.time) {
       this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
       return false;
-    }    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+    }
+
+    // Validar que se haya seleccionado un banner
+    if (!this.formulario.banner) {
+      this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return false;
     }
@@ -867,17 +848,11 @@ export class CrearEventoComponent implements OnInit{
     const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
     // Formatear horas desde los datepickers con validación mejorada
-    console.log('Debug - this.time:', this.time);
-    console.log('Debug - this.timeFinal:', this.timeFinal);
-
     const horaInicio = this.time ?
       `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
     const horaFin = this.timeFinal ?
       `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
-
-    console.log('Debug - horaInicio formateada:', horaInicio);
-    console.log('Debug - horaFin formateada:', horaFin);
 
     const datosEvento = {
       nombre: this.evento.nombre.trim(),
@@ -885,14 +860,13 @@ export class CrearEventoComponent implements OnInit{
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.evento.imagenUrl || '',
+      imagenUrl: this.formulario.banner!,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
       idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
     };
 
-    console.log('Debug - Datos evento preparados:', datosEvento);
     return datosEvento;
   }
 
@@ -965,17 +939,11 @@ export class CrearEventoComponent implements OnInit{
     const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
 
     // Formatear horas desde los datepickers con validación mejorada
-    console.log('Debug CREAR - this.time:', this.time);
-    console.log('Debug CREAR - this.timeFinal:', this.timeFinal);
-
     const horaInicio = this.time ?
       `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
     const horaFin = this.timeFinal ?
       `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
-
-    console.log('Debug CREAR - horaInicio formateada:', horaInicio);
-    console.log('Debug CREAR - horaFin formateada:', horaFin);
 
     // Calcular aforo disponible total (suma de todas las categorías)
     const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
@@ -988,14 +956,13 @@ export class CrearEventoComponent implements OnInit{
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.evento.imagenUrl || '',
+      imagenUrl: this.formulario.banner!,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
       idLocal: parseInt(this.formulario.localString)
     };
 
-    console.log('Debug CREAR - Datos evento preparados:', datosEvento);
     return datosEvento;
   }
 
@@ -1011,7 +978,7 @@ export class CrearEventoComponent implements OnInit{
       fechaEvento: '',
       horaInicio: '',
       horaFin: '',
-      imagenUrl: '',
+      imagenUrl: null as any,
       estadoEvento: 'PUBLICADO',
       aforoDisponible: 1000,
       idLocal: 1
@@ -1138,124 +1105,27 @@ export class CrearEventoComponent implements OnInit{
 
       this.formulario.mapaFile = file;
 
-      // Convertir imagen a base64 y actualizar el local
-      this.convertirImagenABase64YActualizarLocal(file);
+      // Mostrar preview de la imagen
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.formulario.mapaUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Actualizar el local con la nueva imagen del mapa
+      this.actualizarLocalConMapa(file);
+
+      this.messageService.success('Imagen del mapa seleccionada correctamente', 'Mapa Agregado');
     }
   }
 
+
+
   /**
-   * Convierte la imagen del mapa a base64 y actualiza el local
+   * Actualiza el local con la nueva imagen del mapa
    * @param file Archivo de imagen seleccionado
    */
-  private convertirImagenABase64YActualizarLocal(file: File): void {
-    // Comprimir y redimensionar la imagen antes de convertirla
-    this.comprimirImagen(file)
-      .then((imagenComprimida) => {
-        // Verificar que la imagen comprimida no exceda 500 caracteres
-        if (imagenComprimida.length > 500) {
-          this.messageService.error(
-            'La imagen es demasiado grande. Por favor, selecciona una imagen más pequeña o de menor resolución.',
-            'Imagen Muy Grande'
-          );
-          return;
-        }
-
-        // Guardar para preview
-        this.formulario.mapaUrl = imagenComprimida;
-
-        // Actualizar el local con la nueva imagen
-        this.actualizarLocalConMapa(imagenComprimida);
-      })
-      .catch((error) => {
-        console.error('Error al comprimir imagen:', error);
-        this.messageService.error('Error al procesar la imagen. Por favor, intenta con otra imagen.', 'Error de Procesamiento');
-      });
-  }
-
-  /**
-   * Comprime y redimensiona una imagen para que sea lo más pequeña posible
-   * @param file Archivo de imagen original
-   * @returns Promise con la imagen comprimida en base64
-   */
-  private comprimirImagen(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = () => {
-        // Calcular nuevas dimensiones (máximo 100x100 px para mantener tamaño pequeño)
-        const maxWidth = 100;
-        const maxHeight = 100;
-        let { width, height } = img;
-
-        // Mantener proporción
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
-        }
-
-        // Configurar canvas
-        canvas.width = width;
-        canvas.height = height;
-
-        // Dibujar imagen redimensionada
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        // Intentar diferentes calidades de compresión hasta encontrar una que funcione
-        let quality = 0.1; // Comenzar con calidad muy baja
-        let imagenComprimida = '';
-
-        const intentarCompresion = () => {
-          imagenComprimida = canvas.toDataURL('image/jpeg', quality);
-
-          // Si la imagen es menor a 500 caracteres, usarla
-          if (imagenComprimida.length <= 500) {
-            resolve(imagenComprimida);
-            return;
-          }
-
-          // Si aún es muy grande y podemos reducir más la calidad
-          if (quality > 0.05) {
-            quality -= 0.02;
-            setTimeout(intentarCompresion, 10);
-          } else {
-            // Intentar con PNG si JPEG no funciona
-            imagenComprimida = canvas.toDataURL('image/png');
-            if (imagenComprimida.length <= 500) {
-              resolve(imagenComprimida);
-            } else {
-              reject(new Error('No se pudo comprimir la imagen lo suficiente'));
-            }
-          }
-        };
-
-        intentarCompresion();
-      };
-
-      img.onerror = () => {
-        reject(new Error('Error al cargar la imagen'));
-      };
-
-      // Crear URL de la imagen para cargarla
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }  /**
-   * Actualiza el local con la nueva imagen del mapa
-   * @param imagenBase64 String en base64 de la imagen
-   */
-  private actualizarLocalConMapa(imagenBase64: string): void {
+  private actualizarLocalConMapa(file: File): void {
     const idLocal = parseInt(this.formulario.localString);
 
     if (!idLocal || isNaN(idLocal)) {
@@ -1277,7 +1147,7 @@ export class CrearEventoComponent implements OnInit{
     const datosLocal: CrearLocalRequest = {
       nombre: localSeleccionado.nombre,
       direccion: localSeleccionado.direccion,
-      urlMapa: imagenBase64, // Aquí se guarda la imagen en base64
+      urlMapa: file, // Ahora se guarda el archivo directamente
       aforoTotal: localSeleccionado.aforoTotal,
       idDistrito: localSeleccionado.idDistrito
     };
@@ -1292,7 +1162,6 @@ export class CrearEventoComponent implements OnInit{
           'Imagen del mapa actualizada exitosamente en el local',
           'Operación Exitosa'
         );
-        console.log('Local actualizado con imagen del mapa:', response);
       },
       error: (error) => {
         this.messageService.error(
@@ -1349,7 +1218,7 @@ export class CrearEventoComponent implements OnInit{
     const datosLocal: CrearLocalRequest = {
       nombre: localSeleccionado.nombre,
       direccion: localSeleccionado.direccion,
-      urlMapa: '', // Eliminar la imagen del mapa
+      urlMapa: null as any, // Eliminar la imagen del mapa
       aforoTotal: localSeleccionado.aforoTotal,
       idDistrito: localSeleccionado.idDistrito
     };
@@ -1365,7 +1234,6 @@ export class CrearEventoComponent implements OnInit{
           'Imagen del mapa eliminada exitosamente del local',
           'Operación Exitosa'
         );
-        console.log('Local actualizado - imagen del mapa eliminada:', response);
       },
       error: (error) => {
         this.messageService.error(

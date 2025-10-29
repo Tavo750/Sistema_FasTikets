@@ -71,8 +71,28 @@ export class EventoService {
    * @returns Observable con la respuesta del servidor
    */
   postCrearEvento(body: CrearEventoRequest): Observable<CrearEventoResponse> {
-    const url = `${baseUrl}/eventos`;
-    return this.http.post<CrearEventoResponse>(url, body)
+    const url = `${baseUrl}/eventos/con-imagen`;
+
+    // Crear FormData para enviar multipart/form-data
+    const formData = new FormData();
+
+    // Agregar todos los campos del evento al FormData
+    formData.append('nombre', body.nombre);
+    formData.append('descripcion', body.descripcion);
+    formData.append('fechaEvento', body.fechaEvento);
+    formData.append('horaInicio', body.horaInicio);
+    formData.append('horaFin', body.horaFin);
+    formData.append('tipoEvento', body.tipoEvento);
+    formData.append('estadoEvento', body.estadoEvento);
+    formData.append('aforoDisponible', body.aforoDisponible.toString());
+    formData.append('idLocal', body.idLocal.toString());
+
+    // Agregar la imagen si existe
+    if (body.imagenUrl) {
+      formData.append('imagen', body.imagenUrl);
+    }
+
+    return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
@@ -119,7 +139,27 @@ export class EventoService {
 
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
     const url = `${baseUrl}/eventos/${id}`;
-    return this.http.put<CrearEventoResponse>(url, body)
+
+    // Crear FormData para enviar multipart/form-data
+    const formData = new FormData();
+
+    // Agregar todos los campos del evento al FormData
+    formData.append('nombre', body.nombre);
+    formData.append('descripcion', body.descripcion);
+    formData.append('fechaEvento', body.fechaEvento);
+    formData.append('horaInicio', body.horaInicio);
+    formData.append('horaFin', body.horaFin);
+    formData.append('tipoEvento', body.tipoEvento);
+    formData.append('estadoEvento', body.estadoEvento);
+    formData.append('aforoDisponible', body.aforoDisponible.toString());
+    formData.append('idLocal', body.idLocal.toString());
+
+    // Agregar la imagen si existe
+    if (body.imagenUrl) {
+      formData.append('imagen', body.imagenUrl);
+    }
+
+    return this.http.put<CrearEventoResponse>(url, formData)
       .pipe(
         catchError(this.httpUtils.handleError)
       );

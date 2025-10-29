@@ -10,7 +10,7 @@ export interface CrearEventoRequest {
     fechaEvento: string;
     horaInicio: string;
     horaFin: string;
-    imagenUrl: string;
+    imagenUrl: File;
     tipoEvento: string;
     estadoEvento: string;
     aforoDisponible: number;
