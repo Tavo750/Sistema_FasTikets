@@ -27,6 +27,10 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
 // PrimeNG Services
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar-cliente-admi/editar-cliente-admi.component';
+import { VerDetalleClienteAdmiComponent } from './components/gestion-clientes/ver-detalle-cliente-admi/ver-detalle-cliente-admi.component';
+import { RegistroCodigosPromoComponent } from './components/codigos-promocionales/registro-codigos-promo/registro-codigos-promo.component';
+import { EditarRegistroPromoComponent } from './components/codigos-promocionales/editar-registro-promo/editar-registro-promo.component';
+import { DetalleRegistroPromoComponent } from './components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +46,11 @@ import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar
     CambiarContrasenaAdminComponent,
     EditarEventoComponent,
     CrearEventoComponent,
-    EditarClienteAdmiComponent
+    EditarClienteAdmiComponent,
+    VerDetalleClienteAdmiComponent,
+    RegistroCodigosPromoComponent,
+    EditarRegistroPromoComponent,
+    DetalleRegistroPromoComponent
   ],
   imports: [
     CommonModule,

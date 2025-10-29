@@ -5,6 +5,7 @@ import { GestionLocalesComponent } from './components/gestion-locales/gestion-lo
 import { GestionEventosComponent } from './components/gestion-eventos/gestion-eventos.component';
 import { GestionClientesComponent } from './components/gestion-clientes/gestion-clientes.component';
 import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar-cliente-admi/editar-cliente-admi.component'; // ← IMPORTAR
+import { VerDetalleClienteAdmiComponent } from './components/gestion-clientes/ver-detalle-cliente-admi/ver-detalle-cliente-admi.component';
 import { CodigosPromocionalesComponent } from './components/codigos-promocionales/codigos-promocionales.component';
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'gestionEventos/crear/:id', component: CrearEventoComponent },
   { path: 'gestionClientes', component: GestionClientesComponent },
   { path: 'gestionClientes/editar/:id', component: EditarClienteAdmiComponent }, // ← AGREGAR ESTA LÍNEA
+  { path: 'gestionClientes/detalle/:id', component: VerDetalleClienteAdmiComponent }, // ← AGREGAR
   { path: 'codigosPromocionales', component: CodigosPromocionalesComponent },
   { path: 'logErrores', component: LogErroresComponent },
   { path: 'auditoria', component: AuditoriaComponent },

@@ -1,0 +1,229 @@
+.detalle-cliente-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 2rem;
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.page-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cliente-info {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cliente-nombre {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f1f1f;
+  margin: 0 0 1rem 0;
+}
+
+.cliente-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: #1f1f1f;
+}
+
+.cliente-header p {
+  font-size: 0.95rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Tabs */
+::ng-deep .p-tabs {
+  border: none;
+}
+
+::ng-deep .p-tab-header {
+  background: transparent;
+  border: none;
+}
+
+::ng-deep .p-tab-header-content {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+}
+
+::ng-deep .p-tab-active {
+  background: #dc3545;
+  color: white !important;
+}
+
+.tab-content {
+  padding: 2rem;
+}
+
+/* Datos Grid */
+.datos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 3rem;
+  margin-bottom: 2rem;
+}
+
+.dato-item {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.dato-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 150px;
+}
+
+.dato-value {
+  color: #6c757d;
+}
+
+.volver-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Dialog Detalle */
+.detalle-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detalle-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.detalle-row:last-child {
+  border-bottom: none;
+}
+
+.detalle-row .label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.detalle-row .value {
+  color: #6c757d;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detalle-cliente-page {
+    padding: 1rem;
+  }
+
+  .datos-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .dato-label {
+    min-width: 120px;
+  }
+
+  ::ng-deep .p-tab-header-content {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Lienzo y tarjeta */
+.detalle-cliente-page { min-height: 100vh; background: #f6f7f9; padding: 2rem; }
+.content-container {
+  max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06); overflow: hidden; padding: 1.25rem 1.5rem 2rem;
+}
+
+/* Títulos y cabecera */
+.header-wrap { padding: .5rem .25rem 0 .25rem; }
+.title { margin: .25rem 0 1.25rem; font-size: 2rem; font-weight: 800; color: #111; }
+.cliente-head .nombre { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111; }
+.cliente-head .correo { display: block; margin-top: .15rem; color: #6b7280; font-size: .95rem; }
+
+/* Tabs */
+.tabs-wrap { margin-top: 1.25rem; }
+.tabs-underline {
+  height: 2px; background: #f1b5bb; margin-top: .25rem; /* línea base suave */
+}
+
+/* Píldoras del Tabs (compatibles) */
+::ng-deep .p-tabs, ::ng-deep .p-tabview { border: none; background: transparent; }
+::ng-deep .p-tablist, ::ng-deep .p-tabview-nav {
+  display: flex; gap: .5rem; background: transparent; border: none; padding: 0 .25rem;
+}
+::ng-deep .p-tab, ::ng-deep .p-tabview-nav li {
+  list-style: none;
+}
+::ng-deep .p-tab > .p-tab-header, ::ng-deep .p-tabview-nav li a {
+  padding: .45rem .9rem; border-radius: 10px; font-weight: 700;
+  color: #444; transition: .2s background,color;
+}
+::ng-deep .p-tab.p-tab-active > .p-tab-header,
+::ng-deep .p-tabview-nav li.p-highlight a {
+  background: #dc3545; color: #fff !important;
+}
+
+/* Contenido */
+.tab-content { padding: 1.25rem .25rem 0; }
+
+/* Grid de datos personales */
+.datos-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 2.5rem; margin-top: .5rem;
+}
+.dato-item { display: grid; grid-template-columns: 160px 1fr; gap: .5rem;
+  padding: .4rem 0; border-bottom: 1px solid #e9ecef;
+}
+.dato-label { font-weight: 600; color: #6b7280; }
+.dato-value { color: #111; }
+.dato-value.strong { font-weight: 700; }
+
+/* Botón Volver abajo a la derecha */
+.volver-button-container { display: flex; justify-content: flex-end; margin-top: 1rem; }
+
+/* Tablas como el mockup */
+.tabla-detalle :where(.p-datatable-thead > tr > th) {
+  font-weight: 700; color: #111; background: #f8f9fb;
+}
+.tabla-detalle :where(.p-datatable-tbody > tr > td) { color: #111; }
+.tabla-detalle .acciones { text-align: center; }
+
+/* Dialogs (tus estilos) */
+.detalle-dialog { display: flex; flex-direction: column; gap: .75rem; }
+.detalle-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #eef0f2; }
+.detalle-row:last-child{ border-bottom: 0; }
+.detalle-row .label { font-weight: 600; color: #6b7280; }
+.detalle-row .value { color: #111; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detalle-cliente-page { padding: 1rem; }
+  .datos-grid { grid-template-columns: 1fr; }
+  .dato-item { grid-template-columns: 130px 1fr; }
+}

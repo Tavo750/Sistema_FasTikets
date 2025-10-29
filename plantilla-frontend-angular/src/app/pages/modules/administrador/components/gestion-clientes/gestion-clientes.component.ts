@@ -151,7 +151,8 @@ export class GestionClientesComponent implements OnInit {
 
   verDetalle(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
-    this.mostrarDialogDetalle = true;
+    //this.mostrarDialogDetalle = true;
+    this.router.navigate(['/administrador/gestionClientes/detalle', cliente.id]);
   }
 
   editarCliente(cliente: Cliente): void {
