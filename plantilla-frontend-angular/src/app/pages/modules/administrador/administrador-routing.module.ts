@@ -7,6 +7,9 @@ import { GestionClientesComponent } from './components/gestion-clientes/gestion-
 import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar-cliente-admi/editar-cliente-admi.component'; // ← IMPORTAR
 import { VerDetalleClienteAdmiComponent } from './components/gestion-clientes/ver-detalle-cliente-admi/ver-detalle-cliente-admi.component';
 import { CodigosPromocionalesComponent } from './components/codigos-promocionales/codigos-promocionales.component';
+import { RegistroCodigosPromoComponent } from './components/codigos-promocionales/registro-codigos-promo/registro-codigos-promo.component';
+import { EditarRegistroPromoComponent } from './components/codigos-promocionales/editar-registro-promo/editar-registro-promo.component';
+import { DetalleRegistroPromoComponent } from './components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component';
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
@@ -29,6 +32,9 @@ const routes: Routes = [
   { path: 'gestionClientes/editar/:id', component: EditarClienteAdmiComponent }, // ← AGREGAR ESTA LÍNEA
   { path: 'gestionClientes/detalle/:id', component: VerDetalleClienteAdmiComponent }, // ← AGREGAR
   { path: 'codigosPromocionales', component: CodigosPromocionalesComponent },
+  { path: 'codigosPromocionales/registro', component: RegistroCodigosPromoComponent },
+  { path: 'codigosPromocionales/editar/:id', component: EditarRegistroPromoComponent },
+  { path: 'codigosPromocionales/detalle/:id', component: DetalleRegistroPromoComponent },
   { path: 'logErrores', component: LogErroresComponent },
   { path: 'auditoria', component: AuditoriaComponent },
 ];

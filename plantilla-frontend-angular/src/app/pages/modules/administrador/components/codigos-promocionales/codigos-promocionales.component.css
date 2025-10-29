@@ -1,0 +1,38 @@
+.page { padding: 1rem; }
+.content-container {
+  background: #fff; border-radius: 14px; box-shadow: 0 8px 24px rgba(23, 21, 21, 0.06);
+  padding: 1.25rem 1.5rem 1.5rem; max-width: 1100px; margin: 0 auto;
+}
+
+::ng-deep .btn-azulito {
+  background-color: #007ad9; /* Azul PrimeNG */
+  color: white;
+  border: none;
+}
+
+::ng-deep .btn-azulito:hover {
+  background-color: #006bb3; /* Azul más oscuro al pasar el mouse */
+}
+
+
+.header-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.title { margin: .25rem 0 1rem; font-size: 1.8rem; font-weight: 800; }
+.toolbar { margin: .25rem 0 1rem; }
+.toolbar .p-input-icon-left input { width: 320px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+/* tabla estilo mock */
+.tabla-mock .p-datatable { border-radius: 12px; overflow: hidden; }
+.tabla-mock :where(.p-datatable-thead > tr > th){
+  background:#f4f6f8; font-weight:700; color:#111; border-color:#e5e7eb; padding:.9rem 1rem;
+}
+.tabla-mock :where(.p-datatable-tbody > tr > td){
+  padding:1.1rem 1rem; border-color:#e5e7eb; color:#111;
+}
+.tabla-mock :where(.p-datatable-tbody > tr:hover){ background:#fafafa; }
+.tabla-mock .acciones{ text-align:center; }
+.tabla-mock .acciones .p-button{ margin:0 .25rem; }
+.tabla-mock ::ng-deep .p-paginator{ justify-content:center; gap:.5rem; border-top:0; padding:.75rem; }
+.tabla-mock ::ng-deep .p-paginator .p-paginator-page.p-highlight{
+  background:#fde2e4; border-color:#f6c4c9; color:#dc3545;
+}
