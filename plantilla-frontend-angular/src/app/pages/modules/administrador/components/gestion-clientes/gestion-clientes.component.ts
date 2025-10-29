@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router'; // ← IMPORTAR Router
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 interface Cliente {
@@ -7,11 +8,13 @@ interface Cliente {
   apellidos: string;
   email: string;
   docIdentidad: string;
-  tipoDocumento: string;
+  edad: number; // ← AGREGADO
   telefono: string;
+  departamento: string; // ← AGREGADO
+  distrito: string; // ← AGREGADO
   direccion: string;
-  fechaNacimiento: string;
   fechaCreacion: string;
+  fechaNacimiento: string;
   rol: string;
 }
 
@@ -32,6 +35,7 @@ export class GestionClientesComponent implements OnInit {
   totalRecords: number = 0;
 
   constructor(
+    private router: Router, // ← INYECTAR Router
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -52,50 +56,73 @@ export class GestionClientesComponent implements OnInit {
           apellidos: 'Rios Sosa',
           email: 'Luis.enrique@gmail.com',
           docIdentidad: '78364573',
-          tipoDocumento: 'DNI',
-          telefono: '987654321',
-          direccion: 'Av. Principal 123',
-          fechaNacimiento: '1990-05-15',
+          edad: 35,
+          telefono: '983953765',
+          departamento: 'Lima',
+          distrito: 'Miraflores',
+          direccion: 'Av. Larco 1234, Miraflores',
           fechaCreacion: '2025-09-10T10:30:00',
+          fechaNacimiento: '1990-05-15',
           rol: 'CLIENTE'
         },
         {
           id: 8,
-          nombres: 'Juan',
-          apellidos: 'Enrique',
-          email: 'juan.e@gmail.com',
-          docIdentidad: '78364573',
-          tipoDocumento: 'DNI',
+          nombres: 'María Elena',
+          apellidos: 'González Torres',
+          email: 'maria.gonzalez@gmail.com',
+          docIdentidad: '45678912',
+          edad: 28,
           telefono: '987654322',
-          direccion: 'Jr. Secundaria 456',
-          fechaNacimiento: '1985-08-20',
+          departamento: 'Lima',
+          distrito: 'San Isidro',
+          direccion: 'Jr. Las Camelias 456, San Isidro',
           fechaCreacion: '2025-09-10T11:45:00',
+          fechaNacimiento: '1990-05-15',
           rol: 'CLIENTE'
         },
         {
           id: 9,
-          nombres: 'Juan',
-          apellidos: 'Enrique',
-          email: 'enrique.juan@gmail.com',
-          docIdentidad: '78364573',
-          tipoDocumento: 'DNI',
+          nombres: 'Carlos Alberto',
+          apellidos: 'Pérez Sánchez',
+          email: 'carlos.perez@gmail.com',
+          docIdentidad: '12345678',
+          edad: 42,
           telefono: '987654323',
-          direccion: 'Calle Tercera 789',
-          fechaNacimiento: '1992-12-10',
+          departamento: 'Arequipa',
+          distrito: 'Barranco',
+          direccion: 'Calle Bolognesi 789, Barranco',
           fechaCreacion: '2025-09-10T14:20:00',
+          fechaNacimiento: '1990-05-15',
           rol: 'CLIENTE'
         },
         {
           id: 10,
-          nombres: 'Juan',
-          apellidos: 'Enrique',
-          email: 'j.enrique@gmail.com',
-          docIdentidad: '78364573',
-          tipoDocumento: 'DNI',
+          nombres: 'Ana Lucía',
+          apellidos: 'Ramírez Castro',
+          email: 'ana.ramirez@gmail.com',
+          docIdentidad: '87654321',
+          edad: 31,
           telefono: '987654324',
-          direccion: 'Av. Cuarta 321',
-          fechaNacimiento: '1988-03-25',
+          departamento: 'Cusco',
+          distrito: 'Surco',
+          direccion: 'Av. Benavides 321, Surco',
           fechaCreacion: '2025-09-10T16:10:00',
+          fechaNacimiento: '1990-05-15',
+          rol: 'CLIENTE'
+        },
+        {
+          id: 11,
+          nombres: 'Luis Fernando',
+          apellidos: 'Rios Sosa',
+          email: 'luis.rios@gmail.com',
+          docIdentidad: '23456789',
+          edad: 39,
+          telefono: '987654325',
+          departamento: 'Lima',
+          distrito: 'San Borja',
+          direccion: 'Av. San Borja Norte 567, San Borja',
+          fechaCreacion: '2025-09-11T09:15:00',
+          fechaNacimiento: '1990-05-15',
           rol: 'CLIENTE'
         }
       ];
@@ -134,8 +161,9 @@ export class GestionClientesComponent implements OnInit {
       summary: 'Editar Cliente',
       detail: `Editando cliente: ${cliente.nombres} ${cliente.apellidos}`
     });
+    this.router.navigate(['/administrador/gestionClientes/editar', cliente.id]);
+    //console.log('Editar cliente:', cliente);
     
-    console.log('Editar cliente:', cliente);
   }
 
   confirmarEliminacion(cliente: Cliente): void {

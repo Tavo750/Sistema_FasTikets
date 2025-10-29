@@ -1,0 +1,192 @@
+.editar-cliente-page {
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.content-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 550px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  background: #fff;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin: 0;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+
+.btn-close:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.btn-close i {
+  font-size: 1.25rem;
+}
+
+.card-body {
+  padding: 1.5rem;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+/* Formulario */
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.form-field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.form-field .required {
+  color: #dc3545;
+}
+
+.form-field input {
+  width: 100%;
+}
+
+.form-field small.p-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+}
+
+/* Fila con dos campos */
+.form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Fila con tres campos */
+.form-row-three {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Botones de acción */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+::ng-deep .btn-cancelar,
+::ng-deep .btn-guardar {
+  flex: 1;
+  justify-content: center;
+}
+
+::ng-deep .btn-cancelar {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+::ng-deep .btn-cancelar:hover {
+  background: #c82333 !important;
+  border-color: #bd2130 !important;
+}
+
+::ng-deep .btn-guardar {
+  background: #7ed957 !important;
+  border-color: #7ed957 !important;
+}
+
+::ng-deep .btn-guardar:hover {
+  background: #6bc745 !important;
+  border-color: #6bc745 !important;
+}
+
+/* Scrollbar del card-body */
+.card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .editar-cliente-page {
+    padding: 1rem;
+  }
+
+  .content-card {
+    max-width: 100%;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+    max-height: calc(100vh - 150px);
+  }
+
+  .form-row-two,
+  .form-row-three {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+}
