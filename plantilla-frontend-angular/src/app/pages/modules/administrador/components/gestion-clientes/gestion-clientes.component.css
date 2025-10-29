@@ -1,0 +1,137 @@
+.gestion-clientes-container {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f1f1f;
+  margin: 0 0 1.5rem 0;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+}
+
+/* Estilos de la tabla */
+::ng-deep .tabla-clientes {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .tabla-clientes .p-datatable-header {
+  background: white;
+  border: none;
+  padding: 1rem;
+}
+
+::ng-deep .tabla-clientes .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+::ng-deep .tabla-clientes .p-datatable-tbody > tr {
+  transition: background-color 0.2s;
+}
+
+::ng-deep .tabla-clientes .p-datatable-tbody > tr:hover {
+  background: #f8f9fa;
+}
+
+::ng-deep .tabla-clientes .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+/* Botones de acción */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Mensajes vacíos */
+.empty-message, .loading-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.empty-message p, .loading-message p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Dialog de detalle */
+.detalle-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detalle-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.detalle-row:last-child {
+  border-bottom: none;
+}
+
+.detalle-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 180px;
+}
+
+.detalle-value {
+  color: #6c757d;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gestion-clientes-container {
+    padding: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+
+  ::ng-deep .tabla-clientes .p-datatable-thead > tr > th,
+  ::ng-deep .tabla-clientes .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}
