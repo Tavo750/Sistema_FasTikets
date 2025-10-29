@@ -227,3 +227,56 @@
   .datos-grid { grid-template-columns: 1fr; }
   .dato-item { grid-template-columns: 130px 1fr; }
 }
+
+/* ===== Tabs “rojas” ===== */
+.tabs-rojas {
+  margin-top: .5rem;
+}
+
+/* línea base suave bajo las tabs */
+.tabs-rojas ::ng-deep .p-tabview-nav {
+  border-bottom: 2px solid #f3c7cc; /* rosado suave */
+  gap: .5rem;
+}
+
+/* aspecto de las pestañas (píldoras) */
+.tabs-rojas ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
+  border-radius: 10px;
+  padding: .45rem .9rem;
+  font-weight: 700;
+  color: #444;
+}
+
+/* pestaña activa en rojo */
+.tabs-rojas ::ng-deep .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: #dc3545;        /* rojo mockup */
+  color: #fff !important;
+}
+
+/* quita borde/underline por defecto si el tema lo trae */
+.tabs-rojas ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
+  border: none;
+  box-shadow: none;
+}
+
+/* ===== Tabla estilo mockup ===== */
+.tabla-roja :where(.p-datatable-thead > tr > th) {
+  background: #f4f5f7;     /* gris claro header */
+  font-weight: 700;
+  color: #111;
+}
+
+.tabla-roja :where(.p-datatable-tbody > tr > td) {
+  color: #111;
+}
+
+/* paginador con acento rojo suave */
+::ng-deep .p-paginator .p-paginator-page.p-highlight {
+  background: #fde2e4;     /* rosado claro */
+  border-color: #f6c4c9;
+  color: #dc3545;
+}
+
+/* íconos de acciones alineados como en el mock */
+.acciones { text-align: center; }
+

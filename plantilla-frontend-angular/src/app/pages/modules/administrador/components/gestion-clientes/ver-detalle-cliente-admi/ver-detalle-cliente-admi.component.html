@@ -25,6 +25,8 @@
       </div>
     </div>
 
+
+    <div class="tabs-rojas">
     <!-- Tabs -->
      <p-tabView [(activeIndex)]="activeTab">
       <!--Tab 1: Datos Personales -->
@@ -82,120 +84,102 @@
       <!-- Tab 2: Historial de Compras -->
       <p-tabPanel header="Historial de compras">
         <div class="tab-content">
-          <p-table 
-            [value]="compras" 
-            [paginator]="true" 
+            <p-table
+            [value]="compras"
+            [paginator]="true"
             [rows]="10"
-            [rowsPerPageOptions]="[5, 10, 20]"
-            styleClass="p-datatable-gridlines"
-            [tableStyle]="{'min-width': '50rem'}">
-            
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [rowHover]="true"
+            [responsiveLayout]="'scroll'"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} compras"
+            styleClass="p-datatable-gridlines tabla-roja"
+            [tableStyle]="{'min-width':'100%'}">
+
             <ng-template pTemplate="header">
-              <tr>
-                <th>ID</th>
-                <th>Nombre evento</th>
-                <th>Local</th>
-                <th>Fecha de compra</th>
-                <th style="width: 150px">Acciones</th>
-              </tr>
+                <tr>
+                <th pSortableColumn="id" style="width:100px">
+                    ID <p-sortIcon field="id"></p-sortIcon>
+                </th>
+                <th pSortableColumn="nombreEvento">
+                    Nombre evento <p-sortIcon field="nombreEvento"></p-sortIcon>
+                </th>
+                <th pSortableColumn="local" style="width:220px">
+                    Local <p-sortIcon field="local"></p-sortIcon>
+                </th>
+                <th pSortableColumn="fechaCompra" style="width:220px">
+                    Fecha de compra <p-sortIcon field="fechaCompra"></p-sortIcon>
+                </th>
+                <th style="width:150px; text-align:center">Acciones</th>
+                </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-compra>
-              <tr>
-                <td>{{ compra.id }}</td>
-                <td>{{ compra.nombreEvento }}</td>
-                <td>{{ compra.local }}</td>
-                <td>{{ compra.fechaCompra }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <p-button 
-                      icon="pi pi-eye" 
-                      [rounded]="true" 
-                      [text]="true"
-                      severity="info"
-                      (onClick)="verDetalleCompra(compra)"
-                      pTooltip="Ver detalle"
-                      tooltipPosition="top">
-                    </p-button>
-                    
-                    <p-button 
-                      icon="pi pi-trash" 
-                      [rounded]="true" 
-                      [text]="true"
-                      severity="danger"
-                      (onClick)="confirmarEliminacionCompra(compra)"
-                      pTooltip="Eliminar"
-                      tooltipPosition="top">
-                    </p-button>
-                  </div>
+            <ng-template pTemplate="body" let-row>
+                <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.nombreEvento }}</td>
+                <td>{{ row.local }}</td>
+                <td>{{ row.fechaCompra }}</td>
+                <td class="acciones">
+                    <p-button icon="pi pi-eye"   [text]="true" [rounded]="true" severity="info"
+                            (onClick)="verDetalleCompra(row)"></p-button>
+                    <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                            (onClick)="confirmarEliminacionCompra(row)"></p-button>
                 </td>
-              </tr>
+                </tr>
             </ng-template>
-          </p-table>
+
+            </p-table>
         </div>
-      </p-tabPanel> 
+        </p-tabPanel>
 
       <!-- Tab 3: Historial de Puntos -->
       <p-tabPanel header="Historial de puntos">
         <div class="tab-content">
-          <p-table 
-            [value]="puntos" 
-            [paginator]="true" 
+            <p-table
+            [value]="puntos"
+            [paginator]="true"
             [rows]="10"
-            [rowsPerPageOptions]="[5, 10, 20]"
-            styleClass="p-datatable-gridlines"
-            [tableStyle]="{'min-width': '50rem'}">
-            
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [rowHover]="true"
+            [responsiveLayout]="'scroll'"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} movimientos"
+            styleClass="p-datatable-gridlines tabla-roja"
+            [tableStyle]="{'min-width':'100%'}">
+
             <ng-template pTemplate="header">
-              <tr>
-                <th>ID</th>
-                <th>Estatus</th>
-                <th>Puntos</th>
-                <th>Fecha</th>
-                <th style="width: 150px">Acciones</th>
-              </tr>
+                <tr>
+                <th style="width:100px">ID</th>
+                <th style="width:220px">Estatus</th>
+                <th style="width:160px">Puntos</th>
+                <th style="width:220px">Fecha</th>
+                <th style="width:150px; text-align:center">Acciones</th>
+                </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-punto>
-              <tr>
-                <td>{{ punto.id }}</td>
+            <ng-template pTemplate="body" let-row>
+                <tr>
+                <td>{{ row.id }}</td>
                 <td>
-                  <p-tag 
-                    [value]="punto.estatus" 
-                    [severity]="getEstatusSeverity(punto.estatus)">
-                  </p-tag>
+                    <p-tag [value]="row.estatus" [severity]="getEstatusSeverity(row.estatus)"></p-tag>
                 </td>
-                <td>{{ punto.puntos }}</td>
-                <td>{{ punto.fecha }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <p-button 
-                      icon="pi pi-eye" 
-                      [rounded]="true" 
-                      [text]="true"
-                      severity="info"
-                      (onClick)="verDetallePunto(punto)"
-                      pTooltip="Ver detalle"
-                      tooltipPosition="top">
-                    </p-button>
-                    
-                    <p-button 
-                      icon="pi pi-trash" 
-                      [rounded]="true" 
-                      [text]="true"
-                      severity="danger"
-                      (onClick)="confirmarEliminacionPunto(punto)"
-                      pTooltip="Eliminar"
-                      tooltipPosition="top">
-                    </p-button>
-                  </div>
+                <td>{{ row.puntos }}</td>
+                <td>{{ row.fecha }}</td>
+                <td class="acciones">
+                    <p-button icon="pi pi-eye"   [text]="true" [rounded]="true" severity="info"
+                            (onClick)="verDetallePunto(row)"></p-button>
+                    <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                            (onClick)="confirmarEliminacionPunto(row)"></p-button>
                 </td>
-              </tr>
+                </tr>
             </ng-template>
-          </p-table>
+
+            </p-table>
         </div>
-      </p-tabPanel>
+        </p-tabPanel>
     </p-tabView>
+    </div>
   </div>
 </div>
 
