@@ -26,6 +26,7 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
 
 // PrimeNG Services
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar-cliente-admi/editar-cliente-admi.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     EditarLocalComponent,
     CambiarContrasenaAdminComponent,
     EditarEventoComponent,
-    CrearEventoComponent
+    CrearEventoComponent,
+    EditarClienteAdmiComponent
   ],
   imports: [
     CommonModule,

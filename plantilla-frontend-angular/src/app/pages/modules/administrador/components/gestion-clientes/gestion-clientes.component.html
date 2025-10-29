@@ -1,1 +1,182 @@
-<p>gestion-clientes works!</p>
+<div class="gestion-clientes-container">
+  <div class="header-section">
+    <h1 class="page-title">Lista de clientes</h1>
+    
+    <div class="search-bar">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input 
+          pInputText 
+          type="text" 
+          [(ngModel)]="searchValue"
+          
+          placeholder="Filtrar por nombre o correo" 
+          class="search-input" />
+      </span>
+    </div>
+  </div>
+
+  <p-table 
+    #dt
+    [value]="clientes" 
+    [paginator]="true" 
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [globalFilterFields]="['nombres', 'apellidos', 'email', 'docIdentidad']"
+    styleClass="p-datatable-gridlines tabla-clientes"
+    [tableStyle]="{'min-width': '50rem'}"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} clientes"
+    [showCurrentPageReport]="true">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id" style="width: 100px">
+          ID <p-sortIcon field="id"></p-sortIcon>
+        </th>
+        <th pSortableColumn="nombres" style="width: 200px">
+          Nombre <p-sortIcon field="nombres"></p-sortIcon>
+        </th>
+        <th pSortableColumn="docIdentidad" style="width: 150px">
+          DNI <p-sortIcon field="docIdentidad"></p-sortIcon>
+        </th>
+        <th pSortableColumn="fechaCreacion" style="width: 150px">
+          Fecha de creación <p-sortIcon field="fechaCreacion"></p-sortIcon>
+        </th>
+        <th style="width: 180px">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-cliente>
+      <tr>
+        <td>{{ cliente.id }}</td>
+        <td>{{ cliente.nombres }} {{ cliente.apellidos }}</td>
+        <td>{{ cliente.docIdentidad }}</td>
+        <td>{{ cliente.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
+        <td>
+          <div class="action-buttons">
+            <p-button 
+              icon="pi pi-eye" 
+              [rounded]="true" 
+              [text]="true"
+              severity="info"
+              (onClick)="verDetalle(cliente)"
+              pTooltip="Ver detalle"
+              tooltipPosition="top">
+            </p-button>
+            
+            <p-button 
+              icon="pi pi-pencil" 
+              [rounded]="true" 
+              [text]="true"
+              severity="primary"
+              (onClick)="editarCliente(cliente)"
+              pTooltip="Editar"
+              tooltipPosition="top">
+            </p-button>
+            
+            <p-button 
+              icon="pi pi-trash" 
+              [rounded]="true" 
+              [text]="true"
+              severity="danger"
+              (onClick)="confirmarEliminacion(cliente)"
+              pTooltip="Eliminar"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center">
+          <div class="empty-message">
+            <i class="pi pi-users" style="font-size: 3rem; color: #ccc;"></i>
+            <p>No se encontraron clientes</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <tr>
+        <td colspan="5">
+          <div class="loading-message">
+            <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+            <p>Cargando clientes...</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Dialog para ver detalle del cliente -->
+<p-dialog 
+  [(visible)]="mostrarDialogDetalle" 
+  [header]="'Detalle del Cliente - ' + clienteSeleccionado?.nombres"
+  [modal]="true" 
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <div class="detalle-cliente" *ngIf="clienteSeleccionado">
+    <div class="detalle-row">
+      <span class="detalle-label">ID:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.id }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Nombres:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.nombres }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Apellidos:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.apellidos }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Email:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.email }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Tipo de Documento:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.tipoDocumento }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Documento:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.docIdentidad }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Teléfono:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.telefono }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Dirección:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.direccion }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Fecha de Nacimiento:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.fechaNacimiento | date: 'dd/MM/yyyy' }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Fecha de Creación:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Rol:</span>
+      <p-tag [value]="clienteSeleccionado.rol" severity="success"></p-tag>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <p-button label="Cerrar" icon="pi pi-times" (onClick)="mostrarDialogDetalle = false" severity="secondary"></p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog de confirmación para eliminar -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Toast para mensajes -->
+<p-toast></p-toast>
