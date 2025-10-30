@@ -1,38 +1,145 @@
-.page { padding: 1rem; }
-.content-container {
-  background: #fff; border-radius: 14px; box-shadow: 0 8px 24px rgba(23, 21, 21, 0.06);
-  padding: 1.25rem 1.5rem 1.5rem; max-width: 1100px; margin: 0 auto;
+/* Contenedor principal */
+.gestion-codigos-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
-::ng-deep .btn-azulito {
-  background-color: #007ad9; /* Azul PrimeNG */
+/* Encabezado */
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #007ad9;
+  margin: 0;
+}
+
+.title-group i {
+  font-size: 1.5rem;
+  color: #007ad9;
+}
+
+/* Acciones */
+.acciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.buscador-codigos {
+  flex: 1;
+  max-width: 400px;
+}
+
+.buscador-codigos input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* Botón agregar */
+.btn-agregar {
+  background-color: #007ad9;
   color: white;
   border: none;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
 }
 
-::ng-deep .btn-azulito:hover {
-  background-color: #006bb3; /* Azul más oscuro al pasar el mouse */
+.btn-agregar:hover {
+  background-color: #006bb3;
 }
 
-
-.header-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-.title { margin: .25rem 0 1rem; font-size: 1.8rem; font-weight: 800; }
-.toolbar { margin: .25rem 0 1rem; }
-.toolbar .p-input-icon-left input { width: 320px; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-
-/* tabla estilo mock */
-.tabla-mock .p-datatable { border-radius: 12px; overflow: hidden; }
-.tabla-mock :where(.p-datatable-thead > tr > th){
-  background:#f4f6f8; font-weight:700; color:#111; border-color:#e5e7eb; padding:.9rem 1rem;
+/* Tabla */
+::ng-deep .tabla-codigos .p-datatable {
+  border-radius: 12px;
+  overflow: hidden;
 }
-.tabla-mock :where(.p-datatable-tbody > tr > td){
-  padding:1.1rem 1rem; border-color:#e5e7eb; color:#111;
+
+::ng-deep .tabla-codigos .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #007ad9;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
 }
-.tabla-mock :where(.p-datatable-tbody > tr:hover){ background:#fafafa; }
-.tabla-mock .acciones{ text-align:center; }
-.tabla-mock .acciones .p-button{ margin:0 .25rem; }
-.tabla-mock ::ng-deep .p-paginator{ justify-content:center; gap:.5rem; border-top:0; padding:.75rem; }
-.tabla-mock ::ng-deep .p-paginator .p-paginator-page.p-highlight{
-  background:#fde2e4; border-color:#f6c4c9; color:#dc3545;
+
+::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+::ng-deep .tabla-codigos .p-datatable-tbody > tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Código en monoespaciado */
+.codigo-mono {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Botones de acción */
+.acciones-cell {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-buttons .p-button {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+.action-buttons .p-button.p-button-icon-only {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gestion-codigos-container {
+    padding: 1rem;
+  }
+
+  .acciones-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  ::ng-deep .tabla-codigos .p-datatable-thead > tr > th,
+  ::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
 }
