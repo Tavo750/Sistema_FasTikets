@@ -86,11 +86,11 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-
+    formData.append('imagen', body.imagenUrl);
     // Agregar la imagen si existe
-    if (body.imagenUrl) {
-      formData.append('imagen', body.imagenUrl);
-    }
+    // if (body.imagenUrl) {
+    //   formData.append('imagen', body.imagenUrl);
+    // }
 
     return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
@@ -138,7 +138,7 @@ export class EventoService {
   }
 
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
-    const url = `${baseUrl}/eventos/${id}`;
+    const url = `${baseUrl}/eventos/${id}/con-imagen`;
 
     // Crear FormData para enviar multipart/form-data
     const formData = new FormData();
@@ -153,11 +153,11 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-
+    formData.append('imagen', body.imagenUrl);
     // Agregar la imagen si existe
-    if (body.imagenUrl) {
-      formData.append('imagen', body.imagenUrl);
-    }
+    // if (body.imagenUrl) {
+    //   formData.append('imagen', body.imagenUrl);
+    // }
 
     return this.http.put<CrearEventoResponse>(url, formData)
       .pipe(

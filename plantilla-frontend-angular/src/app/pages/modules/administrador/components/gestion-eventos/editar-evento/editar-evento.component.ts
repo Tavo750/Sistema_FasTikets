@@ -878,7 +878,7 @@ export class EditarEventoComponent implements OnInit{
           this.messageService.handleBackendResponse(response, false, 'Evento Creado');
 
           if (response.ok && response.data) {
-            this.messageService.success('Evento creado exitosamente', 'Proceso Completado');
+            this.messageService.success('Evento editado exitosamente', 'Proceso Completado');
 
             // Limpiar formulario después de crear exitosamente
             this.limpiarFormulario();
@@ -987,10 +987,10 @@ export class EditarEventoComponent implements OnInit{
       }
 
       // Validar que se haya seleccionado un banner
-      if (!this.formulario.banner) {
-        this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
-        return false;
-      }
+      // if (!this.formulario.banner) {
+      //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+      //   return false;
+      // }
 
       if (!this.formulario.localString || this.formulario.localString.trim() === '') {
         this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
@@ -1070,8 +1070,8 @@ export class EditarEventoComponent implements OnInit{
         imagenUrl: this.formulario.banner!,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
-        aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
-        idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
+        aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+        idLocal: parseInt(this.formulario.localString) || 1 // Usar el local seleccionado
       };
 
       return datosEvento;
@@ -1152,11 +1152,6 @@ export class EditarEventoComponent implements OnInit{
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
-      // Calcular aforo disponible total (suma de todas las categorías)
-      const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
-        return total + categoria.aforoMax;
-      }, 0);
-
       const datosEvento = {
         nombre: this.evento.nombre.trim(),
         descripcion: this.evento.descripcion.trim(),
@@ -1166,7 +1161,7 @@ export class EditarEventoComponent implements OnInit{
         imagenUrl: this.formulario.banner!,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
-        aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
+        aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
         idLocal: parseInt(this.formulario.localString)
       };
 
@@ -1408,7 +1403,7 @@ export class EditarEventoComponent implements OnInit{
       });
     }  /**
      * Actualiza el local con la nueva imagen del mapa
-     * @param imagenBase64 String en base64 de la imagen
+     * @param file Archivo de imagen seleccionado
      */
     private actualizarLocalConMapa(file: File): void {
       const idLocal = parseInt(this.formulario.localString);
@@ -1428,20 +1423,20 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      // Preparar datos para actualizar el local
-      const datosLocal: CrearLocalRequest = {
-        nombre: localSeleccionado.nombre,
-        direccion: localSeleccionado.direccion,
-        urlMapa: file, // Ahora se guarda el archivo directamente
-        aforoTotal: localSeleccionado.aforoTotal,
-        idDistrito: localSeleccionado.idDistrito
-      };
+      // Preparar FormData para actualizar el local con imagen
+      const formData = new FormData();
+      formData.append('id', idLocal.toString());
+      formData.append('nombre', localSeleccionado.nombre);
+      formData.append('direccion', localSeleccionado.direccion || '');
+      formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
+      formData.append('idDistrito', localSeleccionado.idDistrito.toString());
+      formData.append('imagen', file);
 
       // Mostrar mensaje de carga
       this.messageService.info('Actualizando imagen del mapa...', 'Procesando');
 
-      // Llamar al servicio para actualizar el local
-      this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
+      // Llamar al servicio para actualizar el local con imagen
+      this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
         next: (response) => {
           this.messageService.success(
             'Imagen del mapa actualizada exitosamente en el local',

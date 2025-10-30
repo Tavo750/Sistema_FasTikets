@@ -50,7 +50,7 @@ export class LocalService {
    * @returns Observable con la respuesta del servidor
    */
   putActualizarLocalconImagen(id: number, formData: FormData): Observable<LocalResponse> {
-    const url = `${baseUrl}/locales/${id}`;
+    const url = `${baseUrl}/locales/${id}/con-imagen`;
     return this.http.put<LocalResponse>(url, formData)
       .pipe(
         catchError(this.httpUtils.handleError)

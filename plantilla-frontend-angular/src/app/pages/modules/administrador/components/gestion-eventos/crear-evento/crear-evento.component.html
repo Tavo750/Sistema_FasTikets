@@ -230,6 +230,28 @@
               </div>
             </div>
           </div>
+
+          <!-- Campo Aforo Disponible -->
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-users"></i>
+              Aforo disponible
+            </label>
+            <p-inputNumber
+              [(ngModel)]="evento.aforoDisponible"
+              placeholder="Ej. 1000"
+              [min]="1"
+              [max]="999999"
+              class="form-input"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              spinnerMode="horizontal"
+              incrementButtonClass="p-button-secondary"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+            ></p-inputNumber>
+          </div>
         </div>
       </div>
 

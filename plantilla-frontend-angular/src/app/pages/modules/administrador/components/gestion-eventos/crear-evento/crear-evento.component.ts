@@ -780,10 +780,10 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Validar que se haya seleccionado un banner
-    if (!this.formulario.banner) {
-      this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
-      return false;
-    }
+    // if (!this.formulario.banner) {
+    //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+    //   return false;
+    // }
 
     if (!this.formulario.localString || this.formulario.localString.trim() === '') {
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
@@ -863,8 +863,8 @@ export class CrearEventoComponent implements OnInit{
       imagenUrl: this.formulario.banner!,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
-      aforoDisponible: 1000, // Valor temporal, se actualizará cuando se configure el local
-      idLocal: 1 // Valor temporal, se actualizará cuando se seleccione el local
+      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+      idLocal: parseInt(this.formulario.localString) || 1 // Usar el local seleccionado
     };
 
     return datosEvento;
@@ -945,11 +945,6 @@ export class CrearEventoComponent implements OnInit{
     const horaFin = this.timeFinal ?
       `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
-    // Calcular aforo disponible total (suma de todas las categorías)
-    const aforoTotal = this.categoriasLocal.reduce((total, categoria) => {
-      return total + categoria.aforoMax;
-    }, 0);
-
     const datosEvento = {
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
@@ -959,7 +954,7 @@ export class CrearEventoComponent implements OnInit{
       imagenUrl: this.formulario.banner!,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
-      aforoDisponible: aforoTotal || 1000, // Valor por defecto si no hay categorías
+      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
       idLocal: parseInt(this.formulario.localString)
     };
 
