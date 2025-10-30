@@ -239,7 +239,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
                   this.zonasConTickets.push({
                     zona: zona,
                     tickets: ticketsDeZona.sort((a, b) => a.price - b.price), // Ordenar por precio
-                    expanded: true // Por defecto las zonas inician expandidas
+                    expanded: false // Por defecto las zonas inician colapsadas
                   });
 
                   zonasProcessed++;
@@ -257,7 +257,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
                   this.zonasConTickets.push({
                     zona: zona,
                     tickets: [],
-                    expanded: true // Por defecto las zonas inician expandidas
+                    expanded: false // Por defecto las zonas inician colapsadas
                   });
 
                   zonasProcessed++;
@@ -308,7 +308,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
             { name: 'Tribuna', price: 130.00, quantity: 0, description: 'Asientos con buena vista' },
             { name: 'General', price: 100.00, quantity: 0, description: 'Acceso general' },
           ],
-          expanded: true // Por defecto expandida
+          expanded: false // Por defecto colapsada
         }
       ];
     }
