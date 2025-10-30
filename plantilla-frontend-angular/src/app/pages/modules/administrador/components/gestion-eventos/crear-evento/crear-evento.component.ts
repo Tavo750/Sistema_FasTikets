@@ -1143,20 +1143,20 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar datos para actualizar el local
-    const datosLocal: CrearLocalRequest = {
-      nombre: localSeleccionado.nombre,
-      direccion: localSeleccionado.direccion,
-      urlMapa: file, // Ahora se guarda el archivo directamente
-      aforoTotal: localSeleccionado.aforoTotal,
-      idDistrito: localSeleccionado.idDistrito
-    };
+    // Preparar FormData para actualizar el local con imagen
+    const formData = new FormData();
+    formData.append('id', idLocal.toString());
+    formData.append('nombre', localSeleccionado.nombre);
+    formData.append('direccion', localSeleccionado.direccion || '');
+    formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
+    formData.append('idDistrito', localSeleccionado.idDistrito.toString());
+    formData.append('imagen', file);
 
     // Mostrar mensaje de carga
     this.messageService.info('Actualizando imagen del mapa...', 'Procesando');
 
-    // Llamar al servicio para actualizar el local
-    this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
+    // Llamar al servicio para actualizar el local con imagen
+    this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
       next: (response) => {
         this.messageService.success(
           'Imagen del mapa actualizada exitosamente en el local',
@@ -1214,20 +1214,20 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar datos para actualizar el local (sin imagen del mapa)
-    const datosLocal: CrearLocalRequest = {
-      nombre: localSeleccionado.nombre,
-      direccion: localSeleccionado.direccion,
-      urlMapa: null as any, // Eliminar la imagen del mapa
-      aforoTotal: localSeleccionado.aforoTotal,
-      idDistrito: localSeleccionado.idDistrito
-    };
+    // Preparar FormData para actualizar el local (sin imagen del mapa)
+    const formData = new FormData();
+    formData.append('id', idLocal.toString());
+    formData.append('nombre', localSeleccionado.nombre);
+    formData.append('direccion', localSeleccionado.direccion || '');
+    formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
+    formData.append('idDistrito', localSeleccionado.idDistrito.toString());
+    // No se agrega imagen para eliminarla
 
     // Mostrar mensaje de carga
     this.messageService.info('Eliminando imagen del mapa...', 'Procesando');
 
-    // Llamar al servicio para actualizar el local
-    this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
+    // Llamar al servicio para actualizar el local con imagen
+    this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
       next: (response) => {
         this.limpiarImagenMapaLocal();
         this.messageService.success(

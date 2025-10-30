@@ -498,6 +498,16 @@
                   </div>
                 </div>
               </div>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                outlined="true"
+                size="small"
+                (onClick)="onEliminarEntradaDisponible(entrada.idTipoTicket, $event)"
+                pTooltip="Eliminar entrada"
+                tooltipPosition="left"
+                class="delete-entrada-btn"
+              ></p-button>
             </div>
           </div>
         </div>

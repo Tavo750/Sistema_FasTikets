@@ -846,3 +846,135 @@
   transform-origin: center bottom !important;
   margin-bottom: 4px !important;
 }
+
+/* Estilos para entradas disponibles */
+.entrada-disponible-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.entrada-disponible-item:hover {
+  border-color: #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+}
+
+.entrada-disponible-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.entrada-disponible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.entrada-disponible-nombre {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+.entrada-disponible-precio {
+  font-weight: 700;
+  color: #059669;
+  font-size: 1.1rem;
+}
+
+.entrada-disponible-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.entrada-disponible-descripcion {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.entrada-disponible-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.entrada-disponible-stock,
+.entrada-disponible-limite {
+  color: #4b5563;
+  font-size: 0.8rem;
+  background: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.entrada-disponible-estado {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.entrada-disponible-estado.activo {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.entrada-disponible-estado.inactivo {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.delete-entrada-btn {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+::ng-deep .delete-entrada-btn .p-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep .delete-entrada-btn .p-button:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+}
+
+/* Responsive para entradas disponibles */
+@media (max-width: 768px) {
+  .entrada-disponible-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .entrada-disponible-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .entrada-disponible-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .delete-entrada-btn {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}

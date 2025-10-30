@@ -193,18 +193,15 @@ export class EditarEventoComponent implements OnInit{
     ) { }
 
     ngOnInit(): void {
+       // Aquí puedes cargar datos del evento si estás editando
+      this.cargarEvento();
       // Cargar locales disponibles
       this.cargarLocales();
-
       // Cargar entradas disponibles del sistema
       this.cargarEntradas();
-
       // Inicializar horas por defecto para ayudar con la interacción
       this.inicializarHorasPorDefecto();
-
       // Las zonas se cargarán cuando se seleccione un local
-      // Aquí puedes cargar datos del evento si estás editando
-      this.cargarEvento();
     }
 
     /**
@@ -258,11 +255,7 @@ export class EditarEventoComponent implements OnInit{
               // Inicializar formulario con datos del evento cargado
               this.inicializarFormularioDesdeEvento();
 
-              // Cargar las zonas del local del evento
-              if (this.evento.idLocal) {
-                this.formulario.localString = this.evento.idLocal.toString();
-                this.cargarZonas(this.evento.idLocal);
-              }
+              // El local y las zonas se cargarán cuando se complete cargarLocales()
 
             } else {
               this.messageService.searchNoResults('No se pudieron cargar los datos del evento');
@@ -325,10 +318,12 @@ export class EditarEventoComponent implements OnInit{
         this.formulario.banner = this.evento.imagenUrl;
       }
 
-      // Inicializar localString con idLocal solo si estamos editando un evento existente
-      // Para eventos nuevos, mantener vacío para mostrar "Seleccionar local"
-      if (this.idEvento && this.evento.idLocal && this.evento.idLocal !== 1) {
+      // Inicializar localString con idLocal cuando estamos editando un evento existente
+      if (this.modoEdicion && this.evento.idLocal) {
         this.formulario.localString = this.evento.idLocal.toString();
+      } else if (!this.modoEdicion) {
+        // Para eventos nuevos, mantener vacío para mostrar "Seleccionar local"
+        this.formulario.localString = '';
       }
     }
 
@@ -399,6 +394,23 @@ export class EditarEventoComponent implements OnInit{
                   value: local.idLocal.toString()
                 }))
             ];
+
+            // Si estamos en modo edición y ya tenemos un idLocal, asegurar que se mantenga seleccionado
+            if (this.modoEdicion && this.evento.idLocal) {
+              this.formulario.localString = this.evento.idLocal.toString();
+
+              // Obtener información del local preseleccionado para mostrar al usuario
+              const localPreseleccionado = this.obtenerDatosLocal(this.evento.idLocal.toString());
+              if (localPreseleccionado) {
+                this.messageService.info(
+                  `Local del evento: ${localPreseleccionado.nombre} - ${localPreseleccionado.nombreDistrito}`,
+                  'Información'
+                );
+              }
+
+              // También cargar las zonas del local seleccionado
+              this.cargarZonas(this.evento.idLocal);
+            }
           } else {
             this.messageService.searchNoResults('No se pudieron cargar los locales');
           }
@@ -1668,6 +1680,74 @@ export class EditarEventoComponent implements OnInit{
             },
             error: (error) => {
               console.error('Error al eliminar entrada:', error);
+              this.messageService.handleHttpError(error);
+            }
+          });
+        }
+      );
+    }
+
+    /**
+     * Elimina una entrada disponible de la zona seleccionada
+     * @param idEntrada ID de la entrada a eliminar
+     * @param event Evento del botón para posicionar el popup de confirmación
+     */
+    onEliminarEntradaDisponible(idEntrada: number, event: Event): void {
+      event.stopPropagation();
+
+      // Buscar la entrada en el array de entradas por zona seleccionada
+      const entradaAEliminar = this.entradasPorZonaSeleccionada.find(entrada => entrada.idTipoTicket === idEntrada);
+
+      if (!entradaAEliminar) {
+        this.messageService.error('No se encontró la entrada a eliminar', 'Error de Datos');
+        return;
+      }
+
+      this.confirmPopupService.confirmDelete(
+        event,
+        `¿Estás seguro de que deseas eliminar la entrada "${entradaAEliminar.nombre}"?`,
+        () => {
+          // Mostrar mensaje de procesamiento
+          this.messageService.info('Eliminando entrada...', 'Procesando');
+
+          // Llamar al servicio para eliminar la entrada del backend
+          this.eventoService.deleteEntrada(idEntrada).subscribe({
+            next: (response) => {
+              if (response.ok) {
+                // Eliminar de la lista local solo si la eliminación en el backend fue exitosa
+                this.entradasPorZonaSeleccionada = this.entradasPorZonaSeleccionada.filter(
+                  entrada => entrada.idTipoTicket !== idEntrada
+                );
+
+                // También actualizar la lista general de entradas disponibles si existe
+                if (this.entradasDisponibles && this.entradasDisponibles.length > 0) {
+                  this.entradasDisponibles = this.entradasDisponibles.filter(
+                    entrada => entrada.idTipoTicket !== idEntrada
+                  );
+                }
+
+                // Mostrar mensaje de éxito
+                this.messageService.success(
+                  response.mensaje || `Entrada "${entradaAEliminar.nombre}" eliminada exitosamente`,
+                  'Entrada Eliminada'
+                );
+
+                // Recargar las entradas de la zona si hay una zona seleccionada
+                if (this.validoPara) {
+                  const idZona = parseInt(this.validoPara);
+                  if (!isNaN(idZona)) {
+                    this.cargarEntradasPorZona(idZona);
+                  }
+                }
+              } else {
+                this.messageService.error(
+                  response.mensaje || 'No se pudo eliminar la entrada',
+                  'Error al Eliminar Entrada'
+                );
+              }
+            },
+            error: (error) => {
+              console.error('Error al eliminar entrada disponible:', error);
               this.messageService.handleHttpError(error);
             }
           });

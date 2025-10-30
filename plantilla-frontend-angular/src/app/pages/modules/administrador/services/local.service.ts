@@ -42,6 +42,20 @@ export class LocalService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Actualiza un local existente con imagen
+   * @param id ID del local a actualizar
+   * @param formData FormData que contiene los datos del local y la imagen
+   * @returns Observable con la respuesta del servidor
+   */
+  putActualizarLocalconImagen(id: number, formData: FormData): Observable<LocalResponse> {
+    const url = `${baseUrl}/locales/${id}`;
+    return this.http.put<LocalResponse>(url, formData)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
   /**
    * Obtiene la lista de todos los locales
    * @returns Observable con la respuesta que contiene la lista de locales
