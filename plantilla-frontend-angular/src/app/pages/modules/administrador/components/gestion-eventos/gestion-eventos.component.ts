@@ -54,8 +54,13 @@ export class GestionEventosComponent implements OnInit {
       { label: 'Urbano', value: 'URBANO' }
     ];
 
+
+    console.log('holaaa...');
     this.cargarEventos();
-  }  cargarEventos() {
+    console.log('holaaa...');
+  }
+
+  cargarEventos() {
     this.cargando = true;
     this.eventoService.getListarEventos().subscribe({
       next: (response) => {
@@ -89,9 +94,14 @@ export class GestionEventosComponent implements OnInit {
               horaFin: response.data.horaFin
             }];
           }
+          this.filtrarEventos();
+          console.log('Eventos cargados:', this.eventos);
           this.eventosFiltrados = [...this.eventos];
         }
+        this.filtrarEventos();
         this.cargando = false;
+
+        console.log('Eventos cargados:', this.eventos);
       },
       error: (error) => {
         console.error('Error al cargar eventos:', error);
@@ -108,10 +118,11 @@ export class GestionEventosComponent implements OnInit {
       const coincideTipo = !this.tipoSeleccionado ||
                           this.tipoSeleccionado.value === 'ALL' ||
                           evento.tipoEvento === this.tipoSeleccionado.value;
+      const esPublicado = evento.estadoEvento?.toUpperCase() === 'PUBLICADO';
 
-      return coincideNombre && coincideTipo;
-    });
-  }
+      return coincideNombre && coincideTipo && esPublicado;
+  });
+}
 
   onBusquedaChange() {
     this.filtrarEventos();

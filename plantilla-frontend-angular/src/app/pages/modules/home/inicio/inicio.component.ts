@@ -71,15 +71,21 @@ export class InicioComponent implements OnInit {
         this.cargandoEventos = false;
 
         if (response.ok && response.data) {
+          let eventosData: Data[] = [];
+
           // Si response.data es un array
           if (Array.isArray(response.data)) {
-            this.eventos = response.data.map(evento => this.mapearEventoData(evento));
+            eventosData = response.data;
           }
           // Si response.data es un objeto único
           else {
-            this.eventos = [this.mapearEventoData(response.data)];
+            eventosData = [response.data];
           }
 
+          // Filtrar solo eventos con estadoEvento = 'PUBLICADO'
+          const eventosPublicados = eventosData.filter(evento => evento.estadoEvento === 'PUBLICADO');
+
+          this.eventos = eventosPublicados.map(evento => this.mapearEventoData(evento));
           this.eventosFiltrados = [...this.eventos];
           this.inicializarDropdowns();
           this.aplicarOrden();
