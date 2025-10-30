@@ -36,7 +36,7 @@ export class CambiarContrasenaAdminComponent implements OnInit {
   passwordsMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
     const contrasenaNueva = control.get('contrasenaNueva');
     const confirmarContrasena = control.get('confirmarContrasena');
-    
+
     if (contrasenaNueva && confirmarContrasena && contrasenaNueva.value !== confirmarContrasena.value) {
       return { passwordsMismatch: true };
     }
@@ -50,7 +50,7 @@ export class CambiarContrasenaAdminComponent implements OnInit {
       this.mensajeExito = '';
 
       const formValues = this.cambiarContrasenaForm.value;
-      
+
       const requestData: CambiarContrasenaRequest = {
         contrasenaActual: formValues.contrasenaActual,
         contrasenaNueva: formValues.contrasenaNueva,
@@ -105,7 +105,7 @@ export class CambiarContrasenaAdminComponent implements OnInit {
 
   volver() {
     // Navegar de vuelta al perfil del administrador
-    this.router.navigate(['/administrador/perfil']);
+    this.router.navigate(['/administrador/perfilAdministrador']);
   }
 
   /**
@@ -121,7 +121,7 @@ export class CambiarContrasenaAdminComponent implements OnInit {
    */
   getFieldErrorMessage(fieldName: string): string {
     const field = this.cambiarContrasenaForm?.get(fieldName);
-    
+
     if (field?.errors) {
       if (field.errors['required']) {
         return 'Este campo es requerido';

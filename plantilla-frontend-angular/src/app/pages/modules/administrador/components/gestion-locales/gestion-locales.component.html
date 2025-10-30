@@ -55,11 +55,11 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="id" class="id-column">
+            <th pSortableColumn="idLocal" class="id-column">
               <div class="header-content">
                 <i class="pi pi-hashtag"></i>
                 ID
-                <p-sortIcon field="id"></p-sortIcon>
+                <p-sortIcon field="idLocal"></p-sortIcon>
               </div>
             </th>
             <th pSortableColumn="nombre">
@@ -76,25 +76,25 @@
                 <p-sortIcon field="direccion"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="distrito">
+            <th pSortableColumn="nombreDistrito">
               <div class="header-content">
                 <i class="pi pi-map"></i>
                 Distrito
-                <p-sortIcon field="distrito"></p-sortIcon>
+                <p-sortIcon field="nombreDistrito"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="aforo">
+            <th pSortableColumn="aforoTotal">
               <div class="header-content">
                 <i class="pi pi-users"></i>
                 Aforo
-                <p-sortIcon field="aforo"></p-sortIcon>
+                <p-sortIcon field="aforoTotal"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="estado">
+            <th pSortableColumn="activo">
               <div class="header-content">
                 <i class="pi pi-check-circle"></i>
                 Estado
-                <p-sortIcon field="estado"></p-sortIcon>
+                <p-sortIcon field="activo"></p-sortIcon>
               </div>
             </th>
             <th class="actions-column">
@@ -109,7 +109,7 @@
         <ng-template pTemplate="body" let-local>
           <tr class="table-row">
             <td class="id-cell">
-              <span class="id-badge">{{local.id}}</span>
+              <span class="id-badge">{{local.idLocal}}</span>
             </td>
             <td class="name-cell">
               <div class="name-content">
@@ -118,15 +118,15 @@
               </div>
             </td>
             <td class="address-cell">{{local.direccion}}</td>
-            <td class="district-cell">{{local.distrito}}</td>
+            <td class="district-cell">{{local.nombreDistrito}}</td>
             <td class="capacity-cell">
-              <span class="capacity-value">{{local.aforo | number}}</span>
+              <span class="capacity-value">{{local.aforoTotal | number}}</span>
               <span class="capacity-label">personas</span>
             </td>
             <td class="status-cell">
               <p-tag
-                [value]="local.estado"
-                [severity]="local.estado === 'HABILITADO' ? 'success' : 'danger'"
+                [value]="getEstadoLocal(local.activo)"
+                [severity]="local.activo ? 'success' : 'danger'"
                 class="status-tag">
               </p-tag>
             </td>
@@ -140,7 +140,7 @@
                   [rounded]="true"
                   pTooltip="Editar local"
                   tooltipPosition="top"
-                  (onClick)="editarLocal(local.id)">
+                  (onClick)="editarLocal(local.idLocal)">
                 </p-button>
                 <p-button
                   icon="pi pi-trash"

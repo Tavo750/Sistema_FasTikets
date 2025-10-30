@@ -37,7 +37,7 @@
             <input
               type="text"
               pInputText
-              [(ngModel)]="evento.titulo"
+              [(ngModel)]="evento.nombre"
               placeholder="Ej. Soda Stereo..."
               class="form-input"
             />
@@ -49,7 +49,7 @@
               Categoría del evento
             </label>
             <p-dropdown
-              [(ngModel)]="evento.categoria"
+              [(ngModel)]="evento.tipoEvento"
               [options]="categorias"
               optionLabel="label"
               optionValue="value"
@@ -72,7 +72,7 @@
             ></textarea>
           </div>
 
-          <div class="form-row">
+          <div class="form-row three-columns">
             <div class="form-field">
               <label class="field-label">
                 <i class="pi pi-calendar"></i>
@@ -82,6 +82,7 @@
                 [(ngModel)]="date"
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
+                (onSelect)="onFechaSeleccionada($event)"
               ></p-datepicker>
             </div>
 
@@ -93,11 +94,35 @@
               <p-datepicker
                 [(ngModel)]="time"
                 [timeOnly]="true"
+                [showTime]="true"
+                hourFormat="24"
+                [showSeconds]="false"
                 styleClass="form-input"
+                placeholder="Seleccionar hora"
+                (onSelect)="onHoraInicioSeleccionada($event)"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-clock"></i>
+                Hora de finalización
+              </label>
+              <p-datepicker
+                [(ngModel)]="timeFinal"
+                [timeOnly]="true"
+                [showTime]="true"
+                hourFormat="24"
+                [showSeconds]="false"
+                styleClass="form-input"
+                placeholder="Seleccionar hora"
+                (onSelect)="onHoraFinalSeleccionada($event)"
               ></p-datepicker>
             </div>
           </div>
 
+          <!-- Campo oculto: La imagen del banner se guarda automáticamente en videoPromocional/imagenUrl -->
+          <!--
           <div class="form-field">
             <label class="field-label">
               <i class="pi pi-video"></i>
@@ -111,6 +136,7 @@
               class="form-input"
             />
           </div>
+          -->
 
           <div class="form-field">
             <label class="field-label">
@@ -157,9 +183,9 @@
 
             <div class="banner-section">
               <!-- Mostrar imagen actual del banner -->
-              <div class="banner-display" *ngIf="evento.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
+              <div class="banner-display" *ngIf="formulario.bannerUrl || usarBannerDefault" (click)="fileInput.click()">
                 <img
-                  [src]="evento.bannerUrl"
+                  [src]="formulario.bannerUrl"
                   alt="Banner del evento"
                   class="banner-imagen">
                 <div class="banner-overlay">
@@ -169,7 +195,7 @@
               </div>
 
               <!-- Área de subida cuando no hay imagen -->
-              <div class="upload-area" (click)="fileInput.click()" *ngIf="!evento.bannerUrl && !usarBannerDefault">
+              <div class="upload-area" (click)="fileInput.click()" *ngIf="!formulario.bannerUrl && !usarBannerDefault">
                 <i class="pi pi-cloud-upload"></i>
                 <p>Subir imagen del banner</p>
                 <small>JPG, PNG - Máximo 5MB</small>
@@ -185,7 +211,7 @@
               />
 
               <!-- Botones de acción para el banner -->
-              <div class="banner-actions" *ngIf="evento.bannerUrl">
+              <div class="banner-actions" *ngIf="formulario.bannerUrl">
                 <p-button
                   label="Cambiar"
                   icon="pi pi-upload"
@@ -204,8 +230,32 @@
               </div>
             </div>
           </div>
+
+          <!-- Campo Aforo Disponible -->
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-users"></i>
+              Aforo disponible
+            </label>
+            <p-inputNumber
+              [(ngModel)]="evento.aforoDisponible"
+              placeholder="Ej. 1000"
+              [min]="1"
+              [max]="999999"
+              class="form-input"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              spinnerMode="horizontal"
+              incrementButtonClass="p-button-secondary"
+              decrementButtonClass="p-button-secondary"
+              incrementButtonIcon="pi pi-plus"
+              decrementButtonIcon="pi pi-minus"
+            ></p-inputNumber>
+          </div>
         </div>
       </div>
+
+
     </p-card>
 
     <!-- Sección 2: Local y Asientos -->
@@ -225,13 +275,22 @@
             Seleccionar local
           </label>
           <p-dropdown
-            [(ngModel)]="evento.local"
+            [(ngModel)]="formulario.localString"
             [options]="localesOptions"
             optionLabel="label"
             optionValue="value"
             placeholder="Seleccionar local para el evento..."
             styleClass="form-input"
+            [loading]="cargandoLocales"
+            [disabled]="cargandoLocales"
+            (onChange)="onLocalSeleccionado($event)"
           ></p-dropdown>
+
+          <!-- Indicador de carga -->
+          <div *ngIf="cargandoLocales" class="loading-indicator">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Cargando locales disponibles...</span>
+          </div>
         </div>
 
         <div class="local-asientos-grid">
@@ -239,7 +298,7 @@
           <div class="categorias-section">
             <h4 class="subsection-title">
               <i class="pi pi-tags"></i>
-              Categorías de asientos
+              Categorías de zonas
             </h4>
 
             <div class="categoria-input-row">
@@ -270,7 +329,7 @@
                   icon="pi pi-plus"
                   severity="success"
                   outlined="true"
-                  (onClick)="onAgregarCategoria()"
+                  (click)="onAgregarCategoria()"
                   pTooltip="Agregar categoría"
                 ></p-button>
               </div>
@@ -278,16 +337,17 @@
 
             <!-- Lista de categorías agregadas -->
             <div class="categorias-agregadas" *ngIf="categoriasLocal && categoriasLocal.length > 0">
+              <h5>Categorías agregadas:</h5>
               <div class="categoria-item" *ngFor="let categoria of categoriasLocal; let i = index">
                 <div class="categoria-info">
                   <span class="categoria-nombre">{{ categoria.nombre }}</span>
-                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMaximo }}</span>
+                  <span class="categoria-aforo">Aforo: {{ categoria.aforoMax }}</span>
                 </div>
                 <p-button
                   icon="pi pi-trash"
                   severity="danger"
                   text="true"
-                  (onClick)="onEliminarCategoria(i, $event)"
+                  (click)="onEliminarCategoria(i, $event)"
                   pTooltip="Eliminar categoría"
                 ></p-button>
               </div>
@@ -303,9 +363,9 @@
 
             <div class="mapa-container">
               <!-- Mostrar imagen actual o por defecto -->
-              <div class="mapa-display" *ngIf="evento.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
+              <div class="mapa-display" *ngIf="formulario.mapaUrl || usarMapaDefault" (click)="fileInputMapa.click()">
                 <img
-                  [src]="evento.mapaUrl"
+                  [src]="formulario.mapaUrl"
                   alt="Mapa del local"
                   class="mapa-imagen">
                 <div class="mapa-overlay">
@@ -315,7 +375,7 @@
               </div>
 
               <!-- Área de subida cuando no hay imagen -->
-              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!evento.mapaUrl && !usarMapaDefault">
+              <div class="upload-area" (click)="fileInputMapa.click()" *ngIf="!formulario.mapaUrl && !usarMapaDefault">
                 <i class="pi pi-cloud-upload"></i>
                 <p>Subir mapa del local</p>
                 <small>JPG, PNG - Máximo 5MB</small>
@@ -331,7 +391,7 @@
               />
 
               <!-- Botones de acción para el mapa -->
-              <div class="mapa-actions" *ngIf="evento.mapaUrl">
+              <div class="mapa-actions" *ngIf="formulario.mapaUrl">
                 <p-button
                   label="Cambiar"
                   icon="pi pi-upload"
@@ -370,7 +430,7 @@
             Moneda
           </label>
           <p-dropdown
-            [(ngModel)]="evento.moneda"
+            [(ngModel)]="formulario.moneda"
             [options]="monedaOptions"
             optionLabel="label"
             optionValue="value"
@@ -397,6 +457,22 @@
 
           <div class="entrada-field">
             <label class="field-label">
+              <i class="pi pi-dollar"></i>
+              Precio
+            </label>
+            <p-inputNumber
+              [(ngModel)]="entradaPrecio"
+              placeholder="50.00"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [useGrouping]="false"
+              styleClass="form-input"
+            ></p-inputNumber>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
               <i class="pi pi-check"></i>
               Válido para
             </label>
@@ -410,14 +486,44 @@
             ></p-dropdown>
           </div>
 
-          <div class="entrada-actions">
+          <div class="entrada-field">
+            <label class="field-label" style="visibility: hidden;">
+              &nbsp;
+            </label>
             <p-button
               label="Agregar Entrada"
               icon="pi pi-plus"
               severity="success"
               outlined="true"
               (onClick)="onAgregarEntrada()"
+              class="form-input agregar-btn"
             ></p-button>
+          </div>
+        </div>
+
+        <!-- Lista de entradas agregadas -->
+        <div class="entradas-agregadas-section" *ngIf="entradasAgregadas && entradasAgregadas.length > 0">
+          <h4 class="subsection-title">
+            <i class="pi pi-list"></i>
+            Entradas agregadas ({{ entradasAgregadas.length }})
+          </h4>
+
+          <div class="entradas-agregadas">
+            <h5>Entradas agregadas:</h5>
+            <div class="entrada-item" *ngFor="let entrada of entradasAgregadas">
+              <div class="entrada-info">
+                <span class="entrada-nombre">{{ entrada.nombre }}</span>
+                <span class="entrada-precio">{{ obtenerSimboloMoneda(entrada.moneda) }} {{ entrada.precio | number:'1.2-2' }}</span>
+                <span class="entrada-categoria">{{ entrada.validoParaLabel }}</span>
+              </div>
+              <p-button
+                icon="pi pi-trash"
+                severity="danger"
+                text="true"
+                (click)="onEliminarEntrada(entrada.id, $event)"
+                pTooltip="Eliminar entrada"
+              ></p-button>
+            </div>
           </div>
         </div>
 
@@ -473,7 +579,7 @@
       <p-button
         label="Crear Evento"
         icon="pi pi-check"
-        (onClick)="onGuardarCambios()"
+        (onClick)="onCrearEvento()"
       ></p-button>
     </div>
   </div>

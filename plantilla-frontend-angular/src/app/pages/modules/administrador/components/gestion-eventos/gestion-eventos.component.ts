@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { EventoService } from '../../services/evento.service';
+import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
 
 interface TipoConcierto {
-  name: string;
-  code: string;
+  label: string;
+  value: string;
 }
 
 interface Evento {
-  id: number;
+  idEvento: number;
   nombre: string;
-  tipo: string;
-  fecha: Date;
-  lugar: string;
-  capacidad: number;
-  vendidos: number;
-  ocupacion: number;
-  ingresos: number;
-  estado: string;
+  tipoEvento: string;
+  fechaEvento: Date;
+  nombreLocal: string;
+  aforoDisponible: number;
+  estadoEvento: string;
+  descripcion: string;
+  horaInicio: string;
+  horaFin: string;
 }
 
 @Component({
@@ -31,72 +33,96 @@ export class GestionEventosComponent implements OnInit {
   eventosFiltrados: Evento[] = [];
   terminoBusqueda: string = '';
   tipoSeleccionado: TipoConcierto | null = null;
+  cargando: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private eventoService: EventoService
+  ) {}
 
   ngOnInit() {
     this.tiposConcierto = [
-      { name: 'Todos los tipos', code: 'ALL' },
-      { name: 'Rock', code: 'ROCK' },
-      { name: 'Pop', code: 'POP' },
-      { name: 'Reggaeton', code: 'RGTN' },
-      { name: 'Electrónica', code: 'ELEC' },
-      { name: 'Jazz', code: 'JAZZ' }
+      { label: 'Todos los tipos', value: 'ALL' },
+      { label: 'Punk', value: 'PUNK' },
+      { label: 'Rock', value: 'ROCK' },
+      { label: 'Metal', value: 'METAL' },
+      { label: 'Pop', value: 'POP' },
+      { label: 'Reggae', value: 'REGGAE' },
+      { label: 'Reggaetón', value: 'REGGAETON' },
+      { label: 'Electrónica', value: 'ELECTRONICA' },
+      { label: 'Rock Pop', value: 'ROCK_POP' },
+      { label: 'Urbano', value: 'URBANO' }
     ];
 
-    // Datos de ejemplo
-    this.eventos = [
-      {
-        id: 1,
-        nombre: 'Bad Bunny',
-        tipo: 'Reggaeton',
-        fecha: new Date('2024-03-14'),
-        lugar: 'Estadio Nacional Peru',
-        capacidad: 45000,
-        vendidos: 42930,
-        ocupacion: 95.4,
-        ingresos: 333874000.992,
-        estado: 'Completado'
+
+    console.log('holaaa...');
+    this.cargarEventos();
+    console.log('holaaa...');
+  }
+
+  cargarEventos() {
+    this.cargando = true;
+    this.eventoService.getListarEventos().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          // Si data es un array
+          if (Array.isArray(response.data)) {
+            this.eventos = response.data.map((evento: EventoData) => ({
+              idEvento: evento.idEvento,
+              nombre: evento.nombre,
+              tipoEvento: evento.tipoEvento,
+              fechaEvento: new Date(evento.fechaEvento),
+              nombreLocal: evento.nombreLocal,
+              aforoDisponible: evento.aforoDisponible,
+              estadoEvento: evento.estadoEvento,
+              descripcion: evento.descripcion,
+              horaInicio: evento.horaInicio,
+              horaFin: evento.horaFin
+            }));
+          } else {
+            // Si data es un objeto único
+            this.eventos = [{
+              idEvento: response.data.idEvento,
+              nombre: response.data.nombre,
+              tipoEvento: response.data.tipoEvento,
+              fechaEvento: new Date(response.data.fechaEvento),
+              nombreLocal: response.data.nombreLocal,
+              aforoDisponible: response.data.aforoDisponible,
+              estadoEvento: response.data.estadoEvento,
+              descripcion: response.data.descripcion,
+              horaInicio: response.data.horaInicio,
+              horaFin: response.data.horaFin
+            }];
+          }
+          this.filtrarEventos();
+          console.log('Eventos cargados:', this.eventos);
+          this.eventosFiltrados = [...this.eventos];
+        }
+        this.filtrarEventos();
+        this.cargando = false;
+
+        console.log('Eventos cargados:', this.eventos);
       },
-      {
-        id: 2,
-        nombre: 'Metallica',
-        tipo: 'Rock',
-        fecha: new Date('2024-05-20'),
-        lugar: 'Arena Lima',
-        capacidad: 35000,
-        vendidos: 34200,
-        ocupacion: 97.7,
-        ingresos: 425000000,
-        estado: 'Próximo'
-      },
-      {
-        id: 3,
-        nombre: 'Taylor Swift',
-        tipo: 'Pop',
-        fecha: new Date('2024-07-15'),
-        lugar: 'Estadio San Marcos',
-        capacidad: 50000,
-        vendidos: 49800,
-        ocupacion: 99.6,
-        ingresos: 780000000,
-        estado: 'Vendido'
+      error: (error) => {
+        console.error('Error al cargar eventos:', error);
+        this.eventos = [];
+        this.eventosFiltrados = [];
+        this.cargando = false;
       }
-    ];
-
-    this.eventosFiltrados = [...this.eventos];
+    });
   }
 
   filtrarEventos() {
     this.eventosFiltrados = this.eventos.filter(evento => {
       const coincideNombre = evento.nombre.toLowerCase().includes(this.terminoBusqueda.toLowerCase());
       const coincideTipo = !this.tipoSeleccionado ||
-                          this.tipoSeleccionado.code === 'ALL' ||
-                          evento.tipo === this.tipoSeleccionado.name;
+                          this.tipoSeleccionado.value === 'ALL' ||
+                          evento.tipoEvento === this.tipoSeleccionado.value;
+      const esPublicado = evento.estadoEvento?.toUpperCase() === 'PUBLICADO';
 
-      return coincideNombre && coincideTipo;
-    });
-  }
+      return coincideNombre && coincideTipo && esPublicado;
+  });
+}
 
   onBusquedaChange() {
     this.filtrarEventos();
@@ -107,13 +133,18 @@ export class GestionEventosComponent implements OnInit {
   }
 
   getEstadoSeverity(estado: string): string {
-    switch (estado) {
-      case 'Completado':
+    switch (estado.toLowerCase()) {
+      case 'completado':
+      case 'activo':
         return 'success';
-      case 'Próximo':
+      case 'próximo':
+      case 'programado':
         return 'info';
-      case 'Vendido':
+      case 'vendido':
+      case 'agotado':
         return 'warning';
+      case 'cancelado':
+        return 'danger';
       default:
         return 'secondary';
     }
@@ -142,11 +173,15 @@ export class GestionEventosComponent implements OnInit {
     console.log('Agregando evento...');
   }
 
-  editarEvento(id: number) {
-    this.router.navigate(['/administrador/gestionEventos/editar', id]);
+  refrescarEventos() {
+    this.cargarEventos();
   }
 
-  crearEvento(id:number){
-    this.router.navigate(['/administrador/gestionEventos/crear', id]);
+  editarEvento(idEvento: number) {
+    this.router.navigate(['/administrador/gestionEventos/editar', idEvento]);
+  }
+
+  crearEvento(idEvento: number){
+    this.router.navigate(['/administrador/gestionEventos/crear', idEvento]);
   }
 }

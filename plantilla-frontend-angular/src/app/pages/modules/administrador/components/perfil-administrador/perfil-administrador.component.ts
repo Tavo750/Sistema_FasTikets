@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { PerfilAdministradorService } from '../../services/perfil-administrador.service';
+import { SessionService } from '../../../../../shared/services/session.service';
+import { MessageService } from '../../../../../core/services/message.service';
+import { Data as PerfilData } from '../../interfaces/perfil-administrador/perfilAdministradorResponse.interface';
+import { ActualizarPerfilRequest } from '../../interfaces/perfil-administrador/actualizar-perfil.interface';
 
 interface TipoDocumento {
   nombre: string;
@@ -19,11 +23,15 @@ export class PerfilAdministradorComponent implements OnInit {
   editForm!: FormGroup;
   isEditing: boolean = false;
   tiposDocumento: TipoDocumento[];
+  perfilData: PerfilData | null = null;
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private messageService: MessageService,
-    private router: Router
+    private router: Router,
+    private perfilService: PerfilAdministradorService,
+    private sessionService: SessionService
   ) {
     this.tiposDocumento = [
       { nombre: 'Cédula de Ciudadanía', valor: 'CC' },
@@ -34,21 +42,56 @@ export class PerfilAdministradorComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
-    // Simular datos iniciales (reemplazar con llamada al servicio)
-    const datosIniciales = {
-      nombres: 'John',
-      apellidos: 'Doe',
-      correo: 'john.doe@example.com',
-      telefono: '123456789',
-      tipoDocumento: 'CC',
-      numeroDocumento: '1234567890',
-      departamento: 'Lima',
-      distrito: 'Miraflores',
-      direccion: 'Av. Principal 123'
+    this.cargarPerfilAdministrador();
+  }
+
+  private cargarPerfilAdministrador(): void {
+    const currentUser = this.sessionService.getCurrentUser();
+
+    if (!currentUser || !currentUser.idUsuario) {
+      this.messageService.error(
+        'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
+        'Error de sesión'
+      );
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.isLoading = true;
+    this.perfilService.getPerfilAdministrador(currentUser.idUsuario).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.perfilData = response.data;
+          this.populateFormsWithData(response.data);
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo cargar la información del perfil',
+            'Error'
+          );
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar perfil:', error);
+        this.messageService.handleHttpError(error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private populateFormsWithData(data: PerfilData): void {
+    const formData = {
+      nombres: data.nombres,
+      apellidos: data.apellidos,
+      correo: data.email,
+      telefono: data.telefono,
+      tipoDocumento: data.tipoDocumento,
+      numeroDocumento: data.docIdentidad,
+      direccion: data.direccion
     };
 
-    this.perfilForm.patchValue(datosIniciales);
-    this.editForm.patchValue(datosIniciales);
+    this.perfilForm.patchValue(formData);
+    this.editForm.patchValue(formData);
   }
 
   private initForms(): void {
@@ -58,7 +101,8 @@ export class PerfilAdministradorComponent implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required]],
       tipoDocumento: ['', [Validators.required]],
-      numeroDocumento: ['', [Validators.required]]
+      numeroDocumento: ['', [Validators.required]],
+      direccion: ['']
     });
 
     this.editForm = this.fb.group({
@@ -66,19 +110,19 @@ export class PerfilAdministradorComponent implements OnInit {
       apellidos: ['', [Validators.required]],
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required]],
-      departamento: ['', [Validators.required]],
-      distrito: ['', [Validators.required]],
       direccion: ['', [Validators.required]]
     });
   }
 
   toggleEditMode(): void {
     this.isEditing = true;
+    // Solo copiamos los campos editables al formulario de edición
     this.editForm.patchValue({
       nombres: this.perfilForm.get('nombres')?.value,
       apellidos: this.perfilForm.get('apellidos')?.value,
       correo: this.perfilForm.get('correo')?.value,
-      telefono: this.perfilForm.get('telefono')?.value
+      telefono: this.perfilForm.get('telefono')?.value,
+      direccion: this.perfilForm.get('direccion')?.value
     });
   }
 
@@ -89,35 +133,76 @@ export class PerfilAdministradorComponent implements OnInit {
 
   guardarCambios(): void {
     if (this.editForm.invalid) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Campos incompletos',
-        detail: 'Por favor complete todos los campos correctamente antes de continuar',
-        life: 3000
-      });
+      this.messageService.warn(
+        'Por favor complete todos los campos correctamente antes de continuar',
+        'Campos incompletos'
+      );
       this.editForm.markAllAsTouched();
       return;
     }
 
-    // Aquí implementarías la lógica para guardar los cambios en el backend
-    console.log('Datos a guardar:', this.editForm.value);
+    const currentUser = this.sessionService.getCurrentUser();
+    if (!currentUser || !currentUser.idUsuario) {
+      this.messageService.error(
+        'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
+        'Error de sesión'
+      );
+      this.router.navigate(['/login']);
+      return;
+    }
 
-    // Actualizar el formulario de visualización con los nuevos datos
-    this.perfilForm.patchValue({
+    // Preparar los datos para el servicio
+    const actualizarData: ActualizarPerfilRequest = {
       nombres: this.editForm.get('nombres')?.value,
       apellidos: this.editForm.get('apellidos')?.value,
-      correo: this.editForm.get('correo')?.value,
-      telefono: this.editForm.get('telefono')?.value
-    });
+      telefono: this.editForm.get('telefono')?.value,
+      direccion: this.editForm.get('direccion')?.value,
+      email: this.editForm.get('correo')?.value
+    };
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Perfil actualizado',
-      detail: 'Los datos del perfil han sido actualizados exitosamente',
-      life: 3000
-    });
+    this.isLoading = true;
 
-    this.isEditing = false;
+    this.perfilService.putActualizarPerfilAdministrador(currentUser.idUsuario, actualizarData).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Actualizar el formulario de visualización con los nuevos datos
+          this.perfilForm.patchValue({
+            nombres: actualizarData.nombres,
+            apellidos: actualizarData.apellidos,
+            correo: actualizarData.email,
+            telefono: actualizarData.telefono,
+            direccion: actualizarData.direccion
+          });
+
+          // Actualizar también los datos locales
+          if (this.perfilData) {
+            this.perfilData.nombres = actualizarData.nombres;
+            this.perfilData.apellidos = actualizarData.apellidos;
+            this.perfilData.email = actualizarData.email;
+            this.perfilData.telefono = actualizarData.telefono;
+            this.perfilData.direccion = actualizarData.direccion;
+          }
+
+          this.messageService.success(
+            response.mensaje || 'Los datos del perfil han sido actualizados exitosamente',
+            'Perfil actualizado'
+          );
+
+          this.isEditing = false;
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo actualizar el perfil',
+            'Error'
+          );
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al actualizar perfil:', error);
+        this.messageService.handleHttpError(error);
+        this.isLoading = false;
+      }
+    });
   }
 
   cambiarContrasena(): void {

@@ -2,35 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from '../../../../../../core/services/message.service';
 import { ConfirmPopupService } from '../../../../../../core/services/confirm-popup.service';
+import { LocalService } from '../../../services/local.service';
+import { EventoService } from '../../../services/evento.service';
+import { Data as LocalData } from '../../../interfaces/gestion-locales/local.interface';
+import { Data as ZonaData } from '../../../interfaces/gestion-evento/zona-categoria.interface';
+import { CrearEventoRequest } from '../../../interfaces/gestion-evento/evento.interface';
+import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
+
 interface EstadoOption {
   label: string;
   value: string;
 }
 
-interface Evento {
-  titulo: string;
-  categoria: string;
-  descripcion: string;
-  dia: string;
-  mes: string;
-  anio: string;
-  hora: string;
-  minutos: string;
-  estado: string;
-  videoPromocional: string;
-  banner?: File | null;
-  bannerUrl?: string;
-  local: string;
-  mapaUrl?: string;
-  mapaFile?: File | null;
-  moneda: string;
-}
-
-interface Categoria {
-  nombre: string;
-  aforoMaximo: string;
-  aforoDisponible: string;
-}
 interface CategoriaEntrada {
   nombre: string;
   estado: string;
@@ -41,10 +24,21 @@ interface TipoEntrada {
   categorias: CategoriaEntrada[];
 }
 
+interface EntradaAgregada {
+  id: number;
+  nombre: string;
+  precio: number;
+  validoPara: string;
+  validoParaLabel: string;
+  moneda: string;
+}
+
 interface LimiteCompra {
   tipo: 'sinLimite' | 'conMaximo';
   maximo: number;
 }
+
+
 @Component({
   selector: 'app-crear-evento',
   standalone: false,
@@ -53,69 +47,75 @@ interface LimiteCompra {
 })
 export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
-  time: Date[] | undefined;
+  time: Date | undefined; // Cambiar de array a Date único para timeOnly
+  timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;
   publicarAPartirDe: boolean = false;
   fechaPublicacion: Date | undefined;
 
-  evento: Evento = {
-    titulo: 'Electronic Festival',
-    categoria: 'Electrónica',
-    descripcion: 'Descripción genérica de concierto porque no ando creativo.',
-     dia: '30',
-    mes: 'Julio',
-    anio: '2025',
-    hora: '23',
-    minutos: '00',
-    estado: 'publicado',
-    videoPromocional: 'Link completamente normal...',
-    banner: null,
-    bannerUrl: '',
-    local: 'Parque de la exposición',
-    mapaUrl: '',
-    mapaFile: null,
-    moneda: 'Nuevo Sol'
+  // Evento principal usando la interfaz del backend
+  evento: CrearEventoRequest = {
+    nombre: '',
+    tipoEvento: '',
+    descripcion: '',
+    fechaEvento: '',
+    horaInicio: '',
+    horaFin: '',
+    estadoEvento: 'PUBLICADO',
+    imagenUrl: null as any, // Se llenará con el archivo del banner
+    aforoDisponible: 1000,
+    idLocal: 1
+  };
 
+  // Campos auxiliares para el formulario (solo los necesarios)
+  formulario = {
+    localString: '', // Para el dropdown (string)
+    banner: null as File | null,
+    bannerUrl: '',
+    mapaUrl: '',
+    mapaFile: null as File | null,
+    moneda: 'Nuevo Sol'
   };
 
   estadoOptions: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
-    { label: 'FINALIZADO', value: 'finalizado' },
-    { label: 'AGOTADO', value: 'agotado' }
+    { label: 'PUBLICADO', value: 'PUBLICADO' },
+    { label: 'ACTIVO', value: 'ACTIVO' },
+    { label: 'CANCELADO', value: 'CANCELADO' },
+    { label: 'AGOTADO', value: 'AGOTADO' },
+    { label: 'FINALIZADO', value: 'FINALIZADO' },
   ];
   categorias = [
-    { label: 'Electrónica', value: 'Electrónica' },
-    { label: 'Rock', value: 'Rock' },
-    { label: 'Pop', value: 'Pop' },
-    { label: 'Jazz', value: 'Jazz' }
+    //{ label: 'Conferencia', value: 'CONFERENCIA' },
+    { label: 'Punk', value: 'PUNK' },
+    //{ label: 'Deporte', value: 'DEPORTE' },
+    { label: 'Rock', value: 'ROCK' },
+    { label: 'Metal', value: 'METAL' },
+    //{ label: 'Feria', value: 'FERIA' },
+    //{ label: 'Exposición', value: 'EXPOSICION' },
+    //{ label: 'Concierto', value: 'CONCIERTO' },
+    { label: 'Pop', value: 'POP' },
+    { label: 'Reggae', value: 'REGGAE' },
+    //{ label: 'Festival', value: 'FESTIVAL' },
+    //{ label: 'Taller', value: 'TALLER' },
+    //{ label: 'Reggaetón', value: 'REGGAETON' },
+    //{ label: 'Cine', value: 'CINE' },
+    //{ label: 'Otro', value: 'OTRO' },
+    { label: 'Electrónica', value: 'ELECTRONICA' },
+    { label: 'Rock Pop', value: 'ROCK_POP' },
+    { label: 'Urbano', value: 'URBANO' },
+    //{ label: 'Obra Teatral', value: 'OBRA_TEATRAL' }
   ];
-  categoriasLocal: Categoria[] = [
-    {
-      nombre: 'General',
-      aforoMaximo: '25000',
-      aforoDisponible: '914'
-    },
-    {
-      nombre: 'Premium',
-      aforoMaximo: '15000',
-      aforoDisponible: 'VENDIDO'
-    }
-  ];
+  categoriasLocal: ZonaData[] = [];
   entradas: { regular: TipoEntrada; preventa: TipoEntrada } = {
     regular: {
       nombre: 'Regular',
-      categorias: [
-        { nombre: 'General', estado: 'activo' },
-        { nombre: 'Premium', estado: 'activo' }
-      ]
+      categorias: []
     },
     preventa: {
       nombre: 'Preventa',
-      categorias: [
-        { nombre: 'General', estado: 'activo' }
-      ]
+      categorias: []
     }
   };
 
@@ -128,7 +128,7 @@ export class CrearEventoComponent implements OnInit{
   usarBannerDefault: boolean = false;
 
   estadoOption: EstadoOption[] = [
-    { label: 'PUBLICADO', value: 'publicado' },
+    { label: 'PUBLICADO', value: 'PUBLICADO' },
     { label: 'FINALIZADO', value: 'finalizado' },
     { label: 'AGOTADO', value: 'agotado' }
   ];
@@ -145,45 +145,479 @@ export class CrearEventoComponent implements OnInit{
     { label: 'Euro', value: 'EUR' }
   ];
 
-  validoParaOptions: EstadoOption[] = [
-    { label: 'Seleccionar', value: '' },
-    { label: 'General', value: 'general' },
-    { label: 'Premium', value: 'premium' },
-    { label: 'VIP', value: 'vip' }
-  ];
 
   entradaNombre: string = '';
+  entradaDescripcion: string = '';
+  entradaPrecio: number | null = null;
+  entradaStock: number | null = null;
   validoPara: string = '';
 
+  // Array para almacenar las entradas agregadas
+  entradasAgregadas: EntradaAgregada[] = [];
+  proximoIdEntrada: number = 1;
+
+  // Array para almacenar todas las entradas disponibles del sistema
+  entradasDisponibles: any[] = [];
+  cargandoEntradas: boolean = false;
+
+  // Opciones dinámicas para el dropdown "Válido para" - se llena con datos de getListarZonas
+  validoParaOptions: EstadoOption[] = [{ label: 'Seleccionar', value: '' }];
+
   // Nuevas propiedades para la sección de Local y asientos
-  localesOptions: EstadoOption[] = [
-    { label: 'Seleccionar', value: '' },
-    { label: 'Estadio Nacional', value: 'estadio-nacional' },
-    { label: 'Arena Lima', value: 'arena-lima' },
-    { label: 'Parque de la Exposición', value: 'parque-exposicion' },
-    { label: 'Club Nacional', value: 'club-nacional' }
-  ];
+  localesOptions: EstadoOption[] = [{ label: 'Seleccionar local', value: '' }];
+  localesDisponibles: LocalData[] = [];
+  cargandoLocales: boolean = false;
+
+  // Propiedades para el manejo de zonas/categorías
+  zonasDisponibles: ZonaData[] = [];
+  cargandoZonas: boolean = false;
+
+  // ID del evento (para identificar si estamos editando)
+  idEvento: number | null = null;
 
   nuevaCategoria = {
     nombre: '',
-    aforoMaximo: ''
+    aforoMaximo: null as number | null
   };
 
   constructor(
     private router: Router,
     private messageService: MessageService,
-    private confirmPopupService: ConfirmPopupService
+    private confirmPopupService: ConfirmPopupService,
+    private localService: LocalService,
+    private eventoService: EventoService
   ) { }
 
   ngOnInit(): void {
-    // Aquí puedes cargar datos del evento si estás editando
+    // Cargar locales disponibles
+    this.cargarLocales();
 
+    // Cargar entradas disponibles del sistema
+    this.cargarEntradas();
+
+    // Inicializar horas por defecto para ayudar con la interacción
+    this.inicializarHorasPorDefecto();
+
+    // Las zonas se cargarán cuando se seleccione un local
+    // Aquí puedes cargar datos del evento si estás editando
     this.cargarEvento();
+  }
+
+  /**
+   * Inicializa horas por defecto para mejorar la experiencia de usuario
+   */
+  private inicializarHorasPorDefecto(): void {
+    const ahora = new Date();
+
+    // Hora de inicio: próxima hora en punto
+    const horaInicio = new Date();
+    horaInicio.setHours(ahora.getHours() + 1, 0, 0, 0);
+    this.time = horaInicio;
+
+    // Hora final: 2 horas después de la hora de inicio
+    const horaFinal = new Date();
+    horaFinal.setHours(ahora.getHours() + 3, 0, 0, 0);
+    this.timeFinal = horaFinal;
   }
 
   cargarEvento(): void {
     // Simulación de carga de datos
     // En una aplicación real, aquí harías una llamada al servicio
+    // Inicializar formulario con datos del evento
+    this.inicializarFormularioDesdeEvento();
+  }
+
+  /**
+   * Inicializa los campos del formulario extrayendo los datos del evento
+   */
+  private inicializarFormularioDesdeEvento(): void {
+    // Extraer fecha de fechaEvento (formato: YYYY-MM-DD) y establecer en el datepicker
+    if (this.evento.fechaEvento) {
+      this.date = new Date(this.evento.fechaEvento);
+    }
+
+    // Extraer hora de horaInicio (formato: HH:MM:SS) y establecer en el datepicker
+    if (this.evento.horaInicio) {
+      const [hora, minutos] = this.evento.horaInicio.split(':');
+      const fechaInicio = new Date();
+      fechaInicio.setHours(parseInt(hora), parseInt(minutos), 0, 0);
+      this.time = fechaInicio;
+    }
+
+    // Extraer hora de horaFin (formato: HH:MM:SS) y establecer en el datepicker
+    if (this.evento.horaFin) {
+      const [horaFinal, minutosFinal] = this.evento.horaFin.split(':');
+      const fechaFinal = new Date();
+      fechaFinal.setHours(parseInt(horaFinal), parseInt(minutosFinal), 0, 0);
+      this.timeFinal = fechaFinal;
+    }
+
+    // Extraer banner de imagenUrl (ahora es un File, no string)
+    if (this.evento.imagenUrl) {
+      // Si estamos editando un evento existente y hay una imagen File
+      // Crear un preview para mostrar en la UI
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.formulario.bannerUrl = e.target.result;
+      };
+      reader.readAsDataURL(this.evento.imagenUrl);
+      this.formulario.banner = this.evento.imagenUrl;
+    }
+
+    // Inicializar localString con idLocal solo si estamos editando un evento existente
+    // Para eventos nuevos, mantener vacío para mostrar "Seleccionar local"
+    if (this.idEvento && this.evento.idLocal && this.evento.idLocal !== 1) {
+      this.formulario.localString = this.evento.idLocal.toString();
+    }
+  }
+
+  /**
+   * Sincroniza los datos del formulario hacia el evento
+   * Se debe llamar antes de enviar datos al backend
+   */
+  private sincronizarFormularioAEvento(): void {
+    // Construir fechaEvento desde el datepicker
+    this.evento.fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Construir horaInicio y horaFin desde los datepickers
+    this.evento.horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    this.evento.horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '';
+
+    // Sincronizar idLocal desde localString
+    if (this.formulario.localString) {
+      this.evento.idLocal = parseInt(this.formulario.localString);
+    }
+
+    // imagenUrl ya se sincroniza automáticamente cuando se carga el banner
+  }
+
+  /**
+   * Método de debug para verificar el estado de los datepickers
+   */
+  private verificarDatepickers(): void {
+    // Método mantenidc para compatibilidad, pero sin logging
+  }  /**
+   * Maneja la selección de fecha del datepicker
+   */
+  onFechaSeleccionada(fecha: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+  }
+
+  /**
+   * Maneja la selección de hora de inicio del datepicker
+   */
+  onHoraInicioSeleccionada(hora: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+
+  }
+
+  /**
+   * Maneja la selección de hora final del datepicker
+   */
+  onHoraFinalSeleccionada(hora: Date): void {
+    // Ya no necesitamos sincronización manual - el datepicker maneja todo
+  }
+
+  cargarLocales(): void {
+    this.cargandoLocales = true;
+
+    this.localService.getlistarLocales().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.localesDisponibles = response.data;
+
+          // Transformar los datos para el dropdown
+          this.localesOptions = [
+            { label: 'Seleccionar local', value: '' },
+            ...response.data
+              .filter(local => local.activo) // Solo locales activos
+              .map(local => ({
+                label: `${local.nombre} - ${local.nombreDistrito}`,
+                value: local.idLocal.toString()
+              }))
+          ];
+        } else {
+          this.messageService.searchNoResults('No se pudieron cargar los locales');
+        }
+      },
+      error: (error) => {
+        this.messageService.handleHttpError(error);
+
+        // Cargar opciones por defecto en caso de error
+        this.localesOptions = [
+          { label: 'Seleccionar local', value: '' },
+          { label: 'No hay locales disponibles', value: '' }
+        ];
+      },
+      complete: () => {
+        this.cargandoLocales = false;
+      }
+    });
+  }
+
+  cargarZonas(idLocal?: number): void {
+    if (!idLocal) {
+      // Si no hay local seleccionado, limpiar las zonas
+      this.zonasDisponibles = [];
+      this.categoriasLocal = [];
+      // Limpiar también las opciones del dropdown "Válido para"
+      this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
+      this.entradas.regular.categorias = [];
+      this.entradas.preventa.categorias = [];
+      this.cargandoZonas = false;
+      return;
+    }
+
+    this.cargandoZonas = true;
+
+    this.eventoService.getListarZonas(idLocal).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Verificar si response.data es un array o un objeto
+          if (Array.isArray(response.data)) {
+            this.zonasDisponibles = response.data;
+          } else if (response.data) {
+            // Si es un objeto único, convertirlo a array
+            this.zonasDisponibles = [response.data];
+          } else {
+            this.zonasDisponibles = [];
+          }
+
+          // Actualizar categorías locales con las zonas cargadas
+          this.categoriasLocal = this.zonasDisponibles;
+
+          // Actualizar entradas con las categorías cargadas
+          this.actualizarEntradasConCategorias(this.zonasDisponibles);
+
+          this.messageService.searchSuccess(
+            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`
+          );
+        } else {
+          this.messageService.searchNoResults(
+            response.mensaje || 'No se pudieron cargar las zonas del local'
+          );
+          this.zonasDisponibles = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar zonas:', error);
+        this.messageService.handleHttpError(error);
+        this.zonasDisponibles = [];
+      },
+      complete: () => {
+        this.cargandoZonas = false;
+      }
+    });
+  }
+
+  /**
+   * Carga todas las entradas disponibles del sistema
+   */
+  cargarEntradas(): void {
+    this.cargandoEntradas = true;
+
+    this.eventoService.getListarEntradas().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          // Verificar si response.data es un array o un objeto
+          if (Array.isArray(response.data)) {
+            this.entradasDisponibles = response.data;
+          } else {
+            // Si es un objeto único, convertirlo a array
+            this.entradasDisponibles = [response.data];
+          }
+
+          this.messageService.searchSuccess(
+            `Se encontraron ${this.entradasDisponibles.length} entrada(s) en el sistema`
+          );
+        } else {
+          this.messageService.searchNoResults(
+            response.mensaje || 'No se pudieron cargar las entradas disponibles'
+          );
+          this.entradasDisponibles = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar entradas:', error);
+        this.messageService.handleHttpError(error);
+        this.entradasDisponibles = [];
+      },
+      complete: () => {
+        this.cargandoEntradas = false;
+      }
+    });
+  }
+
+  /**
+   * Actualiza las entradas con las categorías disponibles
+   * @param zonas Array de zonas del local
+   */
+  actualizarEntradasConCategorias(zonas: ZonaData[]): void {
+    const categoriasEntrada = zonas.map(zona => ({
+      nombre: zona.nombre,
+      estado: 'activo'
+    }));
+
+    // Actualizar entradas regular y preventa
+    this.entradas.regular.categorias = [...categoriasEntrada];
+    this.entradas.preventa.categorias = [...categoriasEntrada];
+
+    // Actualizar las opciones del dropdown de validoPara
+    this.validoParaOptions = [
+      { label: 'Seleccionar', value: '' },
+      ...zonas.map(zona => ({
+        label: zona.nombre,
+        value: zona.nombre.toLowerCase()
+      }))
+    ];
+  }
+
+  /**
+   * Obtiene los datos completos del local seleccionado
+   * @param idLocal ID del local seleccionado
+   * @returns Datos del local o null si no se encuentra
+   */
+  obtenerDatosLocal(idLocal: string): LocalData | null {
+    if (!idLocal || !this.localesDisponibles) return null;
+
+    const local = this.localesDisponibles.find(l => l.idLocal.toString() === idLocal);
+    return local || null;
+  }
+
+  /**
+   * Maneja el cambio de selección del local
+   * @param event Evento del dropdown
+   */
+  onLocalSeleccionado(event: any): void {
+    const idLocal = event.value;
+    if (idLocal) {
+      const localSeleccionado = this.obtenerDatosLocal(idLocal);
+      if (localSeleccionado) {
+        // Actualizar información adicional del local
+        this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
+
+        // Cargar las zonas específicas del local seleccionado
+        this.cargarZonas(parseInt(idLocal));
+
+        // Limpiar entradas agregadas cuando se cambia el local
+        if (this.entradasAgregadas.length > 0) {
+          this.entradasAgregadas = [];
+          this.messageService.info('Se limpiaron las entradas debido al cambio de local', 'Información');
+        }
+      }
+    } else {
+      // Si no hay local seleccionado, limpiar las categorías y entradas
+      this.cargarZonas(); // Esto limpiará las zonas ya que no se pasa parámetro
+      this.entradasAgregadas = [];
+    }
+  }
+
+  /**
+   * Refresca la lista de zonas manualmente
+   */
+  refrescarZonas(): void {
+    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+      this.messageService.info('Actualizando lista de zonas...', 'Cargando');
+      this.cargarZonas(parseInt(this.formulario.localString));
+    } else {
+      this.messageService.warn('Debe seleccionar un local para cargar las zonas', 'Local Requerido');
+    }
+  }
+
+  /**
+   * Refresca la lista de entradas manualmente
+   */
+  refrescarEntradas(): void {
+    this.messageService.info('Actualizando lista de entradas...', 'Cargando');
+    this.cargarEntradas();
+  }
+
+  /**
+   * Obtiene información detallada de una zona específica
+   * @param idZona ID de la zona
+   * @returns Datos de la zona o null si no se encuentra
+   */
+  obtenerDetalleZona(idZona: number): ZonaData | null {
+    if (!this.zonasDisponibles) return null;
+
+    return this.zonasDisponibles.find(zona => zona.idZona === idZona) || null;
+  }
+
+  /**
+   * Obtiene todas las zonas disponibles (sin filtrar por local)
+   * @returns Array de todas las zonas activas
+   */
+  obtenerTodasLasZonas(): ZonaData[] {
+    return this.zonasDisponibles.filter(zona => zona.activo);
+  }
+
+  /**
+   * Obtiene la cantidad de zonas por local
+   * @returns Objeto con idLocal como key y cantidad como value
+   */
+  obtenerConteoZonasPorLocal(): { [idLocal: string]: number } {
+    const conteo: { [idLocal: string]: number } = {};
+
+    this.zonasDisponibles
+      .filter(zona => zona.activo)
+      .forEach(zona => {
+        const idLocal = zona.idLocal.toString();
+        conteo[idLocal] = (conteo[idLocal] || 0) + 1;
+      });
+
+    return conteo;
+  }
+
+  // ==================== MÉTODOS PARA ENTRADAS ====================
+
+  /**
+   * Obtiene todas las entradas disponibles activas
+   * @returns Array de todas las entradas activas
+   */
+  obtenerTodasLasEntradas(): any[] {
+    return this.entradasDisponibles.filter(entrada => entrada.activo);
+  }
+
+  /**
+   * Obtiene información detallada de una entrada específica
+   * @param idEntrada ID de la entrada
+   * @returns Datos de la entrada o null si no se encuentra
+   */
+  obtenerDetalleEntrada(idEntrada: number): any | null {
+    if (!this.entradasDisponibles) return null;
+
+    return this.entradasDisponibles.find(entrada => entrada.idTipoTicket === idEntrada) || null;
+  }
+
+  /**
+   * Obtiene las entradas filtradas por zona
+   * @param idZona ID de la zona para filtrar
+   * @returns Array de entradas para la zona especificada
+   */
+  obtenerEntradasPorZona(idZona: number): any[] {
+    return this.entradasDisponibles.filter(entrada =>
+      entrada.idZona === idZona && entrada.activo
+    );
+  }
+
+  /**
+   * Obtiene el conteo de entradas por zona
+   * @returns Objeto con idZona como key y cantidad como value
+   */
+  obtenerConteoEntradasPorZona(): { [idZona: string]: number } {
+    const conteo: { [idZona: string]: number } = {};
+
+    this.entradasDisponibles
+      .filter(entrada => entrada.activo)
+      .forEach(entrada => {
+        const idZona = entrada.idZona.toString();
+        conteo[idZona] = (conteo[idZona] || 0) + 1;
+      });
+
+    return conteo;
   }
 
   // Manejo de banner subida de imagenes
@@ -205,16 +639,24 @@ export class CrearEventoComponent implements OnInit{
         return;
       }
 
-      this.evento.banner = file;
+      this.formulario.banner = file;
 
-      // Crear URL para mostrar preview
+      // Convertir imagen a base64 solo para mostrar preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.evento.bannerUrl = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        const base64String = e.target.result;
 
-      this.messageService.success('Banner cargado exitosamente', 'Archivo Cargado');
+        // Guardar la imagen en base64 solo para mostrar preview
+        this.formulario.bannerUrl = base64String;
+
+        this.messageService.success('Banner cargado exitosamente', 'Archivo Procesado');
+      };
+
+      reader.onerror = () => {
+        this.messageService.error('Error al procesar la imagen', 'Error de Archivo');
+      };
+
+      reader.readAsDataURL(file);
     }
   }
 
@@ -231,8 +673,8 @@ export class CrearEventoComponent implements OnInit{
       event,
       '¿Estás seguro de que deseas eliminar el banner?',
       () => {
-        this.evento.bannerUrl = '';
-        this.evento.banner = null;
+        this.formulario.bannerUrl = '';
+        this.formulario.banner = null;
         this.usarBannerDefault = false;
         this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
       }
@@ -251,26 +693,67 @@ export class CrearEventoComponent implements OnInit{
     );
   }
 
-  onGuardarCambios(): void {
+
+
+  /**
+   * Método para crear el evento
+   * Asigna el idLocal del local seleccionado y llama a postCrearEvento
+   */
+  onCrearEvento(): void {
     // Validaciones básicas
     if (!this.validarFormulario()) {
       return;
     }
 
-    // Aquí implementarías la lógica para guardar
-    // Por ejemplo, llamar a un servicio:
-    // this.eventoService.crearEvento(this.evento).subscribe(...)
+    // Verificar que se haya seleccionado un local
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
+      return;
+    }
 
-    this.messageService.success('Evento creado exitosamente', 'Evento Guardado');
+    // Verificar estado de los datepickers antes de preparar datos
+    this.verificarDatepickers();
+
+    // Asignar el idLocal del local seleccionado al evento
+    this.evento.idLocal = parseInt(this.formulario.localString);
+
+    // Preparar datos para el servicio
+    const datosEvento = this.prepararDatosEvento();
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Creando evento...', 'Procesando');
+
+    // Llamar al servicio para crear el evento
+    this.eventoService.postCrearEvento(datosEvento).subscribe({
+      next: (response) => {
+        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
+
+        if (response.ok && response.data) {
+          this.messageService.success('Evento creado exitosamente', 'Proceso Completado');
+
+          // Limpiar formulario después de crear exitosamente
+          this.limpiarFormulario();
+
+          // Redirigir a la gestión de eventos después de crear exitosamente
+          setTimeout(() => {
+            this.router.navigate(['/administrador/gestionEventos']);
+          }, 2000);
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear evento:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
   }
 
   validarFormulario(): boolean {
-    if (!this.evento.titulo || this.evento.titulo.trim() === '') {
+    if (!this.evento.nombre || this.evento.nombre.trim() === '') {
       this.messageService.error('El título es obligatorio', 'Campo Requerido');
       return false;
     }
 
-    if (!this.evento.categoria || this.evento.categoria.trim() === '') {
+    if (!this.evento.tipoEvento || this.evento.tipoEvento.trim() === '') {
       this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
       return false;
     }
@@ -280,12 +763,316 @@ export class CrearEventoComponent implements OnInit{
       return false;
     }
 
-    if (!this.evento.hora || !this.evento.minutos) {
-      this.messageService.error('La hora completa es obligatoria', 'Campo Requerido');
+    if (!this.time) {
+      this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.timeFinal) {
+      this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que la hora final sea posterior a la hora de inicio
+    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
+      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
+      return false;
+    }
+
+    // Validar que se haya seleccionado un banner
+    // if (!this.formulario.banner) {
+    //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+    //   return false;
+    // }
+
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Validaciones específicas para los datos generales (sección 1)
+   */
+  validarDatosGenerales(): boolean {
+    if (!this.evento.nombre || this.evento.nombre.trim() === '') {
+      this.messageService.error('El título es obligatorio', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.tipoEvento || this.evento.tipoEvento.trim() === '') {
+      this.messageService.error('La categoría es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    if (!this.evento.descripcion || this.evento.descripcion.trim() === '') {
+      this.messageService.error('La descripción es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar fecha del evento usando directamente el datepicker
+    if (!this.date) {
+      this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar hora de inicio usando directamente el datepicker
+    if (!this.time) {
+      this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar hora final usando directamente el datepicker
+    if (!this.timeFinal) {
+      this.messageService.error('La hora de finalización es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que la hora final sea posterior a la hora de inicio
+    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
+      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
+      return false;
+    }    return true;
+  }
+
+  /**
+   * Prepara los datos básicos del evento para la creación inicial
+   */
+  prepararDatosEventoBasicos(): CrearEventoRequest {
+    // Sincronizar datos del formulario al evento antes de preparar
+    this.sincronizarFormularioAEvento();
+
+    // Convertir la fecha del datepicker a formato ISO
+    const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Formatear horas desde los datepickers con validación mejorada
+    const horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    const horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    const datosEvento = {
+      nombre: this.evento.nombre.trim(),
+      descripcion: this.evento.descripcion.trim(),
+      fechaEvento: fechaEvento,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      imagenUrl: this.formulario.banner!,
+      tipoEvento: this.evento.tipoEvento,
+      estadoEvento: this.evento.estadoEvento,
+      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+      idLocal: parseInt(this.formulario.localString) || 1 // Usar el local seleccionado
+    };
+
+    return datosEvento;
+  }
+
+  /**
+   * Validaciones adicionales específicas para crear evento
+   */
+  validarDatosCompletos(): boolean {
+    // Validar fecha del evento usando directamente el datepicker
+    if (!this.date) {
+      this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que el año sea válido (no sea en el pasado)
+    const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0); // Normalizar a medianoche para comparar solo fechas
+
+    const fechaEvento = new Date(this.date);
+    fechaEvento.setHours(0, 0, 0, 0);
+
+    if (fechaEvento < fechaActual) {
+      this.messageService.error('La fecha del evento no puede ser anterior a hoy', 'Fecha Inválida');
+      return false;
+    }
+
+    // Validar que se haya seleccionado un local válido
+    if (!this.formulario.localString || this.formulario.localString === '') {
+      this.messageService.error('Debe seleccionar un local válido', 'Local Requerido');
+      return false;
+    }
+
+    // Validar que el local seleccionado exista en la lista
+    const localValido = this.localesDisponibles.find(local =>
+      local.idLocal.toString() === this.formulario.localString
+    );
+    if (!localValido) {
+      this.messageService.error('El local seleccionado no es válido', 'Local Inválido');
+      return false;
+    }
+
+    // Validar que existan categorías/zonas para el evento
+    if (this.categoriasLocal.length === 0) {
+      this.messageService.warn(
+        'Debe crear al menos una categoría/zona para el evento',
+        'Categorías Requeridas'
+      );
+      return false;
+    }
+
+    // Validar que existan entradas para el evento
+    if (this.entradasAgregadas.length === 0) {
+      this.messageService.warn(
+        'Debe agregar al menos un tipo de entrada para el evento',
+        'Entradas Requeridas'
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Prepara los datos del evento en el formato requerido por la API
+   */
+  prepararDatosEvento(): CrearEventoRequest {
+    // Sincronizar datos del formulario al evento antes de preparar
+    this.sincronizarFormularioAEvento();
+
+    // Convertir la fecha del datepicker a formato ISO
+    const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Formatear horas desde los datepickers con validación mejorada
+    const horaInicio = this.time ?
+      `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    const horaFin = this.timeFinal ?
+      `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
+
+    const datosEvento = {
+      nombre: this.evento.nombre.trim(),
+      descripcion: this.evento.descripcion.trim(),
+      fechaEvento: fechaEvento,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      imagenUrl: this.formulario.banner!,
+      tipoEvento: this.evento.tipoEvento,
+      estadoEvento: this.evento.estadoEvento,
+      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+      idLocal: parseInt(this.formulario.localString)
+    };
+
+    return datosEvento;
+  }
+
+  /**
+   * Limpia todos los campos del formulario
+   */
+  private limpiarFormulario(): void {
+    // Resetear datos del evento (backend)
+    this.evento = {
+      nombre: '',
+      tipoEvento: '',
+      descripcion: '',
+      fechaEvento: '',
+      horaInicio: '',
+      horaFin: '',
+      imagenUrl: null as any,
+      estadoEvento: 'PUBLICADO',
+      aforoDisponible: 1000,
+      idLocal: 1
+    };
+
+    // Resetear datos del formulario (UI) - solo campos necesarios
+    this.formulario = {
+      localString: '',
+      banner: null,
+      bannerUrl: '',
+      mapaUrl: '',
+      mapaFile: null,
+      moneda: 'Nuevo Sol'
+    };
+
+    // Limpiar datepickers
+    this.date = undefined;
+    this.time = undefined;
+    this.timeFinal = undefined;
+
+    // Limpiar entradas agregadas
+    this.entradasAgregadas = [];
+    this.entradaNombre = '';
+    this.entradaDescripcion = '';
+    this.entradaPrecio = null;
+    this.entradaStock = null;
+    this.validoPara = '';
+
+    // Limpiar categorías
+    this.categoriasLocal = [];
+    this.nuevaCategoria = {
+      nombre: '',
+      aforoMaximo: null
+    };
+
+    // Resetear opciones de publicación
+    this.publicarInmediatamente = true;
+    this.publicarAPartirDe = false;
+    this.fechaPublicacion = undefined;
+
+    // Resetear configuraciones de archivos
+    this.usarMapaDefault = false;
+    this.usarBannerDefault = false;
+
+    // Resetear ID del evento (vuelve a modo creación)
+    this.idEvento = null;
+
+    this.messageService.info('Formulario limpiado', 'Información');
+  }
+
+  /**
+   * Muestra un resumen del evento antes de crearlo
+   */
+  mostrarResumenEvento(): void {
+    // Formatear fecha desde el datepicker
+    const fechaFormateada = this.date ?
+      this.date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }) : 'No seleccionada';
+
+    // Formatear horas desde los datepickers
+    const horaInicio = this.time ?
+      this.time.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'No seleccionada';
+
+    const horaFinal = this.timeFinal ?
+      this.timeFinal.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }) : 'No seleccionada';
+
+    const resumen = `
+      Título: ${this.evento.nombre}
+      Categoría: ${this.evento.tipoEvento}
+      Fecha: ${fechaFormateada}
+      Hora: ${horaInicio} - ${horaFinal}
+      Local: ${this.obtenerNombreLocal()}
+      Categorías: ${this.categoriasLocal.length}
+      Entradas: ${this.entradasAgregadas.length}
+    `;
+
+    this.messageService.info(resumen, 'Resumen del Evento');
+  }
+
+  /**
+   * Obtiene el nombre del local seleccionado
+   */
+  private obtenerNombreLocal(): string {
+    if (!this.formulario.localString) return 'No seleccionado';
+
+    const local = this.localesDisponibles.find(l =>
+      l.idLocal.toString() === this.formulario.localString
+    );
+
+    return local ? `${local.nombre} - ${local.nombreDistrito}` : 'Local no encontrado';
   }
   onMapaSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -305,35 +1092,172 @@ export class CrearEventoComponent implements OnInit{
         return;
       }
 
-      this.evento.mapaFile = file;
+      // Validar que se haya seleccionado un local
+      if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+        this.messageService.error('Primero debes seleccionar un local antes de subir la imagen del mapa', 'Local Requerido');
+        return;
+      }
 
-      // Crear URL para mostrar preview
+      this.formulario.mapaFile = file;
+
+      // Mostrar preview de la imagen
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.evento.mapaUrl = e.target.result;
+        this.formulario.mapaUrl = e.target.result;
       };
       reader.readAsDataURL(file);
 
-      this.messageService.success('Imagen del mapa cargada exitosamente', 'Archivo Cargado');
+      // Actualizar el local con la nueva imagen del mapa
+      this.actualizarLocalConMapa(file);
+
+      this.messageService.success('Imagen del mapa seleccionada correctamente', 'Mapa Agregado');
     }
+  }
+
+
+
+  /**
+   * Actualiza el local con la nueva imagen del mapa
+   * @param file Archivo de imagen seleccionado
+   */
+  private actualizarLocalConMapa(file: File): void {
+    const idLocal = parseInt(this.formulario.localString);
+
+    if (!idLocal || isNaN(idLocal)) {
+      this.messageService.error('ID del local no válido', 'Error');
+      return;
+    }
+
+    // Buscar los datos del local seleccionado
+    const localSeleccionado = this.localesDisponibles.find(local =>
+      local.idLocal === idLocal
+    );
+
+    if (!localSeleccionado) {
+      this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
+      return;
+    }
+
+    // Preparar FormData para actualizar el local con imagen
+    const formData = new FormData();
+    formData.append('id', idLocal.toString());
+    formData.append('nombre', localSeleccionado.nombre);
+    formData.append('direccion', localSeleccionado.direccion || '');
+    formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
+    formData.append('idDistrito', localSeleccionado.idDistrito.toString());
+    formData.append('imagen', file);
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Actualizando imagen del mapa...', 'Procesando');
+
+    // Llamar al servicio para actualizar el local con imagen
+    this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
+      next: (response) => {
+        this.messageService.success(
+          'Imagen del mapa actualizada exitosamente en el local',
+          'Operación Exitosa'
+        );
+      },
+      error: (error) => {
+        this.messageService.error(
+          'Error al actualizar la imagen del mapa en el local: ' + (error.message || 'Error desconocido'),
+          'Error'
+        );
+        console.error('Error al actualizar local con mapa:', error);
+
+        // Limpiar la imagen en caso de error
+        this.formulario.mapaUrl = '';
+        this.formulario.mapaFile = null;
+      }
+    });
   }
 
   onEliminarMapa(event: any): void {
     this.confirmPopupService.confirmDelete(
       event,
-      '¿Estás seguro de que deseas eliminar la imagen del mapa?',
+      '¿Estás seguro de que deseas eliminar la imagen del mapa? Esto también eliminará la imagen del local.',
       () => {
-        this.evento.mapaUrl = '';
-        this.evento.mapaFile = null;
-        this.usarMapaDefault = false;
-        this.messageService.success('Imagen del mapa eliminada exitosamente', 'Operación Exitosa');
+        // Limpiar la imagen del local si hay un local seleccionado
+        if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+          this.eliminarImagenMapaDelLocal();
+        } else {
+          // Solo limpiar localmente si no hay local seleccionado
+          this.limpiarImagenMapaLocal();
+        }
       }
     );
   }
 
+  /**
+   * Elimina la imagen del mapa del local en el servidor
+   */
+  private eliminarImagenMapaDelLocal(): void {
+    const idLocal = parseInt(this.formulario.localString);
+
+    if (!idLocal || isNaN(idLocal)) {
+      this.messageService.error('ID del local no válido', 'Error');
+      return;
+    }
+
+    // Buscar los datos del local seleccionado
+    const localSeleccionado = this.localesDisponibles.find(local =>
+      local.idLocal === idLocal
+    );
+
+    if (!localSeleccionado) {
+      this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
+      return;
+    }
+
+    // Preparar FormData para actualizar el local (sin imagen del mapa)
+    const formData = new FormData();
+    formData.append('id', idLocal.toString());
+    formData.append('nombre', localSeleccionado.nombre);
+    formData.append('direccion', localSeleccionado.direccion || '');
+    formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
+    formData.append('idDistrito', localSeleccionado.idDistrito.toString());
+    // No se agrega imagen para eliminarla
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Eliminando imagen del mapa...', 'Procesando');
+
+    // Llamar al servicio para actualizar el local con imagen
+    this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
+      next: (response) => {
+        this.limpiarImagenMapaLocal();
+        this.messageService.success(
+          'Imagen del mapa eliminada exitosamente del local',
+          'Operación Exitosa'
+        );
+      },
+      error: (error) => {
+        this.messageService.error(
+          'Error al eliminar la imagen del mapa del local: ' + (error.message || 'Error desconocido'),
+          'Error'
+        );
+        console.error('Error al eliminar imagen del mapa del local:', error);
+      }
+    });
+  }
+
+  /**
+   * Limpia la imagen del mapa solo localmente (en el componente)
+   */
+  private limpiarImagenMapaLocal(): void {
+    this.formulario.mapaUrl = '';
+    this.formulario.mapaFile = null;
+    this.usarMapaDefault = false;
+  }
+
   onAgregarEntrada(): void {
+    // Validaciones esenciales únicamente
     if (!this.entradaNombre.trim()) {
       this.messageService.error('Por favor ingresa un nombre para la entrada', 'Campo Requerido');
+      return;
+    }
+
+    if (!this.entradaPrecio || this.entradaPrecio <= 0) {
+      this.messageService.error('Por favor ingresa un precio válido mayor a 0', 'Campo Requerido');
       return;
     }
 
@@ -342,14 +1266,136 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Aquí puedes implementar la lógica para agregar la entrada a una lista
-    // Por ejemplo, agregar a un array de entradas
+    // Buscar la zona seleccionada para obtener el idZona
+    const zonaSeleccionada = this.zonasDisponibles.find(zona =>
+      zona.nombre.toLowerCase() === this.validoPara.toLowerCase()
+    );
 
-    // Limpiar los campos después de agregar
+    if (!zonaSeleccionada) {
+      this.messageService.error('No se pudo encontrar la zona seleccionada', 'Error de Validación');
+      return;
+    }
+
+    // Preparar datos para la API (usando valores por defecto para campos omitidos)
+    const datosEntrada = {
+      nombre: this.entradaNombre.trim(),
+      descripcion: this.entradaDescripcion?.trim() || 'Sin descripción',
+      precio: this.entradaPrecio,
+      stock: this.entradaStock || 100, // Valor por defecto si no se especifica
+      activo: true,
+      idZona: zonaSeleccionada.idZona,
+      limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10
+    };
+
+    // Mostrar mensaje de procesamiento
+    this.messageService.info('Creando entrada...', 'Procesando');
+
+    // Llamar al servicio para crear la entrada
+    this.eventoService.postCrearEntrada(datosEntrada).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Buscar el label de la categoría seleccionada para mostrar
+          const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
+          const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+
+          // Crear la nueva entrada para el array local
+          const nuevaEntrada: EntradaAgregada = {
+            id: response.data.idTipoTicket,
+            nombre: response.data.nombre,
+            precio: response.data.precio,
+            validoPara: this.validoPara,
+            validoParaLabel: validoParaLabel,
+            moneda: this.formulario.moneda || 'PEN'
+          };
+
+          // Agregar la entrada al array local
+          this.entradasAgregadas.push(nuevaEntrada);
+
+          // Limpiar los campos después de agregar
+          this.limpiarCamposEntrada();
+
+          // Mostrar mensaje de éxito
+          this.messageService.success(
+            `Entrada "${response.data.nombre}" creada exitosamente`,
+            'Entrada Creada'
+          );
+
+          // Mostrar mensaje adicional si existe
+          if (response.mensaje) {
+            this.messageService.info(response.mensaje, 'Información');
+          }
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo crear la entrada',
+            'Error al Crear Entrada'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear entrada:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
+  }  /**
+   * Limpia todos los campos del formulario de entrada
+   */
+  private limpiarCamposEntrada(): void {
     this.entradaNombre = '';
+    this.entradaDescripcion = '';
+    this.entradaPrecio = null;
+    this.entradaStock = null;
     this.validoPara = '';
+  }
 
-    this.messageService.success('Entrada agregada exitosamente', 'Operación Exitosa');
+  onEliminarEntrada(entradaId: number, event: Event): void {
+    event.stopPropagation();
+
+    // Buscar la entrada en el array local para obtener información
+    const entradaAEliminar = this.entradasAgregadas.find(entrada => entrada.id === entradaId);
+
+    if (!entradaAEliminar) {
+      this.messageService.error('No se encontró la entrada a eliminar', 'Error de Datos');
+      return;
+    }
+
+    this.confirmPopupService.confirmDelete(
+      event,
+      `¿Estás seguro de que deseas eliminar la entrada "${entradaAEliminar.nombre}"?`,
+      () => {
+        // Mostrar mensaje de procesamiento
+        this.messageService.info('Eliminando entrada...', 'Procesando');
+
+        // Llamar al servicio para eliminar la entrada del backend
+        this.eventoService.deleteEntrada(entradaId).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Eliminar de la lista local solo si la eliminación en el backend fue exitosa
+              this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.id !== entradaId);
+
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                response.mensaje || `Entrada "${entradaAEliminar.nombre}" eliminada exitosamente`,
+                'Entrada Eliminada'
+              );
+
+              // Mostrar mensaje adicional si existe
+              if (response.mensaje) {
+                this.messageService.info(response.mensaje, 'Información');
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo eliminar la entrada',
+                'Error al Eliminar Entrada'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al eliminar entrada:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
+      }
+    );
   }
 
   onAgregarCategoria(): void {
@@ -358,45 +1404,195 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    if (!this.nuevaCategoria.aforoMaximo.trim()) {
-      this.messageService.error('Por favor ingresa el aforo máximo', 'Campo Requerido');
+    if (!this.nuevaCategoria.aforoMaximo || this.nuevaCategoria.aforoMaximo <= 0) {
+      this.messageService.error('Por favor ingresa un aforo máximo válido mayor a 0', 'Campo Requerido');
       return;
     }
 
-    // Verificar que el aforo sea un número válido
-    const aforo = parseInt(this.nuevaCategoria.aforoMaximo);
-    if (isNaN(aforo) || aforo <= 0) {
-      this.messageService.error('El aforo máximo debe ser un número válido mayor a 0', 'Valor Inválido');
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+      this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
       return;
     }
 
-    // Agregar la nueva categoría
-    const nuevaCat: Categoria = {
+    // Preparar datos para el servicio
+    const datosZona = {
       nombre: this.nuevaCategoria.nombre,
-      aforoMaximo: this.nuevaCategoria.aforoMaximo,
-      aforoDisponible: this.nuevaCategoria.aforoMaximo // Inicialmente todo disponible
+      aforoMax: this.nuevaCategoria.aforoMaximo,
+      idLocal: parseInt(this.formulario.localString)
     };
 
-    this.categoriasLocal.push(nuevaCat);
+    // Llamar al servicio para crear la zona
+    this.eventoService.postCrearZona(datosZona).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          // Para postCrearZona, response.data debería ser un objeto único, no un array
+          const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
 
-    // Limpiar los campos
-    this.nuevaCategoria = {
-      nombre: '',
-      aforoMaximo: ''
-    };
+          if (zonaCreada) {
+            // Agregar la nueva categoría a la lista local
+            const nuevaCat: ZonaData = {
+              idZona: zonaCreada.idZona,
+              nombre: this.nuevaCategoria.nombre,
+              aforoMax: this.nuevaCategoria.aforoMaximo!,
+              usuarioCreacion: null,
+              usuarioActualizacion: null,
+              activo: true,
+              fechaCreacion: null,
+              fechaActualizacion: null,
+              idLocal: zonaCreada.idLocal
+            };
 
-    this.messageService.success('Categoría agregada exitosamente', 'Operación Exitosa');
+            this.categoriasLocal.push(nuevaCat);
+
+            // Limpiar los campos
+            this.nuevaCategoria = {
+              nombre: '',
+              aforoMaximo: null
+            };
+
+            this.messageService.success(
+              response.mensaje || 'Categoría creada exitosamente',
+              'Operación Exitosa'
+            );
+          } else {
+            this.messageService.error(
+              'No se recibieron datos de la zona creada',
+              'Error en la Operación'
+            );
+          }
+        } else {
+          this.messageService.error(
+            response.mensaje || 'Error al crear la categoría',
+            'Error en la Operación'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al crear zona:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
   }
 
   onEliminarCategoria(index: number, event: any): void {
+    const categoria = this.categoriasLocal[index];
+
+    if (!categoria || !categoria.idZona) {
+      this.messageService.error('No se puede eliminar la categoría: datos inválidos', 'Error de Datos');
+      return;
+    }
+
     this.confirmPopupService.confirmDelete(
       event,
-      '¿Estás seguro de que deseas eliminar esta categoría?',
+      `¿Estás seguro de que deseas eliminar la categoría "${categoria.nombre}"?`,
       () => {
-        this.categoriasLocal.splice(index, 1);
-        this.messageService.success('Categoría eliminada exitosamente', 'Operación Exitosa');
+        // Llamar al servicio para eliminar la zona del backend
+        this.eventoService.deleteZona(categoria.idZona).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Eliminar de la lista local solo si la eliminación en el backend fue exitosa
+              this.categoriasLocal.splice(index, 1);
+
+              // Actualizar las entradas para reflejar la eliminación
+              this.actualizarEntradasTrasEliminacion(categoria.nombre);
+
+              this.messageService.success(
+                response.mensaje || `Categoría "${categoria.nombre}" eliminada exitosamente`,
+                'Operación Exitosa'
+              );
+            } else {
+              this.messageService.error(
+                response.mensaje || 'Error al eliminar la categoría',
+                'Error en la Operación'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al eliminar zona:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
       }
     );
+  }
+
+  /**
+   * Actualiza las entradas tras eliminar una categoría
+   * @param nombreCategoria Nombre de la categoría eliminada
+   */
+  actualizarEntradasTrasEliminacion(nombreCategoria: string): void {
+    // Filtrar la categoría eliminada de las entradas regular y preventa
+    this.entradas.regular.categorias = this.entradas.regular.categorias
+      .filter(cat => cat.nombre !== nombreCategoria);
+
+    this.entradas.preventa.categorias = this.entradas.preventa.categorias
+      .filter(cat => cat.nombre !== nombreCategoria);
+
+    // Filtrar las entradas agregadas que correspondan a la categoría eliminada
+    const entradasEliminadas = this.entradasAgregadas.filter(entrada => entrada.validoParaLabel === nombreCategoria);
+    this.entradasAgregadas = this.entradasAgregadas.filter(entrada => entrada.validoParaLabel !== nombreCategoria);
+
+    // Actualizar las opciones del dropdown validoPara
+    this.validoParaOptions = this.validoParaOptions
+      .filter(option => option.label !== nombreCategoria);
+
+    // Mostrar mensaje si se eliminaron entradas
+    if (entradasEliminadas.length > 0) {
+      this.messageService.info(
+        `Se eliminaron ${entradasEliminadas.length} entrada(s) asociada(s) a la categoría "${nombreCategoria}"`,
+        'Entradas Actualizadas'
+      );
+    }
+  }
+
+  /**
+   * Elimina una categoría por su ID de zona directamente
+   * @param idZona ID de la zona a eliminar
+   */
+  eliminarCategoriaPorId(idZona: number): void {
+    const index = this.categoriasLocal.findIndex(cat => cat.idZona === idZona);
+
+    if (index !== -1) {
+      // Simular el evento para usar el método existente
+      const fakeEvent = { target: null };
+      this.onEliminarCategoria(index, fakeEvent);
+    } else {
+      this.messageService.warn('No se encontró la categoría a eliminar', 'Categoría No Encontrada');
+    }
+  }
+
+  /**
+   * Refresca las categorías del local actual después de cambios
+   */
+  refrescarCategoriasLocal(): void {
+    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+      this.messageService.info('Actualizando categorías...', 'Cargando');
+
+      // Volver a cargar las zonas desde el servidor para el local actual
+      this.cargarZonas(parseInt(this.formulario.localString));
+    } else {
+      this.messageService.warn('Debe seleccionar un local para actualizar las categorías', 'Local Requerido');
+    }
+  }
+
+  /**
+   * Elimina todas las categorías del local actual (solo del frontend)
+   * Útil cuando se cambia de local
+   */
+  limpiarCategoriasLocal(): void {
+    this.categoriasLocal = [];
+    this.entradas.regular.categorias = [];
+    this.entradas.preventa.categorias = [];
+    this.validoParaOptions = [{ label: 'Seleccionar', value: '' }];
+  }
+
+  /**
+   * Verifica si una categoría existe antes de realizar operaciones
+   * @param idZona ID de la zona a verificar
+   * @returns true si existe, false si no
+   */
+  verificarExistenciaCategoria(idZona: number): boolean {
+    return this.categoriasLocal.some(cat => cat.idZona === idZona);
   }
 
   onPublicarInmediatamente(): void {
@@ -410,6 +1606,20 @@ export class CrearEventoComponent implements OnInit{
     if (this.publicarAPartirDe) {
       this.publicarInmediatamente = false;
     }
+  }
+
+  /**
+   * Obtiene el símbolo de la moneda basado en el código
+   * @param monedaCodigo Código de la moneda (PEN, USD, EUR)
+   * @returns Símbolo de la moneda
+   */
+  obtenerSimboloMoneda(monedaCodigo: string): string {
+    const simbolos: { [key: string]: string } = {
+      'PEN': 'S/.',
+      'USD': '$',
+      'EUR': '€'
+    };
+    return simbolos[monedaCodigo] || monedaCodigo;
   }
 
 }

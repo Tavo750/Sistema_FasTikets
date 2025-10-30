@@ -10,6 +10,7 @@ import { EventoComponent } from './inicio/components/evento/evento.component';
 import { CarritoItemComponent }   from './inicio/components/carrito-compra/carrito-item/carrito-item.component';
 import { ResumenCarritoCompraComponent } from './inicio/components/carrito-compra/resumen-carrito-compra/resumen-carrito-compra.component';
 import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
 
 
 
@@ -28,6 +29,9 @@ import { FormsModule } from '@angular/forms';
     SharedModule,
     HomeRoutingModule,
     FormsModule,
+  ],
+  providers: [
+    MessageService
   ]
 })
 export class HomeModule { }

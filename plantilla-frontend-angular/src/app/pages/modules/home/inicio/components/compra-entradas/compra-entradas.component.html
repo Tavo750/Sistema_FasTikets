@@ -1,86 +1,262 @@
 <div class="compra-container">
-  <div class="form-section">
-    <h2>Complete los Datos de los Participantes:</h2>
-    <div class="participant-card" *ngFor="let p of participants; let i = index">
-      <div class="card-header">
-        <div class="ticket-type">
-          <h3>Tipo de entrada</h3>
-          <p>{{ p.ticketType }}</p>
-        </div>
-        <label class="auto-complete">
-          <input type="checkbox" [(ngModel)]="p.autoComplete">
-          Completar con mis datos
-          <span *ngIf="p.autoComplete" class="check-icon">✔️</span>
-        </label>
-      </div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Tipo de Documento: <span class="required">*</span></label>
-            <select [(ngModel)]="p.docType">
-              <option *ngFor="let t of docTypes" [value]="t">{{ t }}</option>
-            </select>
+  <div class="container">
+    <div class="header-section">
+      <h1 class="title">
+        <i class="pi pi-shopping-cart"></i>
+        Resumen de su Compra
+      </h1>
+    </div>
+
+    <div class="purchase-grid">
+      <!-- Card de Información del Evento -->
+      <p-card class="purchase-card">
+        <ng-template pTemplate="header">
+          <div class="card-header-custom">
+            <div class="header-title-section">
+              <h2 class="card-title">
+                <i class="pi pi-calendar"></i>
+                Información del Evento
+              </h2>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Numero de Documento: <span class="required">*</span></label>
-            <input type="text" [(ngModel)]="p.docNumber" placeholder="Complete aquí">
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="event-details-section">
+            <div class="event-details-grid">
+              <div class="detail-item full-width">
+                <label class="detail-label">
+                  <i class="pi pi-music"></i>
+                  Evento:
+                </label>
+                <span class="detail-value event-name">{{ event.title }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">
+                  <i class="pi pi-calendar"></i>
+                  Fecha:
+                </label>
+                <span class="detail-value">{{ event.date }}</span>
+              </div>
+              <div class="detail-item">
+                <label class="detail-label">
+                  <i class="pi pi-clock"></i>
+                  Hora:
+                </label>
+                <span class="detail-value">{{ event.time }}</span>
+              </div>
+              <div class="detail-item full-width">
+                <label class="detail-label">
+                  <i class="pi pi-map-marker"></i>
+                  Lugar:
+                </label>
+                <span class="detail-value">{{ event.venue }}</span>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nombre: <span class="required">*</span></label>
-            <input type="text" [(ngModel)]="p.firstName" placeholder="Complete aquí">
+        </ng-template>
+      </p-card>
+
+      <!-- Card de Detalles de Entradas -->
+      <p-card class="purchase-card">
+        <ng-template pTemplate="header">
+          <div class="card-header-custom">
+            <div class="header-title-section">
+              <h2 class="card-title">
+                <i class="pi pi-ticket"></i>
+                Detalles de las Entradas
+              </h2>
+              <p-tag [value]="quantity + ' entradas'" severity="success" class="quantity-tag"></p-tag>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Apellidos: <span class="required">*</span></label>
-            <input type="text" [(ngModel)]="p.lastName" placeholder="Complete aquí">
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="tickets-section">
+            <div class="ticket-details-grid">
+              <!-- Mostrar resumen de tickets seleccionados -->
+              <div class="tickets-summary" *ngIf="purchaseData">
+                <h4><i class="pi pi-ticket"></i> Entradas Seleccionadas</h4>
+                <div class="ticket-summary-item" *ngFor="let ticket of purchaseData.tickets">
+                  <div class="ticket-summary-info">
+                    <span class="ticket-name">{{ ticket.name }}</span>
+                    <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
+                    <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
+                    <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información básica de entradas (legacy) -->
+              <div class="ticket-item" *ngFor="let p of participants; let i = index">
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-tag"></i>
+                    Entrada {{ i + 1 }}:
+                  </label>
+                  <span class="detail-value">{{ p.ticketType }}</span>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-dollar"></i>
+                    Precio:
+                  </label>
+                  <span class="detail-value price-value">S/ {{ price | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <small><span class="info-icon">ℹ️</span> Los campos con <span class="required">*</span> son obligatorios.</small>
-      </div>
+        </ng-template>
+      </p-card>
+
+      <!-- Card de Resumen Financiero -->
+      <p-card class="purchase-card financial-card">
+        <ng-template pTemplate="header">
+          <div class="card-header-custom financial-header">
+            <div class="header-title-section">
+              <h2 class="card-title">
+                <i class="pi pi-calculator"></i>
+                Resumen Financiero
+              </h2>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+          <div class="financial-summary">
+            <div class="summary-stats">
+              <div class="stat-card">
+                <div class="stat-value">S/ {{ subtotal | number:'1.2-2' }}</div>
+                <div class="stat-label">
+                  <i class="pi pi-calculator"></i>
+                  Subtotal
+                </div>
+              </div>
+
+              <div class="stat-card" *ngIf="usePoints">
+                <div class="stat-value discount">-S/ {{ pointsToUse | number:'1.2-2' }}</div>
+                <div class="stat-label">
+                  <i class="pi pi-star"></i>
+                  Descuento Puntos
+                </div>
+              </div>
+
+              <div class="stat-card total-card">
+                <div class="stat-value total">S/ {{ totalAmount | number:'1.2-2' }}</div>
+                <div class="stat-label">
+                  <i class="pi pi-money-bill"></i>
+                  Total a Pagar
+                </div>
+              </div>
+            </div>
+
+            <div class="points-info" *ngIf="usePoints">
+              <p-panel header="Información de Puntos" [toggleable]="true" [collapsed]="true" class="points-panel">
+                <div class="points-details">
+                  <div class="detail-item">
+                    <label class="detail-label">
+                      <i class="pi pi-star"></i>
+                      Puntos utilizados:
+                    </label>
+                    <span class="detail-value">{{ pointsToUse }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <label class="detail-label">
+                      <i class="pi pi-wallet"></i>
+                      Puntos restantes:
+                    </label>
+                    <span class="detail-value">{{ remainingPoints }}</span>
+                  </div>
+                </div>
+              </p-panel>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
     </div>
   </div>
-  <div class="summary-section">
 
-      <h3>Detalles de la Compra</h3>
-      <div class="event-info">
-        <strong class="event-title">{{ event.title }}</strong>
-        <p class="event-date-time">{{ event.date }} | {{ event.time }}</p>
-        <p class="event-venue">{{ event.venue }}</p>
+  <!-- Sección de control de puntos y acciones -->
+  <div class="actions-section">
+    <!-- Control de puntos compacto -->
+    <div class="points-control-card">
+      <div class="card-header-compact">
+        <h4>
+          <i class="pi pi-star"></i>
+          Control de Puntos
+        </h4>
       </div>
-      <button class="ticket-line">
-        <span>{{ quantity }} x Entrada {{ ticketCategory }}</span>
-        <span>S/ {{ price | number:'1.2-2' }}</span>
-      </button>
-      <div class="line">
-        <span>Sub Total:</span>
-        <span>S/ {{ subtotal | number:'1.2-2' }}</span>
+
+      <div class="points-toggle-compact">
+        <span class="switch-label-small">Canje de Puntos</span>
+        <p-toggleButton
+          [(ngModel)]="usePoints"
+          onLabel="ON"
+          offLabel="OFF"
+          class="compact-toggle">
+        </p-toggleButton>
       </div>
-      <div class="points-section">
-        <span>Canje de Puntos</span>
-        <label class="switch">
-          <input type="checkbox" [(ngModel)]="usePoints">
-          <span class="slider round"></span>
-        </label>
+
+      <div class="points-control-compact" *ngIf="usePoints">
+        <div class="points-selector-compact">
+          <p-button
+            icon="pi pi-minus"
+            [rounded]="true"
+            severity="secondary"
+            size="small"
+            (click)="decreasePoints()"
+            [disabled]="pointsToUse <= 0">
+          </p-button>
+
+          <div class="points-display-compact">
+            <span class="points-value-small">{{ pointsToUse }}</span>
+            <span class="points-label-small">pts</span>
+          </div>
+
+          <p-button
+            icon="pi pi-plus"
+            [rounded]="true"
+            severity="secondary"
+            size="small"
+            (click)="increasePoints()">
+          </p-button>
+        </div>
+
+        <div class="points-info-compact">
+          <small><i class="pi pi-wallet"></i> Restantes: {{ remainingPoints }} pts</small>
+        </div>
       </div>
-      <div class="points-control" *ngIf="usePoints">
-        <button (click)="decreasePoints()">&lt;</button>
-        <span>{{ pointsToUse }} Pts.</span>
-        <button (click)="increasePoints()">&gt;</button>
-      </div>
-      <div class="line" *ngIf="usePoints">
-        <span>Saldo de puntos restantes:</span>
-        <span>{{ remainingPoints }} Pts.</span>
-      </div>
-      <div class="total-line">
-        <strong>Monto Total:</strong>
-        <strong>S/ {{ totalAmount | number:'1.2-2' }}</strong>
-      </div>
-      <button class="continue-btn" (click)="onContinuar()">Continuar</button>
-      <button class="cancel-btn" (click)="showPagoDialog=false">Cancelar</button>
     </div>
+
+    <!-- Resumen total compacto -->
+    <div class="total-summary-compact">
+      <div class="total-row">
+        <span class="total-label-small">Total:</span>
+        <span class="total-amount-compact">S/ {{ totalAmount | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Botones de acción compactos -->
+    <div class="action-buttons-compact">
+      <p-button
+        label="Continuar"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        severity="success"
+        class="action-btn-compact"
+        (click)="onContinuar()">
+      </p-button>
+
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        class="action-btn-compact"
+        (click)="showPagoDialog=false">
+      </p-button>
+    </div>
+  </div>
 
   <!-- Modal de pago con PrimeNG -->
   <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">

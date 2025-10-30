@@ -78,6 +78,14 @@
                             </label>
                             <div class="field-value">{{perfilForm.get('numeroDocumento')?.value}}</div>
                         </div>
+                        <div class="profile-field">
+                            <label class="field-label">
+                                <i class="pi pi-hashtag"></i>
+                                Dirección:
+                            </label>
+                            <div class="field-value">{{perfilForm.get('direccion')?.value}}</div>
+                        </div>
+
                     </div>
                 </form>
             </ng-template>
@@ -165,7 +173,7 @@
                                 placeholder="999 999 999" />
                         </div>
 
-                        <div class="form-field">
+                        <!-- <div class="form-field">
                             <label for="departamentoEdit" class="field-label">
                                 <i class="pi pi-map"></i>
                                 Departamento *
@@ -191,7 +199,7 @@
                                 formControlName="distrito"
                                 class="form-input"
                                 placeholder="Distrito" />
-                        </div>
+                        </div> -->
 
                         <div class="form-field full-width">
                             <label for="direccionEdit" class="field-label">

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Evento } from './interfaces/inicio/evento.interface';
+import { EventoService } from '../../administrador/services/evento.service';
+import { Data } from '../../administrador/interfaces/gestion-evento/evento.interface';
 
 interface DropdownOption {
   label: string;
@@ -21,6 +23,7 @@ export class InicioComponent implements OnInit {
   ubicaciones: string[] = ['Arena 1 - Cúpula', 'Arena 2', 'Arena 3', 'Movistar Arena'];
   paginaActual: number = 1;
   eventosPorPagina: number = 6;
+  cargandoEventos: boolean = false;
 
   // Nuevas propiedades para PrimeNG
   categoriasDropdown: DropdownOption[] = [];
@@ -41,19 +44,99 @@ export class InicioComponent implements OnInit {
   fechaSeleccionada: Date | null = null;
   ordenSeleccionado: string = 'relevancia';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private eventoService: EventoService
+  ) {}
 
   ngOnInit(): void {
     this.cargarEventos();
-    this.inicializarDropdowns();
   }
 
   inicializarDropdowns(): void {
-    this.categoriasDropdown = this.categorias.map(cat => ({ label: cat, value: cat }));
-    this.ubicacionesDropdown = this.ubicaciones.map(ub => ({ label: ub, value: ub }));
+    // Extraer categorías únicas de los eventos cargados
+    const categoriasUnicas = [...new Set(this.eventos.map(evento => evento.categoria))];
+    this.categoriasDropdown = categoriasUnicas.map(cat => ({ label: cat, value: cat }));
+
+    // Extraer ubicaciones únicas de los eventos cargados
+    const ubicacionesUnicas = [...new Set(this.eventos.map(evento => evento.lugar))];
+    this.ubicacionesDropdown = ubicacionesUnicas.map(ub => ({ label: ub, value: ub }));
   }
 
   cargarEventos() {
+    this.cargandoEventos = true;
+
+    this.eventoService.getListarEventos().subscribe({
+      next: (response) => {
+        this.cargandoEventos = false;
+
+        if (response.ok && response.data) {
+          let eventosData: Data[] = [];
+
+          // Si response.data es un array
+          if (Array.isArray(response.data)) {
+            eventosData = response.data;
+          }
+          // Si response.data es un objeto único
+          else {
+            eventosData = [response.data];
+          }
+
+          // Filtrar solo eventos con estadoEvento = 'PUBLICADO'
+          const eventosPublicados = eventosData.filter(evento => evento.estadoEvento === 'PUBLICADO');
+
+          this.eventos = eventosPublicados.map(evento => this.mapearEventoData(evento));
+          this.eventosFiltrados = [...this.eventos];
+          this.inicializarDropdowns();
+          this.aplicarOrden();
+        } else {
+          console.error('Error al cargar eventos:', response.mensaje);
+          // Mantener eventos de ejemplo como fallback
+          this.cargarEventosEjemplo();
+        }
+      },
+      error: (error) => {
+        this.cargandoEventos = false;
+        console.error('Error al cargar eventos:', error);
+        // Mantener eventos de ejemplo como fallback en caso de error
+        this.cargarEventosEjemplo();
+      }
+    });
+  }
+
+  private mapearEventoData(eventoData: Data): Evento {
+    return {
+      id: eventoData.idEvento,
+      nombre: eventoData.nombre,
+      fecha: this.formatearFecha(eventoData.fechaEvento),
+      lugar: eventoData.nombreLocal || 'Lugar no especificado',
+      categoria: eventoData.tipoEvento,
+      precio: this.obtenerPrecioDesde(eventoData.idEvento), // Precio dinámico o valor por defecto
+      imagen: eventoData.imagenUrl || this.generarImagenPlaceholder(eventoData.nombre)
+    };
+  }
+
+  private obtenerPrecioDesde(idEvento: number): number {
+    // Por ahora retornamos un precio base
+    // Aquí podrías hacer una llamada al servicio para obtener el precio mínimo de las entradas
+    // this.eventoService.getListarEntradasPorEvento(idEvento) - si existiera este método
+    return 100; // Precio base temporal
+  }
+
+  private generarImagenPlaceholder(nombreEvento: string): string {
+    return `https://via.placeholder.com/400x200/dc2626/ffffff?text=${encodeURIComponent(nombreEvento)}`;
+  }
+
+  private formatearFecha(fecha: Date): string {
+    const fechaObj = new Date(fecha);
+    const opciones: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'long'
+    };
+    return fechaObj.toLocaleDateString('es-ES', opciones);
+  }
+
+  private cargarEventosEjemplo() {
     this.eventos = [
       { id: 1, nombre: 'UB40', fecha: '11 de Septiembre', lugar: 'Arena 1 - Cúpula', categoria: 'Reggae', precio: 100, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=UB40' },
       { id: 2, nombre: 'Banda', fecha: '30 de Septiembre', lugar: 'Arena 2', categoria: 'Rock and Pop', precio: 100, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Rock+Band' },
@@ -65,6 +148,7 @@ export class InicioComponent implements OnInit {
       { id: 8, nombre: 'Noche de Jazz', fecha: '12 de Noviembre', lugar: 'Movistar Arena', categoria: 'Jazz', precio: 90, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Jazz+Night' },
     ];
     this.eventosFiltrados = [...this.eventos];
+    this.inicializarDropdowns();
     this.aplicarOrden();
   }
 
@@ -146,14 +230,18 @@ export class InicioComponent implements OnInit {
     this.paginaActual = (event.first / event.rows) + 1;
   }
 
-  goToEvento(): void {
-    this.router.navigate(['/home/evento']);
+  goToEvento(eventoId?: number): void {
+    if (eventoId) {
+      this.router.navigate(['/home/evento', eventoId]);
+    } else {
+      this.router.navigate(['/home/evento']);
+    }
   }
 
   comprarEvento(evento: Evento): void {
-    // Lógica para comprar evento
-    console.log('Comprando evento:', evento.nombre);
-    // Aquí se podría navegar a una página de compra o abrir un modal
+    // Navegar a la página de compra con el ID del evento real
+    console.log('Comprando evento:', evento.nombre, 'ID:', evento.id);
+    this.router.navigate(['/home/evento', evento.id]);
   }
 
   limpiarFiltros(): void {
@@ -164,5 +252,9 @@ export class InicioComponent implements OnInit {
     this.eventosFiltrados = [...this.eventos];
     this.aplicarOrden();
     this.paginaActual = 1;
+  }
+
+  recargarEventos(): void {
+    this.cargarEventos();
   }
 }
