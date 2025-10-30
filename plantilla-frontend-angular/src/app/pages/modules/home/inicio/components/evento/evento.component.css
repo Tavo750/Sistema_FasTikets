@@ -5,6 +5,22 @@
   background: #f8f9fa;
 }
 
+/* Estado de carga */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
 ::ng-deep .evento-card-modern {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e5e7eb !important;

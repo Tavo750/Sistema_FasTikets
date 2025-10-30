@@ -13,6 +13,7 @@ const routes: Routes = [
   { path: 'carritoCompra', component: CarritoCompraComponent },
   { path: 'compraEntradas', component: CompraEntradasComponent },
   { path: 'evento', component: EventoComponent },
+  { path: 'evento/:id', component: EventoComponent },
 ];
 
 @NgModule({

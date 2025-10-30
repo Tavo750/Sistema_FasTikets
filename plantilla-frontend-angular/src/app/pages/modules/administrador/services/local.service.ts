@@ -67,6 +67,14 @@ export class LocalService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  getlistarLocalesPorID(id:number): Observable<ListarLocalesResponse> {
+    const url = `${baseUrl}/locales/${id}`;
+    return this.http.get<ListarLocalesResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
   /**
    *  Elimina un local por su ID
    * @param id ID del local a eliminar
