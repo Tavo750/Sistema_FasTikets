@@ -83,41 +83,106 @@
         <div class="tickets-section">
           <h2 class="tickets-title">Entradas</h2>
 
-          <div class="tickets-list">
-            <div
-              *ngFor="let ticket of tickets"
-              class="ticket-item">
+          <!-- Indicador de carga para entradas -->
+          <div *ngIf="cargandoEntradas" class="tickets-loading">
+            <p-progressSpinner [style]="{'width': '30px', 'height': '30px'}" strokeWidth="4"></p-progressSpinner>
+            <span class="loading-text">Cargando entradas disponibles...</span>
+          </div>
 
-              <div class="ticket-info">
-                <div class="ticket-name">{{ ticket.name }}</div>
-                <div class="ticket-price">
-                  S/ {{ ticket.price | number:'1.2-2' }}
+          <!-- Lista de zonas con sus tickets en cascada -->
+          <div class="zonas-container" *ngIf="!cargandoEntradas && zonasConTickets.length > 0">
+            <div
+              *ngFor="let zonaConTickets of zonasConTickets"
+              class="zona-seccion">
+
+              <!-- Título de la zona con funcionalidad de colapsar/expandir -->
+              <h3 class="zona-titulo" (click)="toggleZonaExpansion(zonaConTickets)" style="cursor: pointer;">
+                <div class="zona-nombre">
+                  <i class="pi pi-map-marker"></i>
+                  {{ zonaConTickets.zona.nombre }}
+                </div>
+                <i
+                  class="pi toggle-icon"
+                  [ngClass]="zonaConTickets.expanded ? 'pi-chevron-up' : 'pi-chevron-down'">
+                </i>
+              </h3>
+
+              <!-- Tickets de la zona -->
+              <div class="tickets-list-zona" *ngIf="zonaConTickets.expanded && zonaConTickets.tickets.length > 0">
+                <div
+                  *ngFor="let ticket of zonaConTickets.tickets"
+                  class="ticket-item">
+
+                  <div class="ticket-info">
+                    <div class="ticket-name">{{ ticket.name }}</div>
+                    <div class="ticket-price">
+                      S/ {{ ticket.price | number:'1.2-2' }}
+                    </div>
+
+                    <!-- Descripción del ticket -->
+                    <div class="ticket-description-dynamic" *ngIf="ticket.description">
+                      {{ ticket.description }}
+                    </div>
+
+                    <!-- Información de stock -->
+                    <div class="ticket-stock" *ngIf="ticket.stock">
+                      <span
+                        class="stock-icon"
+                        [ngClass]="{
+                          'disponible': ticket.stock > 10,
+                          'limitado': ticket.stock <= 10 && ticket.stock > 0,
+                          'agotado': ticket.stock === 0
+                        }">
+                      </span>
+                      <span
+                        [ngClass]="{
+                          'stock-disponible': ticket.stock > 10,
+                          'stock-limitado': ticket.stock <= 10 && ticket.stock > 0,
+                          'stock-agotado': ticket.stock === 0
+                        }">
+                        {{ ticket.stock > 0 ? 'Stock: ' + ticket.stock : 'Agotado' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="ticket-controls">
+                    <p-button
+                      icon="pi pi-minus"
+                      size="small"
+                      severity="secondary"
+                      [disabled]="ticket.quantity <= 0"
+                      (onClick)="decrement(ticket)"
+                      [rounded]="true"
+                      styleClass="quantity-btn-minus">
+                    </p-button>
+
+                    <span class="quantity-display">{{ ticket.quantity }}</span>
+
+                    <p-button
+                      icon="pi pi-plus"
+                      size="small"
+                      severity="danger"
+                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona)"
+                      (onClick)="increment(ticket)"
+                      [rounded]="true"
+                      styleClass="quantity-btn-plus">
+                    </p-button>
+                  </div>
                 </div>
               </div>
 
-              <div class="ticket-controls">
-                <p-button
-                  icon="pi pi-minus"
-                  size="small"
-                  severity="secondary"
-                  [disabled]="ticket.quantity <= 0"
-                  (onClick)="decrement(ticket)"
-                  [rounded]="true"
-                  styleClass="quantity-btn-minus">
-                </p-button>
-
-                <span class="quantity-display">{{ ticket.quantity }}</span>
-
-                <p-button
-                  icon="pi pi-plus"
-                  size="small"
-                  severity="danger"
-                  (onClick)="increment(ticket)"
-                  [rounded]="true"
-                  styleClass="quantity-btn-plus">
-                </p-button>
+              <!-- Mensaje cuando una zona no tiene tickets -->
+              <div class="no-tickets-zona" *ngIf="zonaConTickets.expanded && zonaConTickets.tickets.length === 0">
+                <i class="pi pi-info-circle"></i>
+                <p>No hay entradas disponibles en esta zona.</p>
               </div>
             </div>
+          </div>
+
+          <!-- Mensaje cuando no hay zonas o entradas -->
+          <div class="no-tickets-message" *ngIf="!cargandoEntradas && zonasConTickets.length === 0">
+            <i class="pi pi-info-circle"></i>
+            <p>No hay entradas disponibles para este evento en este momento.</p>
           </div>
         </div>
 

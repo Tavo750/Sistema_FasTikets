@@ -8,11 +8,24 @@ import { EventoService } from '../../../../administrador/services/evento.service
 import { LocalService } from '../../../../administrador/services/local.service';
 import { Data as EventoData } from '../../../../administrador/interfaces/gestion-evento/evento.interface';
 import { Data as LocalData } from '../../../../administrador/interfaces/gestion-locales/local.interface';
+import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-evento/zona-categoria.interface';
+import { Data as EntradaData } from '../../../../administrador/interfaces/gestion-evento/entrada.interface';
 
 interface TicketType {
+  id?: number;
   name: string;
   price: number;
   quantity: number;
+  description?: string;
+  stock?: number;
+  idZona?: number;
+  limitePorPersona?: number;
+}
+
+interface ZonaConTickets {
+  zona: ZonaData;
+  tickets: TicketType[];
+  expanded: boolean; // Nueva propiedad para controlar expansión
 }
 
 @Component({
@@ -39,17 +52,22 @@ export class EventoComponent implements AfterViewInit, OnInit {
   eventoData: EventoData | null = null;
   localData: LocalData | null = null;
   cargandoDatos: boolean = false;
+  cargandoEntradas: boolean = false;
 
-  @Input() imageUrl: string = 'assets/images/ub40.jpg';
-  @Input() videoUrl: string = 'assets/videos/ub40-preview.mp4';
-  @Input() title: string = 'UB40 Ft. Ali Campbell';
-  @Input() date: string = 'Jueves 11 de Septiembre, 2025';
-  @Input() time: string = '06:00 PM';
-  @Input() description: string = 'UB40, la leyenda de la música contemporánea y considerado como uno de los más importantes exponentes del balada en toda América Latina, llega el próximo 9 de septiembre para ofrecer un increíble concierto en Costa 21 como parte de su Gira Perú 2025.';
-  @Input() venue: string = 'Lima, PE';
-  @Input() address: string = 'Av. Naranjal 398, Los Olivos, Perú';
-  @Input() organizer: string = 'El Huaralino Internacional';
-  @Input() showSeatingChart: boolean = true;
+  // Sistema de tickets en cascada por zonas
+  zonasConTickets: ZonaConTickets[] = [];
+
+  // Propiedades dinámicas que se actualizan desde el backend
+  imageUrl: string = '';
+  videoUrl: string = '';
+  title: string = '';
+  date: string = '';
+  time: string = '';
+  description: string = '';
+  venue: string = '';
+  address: string = '';
+  organizer: string = '';
+  showSeatingChart: boolean = true;
 
   // Coordenadas para el mapa (Los Olivos, Lima)
   @Input() latitude: number = -11.9746;
@@ -57,12 +75,8 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
   private map: L.Map | undefined;
 
-    tickets: TicketType[] = [
-      { name: 'Platinum', price: 410.00, quantity: 0 },
-      { name: 'Vip',      price: 150.00, quantity: 0 },
-      { name: 'Tribuna',  price: 130.00, quantity: 0 },
-      { name: 'General',  price: 100.00, quantity: 0 },
-    ];
+    // Tickets dinámicos que se cargarán del backend
+    tickets: TicketType[] = [];
 
     ngOnInit(): void {
       // Obtener el ID del evento de la ruta
@@ -72,7 +86,6 @@ export class EventoComponent implements AfterViewInit, OnInit {
           this.cargarDatosEvento();
         } else {
           // Si no hay ID, usar datos estáticos (para casos como navegación sin parámetros)
-          console.log('Modo estático: usando datos predeterminados');
           this.cargandoDatos = false;
         }
       });
@@ -126,6 +139,9 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
             if (this.localData) {
               this.actualizarDatosLocal();
+
+              // Cargar entradas/tickets después de cargar el local
+              this.cargarEntradasEvento(this.eventoData!.idLocal);
             }
           } else {
             console.warn('No se encontraron datos del local');
@@ -146,7 +162,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.description = this.eventoData.descripcion;
       this.date = this.formatearFecha(this.eventoData.fechaEvento);
       this.time = this.formatearHora(this.eventoData.horaInicio);
-      this.imageUrl = this.eventoData.imagenUrl || this.imageUrl;
+      this.imageUrl = this.eventoData.imagenUrl || '';
     }
 
     private formatearHora(hora: string): string {
@@ -170,18 +186,131 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.venue = this.localData.nombre;
       this.address = this.localData.direccion;
 
-      // Verificar si existe urlMapa en los datos del local
-      const localConMapa = this.localData as any;
-      if (localConMapa.urlMapa) {
-        // Si urlMapa contiene coordenadas, se podría parsear aquí
-        // Por ahora mantenemos las coordenadas por defecto
-        console.log('URL del mapa:', localConMapa.urlMapa);
-      }
-
       // Actualizar el mapa después de cargar los datos
       setTimeout(() => {
         this.initializeMap();
       }, 100);
+    }
+
+    cargarEntradasEvento(idLocal: number): void {
+      this.cargandoEntradas = true;
+      this.zonasConTickets = []; // Limpiar datos anteriores
+
+      // Primero obtener las zonas del local
+      this.eventoService.getListarZonas(idLocal).subscribe({
+        next: (zonesResponse) => {
+          if (zonesResponse.ok && zonesResponse.data) {
+            const zonas: ZonaData[] = Array.isArray(zonesResponse.data) ? zonesResponse.data : [zonesResponse.data];
+
+            if (zonas.length === 0) {
+              this.cargandoEntradas = false;
+              this.cargarTicketsDefault();
+              return;
+            }
+
+            // Para cada zona, obtener sus tickets
+            let zonasProcessed = 0;
+
+            zonas.forEach(zona => {
+              this.eventoService.getListarEntradasID(zona.idZona).subscribe({
+                next: (ticketsResponse) => {
+                  const ticketsDeZona: TicketType[] = [];
+
+                  if (ticketsResponse.ok && ticketsResponse.data) {
+                    const tickets: EntradaData[] = Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [ticketsResponse.data];
+
+                    tickets.forEach(ticket => {
+                      if (ticket.activo) { // Solo agregar tickets activos
+                        ticketsDeZona.push({
+                          id: ticket.idTipoTicket,
+                          name: ticket.nombre,
+                          price: ticket.precio,
+                          quantity: 0,
+                          description: ticket.descripcion,
+                          stock: ticket.stock,
+                          idZona: ticket.idZona,
+                          limitePorPersona: ticket.limitePorPersona
+                        });
+                      }
+                    });
+                  }
+
+                  // Agregar la zona con sus tickets (aunque no tenga tickets)
+                  this.zonasConTickets.push({
+                    zona: zona,
+                    tickets: ticketsDeZona.sort((a, b) => a.price - b.price), // Ordenar por precio
+                    expanded: true // Por defecto las zonas inician expandidas
+                  });
+
+                  zonasProcessed++;
+                  if (zonasProcessed === zonas.length) {
+                    // Todas las zonas han sido procesadas
+                    // Ordenar zonas por nombre
+                    this.zonasConTickets.sort((a, b) => a.zona.nombre.localeCompare(b.zona.nombre));
+                    this.cargandoEntradas = false;
+                  }
+                },
+                error: (error) => {
+                  console.error(`Error al cargar tickets para zona ${zona.idZona}:`, error);
+
+                  // Agregar la zona sin tickets en caso de error
+                  this.zonasConTickets.push({
+                    zona: zona,
+                    tickets: [],
+                    expanded: true // Por defecto las zonas inician expandidas
+                  });
+
+                  zonasProcessed++;
+                  if (zonasProcessed === zonas.length) {
+                    this.zonasConTickets.sort((a, b) => a.zona.nombre.localeCompare(b.zona.nombre));
+                    this.cargandoEntradas = false;
+                  }
+                }
+              });
+            });
+          } else {
+            console.warn('No se encontraron zonas para el local');
+            this.cargandoEntradas = false;
+            this.cargarTicketsDefault();
+          }
+        },
+        error: (error) => {
+          console.error('Error al cargar zonas:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar las zonas del evento'
+          });
+          this.cargandoEntradas = false;
+          this.cargarTicketsDefault();
+        }
+      });
+    }
+
+    cargarTicketsDefault(): void {
+      // Crear una zona por defecto con tickets de ejemplo
+      this.zonasConTickets = [
+        {
+          zona: {
+            idZona: 0,
+            aforoMax: 1000,
+            usuarioCreacion: null,
+            usuarioActualizacion: null,
+            nombre: 'Zona General',
+            activo: true,
+            fechaCreacion: null,
+            fechaActualizacion: null,
+            idLocal: 0
+          } as ZonaData,
+          tickets: [
+            { name: 'Platinum', price: 410.00, quantity: 0, description: 'Acceso VIP completo' },
+            { name: 'VIP', price: 150.00, quantity: 0, description: 'Zona VIP premium' },
+            { name: 'Tribuna', price: 130.00, quantity: 0, description: 'Asientos con buena vista' },
+            { name: 'General', price: 100.00, quantity: 0, description: 'Acceso general' },
+          ],
+          expanded: true // Por defecto expandida
+        }
+      ];
     }
 
     private formatearFecha(fecha: Date): string {
@@ -195,6 +324,14 @@ export class EventoComponent implements AfterViewInit, OnInit {
       return fechaObj.toLocaleDateString('es-ES', opciones);
     }
 
+    getUrlMapa(): string | null {
+      if (this.localData) {
+        const localConMapa = this.localData as any;
+        return localConMapa.urlMapa || null;
+      }
+      return null;
+    }
+
     increment(t: TicketType) {
       t.quantity++;
     }
@@ -203,9 +340,31 @@ export class EventoComponent implements AfterViewInit, OnInit {
       if (t.quantity > 0) { t.quantity--; }
     }
 
+    toggleZonaExpansion(zonaConTickets: ZonaConTickets) {
+      zonaConTickets.expanded = !zonaConTickets.expanded;
+    }
+
+    expandirTodasLasZonas() {
+      this.zonasConTickets.forEach(zona => zona.expanded = true);
+    }
+
+    colapsarTodasLasZonas() {
+      this.zonasConTickets.forEach(zona => zona.expanded = false);
+    }
+
     getTicketDescription(ticketName: string): string {
+      // Buscar la descripción real del ticket en todas las zonas
+      for (const zonaConTickets of this.zonasConTickets) {
+        const ticket = zonaConTickets.tickets.find(t => t.name === ticketName);
+        if (ticket && ticket.description) {
+          return ticket.description;
+        }
+      }
+
+      // Fallback a descripciones por defecto
       const descriptions: { [key: string]: string } = {
         'Platinum': 'Acceso VIP completo, zona preferencial y servicios exclusivos',
+        'VIP': 'Zona VIP con servicios premium y vista privilegiada',
         'Vip': 'Zona VIP con servicios premium y vista privilegiada',
         'Tribuna': 'Asientos con buena vista del escenario',
         'General': 'Acceso general al evento'
@@ -214,15 +373,29 @@ export class EventoComponent implements AfterViewInit, OnInit {
     }
 
     getTotalTickets(): number {
-      return this.tickets.reduce((total, ticket) => total + ticket.quantity, 0);
+      let total = 0;
+      for (const zonaConTickets of this.zonasConTickets) {
+        total += zonaConTickets.tickets.reduce((zoneTotal, ticket) => zoneTotal + ticket.quantity, 0);
+      }
+      return total;
     }
 
     getTotalPrice(): number {
-      return this.tickets.reduce((total, ticket) => total + (ticket.price * ticket.quantity), 0);
+      let total = 0;
+      for (const zonaConTickets of this.zonasConTickets) {
+        total += zonaConTickets.tickets.reduce((zoneTotal, ticket) => zoneTotal + (ticket.price * ticket.quantity), 0);
+      }
+      return total;
     }
 
     onAddToCart() {
-      const selectedTickets = this.tickets.filter(t => t.quantity > 0);
+      // Obtener todos los tickets seleccionados de todas las zonas
+      const selectedTickets: TicketType[] = [];
+      for (const zonaConTickets of this.zonasConTickets) {
+        const ticketsSeleccionados = zonaConTickets.tickets.filter(t => t.quantity > 0);
+        selectedTickets.push(...ticketsSeleccionados);
+      }
+
       if (selectedTickets.length === 0) {
         this.messageService.add({
           severity: 'warn',
@@ -254,18 +427,24 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
       // Opcional: limpiar selección de tickets
       this.resetTicketQuantities();
-
-      console.log('Entradas añadidas al carrito:', selectedTickets);
     }
 
     resetTicketQuantities() {
-      this.tickets.forEach(ticket => {
-        ticket.quantity = 0;
-      });
+      for (const zonaConTickets of this.zonasConTickets) {
+        zonaConTickets.tickets.forEach(ticket => {
+          ticket.quantity = 0;
+        });
+      }
     }
 
     onBuyNow() {
-      const selectedTickets = this.tickets.filter(t => t.quantity > 0);
+      // Obtener todos los tickets seleccionados de todas las zonas
+      const selectedTickets: TicketType[] = [];
+      for (const zonaConTickets of this.zonasConTickets) {
+        const ticketsSeleccionados = zonaConTickets.tickets.filter(t => t.quantity > 0);
+        selectedTickets.push(...ticketsSeleccionados);
+      }
+
       if (selectedTickets.length === 0) {
         this.messageService.add({
           severity: 'warn',
@@ -302,8 +481,6 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
       // Navegar al componente de compra
       this.router.navigate(['/home/compraEntradas']);
-
-      console.log('Comprar ahora', selectedTickets);
     }
 
     ngAfterViewInit() {
