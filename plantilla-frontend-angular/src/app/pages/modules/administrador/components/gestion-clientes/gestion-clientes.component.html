@@ -1,123 +1,187 @@
-<div class="gestion-clientes-container">
+<div class="container">
   <div class="header-section">
-    <h1 class="page-title">Lista de clientes</h1>
-    
-    <div class="search-bar">
-      <span class="p-input-icon-left">
-        <i class="pi pi-search"></i>
-        <input 
-          pInputText 
-          type="text" 
-          [(ngModel)]="searchValue"
-          
-          placeholder="Filtrar por nombre o correo" 
-          class="search-input" />
-      </span>
+    <h1 class="title">
+      <i class="pi pi-users"></i>
+      Gestión de Clientes
+    </h1>
+  </div>
+
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="field">
+        <label for="busqueda">Buscar cliente:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busqueda"
+            type="text"
+            pInputText
+            placeholder="Filtrar por nombre, correo o DNI"
+            [(ngModel)]="searchValue"
+            (input)="dt.filterGlobal(searchValue, 'contains')"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+  </p-panel>
+
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Clientes encontrados ({{totalRecords}})
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <p-table
+        #dt
+        [value]="clientes"
+        [rows]="10"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [globalFilterFields]="['nombres', 'apellidos', 'email', 'docIdentidad']"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '60rem' }"
+        styleClass="custom-table">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombres">
+              <div class="header-content">
+                <i class="pi pi-user"></i>
+                Nombre
+                <p-sortIcon field="nombres"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="docIdentidad">
+              <div class="header-content">
+                <i class="pi pi-id-card"></i>
+                DNI
+                <p-sortIcon field="docIdentidad"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="email">
+              <div class="header-content">
+                <i class="pi pi-envelope"></i>
+                Email
+                <p-sortIcon field="email"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fechaCreacion">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha de creación
+                <p-sortIcon field="fechaCreacion"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-cliente>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{cliente.id}}</span>
+            </td>
+            <td class="name-cell">
+              <div class="name-content">
+                <i class="pi pi-user name-icon"></i>
+                <span class="name-text">{{cliente.nombres}} {{cliente.apellidos}}</span>
+              </div>
+            </td>
+            <td class="dni-cell">{{cliente.docIdentidad}}</td>
+            <td class="email-cell">{{cliente.email}}</td>
+            <td class="date-cell">{{cliente.fechaCreacion | date: 'dd/MM/yyyy'}}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top"
+                  (onClick)="verDetalle(cliente)">
+                </p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Editar cliente"
+                  tooltipPosition="top"
+                  (onClick)="editarCliente(cliente)">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Eliminar cliente"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminacion(cliente)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron clientes</h3>
+                <p>Intenta ajustar los filtros de búsqueda.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+                <p>Cargando clientes...</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </div>
 
-  <p-table 
-    #dt
-    [value]="clientes" 
-    [paginator]="true" 
-    [rows]="10"
-    [rowsPerPageOptions]="[5, 10, 20, 50]"
-    [totalRecords]="totalRecords"
-    [loading]="loading"
-    [globalFilterFields]="['nombres', 'apellidos', 'email', 'docIdentidad']"
-    styleClass="p-datatable-gridlines tabla-clientes"
-    [tableStyle]="{'min-width': '50rem'}"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} clientes"
-    [showCurrentPageReport]="true">
-    
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="id" style="width: 100px">
-          ID <p-sortIcon field="id"></p-sortIcon>
-        </th>
-        <th pSortableColumn="nombres" style="width: 200px">
-          Nombre <p-sortIcon field="nombres"></p-sortIcon>
-        </th>
-        <th pSortableColumn="docIdentidad" style="width: 150px">
-          DNI <p-sortIcon field="docIdentidad"></p-sortIcon>
-        </th>
-        <th pSortableColumn="fechaCreacion" style="width: 150px">
-          Fecha de creación <p-sortIcon field="fechaCreacion"></p-sortIcon>
-        </th>
-        <th style="width: 180px">Acciones</th>
-      </tr>
-    </ng-template>
+  <!-- Confirmación de eliminación -->
+  <p-confirmDialog></p-confirmDialog>
 
-    <ng-template pTemplate="body" let-cliente>
-      <tr>
-        <td>{{ cliente.id }}</td>
-        <td>{{ cliente.nombres }} {{ cliente.apellidos }}</td>
-        <td>{{ cliente.docIdentidad }}</td>
-        <td>{{ cliente.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
-        <td>
-          <div class="action-buttons">
-            <p-button 
-              icon="pi pi-eye" 
-              [rounded]="true" 
-              [text]="true"
-              severity="info"
-              (onClick)="verDetalle(cliente)"
-              pTooltip="Ver detalle"
-              tooltipPosition="top">
-            </p-button>
-            
-            <p-button 
-              icon="pi pi-pencil" 
-              [rounded]="true" 
-              [text]="true"
-              severity="primary"
-              (onClick)="editarCliente(cliente)"
-              pTooltip="Editar"
-              tooltipPosition="top">
-            </p-button>
-            
-            <p-button 
-              icon="pi pi-trash" 
-              [rounded]="true" 
-              [text]="true"
-              severity="danger"
-              (onClick)="confirmarEliminacion(cliente)"
-              pTooltip="Eliminar"
-              tooltipPosition="top">
-            </p-button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="5" class="text-center">
-          <div class="empty-message">
-            <i class="pi pi-users" style="font-size: 3rem; color: #ccc;"></i>
-            <p>No se encontraron clientes</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="loadingbody">
-      <tr>
-        <td colspan="5">
-          <div class="loading-message">
-            <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
-            <p>Cargando clientes...</p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <!-- Toast para mensajes -->
+  <p-toast></p-toast>
 </div>
 
 <!-- Dialog para ver detalle del cliente -->
 <p-dialog 
   [(visible)]="mostrarDialogDetalle" 
-  [header]="'Detalle del Cliente - ' + clienteSeleccionado?.nombres"
+  [header]="'Detalle del Cliente'"
   [modal]="true" 
   [style]="{width: '600px'}"
   [draggable]="false"
@@ -140,22 +204,29 @@
       <span class="detalle-label">Email:</span>
       <span class="detalle-value">{{ clienteSeleccionado.email }}</span>
     </div>
-    
     <div class="detalle-row">
-      <span class="detalle-label">Documento:</span>
+      <span class="detalle-label">DNI:</span>
       <span class="detalle-value">{{ clienteSeleccionado.docIdentidad }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Edad:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.edad }}</span>
     </div>
     <div class="detalle-row">
       <span class="detalle-label">Teléfono:</span>
       <span class="detalle-value">{{ clienteSeleccionado.telefono }}</span>
     </div>
     <div class="detalle-row">
-      <span class="detalle-label">Dirección:</span>
-      <span class="detalle-value">{{ clienteSeleccionado.direccion }}</span>
+      <span class="detalle-label">Departamento:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.departamento }}</span>
     </div>
     <div class="detalle-row">
-      <span class="detalle-label">Fecha de Nacimiento:</span>
-      <span class="detalle-value">{{ clienteSeleccionado.fechaNacimiento | date: 'dd/MM/yyyy' }}</span>
+      <span class="detalle-label">Distrito:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.distrito }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Dirección:</span>
+      <span class="detalle-value">{{ clienteSeleccionado.direccion }}</span>
     </div>
     <div class="detalle-row">
       <span class="detalle-label">Fecha de Creación:</span>
@@ -168,12 +239,11 @@
   </div>
   
   <ng-template pTemplate="footer">
-    <p-button label="Cerrar" icon="pi pi-times" (onClick)="mostrarDialogDetalle = false" severity="secondary"></p-button>
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogDetalle = false" 
+      severity="secondary">
+    </p-button>
   </ng-template>
 </p-dialog>
-
-<!-- Dialog de confirmación para eliminar -->
-<p-confirmDialog></p-confirmDialog>
-
-<!-- Toast para mensajes -->
-<p-toast></p-toast>

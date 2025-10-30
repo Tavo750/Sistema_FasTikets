@@ -82,6 +82,11 @@ activeTab: number = 0;
     this.cargarHistorialPuntos();
   }
 
+  estatusOptions = [
+    { label: 'Ganado', value: 'Ganado' },
+    { label: 'Canjeado', value: 'Canjeado' }
+  ];
+
   cargarDatosCliente(): void {
     this.loading = true;
     

@@ -1,282 +1,458 @@
-.detalle-cliente-page {
-  min-height: 100vh;
+/* Container Principal */
+.container {
+  padding: 2rem;
   background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Header Section */
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  font-size: 1rem !important;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.title i {
+  font-size: 2rem;
+  color: #3498db;
+}
+
+/* Info Card */
+.info-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.info-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 2rem;
 }
 
-.content-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-circle i {
+  font-size: 2.5rem;
+  color: white;
+}
+
+.client-info {
+  flex: 1;
+}
+
+.client-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.5rem 0;
+}
+
+.client-email {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.client-email i {
+  font-size: 1.1rem;
+}
+
+/* Tabs Section */
+.tabs-section {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.page-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.cliente-info {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.cliente-nombre {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1f1f1f;
-  margin: 0 0 1rem 0;
-}
-
-.cliente-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem 0;
-  color: #1f1f1f;
-}
-
-.cliente-header p {
-  font-size: 0.95rem;
-  color: #6c757d;
-  margin: 0;
-}
-
-/* Tabs */
-::ng-deep .p-tabs {
+::ng-deep .custom-tabs .p-tabview-nav {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
 }
 
-::ng-deep .p-tab-header {
-  background: transparent;
+::ng-deep .custom-tabs .p-tabview-nav-link {
+  color: rgba(255, 255, 255, 0.7);
   border: none;
-}
-
-::ng-deep .p-tab-header-content {
-  padding: 1rem 1.5rem;
   font-weight: 600;
 }
 
-::ng-deep .p-tab-active {
-  background: #dc3545;
-  color: white !important;
+::ng-deep .custom-tabs .p-tabview-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
-.tab-content {
+::ng-deep .custom-tabs .p-tabview-selected .p-tabview-nav-link {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+}
+
+.tab-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tab-header i {
+  font-size: 1.1rem;
+}
+
+/* Tab Content */
+.tab-content-wrapper {
   padding: 2rem;
 }
 
-/* Datos Grid */
+/* Datos Card */
+.datos-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+}
+
 .datos-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem 3rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .dato-item {
   display: flex;
   gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dato-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dato-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.dato-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dato-icon i {
+  font-size: 1.25rem;
+  color: white;
+}
+
+.dato-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
 }
 
 .dato-label {
+  font-size: 0.85rem;
+  color: #6c757d;
   font-weight: 600;
-  color: #495057;
-  min-width: 150px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .dato-value {
-  color: #6c757d;
+  font-size: 1rem;
+  color: #2c3e50;
+  font-weight: 500;
 }
 
-.volver-button-container {
+.actions-footer {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 2px solid #dee2e6;
 }
 
-/* Action Buttons */
+/* Table Card */
+.table-card {
+  background: white;
+  border-radius: 8px;
+}
+
+/* Custom Table */
+::ng-deep .custom-table .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+::ng-deep .custom-table .p-datatable-tbody > tr {
+  transition: all 0.3s ease;
+}
+
+::ng-deep .custom-table .p-datatable-tbody > tr:hover {
+  background: #f1f3f5;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .custom-table .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-content i {
+  color: #667eea;
+}
+
+.id-column {
+  width: 80px;
+}
+
+.id-cell {
+  text-align: center;
+}
+
+.id-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.actions-column {
+  width: 150px;
+  text-align: center;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
 .action-buttons {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
 }
 
+.puntos-value {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+/* No Results */
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.no-results i {
+  margin-bottom: 1rem;
+}
+
+.no-results h3 {
+  margin: 0.5rem 0;
+  color: #495057;
+}
+
+.no-results p {
+  margin: 0.5rem 0;
+  color: #6c757d;
+}
+
 /* Dialog Detalle */
 .detalle-dialog {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .detalle-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem;
-  border-bottom: 1px solid #e9ecef;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-.detalle-row:last-child {
-  border-bottom: none;
+.detalle-row:hover {
+  background: #e9ecef;
+}
+
+.detalle-row.destacado {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.detalle-row.destacado .label,
+.detalle-row.destacado .value {
+  color: white;
 }
 
 .detalle-row .label {
   font-weight: 600;
   color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detalle-row .label i {
+  color: #667eea;
+}
+
+.detalle-row.destacado .label i {
+  color: white;
 }
 
 .detalle-row .value {
   color: #6c757d;
   text-align: right;
+  font-weight: 500;
+}
+
+.detalle-row .value.total {
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .detalle-cliente-page {
+  .container {
     padding: 1rem;
+  }
+
+  .title-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .client-name {
+    font-size: 1.5rem;
   }
 
   .datos-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
   }
 
-  .dato-label {
-    min-width: 120px;
-  }
-
-  ::ng-deep .p-tab-header-content {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+  .tab-content-wrapper {
+    padding: 1rem;
   }
 }
-
-/* Lienzo y tarjeta */
-.detalle-cliente-page { min-height: 100vh; background: #f6f7f9; padding: 2rem; }
-.content-container {
-  max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 14px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.06); overflow: hidden; padding: 1.25rem 1.5rem 2rem;
+/* Estilos para filtros de columna */
+::ng-deep .custom-table .p-column-filter-menu-button {
+  margin-left: auto;
 }
 
-/* Títulos y cabecera */
-.header-wrap { padding: .5rem .25rem 0 .25rem; }
-.title { margin: .25rem 0 1.25rem; font-size: 2rem; font-weight: 800; color: #111; }
-.cliente-head .nombre { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111; }
-.cliente-head .correo { display: block; margin-top: .15rem; color: #6b7280; font-size: .95rem; }
-
-/* Tabs */
-.tabs-wrap { margin-top: 1.25rem; }
-.tabs-underline {
-  height: 2px; background: #f1b5bb; margin-top: .25rem; /* línea base suave */
+::ng-deep .custom-table .p-column-filter-menu-button:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #ea6675;
 }
 
-/* Píldoras del Tabs (compatibles) */
-::ng-deep .p-tabs, ::ng-deep .p-tabview { border: none; background: transparent; }
-::ng-deep .p-tablist, ::ng-deep .p-tabview-nav {
-  display: flex; gap: .5rem; background: transparent; border: none; padding: 0 .25rem;
-}
-::ng-deep .p-tab, ::ng-deep .p-tabview-nav li {
-  list-style: none;
-}
-::ng-deep .p-tab > .p-tab-header, ::ng-deep .p-tabview-nav li a {
-  padding: .45rem .9rem; border-radius: 10px; font-weight: 700;
-  color: #444; transition: .2s background,color;
-}
-::ng-deep .p-tab.p-tab-active > .p-tab-header,
-::ng-deep .p-tabview-nav li.p-highlight a {
-  background: #dc3545; color: #fff !important;
+::ng-deep .custom-table .p-datatable-thead > tr:nth-child(2) > th {
+  background: #f8f9fa;
+  padding: 0.5rem;
 }
 
-/* Contenido */
-.tab-content { padding: 1.25rem .25rem 0; }
-
-/* Grid de datos personales */
-.datos-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem 2.5rem; margin-top: .5rem;
-}
-.dato-item { display: grid; grid-template-columns: 160px 1fr; gap: .5rem;
-  padding: .4rem 0; border-bottom: 1px solid #e9ecef;
-}
-.dato-label { font-weight: 600; color: #6b7280; }
-.dato-value { color: #111; }
-.dato-value.strong { font-weight: 700; }
-
-/* Botón Volver abajo a la derecha */
-.volver-button-container { display: flex; justify-content: flex-end; margin-top: 1rem; }
-
-/* Tablas como el mockup */
-.tabla-detalle :where(.p-datatable-thead > tr > th) {
-  font-weight: 700; color: #111; background: #f8f9fb;
-}
-.tabla-detalle :where(.p-datatable-tbody > tr > td) { color: #111; }
-.tabla-detalle .acciones { text-align: center; }
-
-/* Dialogs (tus estilos) */
-.detalle-dialog { display: flex; flex-direction: column; gap: .75rem; }
-.detalle-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #eef0f2; }
-.detalle-row:last-child{ border-bottom: 0; }
-.detalle-row .label { font-weight: 600; color: #6b7280; }
-.detalle-row .value { color: #111; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .detalle-cliente-page { padding: 1rem; }
-  .datos-grid { grid-template-columns: 1fr; }
-  .dato-item { grid-template-columns: 130px 1fr; }
+::ng-deep .custom-table .p-column-filter {
+  width: 100%;
 }
 
-/* ===== Tabs “rojas” ===== */
-.tabs-rojas {
-  margin-top: .5rem;
+::ng-deep .custom-table .p-column-filter input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 0.875rem;
 }
 
-/* línea base suave bajo las tabs */
-.tabs-rojas ::ng-deep .p-tabview-nav {
-  border-bottom: 2px solid #f3c7cc; /* rosado suave */
-  gap: .5rem;
+::ng-deep .custom-table .p-column-filter input:focus {
+  border-color: #ea6666;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
-/* aspecto de las pestañas (píldoras) */
-.tabs-rojas ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
-  border-radius: 10px;
-  padding: .45rem .9rem;
-  font-weight: 700;
-  color: #444;
+::ng-deep .custom-table .p-column-filter input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
 }
 
-/* pestaña activa en rojo */
-.tabs-rojas ::ng-deep .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-  background: #dc3545;        /* rojo mockup */
-  color: #fff !important;
+/* Dropdown en filtros */
+::ng-deep .custom-table .p-dropdown {
+  width: 100%;
 }
 
-/* quita borde/underline por defecto si el tema lo trae */
-.tabs-rojas ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
-  border: none;
-  box-shadow: none;
+::ng-deep .custom-table .p-dropdown:focus {
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 0.2rem rgba(221, 81, 81, 0.25);
 }
-
-/* ===== Tabla estilo mockup ===== */
-.tabla-roja :where(.p-datatable-thead > tr > th) {
-  background: #f4f5f7;     /* gris claro header */
-  font-weight: 700;
-  color: #111;
-}
-
-.tabla-roja :where(.p-datatable-tbody > tr > td) {
-  color: #111;
-}
-
-/* paginador con acento rojo suave */
-::ng-deep .p-paginator .p-paginator-page.p-highlight {
-  background: #fde2e4;     /* rosado claro */
-  border-color: #f6c4c9;
-  color: #dc3545;
-}
-
-/* íconos de acciones alineados como en el mock */
-.acciones { text-align: center; }
-

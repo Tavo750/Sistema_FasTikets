@@ -1,59 +1,83 @@
 <p-toast></p-toast>
 
-<div class="editar-cliente-page">
-  <div class="content-card">
-    <div class="card-header">
-      <h2 class="card-title">Editar información de cliente</h2>
+<div class="container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-group">
       <button 
-        class="btn-close" 
+        pButton 
+        icon="pi pi-arrow-left" 
+        class="p-button-text p-button-lg back-button"
         (click)="volver()"
-        type="button"
-        [disabled]="loading">
-        <i class="pi pi-times"></i>
+        [disabled]="loading"
+        label="Volver">
       </button>
+      <h1 class="title">
+        <i class="pi pi-user-edit"></i>
+        Editar Información de Cliente
+      </h1>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <h3>
+        <i class="pi pi-pencil"></i>
+        Datos del Cliente
+      </h3>
+      <p>Complete los campos para actualizar la información del cliente</p>
     </div>
 
-    <div class="card-body">
+    <div class="form-card-body">
       <form [formGroup]="editarForm" (ngSubmit)="onSubmit()">
         
-        <!-- Nombres -->
-        <div class="form-field">
-          <label for="nombres">
-            Nombres <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="nombres" 
-            formControlName="nombres"
-            placeholder="Ejemplo: Pedro Carlos" />
-          <small 
-            class="p-error" 
-            *ngIf="editarForm.get('nombres')?.invalid && editarForm.get('nombres')?.touched">
-            Campo requerido (mínimo 2 caracteres)
-          </small>
-        </div>
+        <div class="form-grid">
+          <!-- Nombres -->
+          <div class="form-field full-width">
+            <label for="nombres">
+              <i class="pi pi-user"></i>
+              Nombres <span class="required">*</span>
+            </label>
+            <input 
+              pInputText 
+              id="nombres" 
+              formControlName="nombres"
+              placeholder="Ejemplo: Pedro Carlos"
+              class="input-modern" />
+            <small 
+              class="p-error" 
+              *ngIf="editarForm.get('nombres')?.invalid && editarForm.get('nombres')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
+              Campo requerido (mínimo 2 caracteres)
+            </small>
+          </div>
 
-        <!-- DNI y Edad en fila -->
-        <div class="form-row-two">
+          <!-- DNI -->
           <div class="form-field">
             <label for="docIdentidad">
+              <i class="pi pi-id-card"></i>
               DNI <span class="required">*</span>
             </label>
             <input 
               pInputText 
               id="docIdentidad" 
               formControlName="docIdentidad"
-              placeholder="Ejemplo: 21"
-              maxlength="8" />
+              placeholder="78364573"
+              maxlength="8"
+              class="input-modern" />
             <small 
               class="p-error" 
               *ngIf="editarForm.get('docIdentidad')?.invalid && editarForm.get('docIdentidad')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
               DNI debe tener 8 dígitos
             </small>
           </div>
 
+          <!-- Edad -->
           <div class="form-field">
             <label for="edad">
+              <i class="pi pi-calendar"></i>
               Edad <span class="required">*</span>
             </label>
             <input 
@@ -61,114 +85,137 @@
               id="edad" 
               type="number"
               formControlName="edad"
-              placeholder="Ejemplo: 21"
+              placeholder="35"
               min="18"
-              max="100" />
+              max="100"
+              class="input-modern" />
             <small 
               class="p-error" 
               *ngIf="editarForm.get('edad')?.invalid && editarForm.get('edad')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
               Edad entre 18 y 100 años
             </small>
           </div>
-        </div>
 
-        <!-- Apellidos -->
-        <div class="form-field">
-          <label for="apellidos">
-            Apellidos <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="apellidos" 
-            formControlName="apellidos"
-            placeholder="Ejemplo: Rodriguez Pérez" />
-          <small 
-            class="p-error" 
-            *ngIf="editarForm.get('apellidos')?.invalid && editarForm.get('apellidos')?.touched">
-            Campo requerido (mínimo 2 caracteres)
-          </small>
-        </div>
+          <!-- Apellidos -->
+          <div class="form-field full-width">
+            <label for="apellidos">
+              <i class="pi pi-users"></i>
+              Apellidos <span class="required">*</span>
+            </label>
+            <input 
+              pInputText 
+              id="apellidos" 
+              formControlName="apellidos"
+              placeholder="Ejemplo: Rodriguez Pérez"
+              class="input-modern" />
+            <small 
+              class="p-error" 
+              *ngIf="editarForm.get('apellidos')?.invalid && editarForm.get('apellidos')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
+              Campo requerido (mínimo 2 caracteres)
+            </small>
+          </div>
 
-        <!-- Correo Electrónico -->
-        <div class="form-field">
-          <label for="email">
-            Correo Electrónico <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="email" 
-            type="email"
-            formControlName="email"
-            placeholder="Ejemplo: pedro@example.com" />
-          <small 
-            class="p-error" 
-            *ngIf="editarForm.get('email')?.invalid && editarForm.get('email')?.touched">
-            Ingrese un correo válido
-          </small>
-        </div>
+          <!-- Correo Electrónico -->
+          <div class="form-field full-width">
+            <label for="email">
+              <i class="pi pi-envelope"></i>
+              Correo Electrónico <span class="required">*</span>
+            </label>
+            <input 
+              pInputText 
+              id="email" 
+              type="email"
+              formControlName="email"
+              placeholder="ejemplo@correo.com"
+              class="input-modern" />
+            <small 
+              class="p-error" 
+              *ngIf="editarForm.get('email')?.invalid && editarForm.get('email')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
+              Ingrese un correo válido
+            </small>
+          </div>
 
-        <!-- Teléfono, Departamento, Distrito en fila -->
-        <div class="form-row-three">
+          <!-- Teléfono -->
           <div class="form-field">
             <label for="telefono">
+              <i class="pi pi-phone"></i>
               Número de Teléfono <span class="required">*</span>
             </label>
             <input 
               pInputText 
               id="telefono" 
               formControlName="telefono"
-              placeholder="+51983953765"
-              maxlength="9" />
+              placeholder="987654321"
+              maxlength="9"
+              class="input-modern" />
             <small 
               class="p-error" 
               *ngIf="editarForm.get('telefono')?.invalid && editarForm.get('telefono')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
               Debe tener 9 dígitos
             </small>
           </div>
 
+          <!-- Departamento -->
           <div class="form-field">
-            <label for="departamento">Departamento</label>
+            <label for="departamento">
+              <i class="pi pi-map"></i>
+              Departamento <span class="required">*</span>
+            </label>
             <p-select 
               [options]="departamentos" 
               formControlName="departamento"
-              placeholder="Selecciona"
+              placeholder="Seleccione departamento"
+              styleClass="select-modern"
               [style]="{'width': '100%'}">
             </p-select>
           </div>
 
+          <!-- Distrito -->
           <div class="form-field">
-            <label for="distrito">Distrito</label>
+            <label for="distrito">
+              <i class="pi pi-building"></i>
+              Distrito <span class="required">*</span>
+            </label>
             <p-select 
               [options]="distritos" 
               formControlName="distrito"
-              placeholder="Selecciona"
+              placeholder="Seleccione distrito"
+              styleClass="select-modern"
               [style]="{'width': '100%'}">
             </p-select>
           </div>
+
+          <!-- Dirección domiciliaria -->
+          <div class="form-field full-width">
+            <label for="direccion">
+              <i class="pi pi-map-marker"></i>
+              Dirección domiciliaria <span class="required">*</span>
+            </label>
+            <input 
+              pInputText 
+              id="direccion" 
+              formControlName="direccion"
+              placeholder="Av. Principal 123, Distrito"
+              class="input-modern" />
+            <small 
+              class="p-error" 
+              *ngIf="editarForm.get('direccion')?.invalid && editarForm.get('direccion')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
+              Campo requerido
+            </small>
+          </div>
         </div>
 
-        <!-- Dirección domiciliaria -->
-        <div class="form-field">
-          <label for="direccion">
-            Dirección domiciliaria <span class="required">*</span>
-          </label>
-          <input 
-            pInputText 
-            id="direccion" 
-            formControlName="direccion"
-            placeholder="Dirección domiciliaria" />
-          <small 
-            class="p-error" 
-            *ngIf="editarForm.get('direccion')?.invalid && editarForm.get('direccion')?.touched">
-            Campo requerido
-          </small>
-        </div>
-
-        <!-- Botones -->
+        <!-- Botones de acción -->
         <div class="form-actions">
           <p-button 
             label="Cancelar" 
-            severity="danger"
+            icon="pi pi-times"
+            severity="secondary"
             type="button"
             (onClick)="cancelar()"
             [disabled]="loading"
@@ -176,7 +223,8 @@
           </p-button>
           
           <p-button 
-            label="Guardar" 
+            label="Guardar Cambios" 
+            icon="pi pi-check"
             severity="success"
             type="submit"
             [loading]="loading"
