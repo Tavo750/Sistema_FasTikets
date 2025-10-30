@@ -1,0 +1,17 @@
+.form-card { max-width: 850px; }
+.form-grid {
+  display:grid; grid-template-columns: repeat(3,1fr); gap:1rem 1.25rem; margin-top:.5rem;
+}
+.field { display:flex; flex-direction:column; gap:.35rem; }
+.col-span-2 { grid-column: span 2; }
+.req { color:#ef4444; margin-left:.25rem; }
+.footer-actions { display:flex; justify-content:center; margin-top:1rem; }
+
+/* reutiliza contenedor */
+.page { padding: 1rem; }
+.content-container {
+  background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.06);
+  padding:1.25rem 1.5rem 1.5rem; margin:0 auto;
+}
+.header-row { display:flex; align-items:center; justify-content:space-between; }
+.title { margin: .25rem 0 1rem; font-size:1.6rem; font-weight:800; }

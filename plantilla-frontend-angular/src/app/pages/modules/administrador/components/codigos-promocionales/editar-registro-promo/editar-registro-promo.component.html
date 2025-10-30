@@ -1,0 +1,56 @@
+<p-toast></p-toast>
+
+<div class="page">
+  <div class="content-container form-card">
+    <div class="header-row">
+      <h1 class="title">Editar código promocional</h1>
+      <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary"
+                [routerLink]="['/administrador/codigosPromocionales']"></p-button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="guardar()">
+      <!-- mismo contenido del form que en registro -->
+      <!-- reutilizamos el mismo css -->
+      <div class="form-grid">
+        <div class="field">
+          <label>Código <span class="req">*</span></label>
+          <input pInputText formControlName="codigo" />
+        </div>
+
+        <div class="field col-span-2">
+          <label>Descripción</label>
+          <input pInputText formControlName="descripcion" />
+        </div>
+
+        <div class="field">
+          <label>Fecha de expiración <span class="req">*</span></label>
+          <p-calendar formControlName="fechaExpiracion" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
+        </div>
+
+        <div class="field">
+          <label>Tipo <span class="req">*</span></label>
+          <p-dropdown formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value"></p-dropdown>
+        </div>
+
+        <div class="field">
+          <label>Valor <span class="req">*</span></label>
+          <input pInputText formControlName="valor" />
+        </div>
+
+        <div class="field">
+          <label>Segmento <span class="req">*</span></label>
+          <p-dropdown formControlName="segmento" [options]="segmentos" optionLabel="label" optionValue="value"></p-dropdown>
+        </div>
+
+        <div class="field col-span-2">
+          <label>Elementos aplicables <span class="req">*</span></label>
+          <p-multiSelect formControlName="elementos" [options]="elementosOptions" optionLabel="label" optionValue="value" display="chip"></p-multiSelect>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <p-button label="Guardar" type="submit" styleClass="p-button-success"></p-button>
+      </div>
+    </form>
+  </div>
+</div>

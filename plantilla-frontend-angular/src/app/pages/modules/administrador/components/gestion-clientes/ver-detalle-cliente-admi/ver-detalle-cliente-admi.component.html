@@ -1,0 +1,514 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-group">
+      <button 
+        pButton 
+        icon="pi pi-arrow-left" 
+        class="p-button-text p-button-lg back-button"
+        (click)="volver()"
+        label="Volver">
+      </button>
+      <h1 class="title">
+        <i class="pi pi-user"></i>
+        Detalle de Cliente
+      </h1>
+    </div>
+  </div>
+
+  <!-- Cliente Info Card -->
+  <div class="info-card" *ngIf="cliente">
+    <div class="info-card-header">
+      <div class="avatar-section">
+        <div class="avatar-circle">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="client-info">
+          <h2 class="client-name">{{ cliente.nombres }} {{ cliente.apellidos }}</h2>
+          <p class="client-email">
+            <i class="pi pi-envelope"></i>
+            {{ cliente.email }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Section -->
+  <div class="tabs-section">
+    <p-tabView [(activeIndex)]="activeTab" styleClass="custom-tabs">
+      
+      <!-- Tab 1: Datos Personales -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span class="tab-header">
+            <i class="pi pi-id-card"></i>
+            Datos personales
+          </span>
+        </ng-template>
+        
+        <div class="tab-content-wrapper" *ngIf="cliente">
+          <div class="datos-card">
+            <div class="datos-grid">
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-user"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Nombre</span>
+                  <span class="dato-value">{{ cliente.nombres }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-users"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Apellidos</span>
+                  <span class="dato-value">{{ cliente.apellidos }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-id-card"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">DNI</span>
+                  <span class="dato-value">{{ cliente.docIdentidad }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-calendar"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Edad</span>
+                  <span class="dato-value">{{ cliente.edad }} años</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-envelope"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Correo electrónico</span>
+                  <span class="dato-value">{{ cliente.email }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-phone"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Teléfono</span>
+                  <span class="dato-value">{{ cliente.telefono }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item full-width">
+                <div class="dato-icon">
+                  <i class="pi pi-map-marker"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Dirección</span>
+                  <span class="dato-value">{{ cliente.direccion }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-map"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Departamento</span>
+                  <span class="dato-value">{{ cliente.departamento }}</span>
+                </div>
+              </div>
+
+              <div class="dato-item">
+                <div class="dato-icon">
+                  <i class="pi pi-building"></i>
+                </div>
+                <div class="dato-content">
+                  <span class="dato-label">Distrito</span>
+                  <span class="dato-value">{{ cliente.distrito }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions-footer">
+              <p-button 
+                label="Volver a la lista" 
+                icon="pi pi-arrow-left"
+                severity="secondary"
+                (onClick)="volver()">
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Tab 2: Historial de Compras -->
+<p-tabPanel>
+  <ng-template pTemplate="header">
+    <span class="tab-header">
+      <i class="pi pi-shopping-cart"></i>
+      Historial de compras
+    </span>
+  </ng-template>
+  
+  <div class="tab-content-wrapper">
+    <div class="table-card">
+      <p-table
+        #dtCompras
+        [value]="compras"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} compras"
+        styleClass="custom-table"
+        [tableStyle]="{'min-width':'100%'}">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombreEvento">
+              <div class="header-content">
+                <i class="pi pi-ticket"></i>
+                Nombre evento
+                <p-sortIcon field="nombreEvento"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="local">
+              <div class="header-content">
+                <i class="pi pi-building"></i>
+                Local
+                <p-sortIcon field="local"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fechaCompra">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha de compra
+                <p-sortIcon field="fechaCompra"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-compra>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{ compra.id }}</span>
+            </td>
+            <td>
+              <div class="event-content">
+                <i class="pi pi-ticket event-icon"></i>
+                <span>{{ compra.nombreEvento }}</span>
+              </div>
+            </td>
+            <td>{{ compra.local }}</td>
+            <td>{{ compra.fechaCompra }}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button 
+                  icon="pi pi-eye" 
+                  [text]="true" 
+                  [rounded]="true" 
+                  severity="info"
+                  size="small"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top"
+                  (onClick)="verDetalleCompra(compra)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-trash" 
+                  [text]="true" 
+                  [rounded]="true" 
+                  severity="danger"
+                  size="small"
+                  pTooltip="Eliminar"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminacionCompra(compra)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">
+              <div class="no-results">
+                <i class="pi pi-shopping-cart" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No hay compras registradas</h3>
+                <p>Este cliente aún no ha realizado ninguna compra.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</p-tabPanel>
+
+      <!-- Tab 3: Historial de Puntos -->
+<p-tabPanel>
+  <ng-template pTemplate="header">
+    <span class="tab-header">
+      <i class="pi pi-star"></i>
+      Historial de puntos
+    </span>
+  </ng-template>
+  
+  <div class="tab-content-wrapper">
+    <div class="table-card">
+      <p-table
+        #dtPuntos
+        [value]="puntos"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} movimientos"
+        styleClass="custom-table"
+        [tableStyle]="{'min-width':'100%'}">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="id" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="id"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="estatus">
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Estatus
+                <p-sortIcon field="estatus"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="puntos">
+              <div class="header-content">
+                <i class="pi pi-star-fill"></i>
+                Puntos
+                <p-sortIcon field="puntos"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fecha">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha
+                <p-sortIcon field="fecha"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-punto>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{ punto.id }}</span>
+            </td>
+            <td>
+              <p-tag 
+                [value]="punto.estatus" 
+                [severity]="getEstatusSeverity(punto.estatus)">
+              </p-tag>
+            </td>
+            <td>
+              <div class="puntos-content">
+                <span class="puntos-value">{{ punto.puntos }}</span>
+                <span class="puntos-label">puntos</span>
+              </div>
+            </td>
+            <td>{{ punto.fecha }}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button 
+                  icon="pi pi-eye" 
+                  [text]="true" 
+                  [rounded]="true" 
+                  severity="info"
+                  size="small"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top"
+                  (onClick)="verDetallePunto(punto)">
+                </p-button>
+                <p-button 
+                  icon="pi pi-trash" 
+                  [text]="true" 
+                  [rounded]="true" 
+                  severity="danger"
+                  size="small"
+                  pTooltip="Eliminar"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminacionPunto(punto)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">
+              <div class="no-results">
+                <i class="pi pi-star" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No hay puntos registrados</h3>
+                <p>Este cliente aún no tiene movimientos de puntos.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
+
+<!-- Dialog Detalle de Compra -->
+<p-dialog 
+  [(visible)]="mostrarDialogCompra" 
+  header="Detalle de Compra"
+  [modal]="true" 
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+  
+  <div class="detalle-dialog" *ngIf="compraSeleccionada">
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-user"></i> Nombre Cliente:</span>
+      <span class="value">{{ compraSeleccionada.nombreCliente }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-calendar"></i> Fecha de Compra:</span>
+      <span class="value">{{ compraSeleccionada.fechaCompra }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-ticket"></i> Evento:</span>
+      <span class="value">{{ compraSeleccionada.evento }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-tag"></i> Tipo de Entrada:</span>
+      <span class="value">{{ compraSeleccionada.tipoEntrada }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-star"></i> Categoría Entrada:</span>
+      <span class="value">{{ compraSeleccionada.categoriaEntrada }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-envelope"></i> Correo Electrónico:</span>
+      <span class="value">{{ compraSeleccionada.correoElectronico }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-percentage"></i> Cupones Utilizados:</span>
+      <span class="value">{{ compraSeleccionada.cuponesUtilizados }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-percentage"></i> Descuento:</span>
+      <span class="value">{{ compraSeleccionada.descuento }}%</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-credit-card"></i> Método de Pago:</span>
+      <span class="value">{{ compraSeleccionada.metodoPago }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-ticket"></i> Cantidad de Tickets:</span>
+      <span class="value">{{ compraSeleccionada.cantidadTickets }}</span>
+    </div>
+    <div class="detalle-row destacado">
+      <span class="label"><i class="pi pi-dollar"></i> Precio Total:</span>
+      <span class="value total">S/. {{ compraSeleccionada.precioTotal.toFixed(2) }}</span>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogCompra = false" 
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Detalle de Punto -->
+<p-dialog 
+  [(visible)]="mostrarDialogPunto" 
+  header="Detalle de Puntos"
+  [modal]="true" 
+  [style]="{width: '500px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+  
+  <div class="detalle-dialog" *ngIf="puntoSeleccionado">
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-user"></i> Cliente:</span>
+      <span class="value">{{ puntoSeleccionado.cliente }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-calendar"></i> Fecha:</span>
+      <span class="value">{{ puntoSeleccionado.fecha }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-tag"></i> Tipo:</span>
+      <span class="value">{{ puntoSeleccionado.tipo }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-star-fill"></i> Valor:</span>
+      <span class="value">{{ puntoSeleccionado.valor }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-check-circle"></i> Canjeable:</span>
+      <span class="value">
+        <p-tag 
+          [value]="puntoSeleccionado.canjeable ? 'Sí' : 'No'" 
+          [severity]="puntoSeleccionado.canjeable ? 'success' : 'danger'">
+        </p-tag>
+      </span>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogPunto = false" 
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>

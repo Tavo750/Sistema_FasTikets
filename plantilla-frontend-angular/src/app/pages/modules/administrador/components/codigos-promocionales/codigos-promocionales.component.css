@@ -1,0 +1,145 @@
+/* Contenedor principal */
+.gestion-codigos-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Encabezado */
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #007ad9;
+  margin: 0;
+}
+
+.title-group i {
+  font-size: 1.5rem;
+  color: #007ad9;
+}
+
+/* Acciones */
+.acciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.buscador-codigos {
+  flex: 1;
+  max-width: 400px;
+}
+
+.buscador-codigos input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* Botón agregar */
+.btn-agregar {
+  background-color: #007ad9;
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+}
+
+.btn-agregar:hover {
+  background-color: #006bb3;
+}
+
+/* Tabla */
+::ng-deep .tabla-codigos .p-datatable {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+::ng-deep .tabla-codigos .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #007ad9;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+::ng-deep .tabla-codigos .p-datatable-tbody > tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Código en monoespaciado */
+.codigo-mono {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Botones de acción */
+.acciones-cell {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.action-buttons .p-button {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+
+.action-buttons .p-button.p-button-icon-only {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gestion-codigos-container {
+    padding: 1rem;
+  }
+
+  .acciones-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  ::ng-deep .tabla-codigos .p-datatable-thead > tr > th,
+  ::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+}

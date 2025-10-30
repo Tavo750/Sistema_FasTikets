@@ -33,6 +33,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TabsModule } from 'primeng/tabs';
+import { TabViewModule } from 'primeng/tabview';   // <-- NUEVO
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
@@ -80,6 +81,7 @@ import { TagModule } from 'primeng/tag';
     SelectModule,
     TableModule,
     TabsModule,
+    TabViewModule,
     TextareaModule,
     ToastModule,
     ToggleButtonModule,
