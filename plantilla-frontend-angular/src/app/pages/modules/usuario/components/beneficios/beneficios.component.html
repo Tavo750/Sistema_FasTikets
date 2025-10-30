@@ -1,1 +1,143 @@
-<p>beneficios works!</p>
+<div class="beneficios-page">
+
+  <!-- Saludo + insignia de nivel (membresía a la derecha) -->
+  <div class="p-card greeting-card">
+    <div class="greet-row">
+      <h2 class="title-xl">Hola, {{ userName }}</h2>
+      <p-tag [value]="tier" severity="secondary" styleClass="tier-badge"></p-tag>
+    </div>
+  </div>
+
+  <!-- Saldo de Puntos -->
+  <p-card class="points-card">
+    <ng-template pTemplate="header">
+      <h3 class="section-title">Saldo de Puntos</h3>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="points-col">
+        <!-- Línea 1: moneda + número centrados -->
+        <div class="points-row">
+          <img class="coin-icon" src="/img/iconos/coin.svg" alt="moneda" />
+          <div class="points-number">{{ points }} puntos</div>
+        </div>
+        <!-- Línea 2: leyenda centrada -->
+        <small class="points-rate">1 punto equivale a S/ 0.50</small>
+        <!-- Línea 3: botón negro centrado -->
+        <p-button
+          label="Ver Historial de Puntos"
+          styleClass="btn-history"
+          size="small"
+          (onClick)="viewPointsHistory()">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
+
+  <!-- Progreso hacia black -->
+  <p-card class="progress-card">
+    <ng-template pTemplate="header">
+      <h3 class="section-title">Progreso hacia black</h3>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="progress-visual" role="img" aria-label="Progreso visual hacia black">
+        <div class="progress-track">
+          <div class="progress-marker" [style.left]="progressMarkerLeft"></div>
+        </div>
+      </div>
+      <div class="progress-meta text-sm">
+        {{ points }} / {{ targetBlack }} pts ({{ progressToBlack }}%)
+      </div>
+    </ng-template>
+  </p-card>
+
+  <!-- Nuestras Membresías -->
+  <p-card class="memberships-card">
+    <ng-template pTemplate="header">
+      <h3 class="section-title">Nuestras Membresías</h3>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <!-- Vista 1: lingotes (sin selección) -->
+      <div *ngIf="!selectedTier" class="membership-row d-flex justify-content-around flex-wrap gap-3">
+        <div
+          class="membership-item pointer"
+          *ngFor="let m of memberships"
+          (click)="openTier(m.id)"
+          tabindex="0"
+          role="button">
+          <img [src]="m.image" [alt]="m.label" />
+          <p-tag
+            [value]="m.label"
+            [severity]="m.id === 'ORO' ? 'warning' : (m.id === 'PLATA' ? 'info' : 'help')">
+          </p-tag>
+        </div>
+      </div>
+
+      <!-- Vista 2: detalle (oculta lingotes) -->
+      <div *ngIf="selectedTier as t" class="tier-details-wrapper">
+        <div class="detail-header">
+          <button class="back-btn" type="button" (click)="closeTier()" aria-label="Volver">
+            <i class="pi pi-chevron-left"></i>
+          </button>
+
+          <div class="detail-headline">
+            <p-tag [value]="t" severity="secondary" styleClass="mr-2"></p-tag>
+            <span class="range-text">{{ tierRange[t] }}</span>
+          </div>
+        </div>
+
+        <div class="benefits-grid">
+          <div class="benefit-row" *ngFor="let b of benefitsByTier[t]">
+            <div class="ticket-icon">
+              <img src="/img/iconos/ticketMembresia.svg" alt="ticket" />
+            </div>
+            <div class="benefit-text">{{ b }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+
+</div>
+
+<!-- Diálogo: Historial de Puntos -->
+<p-dialog
+  header="Historial de Puntos"
+  [(visible)]="showHistory"
+  [modal]="true"
+  [dismissableMask]="true"
+  [closable]="false"
+  [style]="{ width: '700px', maxWidth: '95vw' }">
+
+  <p-table [value]="history" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>FECHA ADQUISICIÓN</th>
+        <th>FECHA VENCIMIENTO</th>
+        <th>ESTADO</th>
+        <th>FECHA CANJE</th>
+        <th class="text-right">CANTIDAD PUNTOS</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>{{ row.fechaAdquisicion }}</td>
+        <td>{{ row.fechaVencimiento }}</td>
+        <td>
+          <p-tag [value]="row.estado" [severity]="row.estado === 'Vigentes' ? 'info' : 'success'"></p-tag>
+        </td>
+        <td>{{ row.fechaCanje }}</td>
+        <td class="text-right">{{ row.cantidad }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer-center">
+      <p-button label="Cerrar" (onClick)="closeHistory()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

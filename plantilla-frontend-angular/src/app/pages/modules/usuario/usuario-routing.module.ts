@@ -4,6 +4,7 @@ import { PerfilPersonalComponent } from './components/perfil-personal/perfil-per
 import { BeneficiosComponent } from './components/beneficios/beneficios.component';
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
 import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.component';
+import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilPersonal', pathMatch: 'full' },
@@ -11,6 +12,7 @@ const routes: Routes = [
   { path: 'beneficios', component: BeneficiosComponent },
   { path: 'historialCompras', component: HistorialComprasComponent },
   { path: 'misEntradas', component: MisEntradasComponent },
+  { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
 ];
 
 @NgModule({

@@ -10,6 +10,7 @@ import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/regi
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 import { MessageService } from '../../../core/services/message.service';
 
+
 @Component({
   selector: 'app-crear-usuario',
   standalone: false,
