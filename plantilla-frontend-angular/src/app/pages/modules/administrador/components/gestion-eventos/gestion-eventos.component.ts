@@ -94,11 +94,11 @@ export class GestionEventosComponent implements OnInit {
               horaFin: response.data.horaFin
             }];
           }
-          this.filtrarEventos();
+
           console.log('Eventos cargados:', this.eventos);
           this.eventosFiltrados = [...this.eventos];
         }
-        this.filtrarEventos();
+
         this.cargando = false;
 
         console.log('Eventos cargados:', this.eventos);
@@ -112,24 +112,12 @@ export class GestionEventosComponent implements OnInit {
     });
   }
 
-  filtrarEventos() {
-    this.eventosFiltrados = this.eventos.filter(evento => {
-      const coincideNombre = evento.nombre.toLowerCase().includes(this.terminoBusqueda.toLowerCase());
-      const coincideTipo = !this.tipoSeleccionado ||
-                          this.tipoSeleccionado.value === 'ALL' ||
-                          evento.tipoEvento === this.tipoSeleccionado.value;
-      const esPublicado = evento.estadoEvento?.toUpperCase() === 'PUBLICADO';
-
-      return coincideNombre && coincideTipo && esPublicado;
-  });
-}
-
   onBusquedaChange() {
-    this.filtrarEventos();
+    //this.filtrarEventos();
   }
 
   onTipoChange() {
-    this.filtrarEventos();
+    //this.filtrarEventos();
   }
 
   getEstadoSeverity(estado: string): string {
