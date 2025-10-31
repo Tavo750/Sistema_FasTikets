@@ -12,7 +12,10 @@
       <div class="form-grid">
         <div class="field">
           <label>Código <span class="req">*</span></label>
-          <input pInputText formControlName="codigo" placeholder="Ejemplo: SHAKIRA10" />
+          <input pInputText formControlName="codigo" placeholder="Ejemplo: VERANO2025" />
+          <small class="p-error" *ngIf="form.get('codigo')?.invalid && form.get('codigo')?.touched">
+            El código es requerido
+          </small>
         </div>
 
         <div class="field col-span-2">
@@ -22,32 +25,53 @@
 
         <div class="field">
           <label>Fecha de expiración <span class="req">*</span></label>
-          <p-calendar formControlName="fechaExpiracion" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
+          <p-calendar formControlName="fechaFin" dateFormat="dd/mm/yy" [showIcon]="true" 
+                      [showTime]="true" [minDate]="today"></p-calendar>
+          <small class="p-error" *ngIf="form.get('fechaFin')?.invalid && form.get('fechaFin')?.touched">
+            La fecha de expiración es requerida
+          </small>
         </div>
 
         <div class="field">
           <label>Tipo <span class="req">*</span></label>
-          <p-dropdown formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value" placeholder="Selecciona"></p-dropdown>
+          <p-dropdown formControlName="tipo" [options]="tipos" optionLabel="label" 
+                      optionValue="value" placeholder="Selecciona"></p-dropdown>
+          <small class="p-error" *ngIf="form.get('tipo')?.invalid && form.get('tipo')?.touched">
+            El tipo es requerido
+          </small>
         </div>
 
         <div class="field">
           <label>Valor <span class="req">*</span></label>
-          <input pInputText formControlName="valor" placeholder="ejemplo: 10" />
+          <p-inputNumber formControlName="valor" [minFractionDigits]="2" [maxFractionDigits]="2" 
+                         [min]="0" [step]="0.5" placeholder="Ejemplo: 10.00"></p-inputNumber>
+          <small class="p-error" *ngIf="form.get('valor')?.invalid && form.get('valor')?.touched">
+            El valor es requerido y debe ser mayor a 0
+          </small>
         </div>
 
         <div class="field">
-          <label>Segmento <span class="req">*</span></label>
-          <p-dropdown formControlName="segmento" [options]="segmentos" optionLabel="label" optionValue="value" placeholder="Selecciona"></p-dropdown>
+          <label>Stock disponible <span class="req">*</span></label>
+          <p-inputNumber formControlName="stock" [min]="0" [showButtons]="true" 
+                         placeholder="Cantidad disponible"></p-inputNumber>
+          <small class="p-error" *ngIf="form.get('stock')?.invalid && form.get('stock')?.touched">
+            El stock es requerido (mínimo 0)
+          </small>
         </div>
 
-        <div class="field col-span-2">
-          <label>Elementos aplicables <span class="req">*</span></label>
-          <p-multiSelect formControlName="elementos" [options]="elementosOptions" optionLabel="label" optionValue="value" placeholder="Selecciona" display="chip"></p-multiSelect>
+        <div class="field">
+          <label>Cantidad por cliente <span class="req">*</span></label>
+          <p-inputNumber formControlName="cantidadPorCliente" [min]="1" [showButtons]="true" 
+                         placeholder="Usos permitidos"></p-inputNumber>
+          <small class="p-error" *ngIf="form.get('cantidadPorCliente')?.invalid && form.get('cantidadPorCliente')?.touched">
+            La cantidad por cliente es requerida (mínimo 1)
+          </small>
         </div>
       </div>
 
       <div class="footer-actions">
-        <p-button label="Guardar" type="submit" styleClass="p-button-success"></p-button>
+        <p-button label="Guardar" type="submit" styleClass="p-button-success" 
+                  [loading]="loading"></p-button>
       </div>
     </form>
   </div>

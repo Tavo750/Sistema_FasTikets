@@ -9,8 +9,6 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="guardar()">
-      <!-- mismo contenido del form que en registro -->
-      <!-- reutilizamos el mismo css -->
       <div class="form-grid">
         <div class="field">
           <label>Código <span class="req">*</span></label>
@@ -24,7 +22,7 @@
 
         <div class="field">
           <label>Fecha de expiración <span class="req">*</span></label>
-          <p-calendar formControlName="fechaExpiracion" dateFormat="dd/mm/yy" [showIcon]="true"></p-calendar>
+          <p-calendar formControlName="fechaFin" dateFormat="dd/mm/yy" [showIcon]="true" [showTime]="true"></p-calendar>
         </div>
 
         <div class="field">
@@ -34,22 +32,23 @@
 
         <div class="field">
           <label>Valor <span class="req">*</span></label>
-          <input pInputText formControlName="valor" />
+          <p-inputNumber formControlName="valor" [minFractionDigits]="2" [maxFractionDigits]="2" 
+                         [min]="0" [step]="0.5"></p-inputNumber>
         </div>
 
         <div class="field">
-          <label>Segmento <span class="req">*</span></label>
-          <p-dropdown formControlName="segmento" [options]="segmentos" optionLabel="label" optionValue="value"></p-dropdown>
+          <label>Stock disponible <span class="req">*</span></label>
+          <p-inputNumber formControlName="stock" [min]="0" [showButtons]="true"></p-inputNumber>
         </div>
 
-        <div class="field col-span-2">
-          <label>Elementos aplicables <span class="req">*</span></label>
-          <p-multiSelect formControlName="elementos" [options]="elementosOptions" optionLabel="label" optionValue="value" display="chip"></p-multiSelect>
+        <div class="field">
+          <label>Cantidad por cliente <span class="req">*</span></label>
+          <p-inputNumber formControlName="cantidadPorCliente" [min]="1" [showButtons]="true"></p-inputNumber>
         </div>
       </div>
 
       <div class="footer-actions">
-        <p-button label="Guardar" type="submit" styleClass="p-button-success"></p-button>
+        <p-button label="Guardar" type="submit" styleClass="p-button-success" [loading]="loading"></p-button>
       </div>
     </form>
   </div>

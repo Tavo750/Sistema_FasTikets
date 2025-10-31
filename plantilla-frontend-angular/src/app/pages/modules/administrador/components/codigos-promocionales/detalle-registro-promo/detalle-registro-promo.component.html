@@ -17,23 +17,26 @@
       </div>
       <div class="row">
         <span class="label">Fecha de expiración:</span>
-        <span class="value strong">{{ data.fechaExpiracion }}</span>
+        <span class="value strong">{{ data.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
       </div>
       <div class="row">
         <span class="label">Tipo:</span>
-        <span class="value strong">{{ data.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Dinero' }}</span>
+        <span class="value strong">{{ data.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo' }}</span>
       </div>
       <div class="row">
         <span class="label">Valor:</span>
-        <span class="value strong">{{ data.valor }}</span>
+        <span class="value strong">{{ data.tipo === 'PORCENTAJE' ? data.valor + '%' : 'S/ ' + data.valor }}</span>
       </div>
       <div class="row">
-        <span class="label">Segmento:</span>
-        <span class="value strong">{{ data.segmento === 'EVENTO' ? 'Evento' : 'Cliente' }}</span>
+        <span class="label">Stock disponible:</span>
+        <span class="value strong">
+          <p-tag [value]="data.stock.toString()" 
+                 [severity]="data.stock > 0 ? 'success' : 'danger'"></p-tag>
+        </span>
       </div>
       <div class="row">
-        <span class="label">Elementos:</span>
-        <span class="value strong">{{ data.elementos.join(', ') }}</span>
+        <span class="label">Cantidad por cliente:</span>
+        <span class="value strong">{{ data.cantidadPorCliente }}</span>
       </div>
     </div>
 

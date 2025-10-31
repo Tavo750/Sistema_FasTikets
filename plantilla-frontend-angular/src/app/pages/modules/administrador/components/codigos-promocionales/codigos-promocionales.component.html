@@ -40,35 +40,65 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="idCodigoPromocional">ID <p-sortIcon field="idCodigoPromocional"></p-sortIcon></th>
         <th pSortableColumn="codigo">Código <p-sortIcon field="codigo"></p-sortIcon></th>
         <th>Descripción</th>
-        <th pSortableColumn="fechaExpiracion">Fecha expiración <p-sortIcon field="fechaExpiracion"></p-sortIcon></th>
+        <th pSortableColumn="fechaFin">Fecha expiración <p-sortIcon field="fechaFin"></p-sortIcon></th>
+        <th>Tipo</th>
         <th>Valor</th>
+        <th pSortableColumn="stock">Stock <p-sortIcon field="stock"></p-sortIcon></th>
+        <th>Uso/Cliente</th>
         <th class="acciones-col">Acciones</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-row>
       <tr>
-        <td>{{ row.id }}</td>
+        <td>{{ row.idCodigoPromocional }}</td>
         <td class="codigo-mono">{{ row.codigo }}</td>
         <td>{{ row.descripcion }}</td>
-        <td>{{ row.fechaExpiracion }}</td>
+        <td>{{ row.fechaFin | date:'dd/MM/yyyy HH:mm' }}</td>
         <td>
-          <ng-container *ngIf="row.tipo === 'PORCENTAJE'; else dinero">
-            {{ row.valor }} %
-          </ng-container>
-          <ng-template #dinero>S/. {{ row.valor }}</ng-template>
+          <p-tag [value]="row.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'" 
+                 [severity]="row.tipo === 'PORCENTAJE' ? 'info' : 'success'">
+          </p-tag>
         </td>
+        <td>
+          <ng-container *ngIf="row.tipo === 'PORCENTAJE'; else montoFijo">
+            {{ row.valor }}%
+          </ng-container>
+          <ng-template #montoFijo>S/ {{ row.valor | number:'1.2-2' }}</ng-template>
+        </td>
+        <td>
+          <p-tag [value]="row.stock.toString()" 
+                 [severity]="getStockSeverity(row.stock)">
+          </p-tag>
+        </td>
+        <td class="text-center">{{ row.cantidadPorCliente }}</td>
         <td class="acciones-cell">
           <div class="action-buttons">
             <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="info"
-                      [routerLink]="['/administrador/codigosPromocionales/detalle', row.id]"></p-button>
+                      [routerLink]="['/administrador/codigosPromocionales/detalle', row.idCodigoPromocional]"
+                      pTooltip="Ver detalle" tooltipPosition="top"></p-button>
             <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="success"
-                      [routerLink]="['/administrador/codigosPromocionales/editar', row.id]"></p-button>
+                      [routerLink]="['/administrador/codigosPromocionales/editar', row.idCodigoPromocional]"
+                      pTooltip="Editar" tooltipPosition="top"></p-button>
             <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-                      (click)="confirmarEliminar(row)"></p-button>
+                      (click)="confirmarEliminar(row)"
+                      pTooltip="Eliminar" tooltipPosition="top"></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center">
+          <div style="padding: 2rem;">
+            <i class="pi pi-inbox" style="font-size: 3rem; color: var(--surface-400);"></i>
+            <p style="margin-top: 1rem; color: var(--text-color-secondary);">
+              No se encontraron códigos promocionales
+            </p>
           </div>
         </td>
       </tr>
