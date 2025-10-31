@@ -11,17 +11,17 @@
     <div class="acciones-header">
       <span class="p-input-icon-left buscador-codigos">
         <i class="pi pi-search"></i>
-        <input 
-          pInputText 
-          type="text" 
-          placeholder="Filtrar por código o ID" 
+        <input
+          pInputText
+          type="text"
+          placeholder="Filtrar por código o ID"
           [(ngModel)]="filtro" />
       </span>
 
-      <p-button 
-        label="Agregar nuevo código" 
-        icon="pi pi-plus" 
-        [routerLink]="['/administrador/codigosPromocionales/registro']" 
+      <p-button
+        label="Agregar nuevo código"
+        icon="pi pi-plus"
+        [routerLink]="['/administrador/codigosPromocionales/registro']"
         styleClass="btn-agregar">
       </p-button>
     </div>
@@ -59,7 +59,7 @@
         <td>{{ row.descripcion }}</td>
         <td>{{ row.fechaFin | date:'dd/MM/yyyy HH:mm' }}</td>
         <td>
-          <p-tag [value]="row.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'" 
+          <p-tag [value]="row.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'"
                  [severity]="row.tipo === 'PORCENTAJE' ? 'info' : 'success'">
           </p-tag>
         </td>
@@ -70,7 +70,7 @@
           <ng-template #montoFijo>S/ {{ row.valor | number:'1.2-2' }}</ng-template>
         </td>
         <td>
-          <p-tag [value]="row.stock.toString()" 
+          <p-tag [value]="row.stock.toString()"
                  [severity]="getStockSeverity(row.stock)">
           </p-tag>
         </td>
@@ -81,7 +81,7 @@
                       [routerLink]="['/administrador/codigosPromocionales/detalle', row.idCodigoPromocional]"
                       pTooltip="Ver detalle" tooltipPosition="top"></p-button>
             <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="success"
-                      [routerLink]="['/administrador/codigosPromocionales/editar', row.idCodigoPromocional]"
+                      (click)="editarCodigo(row.idCodigoPromocional)"
                       pTooltip="Editar" tooltipPosition="top"></p-button>
             <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
                       (click)="confirmarEliminar(row)"

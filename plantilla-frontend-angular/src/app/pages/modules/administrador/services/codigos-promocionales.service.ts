@@ -26,9 +26,9 @@ export class CodigosPromocionalesService {
       );
   }
 
-  getListadoCodigosPromocionalesPorID(id:number): Observable<ListarCodigosResponse> {
+  getListadoCodigosPromocionalesPorID(id:number): Observable<CodigosResponse> {
     const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
-    return this.http.get<ListarCodigosResponse>(url)
+    return this.http.get<CodigosResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
@@ -42,8 +42,8 @@ export class CodigosPromocionalesService {
       );
   }
 
-  putActualizaCodigoPromocional(body: CrearCodigoPromocionalRequest): Observable<CodigosResponse> {
-    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales`;
+  putActualizaCodigoPromocional(id: number,body: CrearCodigoPromocionalRequest): Observable<CodigosResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
     return this.http.put<CodigosResponse>(url, body)
       .pipe(
         catchError(this.httpUtils.handleError)

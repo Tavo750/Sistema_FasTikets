@@ -34,7 +34,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
     this.usuario = this.loginService.getCurrentPersona();
 
     // Verificar periódicamente el estado de autenticación
-    this.authCheckSubscription = interval(1000).subscribe(() => {
+    this.authCheckSubscription = interval(100000).subscribe(() => {
+      console.log('hola');
       const currentUser = this.loginService.getCurrentPersona();
       if (this.usuario !== currentUser) {
         this.usuario = currentUser;

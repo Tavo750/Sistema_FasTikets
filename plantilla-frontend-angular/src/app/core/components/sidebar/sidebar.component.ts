@@ -39,6 +39,7 @@ export class SidebarComponent implements OnInit {
     // Suscribirse a cambios de usuario para actualizar el menú dinámicamente
     this.sessionService.user$.subscribe((user: any) => {
       this.loadMenuItems();
+      console.log('carga de menú por cambio de usuario');
       const newUrl = this.router.url.split('?')[0];
       this.expandMenuToMatchUrl(newUrl);
     });
