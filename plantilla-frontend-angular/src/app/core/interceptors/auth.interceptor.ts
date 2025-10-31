@@ -68,11 +68,7 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     // Para endpoints públicos, enviar la petición sin modificar
-    return next.handle(req).pipe(
-      catchError((error: HttpErrorResponse) => {
-        return this.handleAuthError(error);
-      })
-    );
+    return next.handle(req);
   }
 
   private handleAuthError(error: HttpErrorResponse): Observable<never> {

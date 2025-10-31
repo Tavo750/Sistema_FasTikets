@@ -137,34 +137,40 @@ export class CrearUsuarioComponent implements OnInit {
       }
 
       this.registroUsuarioService.postRegistro(usuario).subscribe({
-        next: (response: RegistroResponse) => {
-          if (response.ok && response.data.exito) {
+        next: (response: any) => {
+          // Verificar si la respuesta tiene la estructura esperada
+          if (response && typeof response === 'object') {
+            if (response.ok && response.data && response.data.exito) {
+              this.messageService.success(response.data.mensaje || 'Usuario registrado exitosamente');
+              this.mostrarDialogExitoso();
+              this.registroForm.reset();
+            } else if (response.ok === false) {
+              this.messageService.error(response.data?.mensaje || response.mensaje || 'Error en el registro');
+            } else {
+              // Respuesta exitosa pero estructura diferente
+              this.messageService.success('Usuario registrado exitosamente');
+              this.mostrarDialogExitoso();
+              this.registroForm.reset();
+            }
+          } else {
+            // Respuesta exitosa sin estructura JSON (posible texto plano)
+            this.messageService.success('Usuario registrado exitosamente');
             this.mostrarDialogExitoso();
             this.registroForm.reset();
-          } else {
-            this.messageService.error(response.data.mensaje || 'Error en el registro');
           }
         },
         error: (error) => {
-          console.error('Error completo del endpoint:', error);
-
-          // Extraer el mensaje específico del endpoint
           let mensajeError = 'Error en el registro';
-
-          // Verificar diferentes estructuras posibles de la respuesta de error
-          if (error?.mensaje) {
+          
+          // Si el error tiene estructura de respuesta HTTP
+          if (error?.error) {
+            mensajeError = error.error.mensaje || error.error.message || mensajeError;
+          } else if (error?.mensaje) {
             mensajeError = error.mensaje;
-          } else if (error?.error?.mensaje) {
-            mensajeError = error.error.mensaje;
-          } else if (error?.error?.message) {
-            mensajeError = error.error.message;
-          } else if (typeof error === 'string') {
-            mensajeError = error;
           } else if (error?.message) {
             mensajeError = error.message;
           }
-
-          console.error('Mensaje de error del endpoint:', mensajeError);
+          
           this.messageService.error(mensajeError);
         },
       });
