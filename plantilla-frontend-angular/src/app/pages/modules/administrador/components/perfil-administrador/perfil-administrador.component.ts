@@ -108,7 +108,7 @@ export class PerfilAdministradorComponent implements OnInit {
     this.editForm = this.fb.group({
       nombres: ['', [Validators.required]],
       apellidos: ['', [Validators.required]],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: [{value: '', disabled: true}], // Campo deshabilitado, no se puede editar
       telefono: ['', [Validators.required]],
       direccion: ['', [Validators.required]]
     });
@@ -120,10 +120,11 @@ export class PerfilAdministradorComponent implements OnInit {
     this.editForm.patchValue({
       nombres: this.perfilForm.get('nombres')?.value,
       apellidos: this.perfilForm.get('apellidos')?.value,
-      correo: this.perfilForm.get('correo')?.value,
       telefono: this.perfilForm.get('telefono')?.value,
       direccion: this.perfilForm.get('direccion')?.value
     });
+    // El correo se mantiene en el formulario pero deshabilitado
+    this.editForm.get('correo')?.setValue(this.perfilForm.get('correo')?.value);
   }
 
   cancelarEdicion(): void {
@@ -157,7 +158,7 @@ export class PerfilAdministradorComponent implements OnInit {
       apellidos: this.editForm.get('apellidos')?.value,
       telefono: this.editForm.get('telefono')?.value,
       direccion: this.editForm.get('direccion')?.value,
-      email: this.editForm.get('correo')?.value
+      email: this.perfilForm.get('correo')?.value // Mantener el email original
     };
 
     this.isLoading = true;
@@ -169,18 +170,18 @@ export class PerfilAdministradorComponent implements OnInit {
           this.perfilForm.patchValue({
             nombres: actualizarData.nombres,
             apellidos: actualizarData.apellidos,
-            correo: actualizarData.email,
             telefono: actualizarData.telefono,
             direccion: actualizarData.direccion
+            // El correo no se actualiza porque no se debe modificar
           });
 
           // Actualizar también los datos locales
           if (this.perfilData) {
             this.perfilData.nombres = actualizarData.nombres;
             this.perfilData.apellidos = actualizarData.apellidos;
-            this.perfilData.email = actualizarData.email;
             this.perfilData.telefono = actualizarData.telefono;
             this.perfilData.direccion = actualizarData.direccion;
+            // El email se mantiene sin cambios
           }
 
           this.messageService.success(

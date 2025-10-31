@@ -44,7 +44,7 @@ export class PerfilPersonalComponent implements OnInit {
 
   private cargarDatosUsuario(): void {
     const currentUser = this.sessionService.getCurrentUser();
-    
+
     if (!currentUser || !currentUser.idUsuario) {
       this.messageService.add({
         severity: 'error',
@@ -106,7 +106,7 @@ export class PerfilPersonalComponent implements OnInit {
     this.editForm = this.fb.group({
       nombres: ['', [Validators.required]],
       apellidos: ['', [Validators.required]],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: [{value: '', disabled: true}], // Campo deshabilitado, no se puede editar
       telefono: ['', [Validators.required]],
       direccion: ['', [Validators.required]]
     });
@@ -114,13 +114,15 @@ export class PerfilPersonalComponent implements OnInit {
 
   toggleEditMode(): void {
     this.isEditing = true;
+    // Solo copiamos los campos editables al formulario de edición
     this.editForm.patchValue({
       nombres: this.perfilForm.get('nombres')?.value,
       apellidos: this.perfilForm.get('apellidos')?.value,
-      correo: this.perfilForm.get('correo')?.value,
       telefono: this.perfilForm.get('telefono')?.value,
       direccion: this.perfilForm.get('direccion')?.value
     });
+    // El correo se mantiene en el formulario pero deshabilitado
+    this.editForm.get('correo')?.setValue(this.perfilForm.get('correo')?.value);
   }
 
   cancelarEdicion(): void {
@@ -141,7 +143,7 @@ export class PerfilPersonalComponent implements OnInit {
     }
 
     const currentUser = this.sessionService.getCurrentUser();
-    
+
     if (!currentUser || !currentUser.idUsuario) {
       this.messageService.add({
         severity: 'error',
@@ -157,7 +159,7 @@ export class PerfilPersonalComponent implements OnInit {
       apellidos: this.editForm.get('apellidos')?.value,
       telefono: this.editForm.get('telefono')?.value,
       direccion: this.editForm.get('direccion')?.value,
-      email: this.editForm.get('correo')?.value
+      email: this.perfilForm.get('correo')?.value // Mantener el email original
     };
 
     this.perfilPersonalService.putActualizarPerfilPorId(currentUser.idUsuario, datosActualizados).subscribe({
@@ -166,9 +168,9 @@ export class PerfilPersonalComponent implements OnInit {
           this.perfilForm.patchValue({
             nombres: datosActualizados.nombres,
             apellidos: datosActualizados.apellidos,
-            correo: datosActualizados.email,
             telefono: datosActualizados.telefono,
             direccion: datosActualizados.direccion
+            // El correo no se actualiza porque no se debe modificar
           });
 
           this.messageService.add({
