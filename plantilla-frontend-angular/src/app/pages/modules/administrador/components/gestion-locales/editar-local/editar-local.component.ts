@@ -1,4 +1,3 @@
-import { url } from './../../../../../../global';
 import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';

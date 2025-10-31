@@ -24,7 +24,7 @@ export class LoginService {
   private token: string = '';
   private userRole: string = '';
 
-  url = global.url;
+  url = global.baseUrl;
 
   constructor(private http: HttpClient) {
     this.loadFromSessionStorage();
