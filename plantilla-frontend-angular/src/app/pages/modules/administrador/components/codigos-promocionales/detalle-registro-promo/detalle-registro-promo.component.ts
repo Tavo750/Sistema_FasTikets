@@ -1,71 +1,48 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { CodigosPromocionalesService } from '../../../services/codigos-promocionales.service';
-import { Data as CodigoPromocional } from '../../../interfaces/codigos-promocionales/codigos-promocionales.interface';
+import { ActivatedRoute } from '@angular/router';
+
+interface CodigoPromocional {
+  idCodigoPromocional: number;
+  codigo: string;
+  descripcion: string;
+  fechaFin: string;
+  tipo: 'PORCENTAJE' | 'MONTO_FIJO';
+  valor: number;
+  stock: number;
+  cantidadPorCliente: number;
+}
 
 @Component({
   selector: 'app-detalle-registro-promo',
   standalone: false,
   templateUrl: './detalle-registro-promo.component.html',
-  styleUrls: ['./detalle-registro-promo.component.css'],
-  providers: [MessageService]
+  styleUrls: ['./detalle-registro-promo.component.css']
 })
 export class DetalleRegistroPromoComponent implements OnInit {
-  data!: CodigoPromocional;
-  loading: boolean = true;
+  data: CodigoPromocional = {
+    idCodigoPromocional: 1,
+    codigo: 'PikeStereo',
+    descripcion: 'Concierto Monumental',
+    fechaFin: '2025-11-15T10:01:36.472',
+    tipo: 'MONTO_FIJO',
+    valor: 7.0,
+    stock: 0,
+    cantidadPorCliente: 3
+  };
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private codigosPromocionalesService: CodigosPromocionalesService,
-    private toast: MessageService
-  ) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (!idParam) {
-      this.mostrarError('ID no válido');
-      this.router.navigate(['/admin/codigos-promocionales']);
-      return;
-    }
-
-    const id = parseInt(idParam, 10);
-    if (isNaN(id)) {
-      this.mostrarError('ID no válido');
-      this.router.navigate(['/admin/codigos-promocionales']);
-      return;
-    }
-
-    this.cargarDetalle(id);
-  }
-
-  private cargarDetalle(id: number): void {
-    this.loading = true;
-    this.codigosPromocionalesService.getListarCodigosPromocionalesPorId(id)
-      .subscribe({
-        next: (response) => {
-          if (response.ok) {
-            this.data = response.data;
-          } else {
-            this.mostrarError('No se pudo cargar el detalle del código promocional');
-          }
-        },
-        error: (error) => {
-          this.mostrarError('Error al cargar el detalle del código promocional');
-          console.error('Error:', error);
-        },
-        complete: () => {
-          this.loading = false;
-        }
-      });
-  }
-
-  private mostrarError(mensaje: string): void {
-    this.toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    // TODO: cargar detalle por id
+    // Ejemplo:
+    // this.codigoPromocionalService.obtenerDetalle(id).subscribe({
+    //   next: (response) => {
+    //     if (response.ok) {
+    //       this.data = response.data;
+    //     }
+    //   },
+    //   error: (err) => console.error('Error al cargar detalle:', err)
+    // });
   }
 }
