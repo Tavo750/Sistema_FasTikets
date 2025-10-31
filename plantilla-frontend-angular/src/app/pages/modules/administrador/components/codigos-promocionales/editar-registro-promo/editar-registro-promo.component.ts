@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { CodigosPromocionalesService } from '../../../services/codigos-promocionales.service';
-import { Data } from '../../../interfaces/codigos-promocionales/codigos.interface';
-import { CrearCodigoPromocionalRequest } from '../../../interfaces/codigos-promocionales/codigos.interface';
-import { MessageService } from '../../../../../../core/services/message.service';
+import { Data as CodigoPromocional } from '../../../interfaces/codigos-promocionales/codigos-promocionales.interface';
 
 @Component({
   selector: 'app-editar-registro-promo',
@@ -22,20 +21,43 @@ export class EditarRegistroPromoComponent implements OnInit {
   loading = false;
   codigoPromocionalId: number | null = null;
 
+  private codigoId: number | null = null;
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private messageService: MessageService,
+    private toast: MessageService,
     private codigosPromocionalesService: CodigosPromocionalesService
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.codigoPromocionalId = Number(id);
-      this.cargarCodigoPromocional(this.codigoPromocionalId);
+    this.form = this.fb.group({
+      codigo: ['', Validators.required],
+      descripcion: [''],
+      fechaFin: [null, Validators.required],
+      tipo: [null, Validators.required],
+      valor: [null, [Validators.required, Validators.min(0)]],
+      stock: [0, [Validators.required, Validators.min(0)]],
+      cantidadPorCliente: [1, [Validators.required, Validators.min(1)]]
+    });
+
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (!idParam) {
+      this.mostrarError('ID no válido');
+      this.router.navigate(['/administrador/codigosPromocionales']);
+      return;
     }
+
+    const id = parseInt(idParam, 10);
+    if (isNaN(id)) {
+      this.mostrarError('ID no válido');
+      this.router.navigate(['/administrador/codigosPromocionales']);
+      return;
+    }
+
+    this.codigoId = id;
+    this.cargarDatosPromocional(id);
   }
 
   cargarCodigoPromocional(id: number): void {
@@ -71,6 +93,44 @@ export class EditarRegistroPromoComponent implements OnInit {
     });
   }
 
+  private cargarDatosPromocional(id: number): void {
+    this.loading = true;
+    this.codigosPromocionalesService.getListarCodigosPromocionalesPorId(id)
+      .subscribe({
+        next: (response) => {
+          if (response.ok) {
+            this.cargarDatos(response.data);
+          } else {
+            this.mostrarError('No se pudo cargar el código promocional');
+          }
+        },
+        error: (error) => {
+          console.error('Error al cargar código promocional:', error);
+          this.mostrarError('Error al cargar el código promocional');
+          this.router.navigate(['/administrador/codigosPromocionales']);
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+  }
+
+  private mostrarError(mensaje: string): void {
+    this.toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: mensaje
+    });
+  }
+
+  private mostrarExito(mensaje: string): void {
+    this.toast.add({
+      severity: 'success',
+      summary: 'Éxito',
+      detail: mensaje
+    });
+  }
+
   guardar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -78,43 +138,40 @@ export class EditarRegistroPromoComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
-
-    if (!this.codigoPromocionalId) {
-      this.messageService.error('ID del código promocional no válido');
-      this.loading = false;
+    if (!this.codigoId) {
+      this.mostrarError('ID no válido');
       return;
     }
 
-    const payload: CrearCodigoPromocionalRequest = {
+    this.loading = true;
+
+    const payload = {
       codigo: this.form.value.codigo,
-      descripcion: this.form.value.descripcion,
-      fechaFin: this.form.value.fechaFin.toISOString(),
+      descripcion: this.form.value.descripcion || '',
+      fechaFin: this.form.value.fechaFin,
       tipo: this.form.value.tipo,
       valor: this.form.value.valor,
       stock: this.form.value.stock,
       cantidadPorCliente: this.form.value.cantidadPorCliente
     };
 
-    this.codigosPromocionalesService.putActualizaCodigoPromocional(this.codigoPromocionalId, payload).subscribe({
-      next: (response) => {
-        this.loading = false;
-        if (response.ok) {
-          this.messageService.success(
-            response.mensaje || 'Código promocional actualizado exitosamente',
-            'Actualizado'
-          );
-          this.router.navigate(['/administrador/codigosPromocionales']);
-        } else {
-          this.messageService.error(
-            response.mensaje || 'No se pudo actualizar el código promocional'
-          );
+    this.codigosPromocionalesService.putListarCodigosPromocionalesPorId(this.codigoId, payload)
+      .subscribe({
+        next: (response) => {
+          if (response.ok) {
+            this.mostrarExito(response.mensaje);
+            this.router.navigate(['/administrador/codigosPromocionales']);
+          } else {
+            this.mostrarError('No se pudo actualizar el código promocional');
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar código promocional:', error);
+          this.mostrarError(error.error?.mensaje || 'No se pudo actualizar el código promocional');
+        },
+        complete: () => {
+          this.loading = false;
         }
-      },
-      error: (err) => {
-        this.loading = false;
-        this.messageService.error('No se pudo actualizar el código promocional');
-      }
-    });
+      });
   }
 }

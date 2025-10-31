@@ -1,11 +1,12 @@
-import { ListarCodigosResponse } from './../interfaces/codigos-promocionales/lista-codigos.interface';
-import { catchError, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
+import { BodyCodigosPromocionales, CodigosPromocionalesResponse } from '../interfaces/codigos-promocionales/codigos-promocionales.interface';
+import { CodigosPromocionalesListResponse } from '../interfaces/codigos-promocionales/codigos-promocionales-list.interface';
+import { EliminaCodigoPromocionalResponse } from '../interfaces/codigos-promocionales/elimina-codigo-promocional.interface';
 import { baseUrl } from '../../../../global';
-import { CodigosResponse, CrearCodigoPromocionalRequest } from '../interfaces/codigos-promocionales/codigos.interface';
-import { EliminarCodigoResponse } from '../interfaces/codigos-promocionales/eliminar-codigo.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -17,48 +18,63 @@ export class CodigosPromocionalesService {
     private httpUtils: HttpUtilsService
   ) { }
 
+  /**
+   * Obtiene un código promocional por su ID
+   * @param id ID del código promocional a obtener
+   * @returns Observable con la respuesta que contiene los datos del código promocional
+   */
+  getListarCodigosPromocionalesPorId(id: number): Observable<CodigosPromocionalesResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
+    return this.http.get<CodigosPromocionalesResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
 
-  getListadoCodigosPromocionales(): Observable<ListarCodigosResponse> {
+  putListarCodigosPromocionalesPorId(id: number, body: BodyCodigosPromocionales): Observable<CodigosPromocionalesResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
+    return this.http.put<CodigosPromocionalesResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Obtiene la lista de todos los códigos promocionales
+   * @returns Observable con la respuesta que contiene la lista de códigos promocionales
+   */
+  getListarCodigosPromocionales(): Observable<CodigosPromocionalesListResponse> {
     const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales`;
-    return this.http.get<ListarCodigosResponse>(url)
+    return this.http.get<CodigosPromocionalesListResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
   }
 
-  getListadoCodigosPromocionalesPorID(id:number): Observable<CodigosResponse> {
-    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
-    return this.http.get<CodigosResponse>(url)
-      .pipe(
-        catchError(this.httpUtils.handleError)
-      );
-  }
-
-  postCrearCodigoPromocional(body: CrearCodigoPromocionalRequest): Observable<CodigosResponse> {
+  /**
+   * Crea un nuevo código promocional
+   * @param body Datos del código promocional a crear
+   * @returns Observable con la respuesta del servidor que incluye el código promocional creado
+   */
+  postCrearCodigoPromocional(body: BodyCodigosPromocionales): Observable<CodigosPromocionalesResponse> {
     const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales`;
-    return this.http.post<CodigosResponse>(url, body)
+    return this.http.post<CodigosPromocionalesResponse>(url, body)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
   }
 
-  putActualizaCodigoPromocional(id: number,body: CrearCodigoPromocionalRequest): Observable<CodigosResponse> {
+  /**
+   * Elimina un código promocional por su ID
+   * @param id ID del código promocional a eliminar
+   * @returns Observable con la respuesta del servidor confirmando la eliminación
+   */
+  deleteCodigoPromocional(id: number): Observable<EliminaCodigoPromocionalResponse> {
     const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
-    return this.http.put<CodigosResponse>(url, body)
+    return this.http.delete<EliminaCodigoPromocionalResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
   }
-
-  deleteCodigoPromocional(id: number): Observable<EliminarCodigoResponse> {
-    const url = `${baseUrl}/admin/fidelizacion/codigos-promocionales/${id}`;
-    return this.http.delete<EliminarCodigoResponse>(url)
-      .pipe(
-        catchError(this.httpUtils.handleError)
-      );
-  }
-
-
-
 
 }
