@@ -181,7 +181,7 @@ export class EventoService {
   }
 
   getListarEntradasID(idZona: number): Observable<EntradaResponseArray> {
-    const url = `${baseUrl}/tipos-ticket?idZona=${idZona}`;
+    const url = `${baseUrl}/tipos-ticket?zona=${idZona}`;
     return this.http.get<EntradaResponseArray>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
