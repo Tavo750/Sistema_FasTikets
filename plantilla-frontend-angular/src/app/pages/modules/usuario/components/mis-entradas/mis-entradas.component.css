@@ -1,0 +1,54 @@
+.mis-entradas-page {
+	padding: 1rem 1.5rem;
+}
+
+.page-title {
+	font-size: 1.6rem;
+	margin-bottom: 1rem;
+}
+
+.transfer-card {
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.form-row {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 0.8rem;
+}
+
+.form-row label {
+	font-weight: 600;
+	margin-bottom: 0.4rem;
+}
+
+.form-row input[pInputText] {
+	padding: 0.6rem;
+}
+
+.error {
+	color: #c62828;
+	font-size: 0.8rem;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.verified-note {
+	margin-top: 0.75rem;
+}
+
+.transfer-actions {
+	display:flex;
+	justify-content:flex-end;
+	margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+	.transfer-card { padding: 0 0.5rem; }
+}
