@@ -20,6 +20,7 @@ import { CambiarContraComponent } from './pages/full-pages/cambiar-contra/cambia
 import { CrearUsuarioComponent } from './pages/full-pages/crear-usuario/crear-usuario.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     CoreModule,
     SharedModule,
     InputTextModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ProgressBarModule
   ],
   providers: [
     provideAnimationsAsync(),

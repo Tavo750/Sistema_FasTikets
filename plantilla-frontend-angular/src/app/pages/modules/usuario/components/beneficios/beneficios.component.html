@@ -41,11 +41,8 @@
     </ng-template>
 
     <ng-template pTemplate="content">
-      <div class="progress-visual" role="img" aria-label="Progreso visual hacia black">
-        <div class="progress-track">
-          <div class="progress-marker" [style.left]="progressMarkerLeft"></div>
-        </div>
-      </div>
+      <p-progressbar [value]="progressToBlack" [showValue]="true" styleClass="progress-pill">
+      </p-progressbar>
       <div class="progress-meta text-sm">
         {{ points }} / {{ targetBlack }} pts ({{ progressToBlack }}%)
       </div>

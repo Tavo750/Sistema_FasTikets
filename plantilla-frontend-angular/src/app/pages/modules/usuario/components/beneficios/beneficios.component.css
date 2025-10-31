@@ -133,3 +133,17 @@
 
 /* Utilidades */
 .text-sm { font-size: .9rem; }
+
+/* Asegura que la barra sea visible (alto, ancho y colores) */
+:host ::ng-deep .progress-pill.p-progressbar {
+  display: block;
+  width: 100%;
+  height: 18px;              /* alto visible */
+  background: #e5e7eb;       /* pista gris clara */
+  border-radius: 9999px;
+}
+:host ::ng-deep .progress-pill .p-progressbar-value {
+  height: 100%;
+  border-radius: 9999px;
+  background: #111;          /* color del avance */
+}

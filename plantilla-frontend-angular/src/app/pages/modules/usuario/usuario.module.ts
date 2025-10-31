@@ -14,7 +14,7 @@ import { BeneficiosComponent } from './components/beneficios/beneficios.componen
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 
-
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @NgModule({
   declarations: [
@@ -30,6 +30,7 @@ import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/
     ReactiveFormsModule,
     UsuarioRoutingModule,
     PrimeNgModule,
+    ProgressBarModule
   ],
   providers: [
     MessageService,
