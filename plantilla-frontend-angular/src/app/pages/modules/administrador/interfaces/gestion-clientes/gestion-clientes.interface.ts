@@ -18,4 +18,5 @@ export interface Data {
     nivel:            string;
     edad:             number;
     fechaCreacion:    Date;
+    idDistrito:       number;
 }

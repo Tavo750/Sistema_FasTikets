@@ -62,7 +62,8 @@ export class EditarClienteAdmiComponent  implements OnInit{
       apellidos: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
-      direccion: ['', Validators.required]
+      direccion: ['', Validators.required],
+      idDistrito: [1] // Valor por defecto 1
     });
   }
 
@@ -84,7 +85,8 @@ export class EditarClienteAdmiComponent  implements OnInit{
             email: cliente.email,
             docIdentidad: cliente.docIdentidad,
             telefono: cliente.telefono,
-            direccion: cliente.direccion
+            direccion: cliente.direccion,
+            idDistrito: cliente.idDistrito || 1
           });
           this.loading = false;
         } else {
@@ -136,7 +138,8 @@ export class EditarClienteAdmiComponent  implements OnInit{
       apellidos: this.editarForm.get('apellidos')?.value?.trim() || '',
       telefono: this.editarForm.get('telefono')?.value?.trim() || '',
       direccion: this.editarForm.get('direccion')?.value?.trim() || '',
-      email: this.editarForm.get('email')?.value?.trim() || ''
+      email: this.editarForm.get('email')?.value?.trim() || '',
+      idDistrito: this.editarForm.get('idDistrito')?.value || 1
     };
 
     // Validar que ningún campo esté vacío
