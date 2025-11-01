@@ -51,9 +51,20 @@ export class GestionClientesService {
    */
   putListarClientesPorId(id: number, body: EditarClienteBody): Observable<GestionClientesAdmiResponse> {
     const url = `${baseUrl}/clientes/${id}/perfil`;
-    return this.http.put<GestionClientesAdmiResponse>(url, body)
-      .pipe(
-        catchError(this.httpUtils.handleError)
-      );
+    console.log('URL de actualización:', url);
+    console.log('Datos enviados:', body);
+    
+    return this.http.put<GestionClientesAdmiResponse>(url, body, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error en la petición:', error);
+        console.error('Estado de la respuesta:', error.status);
+        console.error('Mensaje de error:', error.error);
+        return this.httpUtils.handleError(error);
+      })
+    );
   }
 }
