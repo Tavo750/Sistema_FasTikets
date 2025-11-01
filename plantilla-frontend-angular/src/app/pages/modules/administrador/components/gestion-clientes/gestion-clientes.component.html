@@ -50,11 +50,11 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="id" class="id-column">
+            <th pSortableColumn="idCliente" class="id-column">
               <div class="header-content">
                 <i class="pi pi-hashtag"></i>
                 ID
-                <p-sortIcon field="id"></p-sortIcon>
+                <p-sortIcon field="idCliente"></p-sortIcon>
               </div>
             </th>
             <th pSortableColumn="nombres">
@@ -97,7 +97,7 @@
         <ng-template pTemplate="body" let-cliente>
           <tr class="table-row">
             <td class="id-cell">
-              <span class="id-badge">{{cliente.id}}</span>
+              <span class="id-badge">{{cliente.idCliente}}</span>
             </td>
             <td class="name-cell">
               <div class="name-content">
@@ -190,7 +190,7 @@
   <div class="detalle-cliente" *ngIf="clienteSeleccionado">
     <div class="detalle-row">
       <span class="detalle-label">ID:</span>
-      <span class="detalle-value">{{ clienteSeleccionado.id }}</span>
+      <span class="detalle-value">{{ clienteSeleccionado.idCliente }}</span>
     </div>
     <div class="detalle-row">
       <span class="detalle-label">Nombres:</span>

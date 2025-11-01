@@ -1,21 +1,25 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router'; // ← IMPORTAR Router
+import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { GestionClientesService } from '../../services/gestion-clientes.service';
 
 interface Cliente {
-  id: number;
+  idCliente: number;
   nombres: string;
   apellidos: string;
   email: string;
   docIdentidad: string;
-  edad: number; // ← AGREGADO
+  edad: number;
   telefono: string;
-  departamento: string; // ← AGREGADO
-  distrito: string; // ← AGREGADO
+  tipoDocumento: string;
   direccion: string;
   fechaCreacion: string;
   fechaNacimiento: string;
-  rol: string;
+  nivel: string;
+  puntosAcumulados: number;
+  departamento?: string;
+  distrito?: string;
+  rol?: string;
 }
 
 @Component({
@@ -35,9 +39,10 @@ export class GestionClientesComponent implements OnInit {
   totalRecords: number = 0;
 
   constructor(
-    private router: Router, // ← INYECTAR Router
+    private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private gestionClientesService: GestionClientesService
   ) {}
 
   ngOnInit(): void {
@@ -46,90 +51,67 @@ export class GestionClientesComponent implements OnInit {
 
   cargarClientes(): void {
     this.loading = true;
-    
-    // Simulación de datos - Reemplazar con servicio real
-    setTimeout(() => {
-      this.clientes = [
-        {
-          id: 7,
-          nombres: 'Luis',
-          apellidos: 'Rios Sosa',
-          email: 'Luis.enrique@gmail.com',
-          docIdentidad: '78364573',
-          edad: 35,
-          telefono: '983953765',
-          departamento: 'Lima',
-          distrito: 'Miraflores',
-          direccion: 'Av. Larco 1234, Miraflores',
-          fechaCreacion: '2025-09-10T10:30:00',
-          fechaNacimiento: '1990-05-15',
-          rol: 'CLIENTE'
-        },
-        {
-          id: 8,
-          nombres: 'María Elena',
-          apellidos: 'González Torres',
-          email: 'maria.gonzalez@gmail.com',
-          docIdentidad: '45678912',
-          edad: 28,
-          telefono: '987654322',
-          departamento: 'Lima',
-          distrito: 'San Isidro',
-          direccion: 'Jr. Las Camelias 456, San Isidro',
-          fechaCreacion: '2025-09-10T11:45:00',
-          fechaNacimiento: '1990-05-15',
-          rol: 'CLIENTE'
-        },
-        {
-          id: 9,
-          nombres: 'Carlos Alberto',
-          apellidos: 'Pérez Sánchez',
-          email: 'carlos.perez@gmail.com',
-          docIdentidad: '12345678',
-          edad: 42,
-          telefono: '987654323',
-          departamento: 'Arequipa',
-          distrito: 'Barranco',
-          direccion: 'Calle Bolognesi 789, Barranco',
-          fechaCreacion: '2025-09-10T14:20:00',
-          fechaNacimiento: '1990-05-15',
-          rol: 'CLIENTE'
-        },
-        {
-          id: 10,
-          nombres: 'Ana Lucía',
-          apellidos: 'Ramírez Castro',
-          email: 'ana.ramirez@gmail.com',
-          docIdentidad: '87654321',
-          edad: 31,
-          telefono: '987654324',
-          departamento: 'Cusco',
-          distrito: 'Surco',
-          direccion: 'Av. Benavides 321, Surco',
-          fechaCreacion: '2025-09-10T16:10:00',
-          fechaNacimiento: '1990-05-15',
-          rol: 'CLIENTE'
-        },
-        {
-          id: 11,
-          nombres: 'Luis Fernando',
-          apellidos: 'Rios Sosa',
-          email: 'luis.rios@gmail.com',
-          docIdentidad: '23456789',
-          edad: 39,
-          telefono: '987654325',
-          departamento: 'Lima',
-          distrito: 'San Borja',
-          direccion: 'Av. San Borja Norte 567, San Borja',
-          fechaCreacion: '2025-09-11T09:15:00',
-          fechaNacimiento: '1990-05-15',
-          rol: 'CLIENTE'
+    this.clientes = [];
+    this.totalRecords = 0;
+
+    this.gestionClientesService.getListarClientes().subscribe({
+      next: (response) => {
+        console.log('Respuesta del servicio:', response);
+        
+        if (response && response.ok && response.data) {
+          try {
+            this.clientes = response.data.map(cliente => ({
+              ...cliente,
+              departamento: this.obtenerDepartamento(cliente.direccion || ''),
+              distrito: this.obtenerDistrito(cliente.direccion || ''),
+              rol: 'CLIENTE'
+            }));
+            
+            this.totalRecords = this.clientes.length;
+            console.log('Clientes procesados:', this.clientes);
+            
+            if (this.clientes.length > 0) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: `Se cargaron ${this.clientes.length} clientes`
+              });
+            } else {
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Información',
+                detail: 'No hay clientes registrados'
+              });
+            }
+          } catch (error) {
+            console.error('Error al procesar los datos:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Error al procesar los datos de los clientes'
+            });
+          }
+        } else {
+          console.error('Respuesta inválida:', response);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudieron cargar los clientes'
+          });
         }
-      ];
-      
-      this.totalRecords = this.clientes.length;
-      this.loading = false;
-    }, 1000);
+      },
+      error: (error) => {
+        console.error('Error al cargar clientes:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.mensaje || 'Error al conectar con el servidor'
+        });
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
     
     // TODO: Reemplazar con llamada real al servicio
     // this.clienteService.obtenerClientes().subscribe({
@@ -149,22 +131,29 @@ export class GestionClientesComponent implements OnInit {
     // });
   }
 
+  obtenerDepartamento(direccion: string): string {
+    const partes = direccion.split(',');
+    return partes.length > 1 ? partes[partes.length - 1].trim() : 'Lima';
+  }
+
+  obtenerDistrito(direccion: string): string {
+    const partes = direccion.split(',');
+    return partes.length > 1 ? partes[partes.length - 2].trim() : direccion.split(' ')[0];
+  }
+
   verDetalle(cliente: Cliente): void {
     this.clienteSeleccionado = cliente;
     //this.mostrarDialogDetalle = true;
-    this.router.navigate(['/administrador/gestionClientes/detalle', cliente.id]);
+    this.router.navigate(['/administrador/gestionClientes/detalle', cliente.idCliente]);
   }
 
   editarCliente(cliente: Cliente): void {
-    // TODO: Abrir dialog de edición o navegar a página de edición
     this.messageService.add({
       severity: 'info',
       summary: 'Editar Cliente',
       detail: `Editando cliente: ${cliente.nombres} ${cliente.apellidos}`
     });
-    this.router.navigate(['/administrador/gestionClientes/editar', cliente.id]);
-    //console.log('Editar cliente:', cliente);
-    
+    this.router.navigate(['/administrador/gestionClientes/editar', cliente.idCliente]);
   }
 
   confirmarEliminacion(cliente: Cliente): void {
@@ -182,11 +171,10 @@ export class GestionClientesComponent implements OnInit {
   }
 
   eliminarCliente(cliente: Cliente): void {
-    // TODO: Llamar al servicio para eliminar
     this.loading = true;
-    
+    // TODO: Implementar el servicio de eliminación cuando esté disponible en el backend
     setTimeout(() => {
-      this.clientes = this.clientes.filter(c => c.id !== cliente.id);
+      this.clientes = this.clientes.filter(c => c.idCliente !== cliente.idCliente);
       this.totalRecords = this.clientes.length;
       this.loading = false;
       
