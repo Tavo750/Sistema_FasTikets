@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: 'perfilPersonal', component: PerfilPersonalComponent },
   { path: 'beneficios', component: BeneficiosComponent },
   { path: 'historialCompras', component: HistorialComprasComponent },
-  { path: ' ', component: MisEntradasComponent },
+  { path: 'misEntradas', component: MisEntradasComponent },
   { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
 ];

@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
-import { BeneficiosResponse } from '../interfaces/beneficios/beneficios.interface';
+import { HistorialPuntosResponse } from '../interfaces/beneficios/historial-puntos.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BeneficiosService {
+export class HistorialPuntosService {
 
   constructor(
     private http: HttpClient,
@@ -17,17 +17,16 @@ export class BeneficiosService {
   ) { }
 
   /**
-   * Obtiene los puntos acumulados del cliente autenticado
-   * @returns Observable con la respuesta que contiene los puntos del cliente
+   * Obtiene el historial de puntos del cliente autenticado
+   * @returns Observable con la respuesta que contiene el historial de puntos del cliente
    */
-  getObtenerPuntosDeClienteAutenticado(): Observable<BeneficiosResponse> {
-    const url = `${baseUrl}/cliente/fidelizacion/puntos`;
-    return this.http.get<BeneficiosResponse>(url)
+  getObtenerHistorialDePuntosDeClienteAutenticado(): Observable<HistorialPuntosResponse> {
+    const url = `${baseUrl}/cliente/fidelizacion/historial-puntos`;
+    return this.http.get<HistorialPuntosResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
   }
 
-  
-
 }
+
