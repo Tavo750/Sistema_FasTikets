@@ -4,6 +4,7 @@ import { PerfilPersonalComponent } from './components/perfil-personal/perfil-per
 import { BeneficiosComponent } from './components/beneficios/beneficios.component';
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
 import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.component';
+import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 
 const routes: Routes = [
@@ -11,7 +12,8 @@ const routes: Routes = [
   { path: 'perfilPersonal', component: PerfilPersonalComponent },
   { path: 'beneficios', component: BeneficiosComponent },
   { path: 'historialCompras', component: HistorialComprasComponent },
-  { path: 'misEntradas', component: MisEntradasComponent },
+  { path: ' ', component: MisEntradasComponent },
+  { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
 ];
 

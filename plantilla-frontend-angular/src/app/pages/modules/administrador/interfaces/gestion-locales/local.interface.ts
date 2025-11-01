@@ -14,9 +14,11 @@ export interface Data {
     idLocal:        number;
     nombre:         string;
     direccion:      string;
+    urlMapa:        string;
     aforoTotal:     number;
     activo:         boolean;
     idDistrito:     number;
     nombreDistrito: string;
     fechaCreacion:  Date;
+    imagenUrl: string
 }

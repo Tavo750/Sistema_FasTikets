@@ -13,6 +13,7 @@ import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.com
 import { BeneficiosComponent } from './components/beneficios/beneficios.component';
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
+import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 
 import { ProgressBarModule } from 'primeng/progressbar';
 
@@ -22,7 +23,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     BeneficiosComponent,
     PerfilPersonalComponent,
     CambiarContrasenaUsuarioComponent,
-    HistorialComprasComponent
+    HistorialComprasComponent,
+    ConfirmarTransferenciaComponent
   ],
   imports: [
     CommonModule,

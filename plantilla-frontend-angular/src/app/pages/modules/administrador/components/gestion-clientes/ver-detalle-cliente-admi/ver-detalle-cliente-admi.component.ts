@@ -1,18 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { GestionClientesService } from '../../../services/gestion-clientes.service';
 
 interface Cliente {
-  id: number;
+  idCliente: number;
   nombres: string;
   apellidos: string;
   email: string;
   docIdentidad: string;
   edad: number;
   telefono: string;
-  departamento: string;
-  distrito: string;
+  tipoDocumento: string;
   direccion: string;
+  fechaNacimiento: string;
+  nivel: string;
+  puntosAcumulados: number;
+  fechaCreacion: string;
+  departamento?: string;
+  distrito?: string;
 }
 
 interface Compra {
@@ -72,14 +78,29 @@ activeTab: number = 0;
     private route: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private gestionClientesService: GestionClientesService
   ) {}
 
   ngOnInit(): void {
-    this.clienteId = Number(this.route.snapshot.paramMap.get('id'));
-    this.cargarDatosCliente();
-    this.cargarHistorialCompras();
-    this.cargarHistorialPuntos();
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.clienteId = Number(idParam);
+      console.log('ID del cliente:', this.clienteId); // Para debugging
+      this.cargarDatosCliente();
+      // Solo cargar el historial si tenemos un ID válido
+      if (this.clienteId > 0) {
+        this.cargarHistorialCompras();
+        this.cargarHistorialPuntos();
+      }
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se proporcionó un ID de cliente válido'
+      });
+      this.router.navigate(['/admin/gestion-clientes']);
+    }
   }
 
   estatusOptions = [
@@ -87,25 +108,87 @@ activeTab: number = 0;
     { label: 'Canjeado', value: 'Canjeado' }
   ];
 
+  obtenerDepartamento(direccion: string): string {
+    const partes = direccion.split(',');
+    return partes.length > 1 ? partes[partes.length - 1].trim() : 'Lima';
+  }
+
+  obtenerDistrito(direccion: string): string {
+    const partes = direccion.split(',');
+    return partes.length > 1 ? partes[partes.length - 2].trim() : direccion.split(' ')[0];
+  }
+
   cargarDatosCliente(): void {
+    if (!this.clienteId) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'ID de cliente no válido'
+      });
+      return;
+    }
+
     this.loading = true;
     
-    // Simulación de datos
-    setTimeout(() => {
-      this.cliente = {
-        id: this.clienteId,
-        nombres: 'Roberto',
-        apellidos: 'Meriño Rodriguez Gómez',
-        email: 'roberto@meriño.com',
-        docIdentidad: '85868475',
-        edad: 18,
-        telefono: '986734786',
-        departamento: 'Lima',
-        distrito: 'Lima',
-        direccion: 'Calle siempre viva'
-      };
-      this.loading = false;
-    }, 500);
+    this.gestionClientesService.getListarGestionClientesPorId(this.clienteId)
+      .subscribe({
+        next: (response) => {
+          this.loading = false;
+          if (response && response.ok && response.data) {
+            const clienteData = response.data;
+            try {
+              this.cliente = {
+                idCliente: clienteData.idCliente,
+                nombres: clienteData.nombres || '',
+                apellidos: clienteData.apellidos || '',
+                email: clienteData.email || '',
+                docIdentidad: clienteData.docIdentidad || '',
+                edad: clienteData.edad || 0,
+                telefono: clienteData.telefono || '',
+                tipoDocumento: clienteData.tipoDocumento || '',
+                direccion: clienteData.direccion || '',
+                fechaNacimiento: clienteData.fechaNacimiento ? new Date(clienteData.fechaNacimiento).toISOString().split('T')[0] : '',
+                nivel: clienteData.nivel || '',
+                puntosAcumulados: clienteData.puntosAcumulados || 0,
+                fechaCreacion: clienteData.fechaCreacion ? new Date(clienteData.fechaCreacion).toISOString().split('T')[0] : '',
+                departamento: this.obtenerDepartamento(clienteData.direccion || ''),
+                distrito: this.obtenerDistrito(clienteData.direccion || '')
+              };
+              
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Datos del cliente cargados correctamente'
+              });
+            } catch (e) {
+              console.error('Error al procesar datos del cliente:', e);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Error al procesar los datos del cliente'
+              });
+            }
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response?.mensaje || 'No se pudieron cargar los datos del cliente'
+            });
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          console.error('Error al cargar datos del cliente:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al cargar los datos del cliente'
+          });
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
   }
 
   cargarHistorialCompras(): void {

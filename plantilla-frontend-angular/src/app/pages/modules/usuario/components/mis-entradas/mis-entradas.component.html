@@ -1,1 +1,48 @@
-<p>mis-entradas works!</p>
+<div class="mis-entradas-page">
+	<h2 class="page-title">Transferir Entrada</h2>
+
+	<div class="transfer-card">
+		<p-progressBar [value]="25" styleClass="mb-3"></p-progressBar>
+
+		<p-card>
+			<form [formGroup]="transferForm" (ngSubmit)="verifyDestinatario()">
+				<div class="form-row">
+					<label>Email del destinatario *</label>
+					<input pInputText formControlName="email" placeholder="ejemplo@correo.com" />
+					  <small class="error" *ngIf="f['email'].touched && f['email'].invalid">Email inválido</small>
+				</div>
+
+				<div class="form-row">
+					<label>Teléfono del destinatario *</label>
+					<input pInputText formControlName="telefono" placeholder="+51 999 999 999" />
+					  <small class="error" *ngIf="f['telefono'].touched && f['telefono'].invalid">Teléfono requerido</small>
+				</div>
+
+				<div class="form-row">
+					<label>Nombre completo *</label>
+					<input pInputText formControlName="nombre" placeholder="Nombre del destinatario" />
+					  <small class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">Nombre requerido</small>
+				</div>
+
+				<div class="form-row">
+					<label>Número de documento *</label>
+					<input pInputText formControlName="documento" placeholder="Número de documento" />
+					  <small class="error" *ngIf="f['documento'].touched && f['documento'].invalid">Documento requerido</small>
+				</div>
+
+				<div class="actions">
+					<button pButton type="button" label="Verificar Destinatario" class="p-button-rounded p-button-secondary" (click)="verifyDestinatario()"></button>
+					<p-progressSpinner *ngIf="verifying"></p-progressSpinner>
+				</div>
+			</form>
+
+			<div class="verified-note" *ngIf="verified">
+				<p-tag value="Destinatario verificado" severity="success"></p-tag>
+			</div>
+
+			<div class="transfer-actions mt-3">
+				<button pButton type="button" label="Transferir" class="p-button-success" (click)="proceedToTransfer()"></button>
+			</div>
+		</p-card>
+	</div>
+</div>
