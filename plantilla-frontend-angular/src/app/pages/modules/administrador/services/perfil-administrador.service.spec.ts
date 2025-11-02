@@ -3,11 +3,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { throwError } from 'rxjs';
 
-import { EventoService } from './evento.service';
+import { PerfilAdministradorService } from './perfil-administrador.service';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
 
-describe('EventoService', () => {
-  let service: EventoService;
+describe('PerfilAdministradorService', () => {
+  let service: PerfilAdministradorService;
   let httpMock: HttpTestingController;
   let httpUtilsSpy: jasmine.SpyObj<HttpUtilsService>;
 
@@ -19,12 +19,12 @@ describe('EventoService', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        EventoService,
+        PerfilAdministradorService,
         { provide: HttpUtilsService, useValue: httpUtilsSpy },
       ],
     });
 
-    service = TestBed.inject(EventoService);
+    service = TestBed.inject(PerfilAdministradorService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
