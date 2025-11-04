@@ -4,6 +4,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import { LoginResponse, Data } from '../interfaces/login.interface';
 import * as global from '../../global';
 import { CacheStore, Usuario } from '../interfaces/cache-store.interface';
+import { SessionService } from '../../shared/services/session.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,10 @@ export class LoginService {
 
   url = global.baseUrl;
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private sessionService: SessionService
+  ) {
     this.loadFromSessionStorage();
   }
 
@@ -70,6 +74,9 @@ export class LoginService {
           };
           // Guardar los datos del usuario directamente
           this.cacheStore.persona = login.data;
+
+          // Sincronizar con SessionService
+          this.sessionService.setUser(login.data);
         }),
         tap(() => this.saveToSessionStorage()),
         catchError(this.handleError)
@@ -116,7 +123,7 @@ export class LoginService {
     return !!this.cacheStore.usuario?.codiPers;
   }
 
-  // Método para cerrar sesión
+  // Método para cerrar sesión y limpiar todo
   logout(): void {
     this.cacheStore.usuario = {
       codiPers: '',
@@ -133,6 +140,9 @@ export class LoginService {
     sessionStorage.removeItem('cacheStore');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('userRole');
+
+    // Sincronizar con SessionService
+    this.sessionService.clearUser();
   }
 
   // Método para obtener el token

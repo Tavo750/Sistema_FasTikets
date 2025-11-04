@@ -18,7 +18,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CambiarContraComponent } from './pages/full-pages/cambiar-contra/cambiar-contra.component';
 import { CrearUsuarioComponent } from './pages/full-pages/crear-usuario/crear-usuario.component';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+// import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 import { ProgressBarModule } from 'primeng/progressbar';
 
@@ -53,11 +53,14 @@ import { ProgressBarModule } from 'primeng/progressbar';
     provideHttpClient(
       withInterceptorsFromDi()
     ),
+    // Interceptor comentado temporalmente para evitar redirecciones
+    /*
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
     }
+    */
 
 
   ],

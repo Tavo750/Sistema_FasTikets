@@ -219,10 +219,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   cerrarSesion(): void {
     // Limpiar ambos servicios de sesión
-    this.sessionService.clearUser();
-    this.loginService.logout();
+    this.loginService.logout(); // Este ya llama a sessionService.clearUser()
     this.usuario = null; // Limpiar el usuario del componente
-    this.router.navigate(['/home']);
+    this.router.navigate(['/login']);
   }
 
 }

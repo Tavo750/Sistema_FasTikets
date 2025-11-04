@@ -7,7 +7,7 @@ import { SessionService } from '../../shared/services/session.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class PurchaseGuard implements CanActivate {
 
   constructor(
     private loginService: LoginService,
@@ -30,12 +30,9 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // Si no está autenticado, redirigir al login con mensaje
+    // Si no está autenticado, redirigir al login con la URL de retorno
     this.router.navigate(['/login'], {
-      queryParams: {
-        returnUrl: state.url,
-        message: 'Debes iniciar sesión para acceder a esta área'
-      }
+      queryParams: { returnUrl: state.url }
     });
     return false;
   }

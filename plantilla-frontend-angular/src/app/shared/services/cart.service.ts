@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { SessionService } from './session.service';
 
 export interface CartItem {
   id: number;
@@ -29,7 +31,10 @@ export class CartService {
 
   private nextId = 1;
 
-  constructor() {
+  constructor(
+    private router: Router,
+    private sessionService: SessionService
+  ) {
     // Cargar datos del localStorage si existen
     this.loadCartFromStorage();
   }
@@ -148,6 +153,28 @@ export class CartService {
   // Obtener precio total
   getTotalPrice(): number {
     return this.cartItemsSubject.value.reduce((total, item) => total + (item.price * item.quantity), 0);
+  }
+
+  // Verificar si el usuario puede proceder al checkout
+  canProceedToCheckout(): boolean {
+    return this.sessionService.isAuthenticated();
+  }
+
+  // Proceder al checkout (redirige al login si es necesario)
+  proceedToCheckout(): boolean {
+    if (this.canProceedToCheckout()) {
+      // El usuario está autenticado, puede proceder
+      return true;
+    } else {
+      // El usuario no está autenticado, redirigir al login
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: '/usuario/checkout', // o la ruta que corresponda
+          message: 'Debes iniciar sesión para completar tu compra'
+        }
+      });
+      return false;
+    }
   }
 
   // Guardar carrito en localStorage

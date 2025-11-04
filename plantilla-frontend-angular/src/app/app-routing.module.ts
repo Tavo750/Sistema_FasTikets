@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './core/components/layout/layout.component';
+import { AuthGuard } from './core/guards/auth.guard';
 //import { HomeComponent } from './pages/full-pages/home - eliminar/home.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-   // ========== INICIO ==================================================================
+   // ========== INICIO (PÚBLICO) ==================================================================
   {
     path: 'home',
     component: LayoutComponent,
@@ -14,18 +15,20 @@ const routes: Routes = [
   },
   //=========================================================================================
 
-  // ========== INICIO ==================================================================
+  // ========== USUARIO (PROTEGIDO) ==================================================================
   {
     path: 'usuario',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     loadChildren: () => import('./pages/modules/usuario/usuario.module').then(m => m.UsuarioModule),
   },
   //=========================================================================================
 
-  // ========== ADMINISTRADOR ==================================================================
+  // ========== ADMINISTRADOR (PROTEGIDO) ==================================================================
   {
     path: 'administrador',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     loadChildren: () => import('./pages/modules/administrador/administrador.module').then(m => m.AdministradorModule),
   },
   //=========================================================================================
