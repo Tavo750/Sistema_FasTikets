@@ -1,48 +1,92 @@
-<div class="page">
-  <div class="content-container detail-card">
-    <div class="header-row">
-      <h1 class="title">Detalle de registro</h1>
-      <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary"
-                [routerLink]="['/administrador/codigosPromocionales']"></p-button>
+<div class="container">
+  <div class="content-container">
+    <div class="header-section">
+      <h1 class="title">
+        <i class="pi pi-eye"></i>
+        Detalle del Código Promocional
+      </h1>
+
+      <p-button
+        label="Volver"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [routerLink]="['/administrador/codigosPromocionales']"
+        class="back-button">
+      </p-button>
     </div>
 
-    <div class="detalle-box">
-      <div class="row">
-        <span class="label">Código:</span>
-        <span class="value strong mono">{{ data.codigo }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Descripción:</span>
-        <span class="value strong">{{ data.descripcion }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Fecha de expiración:</span>
-        <span class="value strong">{{ data.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Tipo:</span>
-        <span class="value strong">{{ data.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo' }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Valor:</span>
-        <span class="value strong">{{ data.tipo === 'PORCENTAJE' ? data.valor + '%' : 'S/ ' + data.valor }}</span>
-      </div>
-      <div class="row">
-        <span class="label">Stock disponible:</span>
-        <span class="value strong">
-          <p-tag [value]="data.stock.toString()" 
-                 [severity]="data.stock > 0 ? 'success' : 'danger'"></p-tag>
-        </span>
-      </div>
-      <div class="row">
-        <span class="label">Cantidad por cliente:</span>
-        <span class="value strong">{{ data.cantidadPorCliente }}</span>
+    <div class="detail-card">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Código:</span>
+          <span class="detail-value codigo-highlight">{{ data.codigo }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Descripción:</span>
+          <span class="detail-value">{{ data.descripcion || 'Sin descripción' }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Fecha de expiración:</span>
+          <span class="detail-value">{{ data.fechaFin | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Tipo de descuento:</span>
+          <span class="detail-value">
+            <p-tag [value]="data.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'"
+                   [severity]="data.tipo === 'PORCENTAJE' ? 'info' : 'success'">
+            </p-tag>
+          </span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Valor del descuento:</span>
+          <span class="detail-value valor-descuento">
+            {{ data.tipo === 'PORCENTAJE' ? data.valor + '%' : 'S/ ' + (data.valor | number:'1.2-2') }}
+          </span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Stock disponible:</span>
+          <span class="detail-value">
+            <p-tag [value]="data.stock.toString()"
+                   [severity]="data.stock > 10 ? 'success' : data.stock > 0 ? 'warning' : 'danger'">
+            </p-tag>
+          </span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Usos por cliente:</span>
+          <span class="detail-value">{{ data.cantidadPorCliente }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="detail-label">Estado:</span>
+          <span class="detail-value">
+            <p-tag [value]="getEstadoCodigo()"
+                   [severity]="getEstadoSeverity()">
+            </p-tag>
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="footer-actions">
-      <p-button label="Aceptar" styleClass="p-button-success"
-                [routerLink]="['/administrador/codigosPromocionales']"></p-button>
+      <p-button
+        label="Volver a la Lista"
+        icon="pi pi-list"
+        class="list-button"
+        [routerLink]="['/administrador/codigosPromocionales']">
+      </p-button>
+
+      <p-button
+        label="Editar Código"
+        icon="pi pi-pencil"
+        class="edit-button"
+        [routerLink]="['/administrador/codigosPromocionales/editar', data.idCodigoPromocional]">
+      </p-button>
     </div>
   </div>
 </div>

@@ -68,4 +68,33 @@ export class DetalleRegistroPromoComponent implements OnInit {
       detail: mensaje
     });
   }
+
+  getEstadoCodigo(): string {
+    if (!this.data?.fechaFin) return 'Sin fecha';
+
+    const now = new Date();
+    const fechaFin = new Date(this.data.fechaFin);
+
+    if (fechaFin < now) {
+      return 'Expirado';
+    } else if (this.data.stock <= 0) {
+      return 'Sin stock';
+    } else {
+      return 'Activo';
+    }
+  }
+
+  getEstadoSeverity(): string {
+    const estado = this.getEstadoCodigo();
+    switch (estado) {
+      case 'Activo':
+        return 'success';
+      case 'Sin stock':
+        return 'warning';
+      case 'Expirado':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
 }

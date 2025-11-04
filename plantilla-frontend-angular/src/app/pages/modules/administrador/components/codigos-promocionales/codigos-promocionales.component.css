@@ -1,91 +1,171 @@
-/* Contenedor principal */
-.gestion-codigos-container {
+/* Container principal */
+.container {
   padding: 2rem;
-  background-color: #f8f9fa;
+  background: #ffffff;
   min-height: 100vh;
 }
 
-/* Encabezado */
+/* Header Section */
 .header-section {
-  margin-bottom: 2rem;
-}
-
-.title-group {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #007ad9;
-  margin: 0;
-}
-
-.title-group i {
-  font-size: 1.5rem;
-  color: #007ad9;
-}
-
-/* Acciones */
-.acciones-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
-  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e88e5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.title i {
+  font-size: 2.5rem;
+  color: #1e88e5;
+}
+
+/* Add Button */
+.add-button {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.add-button:hover {
+  background: #059669 !important;
+  border-color: #059669 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Search Panel */
+.search-panel {
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+::ng-deep .search-panel .p-panel-header {
+  background: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+}
+
+::ng-deep .search-panel .p-panel-content {
+  padding: 1.5rem;
+  background: white;
+}
+
+.search-container {
+  display: grid;
   gap: 1rem;
 }
 
-.buscador-codigos {
-  flex: 1;
-  max-width: 400px;
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.buscador-codigos input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
+.field label {
+  font-weight: 600;
+  color: #495057;
   font-size: 0.95rem;
 }
 
-/* Botón agregar */
-.btn-agregar {
-  background-color: #007ad9;
-  color: white;
-  border: none;
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
+.w-full {
+  width: 100%;
+}
+
+::ng-deep .p-input-icon-left > input {
+  padding-left: 2.5rem;
+  border: 1px solid #dee2e6;
   border-radius: 6px;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
-.btn-agregar:hover {
-  background-color: #006bb3;
+::ng-deep .p-input-icon-left > input:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25);
 }
 
-/* Tabla */
-::ng-deep .tabla-codigos .p-datatable {
+/* Results Section */
+.results-section {
+  margin-top: 2rem;
+}
+
+.results-header {
+  margin-bottom: 1.5rem;
+}
+
+.results-header h3 {
+  margin: 0;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+/* Table Container */
+.table-container {
+  background: white;
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e9ecef;
 }
 
-::ng-deep .tabla-codigos .p-datatable-thead > tr > th {
-  background-color: #f8f9fa;
-  color: #007ad9;
+/* Custom Table Styles */
+::ng-deep .custom-table .p-datatable {
+  border: none;
+}
+
+::ng-deep .custom-table .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  color: #495057;
   font-weight: 600;
+  border: none;
+  border-bottom: 2px solid #dee2e6;
   padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  font-size: 0.95rem;
 }
 
-::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+::ng-deep .custom-table .p-datatable-tbody > tr > td {
+  border: none;
+  border-bottom: 1px solid #f1f3f4;
+  padding: 0.875rem 1rem;
+  vertical-align: middle;
 }
 
-::ng-deep .tabla-codigos .p-datatable-tbody > tr:hover {
-  background-color: #f1f3f5;
+::ng-deep .custom-table .p-datatable-tbody > tr:hover {
+  background: #f8f9fa;
+}
+
+::ng-deep .custom-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+::ng-deep .custom-table .p-paginator {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+  padding: 1rem;
 }
 
 /* Código en monoespaciado */
@@ -93,6 +173,10 @@
   font-family: 'Courier New', monospace;
   font-weight: 600;
   color: #2c3e50;
+  background: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 /* Botones de acción */
@@ -104,42 +188,76 @@
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  align-items: center;
 }
 
 .action-buttons .p-button {
   padding: 0.5rem;
   font-size: 0.875rem;
   border-radius: 6px;
+  min-width: 2.5rem;
+  height: 2.5rem;
 }
 
-.action-buttons .p-button.p-button-icon-only {
-  width: 2.5rem;
-  height: 2.5rem;
+/* Empty State */
+.empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.empty-message {
+  margin: 0;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Tags customization */
+::ng-deep .p-tag {
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .gestion-codigos-container {
+  .container {
     padding: 1rem;
   }
 
-  .acciones-header {
+  .header-section {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
 
-  .page-title {
-    font-size: 1.5rem;
+  .title {
+    font-size: 2rem;
   }
 
-  ::ng-deep .tabla-codigos .p-datatable-thead > tr > th,
-  ::ng-deep .tabla-codigos .p-datatable-tbody > tr > td {
+  .search-container {
+    grid-template-columns: 1fr;
+  }
+
+  ::ng-deep .custom-table .p-datatable-thead > tr > th,
+  ::ng-deep .custom-table .p-datatable-tbody > tr > td {
     padding: 0.5rem;
     font-size: 0.875rem;
   }
 
   .action-buttons {
     flex-direction: column;
-    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .action-buttons .p-button {
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
   }
 }
