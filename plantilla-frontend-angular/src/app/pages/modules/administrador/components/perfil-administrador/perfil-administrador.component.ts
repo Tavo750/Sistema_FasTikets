@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PerfilAdministradorService } from '../../services/perfil-administrador.service';
 import { SessionService } from '../../../../../shared/services/session.service';
 import { MessageService } from '../../../../../core/services/message.service';
@@ -18,13 +20,14 @@ interface TipoDocumento {
   templateUrl: './perfil-administrador.component.html',
   styleUrls: ['./perfil-administrador.component.css']
 })
-export class PerfilAdministradorComponent implements OnInit {
+export class PerfilAdministradorComponent implements OnInit, OnDestroy {
   perfilForm!: FormGroup;
   editForm!: FormGroup;
   isEditing: boolean = false;
   tiposDocumento: TipoDocumento[];
   perfilData: PerfilData | null = null;
   isLoading: boolean = false;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -45,6 +48,11 @@ export class PerfilAdministradorComponent implements OnInit {
     this.cargarPerfilAdministrador();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private cargarPerfilAdministrador(): void {
     const currentUser = this.sessionService.getCurrentUser();
 
@@ -58,25 +66,27 @@ export class PerfilAdministradorComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.perfilService.getPerfilAdministrador(currentUser.idUsuario).subscribe({
-      next: (response) => {
-        if (response.ok && response.data) {
-          this.perfilData = response.data;
-          this.populateFormsWithData(response.data);
-        } else {
-          this.messageService.error(
-            response.mensaje || 'No se pudo cargar la información del perfil',
-            'Error'
-          );
+    this.perfilService.getPerfilAdministrador(currentUser.idUsuario)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.ok && response.data) {
+            this.perfilData = response.data;
+            this.populateFormsWithData(response.data);
+          } else {
+            this.messageService.error(
+              response.mensaje || 'No se pudo cargar la información del perfil',
+              'Error'
+            );
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar perfil:', error);
+          this.messageService.handleHttpError(error);
+          this.isLoading = false;
         }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar perfil:', error);
-        this.messageService.handleHttpError(error);
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   private populateFormsWithData(data: PerfilData): void {
@@ -162,7 +172,9 @@ export class PerfilAdministradorComponent implements OnInit {
 
     this.isLoading = true;
 
-    this.perfilService.putActualizarPerfilAdministrador(currentUser.idUsuario, actualizarData).subscribe({
+    this.perfilService.putActualizarPerfilAdministrador(currentUser.idUsuario, actualizarData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         if (response.ok) {
           // Actualizar el formulario de visualización con los nuevos datos
