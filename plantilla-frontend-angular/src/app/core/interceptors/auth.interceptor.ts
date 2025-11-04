@@ -91,7 +91,7 @@ export class AuthInterceptor implements HttpInterceptor {
             headers: error.headers?.keys?.(),
             requestHeaders: authReq.headers?.keys?.()
           });
-          
+
           // Log específico para error 403
           if (error.status === 403) {
             console.error('🚫 ERROR 403 DETALLADO:', {
@@ -104,7 +104,7 @@ export class AuthInterceptor implements HttpInterceptor {
               timestamp: new Date().toISOString()
             });
           }
-          
+
           return this.handleAuthError(error);
         })
       );

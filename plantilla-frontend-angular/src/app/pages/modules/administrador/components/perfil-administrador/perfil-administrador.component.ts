@@ -51,7 +51,7 @@ export class PerfilAdministradorComponent implements OnInit, OnDestroy {
 
   private verificarAutenticacion(): void {
     const currentUser = this.sessionService.getCurrentUser();
-    
+
     console.log('🔐 Verificación de autenticación:', {
       userExists: !!currentUser,
       hasToken: !!currentUser?.token,

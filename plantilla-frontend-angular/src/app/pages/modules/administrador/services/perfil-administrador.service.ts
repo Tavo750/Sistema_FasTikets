@@ -40,7 +40,7 @@ export class PerfilAdministradorService {
    */
   getPerfilAdministrador(id: number): Observable<PerfilAdministradorResponse> {
     const url = `${baseUrl}/administrador/perfil`;
-    
+
     return this.http.get<PerfilAdministradorResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
