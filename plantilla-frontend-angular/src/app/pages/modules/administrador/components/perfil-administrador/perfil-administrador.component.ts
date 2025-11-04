@@ -45,7 +45,30 @@ export class PerfilAdministradorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForms();
+    this.verificarAutenticacion();
     this.cargarPerfilAdministrador();
+  }
+
+  private verificarAutenticacion(): void {
+    const currentUser = this.sessionService.getCurrentUser();
+    
+    console.log('🔐 Verificación de autenticación:', {
+      userExists: !!currentUser,
+      hasToken: !!currentUser?.token,
+      userRole: currentUser?.rol,
+      userId: currentUser?.idUsuario,
+      isAdmin: currentUser?.rol === 'ADMINISTRADOR',
+      tokenPreview: currentUser?.token?.substring(0, 50) + '...'
+    });
+
+    // Verificar si el usuario es administrador
+    if (currentUser && currentUser.rol !== 'ADMINISTRADOR') {
+      this.messageService.error(
+        'No tiene permisos de administrador para acceder a esta sección.',
+        'Acceso Denegado'
+      );
+      this.router.navigate(['/home']);
+    }
   }
 
   ngOnDestroy(): void {
@@ -64,6 +87,15 @@ export class PerfilAdministradorComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
       return;
     }
+
+    // Debug: Verificar información del usuario y token
+    console.log('Usuario actual:', {
+      id: currentUser.idUsuario,
+      email: currentUser.email,
+      rol: currentUser.rol,
+      hasToken: !!currentUser.token,
+      tokenLength: currentUser.token?.length
+    });
 
     this.isLoading = true;
     this.perfilService.getPerfilAdministrador(currentUser.idUsuario)
