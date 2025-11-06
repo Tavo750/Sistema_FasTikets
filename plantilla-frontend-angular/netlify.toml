@@ -1,0 +1,46 @@
+# Configuración de Netlify para Angular
+[build]
+  # Comando para construir la aplicación
+  command = "npm run build"
+
+  # Directorio donde se encuentran los archivos estáticos generados
+  publish = "dist/plantilla/browser"
+
+  # Directorio base del proyecto
+  base = "."
+
+# Configuración de Node.js
+[build.environment]
+  NODE_VERSION = "18"
+
+# Redirecciones para SPA (Single Page Application)
+# Esto es crucial para que Angular Router funcione correctamente
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de seguridad y optimización
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache de archivos estáticos
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
