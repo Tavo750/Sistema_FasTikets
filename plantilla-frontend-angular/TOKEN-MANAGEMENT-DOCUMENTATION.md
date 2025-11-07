@@ -21,13 +21,12 @@ Este documento explica cómo se implementó el manejo automático de tokens JWT 
   - `isTokenExpiringSoon()`: Detecta si el token expira en los próximos 5 minutos
   - `decodeTokenPayload()`: Decodifica información del token (solo lectura)
 
-### 3. **TokenGuard** (`core/guards/token.guard.ts`)
+### 3. **AuthGuard** (`core/guards/auth.guard.ts`)
 - **Función**: Protege rutas que requieren autenticación
 - **Características**:
   - Verifica sesión activa antes de permitir acceso a rutas
   - Valida que el token no haya expirado
   - Soporta verificación de roles específicos
-  - Muestra advertencias cuando la sesión está por expirar
 
 ## 🚀 Cómo Funciona
 
@@ -56,8 +55,7 @@ this.http.get(url); // El token se agrega automáticamente
 const routes: Routes = [
   {
     path: 'administrador',
-    canActivate: [TokenGuard],
-    data: { roles: ['ADMINISTRADOR'] },
+    canActivate: [AuthGuard],
     component: AdminComponent
   }
 ];
@@ -94,8 +92,7 @@ providers: [
 ```typescript
 {
   path: 'ruta-protegida',
-  canActivate: [TokenGuard],
-  data: { roles: ['ADMIN'] }, // Opcional
+  canActivate: [AuthGuard],
   component: ComponenteProtegido
 }
 ```
