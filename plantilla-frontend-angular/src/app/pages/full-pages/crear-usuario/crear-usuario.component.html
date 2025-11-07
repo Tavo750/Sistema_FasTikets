@@ -30,40 +30,84 @@
       <input type="password" placeholder="Repita Contraseña *" formControlName="repitaContrasena" required>
 
       <div class="form-row">
-        <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>
-        <select formControlName="departamento" required>
-          <option value="">Departamento *</option>
-          <option value="lima">Lima</option>
-          <option value="arequipa">Arequipa</option>
-          <option value="cusco">Cusco</option>
-        </select>
-        <select formControlName="distrito" required>
-          <option value="">Distrito *</option>
-          <option value="miraflores">Miraflores</option>
-          <option value="san-isidro">San Isidro</option>
-          <option value="barranco">Barranco</option>
-        </select>
+        <div class="form-group form-group-date">
+          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>
+        </div>
+
+        <!-- Departamento -->
+        <div class="form-group form-group-departamento">
+          <select
+            id="departamento"
+            placeholder="Departamento *"
+            formControlName="departamento"
+            class="form-control">
+            <option value="">Departamento *</option>
+            <option *ngFor="let dep of departamentos" [value]="dep.id">
+              {{ dep.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Provincia -->
+        <div class="form-group form-group-provincia">
+          <select
+            id="provincia"
+            placeholder="Provincia *"
+            formControlName="provincia"
+            class="form-control"
+            [disabled]="!provincias.length || loadingProvincias">
+            <option value="">
+              {{ loadingProvincias ? 'Cargando...' : 'Provincia *' }}
+            </option>
+            <option *ngFor="let prov of provincias" [value]="prov.id">
+              {{ prov.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Distrito -->
+        <div class="form-group form-group-distrito">
+          <select
+            id="distrito"
+            placeholder="Distrito *"
+            formControlName="distrito"
+            class="form-control"
+            [disabled]="!distritos.length || loadingDistritos">
+            <option value="">
+              {{ loadingDistritos ? 'Cargando...' : 'Distrito *' }}
+            </option>
+            <option *ngFor="let dist of distritos" [value]="dist.id">
+              {{ dist.nombre }}
+            </option>
+          </select>
+        </div>
       </div>
 
       <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>
 
       <div class="form-row">
-        <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"
-               maxlength="9"
-               (keypress)="onlyNumbers($event)"
-               (paste)="onPaste($event, 'telefono')"
-               required>
-        <select formControlName="tipoDocumento" required>
-          <option value="">Tipo de Documento *</option>
-          <option value="DNI">DNI</option>
-          <option value="PASAPORTE">Pasaporte</option>
-          <option value="ce">Carnet de Extranjería</option>
-        </select>
-        <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"
-               maxlength="8"
-               (keypress)="onlyNumbers($event)"
-               (paste)="onPaste($event, 'numeroDocumento')"
-               required>
+        <div class="form-group form-group-telefono">
+          <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"
+                 maxlength="9"
+                 (keypress)="onlyNumbers($event)"
+                 (paste)="onPaste($event, 'telefono')"
+                 required>
+        </div>
+        <div class="form-group form-group-tipo-doc">
+          <select formControlName="tipoDocumento" required>
+            <option value="">Tipo de Documento *</option>
+            <option value="DNI">DNI</option>
+            <option value="PASAPORTE">Pasaporte</option>
+            <option value="ce">Carnet de Extranjería</option>
+          </select>
+        </div>
+        <div class="form-group form-group-num-doc">
+          <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"
+                 maxlength="8"
+                 (keypress)="onlyNumbers($event)"
+                 (paste)="onPaste($event, 'numeroDocumento')"
+                 required>
+        </div>
       </div>
 
       <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>
