@@ -24,6 +24,7 @@ export class InicioComponent implements OnInit {
   paginaActual: number = 1;
   eventosPorPagina: number = 6;
   cargandoEventos: boolean = false;
+  currentYear: number = new Date().getFullYear();
 
   // Nuevas propiedades para PrimeNG
   categoriasDropdown: DropdownOption[] = [];
