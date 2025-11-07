@@ -64,7 +64,14 @@ export class SessionService {
    * Limpia la sesión del usuario
    */
   clearUser(): void {
+    // Limpiar localStorage
     localStorage.removeItem(this.USER_KEY);
+    // También limpiar sessionStorage por si acaso
+    sessionStorage.removeItem(this.USER_KEY);
+    sessionStorage.removeItem('cacheStore');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userRole');
+    // Actualizar el observable
     this.userSubject.next(null);
   }
 
@@ -83,7 +90,23 @@ export class SessionService {
       const userJson = localStorage.getItem(this.USER_KEY);
       if (userJson) {
         const user = JSON.parse(userJson) as Data;
-        this.userSubject.next(user);
+
+        // Validar que el token no haya expirado
+        if (user.token && user.expiracion) {
+          const currentTime = Math.floor(Date.now() / 1000);
+          if (user.expiracion > currentTime) {
+            // Token válido, cargar usuario
+            this.userSubject.next(user);
+          } else {
+            // Token expirado, limpiar sesión
+            console.warn('Token expirado. Limpiando sesión.');
+            this.clearUser();
+          }
+        } else {
+          // No hay token o expiración, limpiar sesión
+          console.warn('Usuario sin token válido. Limpiando sesión.');
+          this.clearUser();
+        }
       }
     } catch (error) {
       console.error('Error al cargar usuario del storage:', error);
