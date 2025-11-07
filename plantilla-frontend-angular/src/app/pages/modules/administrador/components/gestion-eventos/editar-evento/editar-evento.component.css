@@ -825,20 +825,37 @@
   }
 }
 
-/* Dropdown Panel hacia arriba */
-::ng-deep .dropdown-up {
-  top: auto !important;
-  bottom: 100% !important;
-  transform-origin: center bottom !important;
-  margin-bottom: 4px !important;
+/* Asegurar que el dropdown y su panel tengan el ancho correcto */
+::ng-deep .p-dropdown {
+  width: 100% !important;
 }
 
-::ng-deep .p-dropdown-panel.dropdown-up {
+::ng-deep .p-dropdown-panel {
+  width: 100% !important;
+  min-width: 100% !important;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-items {
+  width: 100%;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item {
+  white-space: nowrap;
+  padding: 0.75rem 1rem;
+}
+
+/* Hacer que el panel del dropdown de Estado se despliegue hacia arriba */
+::ng-deep .estado-panel-up {
   top: auto !important;
   bottom: 100% !important;
   transform-origin: center bottom !important;
-  margin-bottom: 4px !important;
+  margin-bottom: 0.25rem !important;
+  width: 100% !important;
+  min-width: 100% !important;
+}
 
+::ng-deep .estado-dropdown {
+  width: 100% !important;
 }
 
 /* Estilos para entradas disponibles */
