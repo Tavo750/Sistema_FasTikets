@@ -82,8 +82,12 @@ export class InicioComponent implements OnInit {
             eventosData = [response.data];
           }
 
-          // Filtrar solo eventos con estadoEvento = 'PUBLICADO'
-          const eventosPublicados = eventosData.filter(evento => evento.estadoEvento === 'PUBLICADO');
+          // Filtrar eventos publicados o activos (algunos backends usan 'ACTIVO' en lugar de 'PUBLICADO')
+          const eventosPublicados = eventosData.filter(evento =>
+            evento.estadoEvento === 'PUBLICADO' ||
+            evento.estadoEvento === 'ACTIVO' ||
+            (!!(evento as any).activo) // también aceptar si viene la bandera activo: true
+          );
 
           this.eventos = eventosPublicados.map(evento => this.mapearEventoData(evento));
           this.eventosFiltrados = [...this.eventos];
@@ -91,15 +95,19 @@ export class InicioComponent implements OnInit {
           this.aplicarOrden();
         } else {
           console.error('Error al cargar eventos:', response.mensaje);
-          // Mantener eventos de ejemplo como fallback
-          this.cargarEventosEjemplo();
+          // No usar eventos en duro: dejar listas vacías y actualizar dropdowns
+          this.eventos = [];
+          this.eventosFiltrados = [];
+          this.inicializarDropdowns();
         }
       },
       error: (error) => {
         this.cargandoEventos = false;
         console.error('Error al cargar eventos:', error);
-        // Mantener eventos de ejemplo como fallback en caso de error
-        this.cargarEventosEjemplo();
+        // No usar datos en duro como fallback; mostrar lista vacía
+        this.eventos = [];
+        this.eventosFiltrados = [];
+        this.inicializarDropdowns();
       }
     });
   }
@@ -137,19 +145,10 @@ export class InicioComponent implements OnInit {
   }
 
   private cargarEventosEjemplo() {
-    this.eventos = [
-      { id: 1, nombre: 'UB40', fecha: '11 de Septiembre', lugar: 'Arena 1 - Cúpula', categoria: 'Reggae', precio: 100, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=UB40' },
-      { id: 2, nombre: 'Banda', fecha: '30 de Septiembre', lugar: 'Arena 2', categoria: 'Rock and Pop', precio: 100, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Rock+Band' },
-      { id: 3, nombre: 'Banda 3', fecha: '3 de Octubre', lugar: 'Movistar Arena', categoria: 'Rock', precio: 180, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Rock+Festival' },
-      { id: 4, nombre: 'Agrupación 1', fecha: '15 de Octubre', lugar: 'Arena 1', categoria: 'Pop', precio: 120, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Pop+Concert' },
-      { id: 5, nombre: 'Agrupación 2', fecha: '21 de Octubre', lugar: 'Arena 3', categoria: 'Punk', precio: 150, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Punk+Show' },
-      { id: 6, nombre: 'Agrupación 3', fecha: '31 de Octubre', lugar: 'Arena 2', categoria: 'Reguetón', precio: 200, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Reggaeton+Night' },
-      { id: 7, nombre: 'Festival de Verano', fecha: '5 de Noviembre', lugar: 'Arena 1 - Cúpula', categoria: 'Rock', precio: 220, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Summer+Festival' },
-      { id: 8, nombre: 'Noche de Jazz', fecha: '12 de Noviembre', lugar: 'Movistar Arena', categoria: 'Jazz', precio: 90, imagen: 'https://via.placeholder.com/400x200/dc2626/ffffff?text=Jazz+Night' },
-    ];
-    this.eventosFiltrados = [...this.eventos];
+    // Hardcoded example events removed — events are fetched from backend via EventoService
+    this.eventos = [];
+    this.eventosFiltrados = [];
     this.inicializarDropdowns();
-    this.aplicarOrden();
   }
 
   // Métodos de filtrado

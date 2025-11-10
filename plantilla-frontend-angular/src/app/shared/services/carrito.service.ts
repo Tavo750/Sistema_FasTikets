@@ -1,0 +1,83 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { baseUrl } from '../../global';
+import { HttpUtilsService } from './http-utils.service';
+import { HttpHeaders } from '@angular/common/http';
+import { SessionService } from './session.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CarritoService {
+  constructor(
+    private http: HttpClient,
+    private httpUtils: HttpUtilsService,
+    private sessionService: SessionService
+  ) {}
+
+  /**
+   * Agrega un item al carrito en el backend.
+   * body: { idTipoTicket, cantidad, idCliente }
+   */
+  addItemToServer(idTipoTicket: number, cantidad: number, idCliente: number): Observable<any> {
+    const url = `${baseUrl}/carrito/items`;
+    const body = { idTipoTicket, cantidad, idCliente };
+
+    // Obtener token (si hay) y agregar header Authorization manualmente
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    // Log request for debugging
+    try {
+      console.debug('CarritoService.addItemToServer -> POST', url, body);
+    } catch (e) {}
+
+    return this.http.post<any>(url, body, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.addItemToServer response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Elimina un item del carrito en el backend por su id (idItemCarrito)
+   */
+  deleteItemOnServer(idItemCarrito: number, idCliente: number): Observable<any> {
+    const url = `${baseUrl}/carrito/items/${idItemCarrito}?idCliente=${idCliente}`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    try { console.debug('CarritoService.deleteItemOnServer -> DELETE', url); } catch(e) {}
+
+    return this.http.delete<any>(url, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.deleteItemOnServer response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Obtiene los items del carrito desde el servidor para un cliente dado
+   * Endpoint: GET /carrito/items?idCliente={idCliente}
+   */
+  getItemsFromServer(idCliente: number): Observable<any> {
+    const url = `${baseUrl}/carrito/items?idCliente=${idCliente}`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return this.http.get<any>(url, { headers })
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+}

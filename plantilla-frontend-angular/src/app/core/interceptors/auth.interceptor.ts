@@ -21,7 +21,8 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/login',
       '/auth/registro',
       '/auth/recuperar-password',
-      '/public'
+      '/public',
+      '/carrito/items'
     ];
 
     // Verificar si la URL actual requiere autenticación
