@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { version, titulo, tituloVersion } from '../../../global';
 import { LoadingService } from '../../../shared/services/loading.service';
@@ -25,6 +25,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   loading: boolean = false;
 
   hayError: boolean = false;
+  returnUrl: string = '/home/inicio';
+  loginMessage: string = '';
 
   ref: DynamicDialogRef | undefined;
 
@@ -34,6 +36,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   constructor(
     public router: Router,
+    private route: ActivatedRoute,
     public dialogService: DialogService,
     private loginService: LoginService,
     private loadingService: LoadingService,
@@ -43,6 +46,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    // Obtener returnUrl y mensaje de los query parameters
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home/inicio';
+    this.loginMessage = this.route.snapshot.queryParams['message'] || '';
+
     this.fullscreenSubscription = this.fullscreenService.isFullscreen$.subscribe(state => {
       this.isFullscreen = state;
       this.buttonLabel = state ? 'Salir de pantalla completa' : 'Pantalla completa';
@@ -109,7 +116,9 @@ export class LoginComponent implements OnInit, OnDestroy {
           // Guardar la información del usuario directamente desde la respuesta
           this.sessionService.setUser(resp.data);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
-          this.router.navigate(['/home/inicio']);
+
+          // Redirigir a la URL de retorno o a home por defecto
+          this.router.navigate([this.returnUrl]);
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.mensaje}` });
           this.hayError = true;

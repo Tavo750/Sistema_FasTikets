@@ -11,18 +11,10 @@ import { Data as CodigoPromocional } from '../../interfaces/codigos-promocionale
   providers: [MessageService, ConfirmationService]
 })
 export class CodigosPromocionalesComponent implements OnInit {
-  filtro = '';
+  searchValue = '';
   codigos: CodigoPromocional[] = [];
-
-  get codigosFiltrados(): CodigoPromocional[] {
-    const t = this.filtro.trim().toLowerCase();
-    if (!t) return this.codigos;
-    return this.codigos.filter(c =>
-      c.codigo.toLowerCase().includes(t) || 
-      String(c.idCodigoPromocional).includes(t) ||
-      c.descripcion.toLowerCase().includes(t)
-    );
-  }
+  loading = false;
+  totalRecords = 0;
 
   constructor(
     private confirm: ConfirmationService,
@@ -50,15 +42,17 @@ export class CodigosPromocionalesComponent implements OnInit {
 
   private cargarCodigosPromocionales() {
     console.log('Iniciando carga de códigos promocionales...');
-    
+    this.loading = true;
+
     this.codigosPromocionalesService.getListarCodigosPromocionales()
       .subscribe({
         next: (response) => {
           console.log('Respuesta recibida:', response);
-          
+
           if (response && response.ok) {
             if (Array.isArray(response.data)) {
               this.codigos = response.data;
+              this.totalRecords = response.data.length;
               console.log('Códigos cargados:', this.codigos.length);
             } else {
               console.error('Los datos no son un array:', response.data);
@@ -75,6 +69,7 @@ export class CodigosPromocionalesComponent implements OnInit {
         },
         complete: () => {
           console.log('Carga de códigos completada');
+          this.loading = false;
         }
       });
   }

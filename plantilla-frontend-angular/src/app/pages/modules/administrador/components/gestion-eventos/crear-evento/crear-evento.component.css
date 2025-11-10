@@ -542,6 +542,17 @@
   width: 100%;
 }
 
+::ng-deep .calendar-up.p-datepicker {
+  transform-origin: bottom center !important;
+}
+
+::ng-deep .calendar-up.p-datepicker-panel {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-bottom: 0.25rem !important;
+}
+
+
 ::ng-deep .p-dropdown .p-dropdown-label,
 ::ng-deep .p-inputtext,
 ::ng-deep .p-inputtextarea {
@@ -563,24 +574,6 @@
   border-color: #1976d2;
   box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.2);
 }
-
-::ng-deep .p-button {
-  border-radius: 6px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-::ng-deep .p-button:not(.p-button-outlined) {
-  background: #1976d2;
-  border-color: #1976d2;
-}
-
-::ng-deep .p-button:not(.p-button-outlined):hover {
-  background: #1565c0;
-  border-color: #1565c0;
-}
-
 /* Loading Indicator */
 .loading-indicator {
   display: flex;

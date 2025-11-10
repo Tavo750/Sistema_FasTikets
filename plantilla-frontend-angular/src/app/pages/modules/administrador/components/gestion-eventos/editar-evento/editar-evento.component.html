@@ -83,6 +83,7 @@
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
                 (onSelect)="onFechaSeleccionada($event)"
+                panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
 
@@ -149,10 +150,9 @@
               optionLabel="label"
               optionValue="value"
               placeholder="Seleccionar estado..."
-              styleClass="form-input"
-              appendTo="body"
+              styleClass="form-input estado-dropdown"
+              panelStyleClass="estado-panel-up"
               [showClear]="false"
-              panelClass="dropdown-up"
             ></p-dropdown>
           </div>
         </div>

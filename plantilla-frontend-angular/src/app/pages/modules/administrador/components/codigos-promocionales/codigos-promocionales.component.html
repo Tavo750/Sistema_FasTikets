@@ -1,107 +1,218 @@
-<p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
-<div class="gestion-codigos-container">
+<div class="container">
   <div class="header-section">
-    <div class="title-group">
-      <h2 class="page-title">Lista de Códigos Promocionales</h2>
+    <h1 class="title">
       <i class="pi pi-tags"></i>
-    </div>
+      Gestión de Códigos Promocionales
+    </h1>
 
-    <div class="acciones-header">
-      <span class="p-input-icon-left buscador-codigos">
-        <i class="pi pi-search"></i>
-        <input 
-          pInputText 
-          type="text" 
-          placeholder="Filtrar por código o ID" 
-          [(ngModel)]="filtro" />
-      </span>
-
-      <p-button 
-        label="Agregar nuevo código" 
-        icon="pi pi-plus" 
-        [routerLink]="['/administrador/codigosPromocionales/registro']" 
-        styleClass="btn-agregar">
-      </p-button>
-    </div>
+    <p-button
+      label="Agregar Código"
+      icon="pi pi-plus"
+      [routerLink]="['/administrador/codigosPromocionales/registro']"
+      >
+    </p-button>
   </div>
 
-  <p-table
-    [value]="codigosFiltrados"
-    [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[10,25,50]"
-    [rowHover]="true"
-    [responsiveLayout]="'scroll'"
-    [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} códigos"
-    styleClass="tabla-codigos">
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="field">
+        <label for="busqueda">Buscar código promocional:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busqueda"
+            type="text"
+            pInputText
+            placeholder="Filtrar por código, descripción o ID"
+            [(ngModel)]="searchValue"
+            (input)="dt.filterGlobal(searchValue, 'contains')"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+  </p-panel>
 
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="idCodigoPromocional">ID <p-sortIcon field="idCodigoPromocional"></p-sortIcon></th>
-        <th pSortableColumn="codigo">Código <p-sortIcon field="codigo"></p-sortIcon></th>
-        <th>Descripción</th>
-        <th pSortableColumn="fechaFin">Fecha expiración <p-sortIcon field="fechaFin"></p-sortIcon></th>
-        <th>Tipo</th>
-        <th>Valor</th>
-        <th pSortableColumn="stock">Stock <p-sortIcon field="stock"></p-sortIcon></th>
-        <th>Uso/Cliente</th>
-        <th class="acciones-col">Acciones</th>
-      </tr>
-    </ng-template>
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Códigos encontrados ({{totalRecords}})
+      </h3>
+    </div>
 
-    <ng-template pTemplate="body" let-row>
-      <tr>
-        <td>{{ row.idCodigoPromocional }}</td>
-        <td class="codigo-mono">{{ row.codigo }}</td>
-        <td>{{ row.descripcion }}</td>
-        <td>{{ row.fechaFin | date:'dd/MM/yyyy HH:mm' }}</td>
-        <td>
-          <p-tag [value]="row.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'" 
-                 [severity]="row.tipo === 'PORCENTAJE' ? 'info' : 'success'">
-          </p-tag>
-        </td>
-        <td>
-          <ng-container *ngIf="row.tipo === 'PORCENTAJE'; else montoFijo">
-            {{ row.valor }}%
-          </ng-container>
-          <ng-template #montoFijo>S/ {{ row.valor | number:'1.2-2' }}</ng-template>
-        </td>
-        <td>
-          <p-tag [value]="row.stock.toString()" 
-                 [severity]="getStockSeverity(row.stock)">
-          </p-tag>
-        </td>
-        <td class="text-center">{{ row.cantidadPorCliente }}</td>
-        <td class="acciones-cell">
-          <div class="action-buttons">
-            <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="info"
-                      [routerLink]="['/administrador/codigosPromocionales/detalle', row.idCodigoPromocional]"
-                      pTooltip="Ver detalle" tooltipPosition="top"></p-button>
-            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="success"
-                      [routerLink]="['/administrador/codigosPromocionales/editar', row.idCodigoPromocional]"
-                      pTooltip="Editar" tooltipPosition="top"></p-button>
-            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-                      (click)="confirmarEliminar(row)"
-                      pTooltip="Eliminar" tooltipPosition="top"></p-button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+    <div class="table-container">
 
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="9" class="text-center">
-          <div style="padding: 2rem;">
-            <i class="pi pi-inbox" style="font-size: 3rem; color: var(--surface-400);"></i>
-            <p style="margin-top: 1rem; color: var(--text-color-secondary);">
-              No se encontraron códigos promocionales
-            </p>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+      <p-table
+        #dt
+        [value]="codigos"
+        [rows]="10"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [globalFilterFields]="['codigo', 'descripcion', 'idCodigoPromocional']"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '60rem' }"
+        styleClass="custom-table">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idCodigoPromocional" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="idCodigoPromocional"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="codigo">
+              <div class="header-content">
+                <i class="pi pi-tag"></i>
+                Código
+                <p-sortIcon field="codigo"></p-sortIcon>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-align-left"></i>
+                Descripción
+              </div>
+            </th>
+            <th pSortableColumn="fechaFin">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha expiración
+                <p-sortIcon field="fechaFin"></p-sortIcon>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-bookmark"></i>
+                Tipo
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-dollar"></i>
+                Valor
+              </div>
+            </th>
+            <th pSortableColumn="stock">
+              <div class="header-content">
+                <i class="pi pi-box"></i>
+                Stock
+                <p-sortIcon field="stock"></p-sortIcon>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-user"></i>
+                Uso/Cliente
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{row.idCodigoPromocional}}</span>
+            </td>
+            <td class="codigo-cell">
+              <div class="codigo-content">
+                <i class="pi pi-tag codigo-icon"></i>
+                <span class="codigo-text">{{ row.codigo }}</span>
+              </div>
+            </td>
+            <td class="descripcion-cell">{{ row.descripcion }}</td>
+            <td class="date-cell">{{ row.fechaFin | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="tipo-cell">
+              <p-tag [value]="row.tipo === 'PORCENTAJE' ? 'Porcentaje' : 'Monto Fijo'"
+                     [severity]="row.tipo === 'PORCENTAJE' ? 'info' : 'success'">
+              </p-tag>
+            </td>
+            <td class="valor-cell">
+              <ng-container *ngIf="row.tipo === 'PORCENTAJE'; else montoFijo">
+                <span class="valor-content">{{ row.valor }}%</span>
+              </ng-container>
+              <ng-template #montoFijo>
+                <span class="valor-content">S/ {{ row.valor | number:'1.2-2' }}</span>
+              </ng-template>
+            </td>
+            <td class="stock-cell">
+              <p-tag [value]="row.stock.toString()"
+                     [severity]="getStockSeverity(row.stock)">
+              </p-tag>
+            </td>
+            <td class="uso-cell">{{ row.cantidadPorCliente }}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top"
+                  [routerLink]="['/administrador/codigosPromocionales/detalle', row.idCodigoPromocional]">
+                </p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Editar código"
+                  tooltipPosition="top"
+                  [routerLink]="['/administrador/codigosPromocionales/editar', row.idCodigoPromocional]">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Eliminar código"
+                  tooltipPosition="top"
+                  (onClick)="confirmarEliminar(row)">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="9">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron códigos promocionales</h3>
+                <p>Intenta ajustar los filtros de búsqueda.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="9">
+              <div class="no-results">
+                <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+                <p>Cargando códigos promocionales...</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
 </div>

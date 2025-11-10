@@ -16,60 +16,105 @@ export class AuthInterceptor implements HttpInterceptor {
   ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // URLs que NO requieren token (como login, registro, etc.)
+    // URLs que NO requieren token (endpoints públicos)
     const publicEndpoints = [
-      '/auth/login',
-      '/auth/registro',
-      '/auth/recuperar-password',
-      '/public',
-      '/carrito/items'
+  '/auth/login',
+  '/auth/registro',
+  '/auth/recuperar-password',
+  '/public',
+  '/carrito/items',
+  '/api/v1/eventos', // Eventos públicos
+  '/api/v1/auth/login', // Login específico
+  'localhost:8081/api/v1/eventos', // Eventos con dominio completo
+  'localhost:8081/api/v1/auth/login' // Login con dominio completo
     ];
 
-    // Verificar si la URL actual requiere autenticación
-    const requiresAuth = !publicEndpoints.some(endpoint => req.url.includes(endpoint));
+    // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)
+    const protectedEndpoints = [
+      '/api/v1/usuario',
+      '/api/v1/admin',
+      '/api/v1/administrador', // Agregamos específicamente el endpoint de administrador
+      '/api/v1/compras',
+      '/api/v1/facturacion'
+    ];
 
-    if (requiresAuth) {
-      const currentUser = this.sessionService.getCurrentUser();
+    // Verificar si es un endpoint público
+    const isPublicEndpoint = publicEndpoints.some(endpoint => req.url.includes(endpoint));
 
-      if (currentUser && currentUser.token) {
-        // Detectar si se está enviando FormData (para archivos)
-        const isFormData = req.body instanceof FormData;
+    // Verificar si es un endpoint estrictamente protegido
+    const isStrictlyProtected = protectedEndpoints.some(endpoint => req.url.includes(endpoint));
 
-        // Preparar headers base
-        const headers: { [key: string]: string } = {
-          'Authorization': `Bearer ${currentUser.token}`
-        };
-
-        // Solo agregar Content-Type si NO es FormData
-        // El navegador establecerá automáticamente el Content-Type correcto para FormData
-        if (!isFormData) {
-          headers['Content-Type'] = 'application/json';
-        }
-
-        // Clonar la petición y agregar el header de autorización
-        const authReq = req.clone({
-          setHeaders: headers
-        });
-
-        return next.handle(authReq).pipe(
-          catchError((error: HttpErrorResponse) => {
-            return this.handleAuthError(error);
-          })
-        );
-      } else {
-        // No hay token, redirigir al login
-        this.messageService.error(
-          'Su sesión ha expirado. Por favor, inicie sesión nuevamente.',
-          'Sesión Expirada'
-        );
-        this.sessionService.clearUser();
-        this.router.navigate(['/login']);
-        return throwError(() => new Error('Session expired'));
-      }
+    if (isPublicEndpoint) {
+      // Para endpoints públicos, enviar la petición sin modificar
+      return next.handle(req);
     }
 
-    // Para endpoints públicos, enviar la petición sin modificar
-    return next.handle(req);
+    // Para otros endpoints, verificar autenticación
+    const currentUser = this.sessionService.getCurrentUser();
+
+    if (currentUser && currentUser.token) {
+      // Detectar si se está enviando FormData (para archivos)
+      const isFormData = req.body instanceof FormData;
+
+      // Preparar headers base
+      const headers: { [key: string]: string } = {
+        'Authorization': `Bearer ${currentUser.token}`
+      };
+
+      // Solo agregar Content-Type si NO es FormData
+      // El navegador establecerá automáticamente el Content-Type correcto para FormData
+      if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      // Debug: Log de la petición para depuración
+      console.log('🔐 Enviando petición autenticada:', {
+        url: req.url,
+        method: req.method,
+        hasToken: !!currentUser.token,
+        tokenStart: currentUser.token?.substring(0, 20) + '...',
+        headers: headers
+      });
+
+      // Clonar la petición y agregar el header de autorización
+      const authReq = req.clone({
+        setHeaders: headers
+      });
+
+      return next.handle(authReq).pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('❌ Error en petición autenticada:', {
+            url: req.url,
+            status: error.status,
+            statusText: error.statusText,
+            message: error.message,
+            error: error.error,
+            headers: error.headers?.keys?.(),
+            requestHeaders: authReq.headers?.keys?.()
+          });
+
+          // Log específico para error 403
+          if (error.status === 403) {
+            console.error('🚫 ERROR 403 DETALLADO:', {
+              url: req.url,
+              userRole: currentUser.rol,
+              userId: currentUser.idUsuario,
+              tokenLength: currentUser.token?.length,
+              tokenStart: currentUser.token?.substring(0, 30) + '...',
+              requestMethod: req.method,
+              timestamp: new Date().toISOString()
+            });
+          }
+
+          return this.handleAuthError(error);
+        })
+      );
+    } else {
+      // No hay token para un endpoint que lo requiere
+      // En lugar de redirigir automáticamente, rechazar la petición
+      console.warn('⚠️ Petición requiere autenticación pero no hay token:', req.url);
+      return throwError(() => new Error('Authentication required'));
+    }
   }
 
   private handleAuthError(error: HttpErrorResponse): Observable<never> {

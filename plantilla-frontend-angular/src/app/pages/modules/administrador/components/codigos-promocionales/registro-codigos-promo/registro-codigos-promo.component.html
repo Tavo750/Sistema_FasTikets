@@ -1,68 +1,119 @@
-<p-toast></p-toast>
+<div class="container">
+  <div class="content-container">
+    <div class="header-section">
+      <h1 class="title">
+        <i class="pi pi-plus-circle"></i>
+        Agregar Código Promocional
+      </h1>
 
-<div class="page">
-  <div class="content-container form-card">
-    <div class="header-row">
-      <h1 class="title">Agregar código promocional</h1>
-      <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary"
-                [routerLink]="['/administrador/codigosPromocionales']"></p-button>
+      <p-button
+        label="Volver"
+        icon="pi pi-arrow-left"
+        severity="secondary"
+        [routerLink]="['/administrador/codigosPromocionales']"
+        >
+      </p-button>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="guardar()">
       <div class="form-grid">
         <div class="field">
-          <label>Código <span class="req">*</span></label>
-          <input pInputText formControlName="codigo" placeholder="Ejemplo: VERANO2025" />
+          <label for="codigo">Código <span class="required">*</span></label>
+          <input
+            id="codigo"
+            pInputText
+            formControlName="codigo"
+            placeholder="Ejemplo: VERANO2025"
+            class="input-field" />
           <small class="p-error" *ngIf="form.get('codigo')?.invalid && form.get('codigo')?.touched">
             El código es requerido
           </small>
         </div>
 
         <div class="field col-span-2">
-          <label>Descripción</label>
-          <input pInputText formControlName="descripcion" placeholder="Código promocional concierto" />
+          <label for="descripcion">Descripción</label>
+          <input
+            id="descripcion"
+            pInputText
+            formControlName="descripcion"
+            placeholder="Código promocional concierto"
+            class="input-field" />
         </div>
 
         <div class="field">
-          <label>Fecha de expiración <span class="req">*</span></label>
-          <p-calendar formControlName="fechaFin" dateFormat="dd/mm/yy" [showIcon]="true" 
-                      [showTime]="true" [minDate]="today"></p-calendar>
+          <label for="fechaFin">Fecha de expiración <span class="required">*</span></label>
+          <p-calendar
+            id="fechaFin"
+            formControlName="fechaFin"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            [showTime]="true"
+            [minDate]="today"
+            class="calendar-field">
+          </p-calendar>
           <small class="p-error" *ngIf="form.get('fechaFin')?.invalid && form.get('fechaFin')?.touched">
             La fecha de expiración es requerida
           </small>
         </div>
 
         <div class="field">
-          <label>Tipo <span class="req">*</span></label>
-          <p-dropdown formControlName="tipo" [options]="tipos" optionLabel="label" 
-                      optionValue="value" placeholder="Selecciona"></p-dropdown>
+          <label for="tipo">Tipo <span class="required">*</span></label>
+          <p-dropdown
+            id="tipo"
+            formControlName="tipo"
+            [options]="tipos"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecciona"
+            class="dropdown-field">
+          </p-dropdown>
           <small class="p-error" *ngIf="form.get('tipo')?.invalid && form.get('tipo')?.touched">
             El tipo es requerido
           </small>
         </div>
 
         <div class="field">
-          <label>Valor <span class="req">*</span></label>
-          <p-inputNumber formControlName="valor" [minFractionDigits]="2" [maxFractionDigits]="2" 
-                         [min]="0" [step]="0.5" placeholder="Ejemplo: 10.00"></p-inputNumber>
+          <label for="valor">Valor <span class="required">*</span></label>
+          <p-inputNumber
+            id="valor"
+            formControlName="valor"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+            [min]="0"
+            [step]="0.5"
+            placeholder="Ejemplo: 10.00"
+            class="number-field">
+          </p-inputNumber>
           <small class="p-error" *ngIf="form.get('valor')?.invalid && form.get('valor')?.touched">
             El valor es requerido y debe ser mayor a 0
           </small>
         </div>
 
         <div class="field">
-          <label>Stock disponible <span class="req">*</span></label>
-          <p-inputNumber formControlName="stock" [min]="0" [showButtons]="true" 
-                         placeholder="Cantidad disponible"></p-inputNumber>
+          <label for="stock">Stock disponible <span class="required">*</span></label>
+          <p-inputNumber
+            id="stock"
+            formControlName="stock"
+            [min]="0"
+            [showButtons]="true"
+            placeholder="Cantidad disponible"
+            class="number-field">
+          </p-inputNumber>
           <small class="p-error" *ngIf="form.get('stock')?.invalid && form.get('stock')?.touched">
             El stock es requerido (mínimo 0)
           </small>
         </div>
 
         <div class="field">
-          <label>Cantidad por cliente <span class="req">*</span></label>
-          <p-inputNumber formControlName="cantidadPorCliente" [min]="1" [showButtons]="true" 
-                         placeholder="Usos permitidos"></p-inputNumber>
+          <label for="cantidadPorCliente">Cantidad por cliente <span class="required">*</span></label>
+          <p-inputNumber
+            id="cantidadPorCliente"
+            formControlName="cantidadPorCliente"
+            [min]="1"
+            [showButtons]="true"
+            placeholder="Usos permitidos"
+            class="number-field">
+          </p-inputNumber>
           <small class="p-error" *ngIf="form.get('cantidadPorCliente')?.invalid && form.get('cantidadPorCliente')?.touched">
             La cantidad por cliente es requerida (mínimo 1)
           </small>
@@ -70,8 +121,12 @@
       </div>
 
       <div class="footer-actions">
-        <p-button label="Guardar" type="submit" styleClass="p-button-success" 
-                  [loading]="loading"></p-button>
+        <p-button
+          label="Guardar Código"
+          type="submit"
+          [loading]="loading"
+          icon="pi pi-check">
+        </p-button>
       </div>
     </form>
   </div>

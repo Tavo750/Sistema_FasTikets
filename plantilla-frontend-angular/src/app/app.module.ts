@@ -12,12 +12,10 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { PrimeNgModule } from './prime-ng/prime-ng.module';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CambiarContraComponent } from './pages/full-pages/cambiar-contra/cambiar-contra.component';
-import { CrearUsuarioComponent } from './pages/full-pages/crear-usuario/crear-usuario.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -53,6 +51,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
     provideHttpClient(
       withInterceptorsFromDi()
     ),
+    // Interceptor para agregar token de autenticación automáticamente
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

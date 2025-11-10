@@ -12,6 +12,8 @@ export interface MessageConfig {
   providedIn: 'root'
 })
 export class MessageService {
+  private messageCount: number = 0;
+  private readonly MAX_MESSAGES = 10;
 
   constructor(private primeMessageService: PrimeMessageService) { }
 
@@ -44,7 +46,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de advertencia
    */
-  warn(message: string, summary: string = 'Advertencia', life: number = 6000): void {
+  warn(message: string, summary: string = 'Advertencia', life: number = 4000): void {
     this.add({
       severity: 'warn',
       summary,
@@ -56,7 +58,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de error
    */
-  error(message: string, summary: string = 'Error', life: number = 6000): void {
+  error(message: string, summary: string = 'Error', life: number = 5000): void {
     this.add({
       severity: 'error',
       summary,
@@ -170,19 +172,47 @@ export class MessageService {
    */
   clear(): void {
     this.primeMessageService.clear();
+    this.messageCount = 0;
   }
 
   /**
    * Agrega un mensaje personalizado
    */
   add(config: MessageConfig): void {
+    // Verificar límite de mensajes
+    this.checkMessageLimit();
+
     this.primeMessageService.add(config);
+    this.messageCount++;
   }
 
   /**
    * Agrega múltiples mensajes
    */
   addAll(configs: MessageConfig[]): void {
+    this.clear(); // Limpiar antes de agregar múltiples mensajes
     this.primeMessageService.addAll(configs);
+    this.messageCount = configs.length;
+  }
+
+  /**
+   * Verifica y limita el número de mensajes para evitar acumulación
+   */
+  private checkMessageLimit(): void {
+    if (this.messageCount >= this.MAX_MESSAGES) {
+      this.clear();
+    }
+  }
+
+  /**
+   * Limita el número de mensajes para evitar acumulación
+   * @deprecated Use checkMessageLimit instead
+   */
+  private limitMessages(maxMessages: number = 5): void {
+    // Obtener mensajes actuales si es posible
+    const currentMessages = (this.primeMessageService as any).messages || [];
+    if (currentMessages.length >= maxMessages) {
+      this.clear();
+    }
   }
 }
