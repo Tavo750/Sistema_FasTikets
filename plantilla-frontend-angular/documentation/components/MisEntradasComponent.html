@@ -1,0 +1,897 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  MisEntradasComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-mis-entradas</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./mis-entradas.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./mis-entradas.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#transferForm" >transferForm</a>
+                            </li>
+                            <li>
+                                <a href="#verified" >verified</a>
+                            </li>
+                            <li>
+                                <a href="#verifying" >verifying</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#proceedToTransfer" >proceedToTransfer</a>
+                            </li>
+                            <li>
+                                <a href="#verifyDestinatario" >verifyDestinatario</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#f" >f</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(fb: FormBuilder, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>, router: Router)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:15</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>fb</td>
+                                                  
+                                                        <td>
+                                                                    <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="19"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:19</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="proceedToTransfer"></a>
+                    <span class="name">
+                        <span ><b>proceedToTransfer</b></span>
+                        <a href="#proceedToTransfer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>proceedToTransfer()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verifyDestinatario"></a>
+                    <span class="name">
+                        <span ><b>verifyDestinatario</b></span>
+                        <a href="#verifyDestinatario"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>verifyDestinatario()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="transferForm"></a>
+                    <span class="name">
+                        <span ><b>transferForm</b></span>
+                        <a href="#transferForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:13</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verified"></a>
+                    <span class="name">
+                        <span ><b>verified</b></span>
+                        <a href="#verified"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:15</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verifying"></a>
+                    <span class="name">
+                        <span ><b>verifying</b></span>
+                        <a href="#verifying"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:14</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="f"></a>
+                        <span class="name"><b>f</b><a href="#f"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>f()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/app/pages/modules/usuario/components/mis-entradas/mis-entradas.component.ts:73</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+</section>
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { MessageService } from &#x27;primeng/api&#x27;;
+import { Router } from &#x27;@angular/router&#x27;;
+
+@Component({
+  selector: &#x27;app-mis-entradas&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./mis-entradas.component.html&#x27;,
+  styleUrls: [&#x27;./mis-entradas.component.css&#x27;]
+})
+export class MisEntradasComponent implements OnInit {
+  transferForm!: FormGroup;
+  verifying &#x3D; false;
+  verified &#x3D; false;
+
+  constructor(private fb: FormBuilder, private messageService: MessageService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.transferForm &#x3D; this.fb.group({
+      email: [&#x27;&#x27;, [Validators.required, Validators.email]],
+      telefono: [&#x27;&#x27;, [Validators.required, Validators.minLength(7)]],
+      nombre: [&#x27;&#x27;, [Validators.required]],
+      documento: [&#x27;&#x27;, [Validators.required]]
+    });
+  }
+
+  // Simular verificación del destinatario
+  verifyDestinatario() {
+    if (this.transferForm.invalid) {
+      this.transferForm.markAllAsTouched();
+      this.messageService.add({severity:&#x27;warn&#x27;, summary:&#x27;Formulario incompleto&#x27;, detail: &#x27;Complete los campos requeridos.&#x27;});
+      return;
+    }
+
+    this.verifying &#x3D; true;
+    this.verified &#x3D; false;
+
+    // Simular llamada asíncrona (ej. API) con timeout
+    setTimeout(() &#x3D;&gt; {
+      this.verifying &#x3D; false;
+      this.verified &#x3D; true;
+      this.messageService.add({severity:&#x27;success&#x27;, summary:&#x27;Destinatario verificado&#x27;, detail: &#x27;El destinatario es válido.&#x27;});
+    }, 1200);
+  }
+
+  // Acciones de botones
+  proceedToTransfer() {
+    if (!this.verified) {
+      // Mostrar aviso pero permitir la navegación (cambio mínimo para que la ruta funcione)
+      this.messageService.add({severity:&#x27;warn&#x27;, summary:&#x27;Verificación requerida&#x27;, detail: &#x27;Verifica al destinatario antes de transferir.&#x27;});
+      // Nota: se permite continuar para facilitar pruebas y flujo mínimo.
+    }
+
+    // Navegar a la pantalla de confirmación pasando el estado mínimo necesario
+    const transferData &#x3D; {
+      nombre: this.transferForm.value.nombre,
+      email: this.transferForm.value.email,
+      telefono: this.transferForm.value.telefono,
+      documento: this.transferForm.value.documento,
+      entryTitle: &#x27;Entrada - Nombre del evento&#x27;,
+      eventDate: &#x27;15 Oct 2024&#x27;,
+      remainingTransfers: 1
+    };
+
+    // Log transfer data (useful during development) and navigate to confirmation
+    console.log(&#x27;Proceeding to transfer, data:&#x27;, transferData);
+    // Uso navigateByUrl para evitar problemas con rutas relativas/hashes en algunos entornos
+    this.router.navigateByUrl(&#x27;/usuario/confirmarTransferencia&#x27;, { state: { transferData } });
+  }
+
+  // Helpers para la plantilla
+  get f() { return this.transferForm.controls; }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;mis-entradas-page&quot;&gt;
+	&lt;h2 class&#x3D;&quot;page-title&quot;&gt;Transferir Entrada&lt;/h2&gt;
+
+	&lt;div class&#x3D;&quot;transfer-card&quot;&gt;
+		&lt;p-progressBar [value]&#x3D;&quot;25&quot; styleClass&#x3D;&quot;mb-3&quot;&gt;&lt;/p-progressBar&gt;
+
+		&lt;p-card&gt;
+			&lt;form [formGroup]&#x3D;&quot;transferForm&quot; (ngSubmit)&#x3D;&quot;verifyDestinatario()&quot;&gt;
+				&lt;div class&#x3D;&quot;form-row&quot;&gt;
+					&lt;label&gt;Email del destinatario *&lt;/label&gt;
+					&lt;input pInputText formControlName&#x3D;&quot;email&quot; placeholder&#x3D;&quot;ejemplo@correo.com&quot; /&gt;
+					  &lt;small class&#x3D;&quot;error&quot; *ngIf&#x3D;&quot;f[&#x27;email&#x27;].touched &amp;&amp; f[&#x27;email&#x27;].invalid&quot;&gt;Email inválido&lt;/small&gt;
+				&lt;/div&gt;
+
+				&lt;div class&#x3D;&quot;form-row&quot;&gt;
+					&lt;label&gt;Teléfono del destinatario *&lt;/label&gt;
+					&lt;input pInputText formControlName&#x3D;&quot;telefono&quot; placeholder&#x3D;&quot;+51 999 999 999&quot; /&gt;
+					  &lt;small class&#x3D;&quot;error&quot; *ngIf&#x3D;&quot;f[&#x27;telefono&#x27;].touched &amp;&amp; f[&#x27;telefono&#x27;].invalid&quot;&gt;Teléfono requerido&lt;/small&gt;
+				&lt;/div&gt;
+
+				&lt;div class&#x3D;&quot;form-row&quot;&gt;
+					&lt;label&gt;Nombre completo *&lt;/label&gt;
+					&lt;input pInputText formControlName&#x3D;&quot;nombre&quot; placeholder&#x3D;&quot;Nombre del destinatario&quot; /&gt;
+					  &lt;small class&#x3D;&quot;error&quot; *ngIf&#x3D;&quot;f[&#x27;nombre&#x27;].touched &amp;&amp; f[&#x27;nombre&#x27;].invalid&quot;&gt;Nombre requerido&lt;/small&gt;
+				&lt;/div&gt;
+
+				&lt;div class&#x3D;&quot;form-row&quot;&gt;
+					&lt;label&gt;Número de documento *&lt;/label&gt;
+					&lt;input pInputText formControlName&#x3D;&quot;documento&quot; placeholder&#x3D;&quot;Número de documento&quot; /&gt;
+					  &lt;small class&#x3D;&quot;error&quot; *ngIf&#x3D;&quot;f[&#x27;documento&#x27;].touched &amp;&amp; f[&#x27;documento&#x27;].invalid&quot;&gt;Documento requerido&lt;/small&gt;
+				&lt;/div&gt;
+
+				&lt;div class&#x3D;&quot;actions&quot;&gt;
+					&lt;button pButton type&#x3D;&quot;button&quot; label&#x3D;&quot;Verificar Destinatario&quot; class&#x3D;&quot;p-button-rounded p-button-secondary&quot; (click)&#x3D;&quot;verifyDestinatario()&quot;&gt;&lt;/button&gt;
+					&lt;p-progressSpinner *ngIf&#x3D;&quot;verifying&quot;&gt;&lt;/p-progressSpinner&gt;
+				&lt;/div&gt;
+			&lt;/form&gt;
+
+			&lt;div class&#x3D;&quot;verified-note&quot; *ngIf&#x3D;&quot;verified&quot;&gt;
+				&lt;p-tag value&#x3D;&quot;Destinatario verificado&quot; severity&#x3D;&quot;success&quot;&gt;&lt;/p-tag&gt;
+			&lt;/div&gt;
+
+			&lt;div class&#x3D;&quot;transfer-actions mt-3&quot;&gt;
+				&lt;button pButton type&#x3D;&quot;button&quot; label&#x3D;&quot;Transferir&quot; class&#x3D;&quot;p-button-success&quot; (click)&#x3D;&quot;proceedToTransfer()&quot;&gt;&lt;/button&gt;
+			&lt;/div&gt;
+		&lt;/p-card&gt;
+	&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./mis-entradas.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.mis-entradas-page {
+	padding: 1rem 1.5rem;
+}
+
+.page-title {
+	font-size: 1.6rem;
+	margin-bottom: 1rem;
+}
+
+.transfer-card {
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.form-row {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 0.8rem;
+}
+
+.form-row label {
+	font-weight: 600;
+	margin-bottom: 0.4rem;
+}
+
+.form-row input[pInputText] {
+	padding: 0.6rem;
+}
+
+.error {
+	color: #c62828;
+	font-size: 0.8rem;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.verified-note {
+	margin-top: 0.75rem;
+}
+
+.transfer-actions {
+	display:flex;
+	justify-content:flex-end;
+	margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+	.transfer-card { padding: 0 0.5rem; }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="mis-entradas-page">	<h2 class="page-title">Transferir Entrada</h2>	<div class="transfer-card">		<p-progressBar [value]="25" styleClass="mb-3"></p-progressBar>		<p-card>			<form [formGroup]="transferForm" (ngSubmit)="verifyDestinatario()">				<div class="form-row">					<label>Email del destinatario *</label>					<input pInputText formControlName="email" placeholder="ejemplo@correo.com" />					  <small class="error" *ngIf="f[\'email\'].touched && f[\'email\'].invalid">Email inválido</small>				</div>				<div class="form-row">					<label>Teléfono del destinatario *</label>					<input pInputText formControlName="telefono" placeholder="+51 999 999 999" />					  <small class="error" *ngIf="f[\'telefono\'].touched && f[\'telefono\'].invalid">Teléfono requerido</small>				</div>				<div class="form-row">					<label>Nombre completo *</label>					<input pInputText formControlName="nombre" placeholder="Nombre del destinatario" />					  <small class="error" *ngIf="f[\'nombre\'].touched && f[\'nombre\'].invalid">Nombre requerido</small>				</div>				<div class="form-row">					<label>Número de documento *</label>					<input pInputText formControlName="documento" placeholder="Número de documento" />					  <small class="error" *ngIf="f[\'documento\'].touched && f[\'documento\'].invalid">Documento requerido</small>				</div>				<div class="actions">					<button pButton type="button" label="Verificar Destinatario" class="p-button-rounded p-button-secondary" (click)="verifyDestinatario()"></button>					<p-progressSpinner *ngIf="verifying"></p-progressSpinner>				</div>			</form>			<div class="verified-note" *ngIf="verified">				<p-tag value="Destinatario verificado" severity="success"></p-tag>			</div>			<div class="transfer-actions mt-3">				<button pButton type="button" label="Transferir" class="p-button-success" (click)="proceedToTransfer()"></button>			</div>		</p-card>	</div></div></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'MisEntradasComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'MisEntradasComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

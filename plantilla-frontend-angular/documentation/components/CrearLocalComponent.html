@@ -1,0 +1,2156 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  CrearLocalComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>AfterViewInit</code>
+                <code>OnDestroy</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-crear-local</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./crear-local.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./crear-local.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#defaultLat" >defaultLat</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#defaultLng" >defaultLng</a>
+                            </li>
+                            <li>
+                                <a href="#distritos" >distritos</a>
+                            </li>
+                            <li>
+                                <a href="#estados" >estados</a>
+                            </li>
+                            <li>
+                                <a href="#localForm" >localForm</a>
+                            </li>
+                            <li>
+                                <a href="#map" >map</a>
+                            </li>
+                            <li>
+                                <a href="#mapLoading" >mapLoading</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#marker" >marker</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#router" >router</a>
+                            </li>
+                            <li>
+                                <a href="#selectedCoordinates" >selectedCoordinates</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#centerMapOnDistrict" >centerMapOnDistrict</a>
+                            </li>
+                            <li>
+                                <a href="#crearLocal" >crearLocal</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#initMap" >initMap</a>
+                            </li>
+                            <li>
+                                <a href="#ngAfterViewInit" >ngAfterViewInit</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnDestroy" >ngOnDestroy</a>
+                            </li>
+                            <li>
+                                <a href="#reloadMap" >reloadMap</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#showMapError" >showMapError</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#updateMarkerPosition" >updateMarkerPosition</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(router: Router, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>, fb: FormBuilder, localService: <a href="../injectables/LocalService.html" target="_self">LocalService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:53</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>fb</td>
+                                                  
+                                                        <td>
+                                                                    <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>localService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/LocalService.html" target="_self" >LocalService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="centerMapOnDistrict"></a>
+                    <span class="name">
+                        <span ><b>centerMapOnDistrict</b></span>
+                        <a href="#centerMapOnDistrict"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>centerMapOnDistrict()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:213</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="crearLocal"></a>
+                    <span class="name">
+                        <span ><b>crearLocal</b></span>
+                        <a href="#crearLocal"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>crearLocal()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="238"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:238</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initMap"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>initMap</b></span>
+                        <a href="#initMap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>initMap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:100</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngAfterViewInit"></a>
+                    <span class="name">
+                        <span ><b>ngAfterViewInit</b></span>
+                        <a href="#ngAfterViewInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngAfterViewInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:72</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnDestroy"></a>
+                    <span class="name">
+                        <span ><b>ngOnDestroy</b></span>
+                        <a href="#ngOnDestroy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnDestroy()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="232"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:232</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reloadMap"></a>
+                    <span class="name">
+                        <span ><b>reloadMap</b></span>
+                        <a href="#reloadMap"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>reloadMap()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="198"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:198</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showMapError"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>showMapError</b></span>
+                        <a href="#showMapError"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>showMapError()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="86"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:86</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateMarkerPosition"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>updateMarkerPosition</b></span>
+                        <a href="#updateMarkerPosition"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateMarkerPosition(lat: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, lng: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="175"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:175</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>lat</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>lng</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultLat"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>defaultLat</b></span>
+                        <a href="#defaultLat"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>-12.0464</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:35</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultLng"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>defaultLng</b></span>
+                        <a href="#defaultLng"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>-77.0428</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="distritos"></a>
+                    <span class="name">
+                        <span ><b>distritos</b></span>
+                        <a href="#distritos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    { label: &#x27;Seleccionar...&#x27;, value: null },
+    { label: &#x27;Santiago de Surco&#x27;, value: 1 },
+    { label: &#x27;San Juan de Miraflores&#x27;, value: 2 },
+    { label: &#x27;Jesús María&#x27;, value: 3 }
+  ]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:43</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="estados"></a>
+                    <span class="name">
+                        <span ><b>estados</b></span>
+                        <a href="#estados"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    { label: &#x27;HABILITADO&#x27;, value: &#x27;HABILITADO&#x27; },
+    { label: &#x27;DESHABILITADO&#x27;, value: &#x27;DESHABILITADO&#x27; }
+  ]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="localForm"></a>
+                    <span class="name">
+                        <span ><b>localForm</b></span>
+                        <a href="#localForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="map"></a>
+                    <span class="name">
+                        <span ><b>map</b></span>
+                        <a href="#map"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>L.Map</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:30</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mapLoading"></a>
+                    <span class="name">
+                        <span ><b>mapLoading</b></span>
+                        <a href="#mapLoading"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="marker"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>marker</b></span>
+                        <a href="#marker"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>L.Marker</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:31</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="router"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>router</b></span>
+                        <a href="#router"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Router</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="selectedCoordinates"></a>
+                    <span class="name">
+                        <span ><b>selectedCoordinates</b></span>
+                        <a href="#selectedCoordinates"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/object" target="_blank" >object</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    lat: this.defaultLat,
+    lng: this.defaultLng
+  }</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/app/pages/modules/administrador/components/gestion-locales/crear-local/crear-local.component.ts:38</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, AfterViewInit, OnDestroy } from &#x27;@angular/core&#x27;;
+import { Router } from &#x27;@angular/router&#x27;;
+import { MessageService } from &#x27;../../../../../../core/services/message.service&#x27;;
+import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { LocalService } from &#x27;../../../services/local.service&#x27;;
+import { CrearLocalRequest } from &#x27;../../../interfaces/gestion-locales/crear-local.interface&#x27;;
+import * as L from &#x27;leaflet&#x27;;
+
+// Configuración para corregir los iconos de Leaflet usando CDN
+const iconDefault &#x3D; L.icon({
+  iconUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png&#x27;,
+  iconRetinaUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png&#x27;,
+  shadowUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png&#x27;,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+});
+@Component({
+  selector: &#x27;app-crear-local&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./crear-local.component.html&#x27;,
+  styleUrls: [&#x27;./crear-local.component.css&#x27;]
+})
+
+
+export class CrearLocalComponent implements AfterViewInit, OnDestroy {
+  localForm: FormGroup;
+  map!: L.Map;
+  private marker!: L.Marker;
+  mapLoading &#x3D; true;
+
+  // Coordenadas por defecto (Lima, Perú)
+  private defaultLat &#x3D; -12.0464;
+  private defaultLng &#x3D; -77.0428;
+
+  selectedCoordinates &#x3D; {
+    lat: this.defaultLat,
+    lng: this.defaultLng
+  };
+
+  distritos &#x3D; [
+    { label: &#x27;Seleccionar...&#x27;, value: null },
+    { label: &#x27;Santiago de Surco&#x27;, value: 1 },
+    { label: &#x27;San Juan de Miraflores&#x27;, value: 2 },
+    { label: &#x27;Jesús María&#x27;, value: 3 }
+  ];
+
+  estados &#x3D; [
+    { label: &#x27;HABILITADO&#x27;, value: &#x27;HABILITADO&#x27; },
+    { label: &#x27;DESHABILITADO&#x27;, value: &#x27;DESHABILITADO&#x27; }
+  ];
+
+  constructor(
+      public router: Router,
+      private messageService: MessageService,
+      private fb: FormBuilder,
+      private localService: LocalService
+    ) {
+      this.localForm &#x3D; this.fb.group({
+        nombre: [&#x27;&#x27;, [Validators.required]],
+        direccion: [&#x27;&#x27;, [Validators.required]],
+        idDistrito: [null, [Validators.required]],
+        aforoTotal: [&#x27;&#x27;, [Validators.required, Validators.min(1)]],
+        estado: [&#x27;HABILITADO&#x27;, [Validators.required]],
+        latitud: [this.defaultLat, [Validators.required]],
+        longitud: [this.defaultLng, [Validators.required]]
+      });
+    }
+
+  ngAfterViewInit(): void {
+    // Verificar si Leaflet está disponible
+    if (typeof L &#x3D;&#x3D;&#x3D; &#x27;undefined&#x27;) {
+      console.error(&#x27;Leaflet no está disponible&#x27;);
+      this.showMapError();
+      return;
+    }
+
+    // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+    setTimeout(() &#x3D;&gt; {
+      this.initMap();
+    }, 100);
+  }
+
+  private showMapError(): void {
+    this.mapLoading &#x3D; false;
+    const mapElement &#x3D; document.getElementById(&#x27;map&#x27;);
+    if (mapElement) {
+      mapElement.innerHTML &#x3D; &#x60;
+        &lt;div style&#x3D;&quot;display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #dc3545;&quot;&gt;
+          &lt;i class&#x3D;&quot;pi pi-exclamation-triangle&quot; style&#x3D;&quot;font-size: 2rem; margin-bottom: 10px;&quot;&gt;&lt;/i&gt;
+          &lt;p&gt;Error al cargar el mapa&lt;/p&gt;
+          &lt;small&gt;Por favor, recarga la página&lt;/small&gt;
+        &lt;/div&gt;
+      &#x60;;
+    }
+  }
+
+  private initMap(): void {
+    try {
+      // Verificar si el elemento del mapa existe
+      const mapElement &#x3D; document.getElementById(&#x27;map&#x27;);
+      if (!mapElement) {
+        console.error(&#x27;Elemento del mapa no encontrado&#x27;);
+        return;
+      }
+
+      // Configurar iconos por defecto de Leaflet antes de crear el mapa
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png&#x27;,
+        iconRetinaUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png&#x27;,
+        shadowUrl: &#x27;https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png&#x27;
+      });
+
+      // Crear el mapa
+      this.map &#x3D; L.map(&#x27;map&#x27;, {
+        center: [this.defaultLat, this.defaultLng],
+        zoom: 13,
+        zoomControl: true,
+        attributionControl: true
+      });
+
+      // Agregar capa de OpenStreetMap
+      L.tileLayer(&#x27;https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png&#x27;, {
+        attribution: &#x27;© OpenStreetMap contributors&#x27;,
+        maxZoom: 19,
+        minZoom: 5
+      }).addTo(this.map);
+
+      // Crear marker inicial con icono explícito
+      this.marker &#x3D; L.marker([this.defaultLat, this.defaultLng], {
+        draggable: true,
+        icon: iconDefault
+      }).addTo(this.map);
+
+      // Agregar un popup informativo al marker
+      this.marker.bindPopup(&#x27;📍 Ubicación del local&lt;br&gt;&lt;small&gt;Arrastra para ajustar la posición&lt;/small&gt;&#x27;).openPopup();
+
+      // Evento cuando se hace clic en el mapa
+      this.map.on(&#x27;click&#x27;, (e: L.LeafletMouseEvent) &#x3D;&gt; {
+        this.updateMarkerPosition(e.latlng.lat, e.latlng.lng);
+      });
+
+      // Evento cuando se arrastra el marker
+      this.marker.on(&#x27;dragend&#x27;, (e: L.DragEndEvent) &#x3D;&gt; {
+        const position &#x3D; (e.target as L.Marker).getLatLng();
+        this.updateMarkerPosition(position.lat, position.lng);
+      });
+
+      // Invalidar el tamaño del mapa después de un momento para asegurar el renderizado correcto
+      setTimeout(() &#x3D;&gt; {
+        if (this.map) {
+          this.map.invalidateSize();
+          this.mapLoading &#x3D; false; // Ocultar indicador de carga
+        }
+      }, 500);
+
+      console.log(&#x27;Mapa inicializado correctamente&#x27;);
+
+    } catch (error) {
+      console.error(&#x27;Error al inicializar el mapa:&#x27;, error);
+      this.showMapError();
+
+      // Mostrar mensaje de error al usuario
+      this.messageService.error(
+        &#x27;No se pudo cargar el mapa. Por favor, recarga la página.&#x27;,
+        &#x27;Error del mapa&#x27;,
+        5000
+      );
+    }
+  }
+
+  private updateMarkerPosition(lat: number, lng: number): void {
+    // Actualizar posición del marker
+    this.marker.setLatLng([lat, lng]);
+
+    // Actualizar el contenido del popup
+    this.marker.setPopupContent(&#x60;📍 Ubicación del local&lt;br&gt;&lt;small&gt;Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}&lt;/small&gt;&#x60;);
+
+    // Actualizar coordenadas seleccionadas
+    this.selectedCoordinates &#x3D; { lat, lng };
+
+    // Actualizar formulario
+    this.localForm.patchValue({
+      latitud: lat,
+      longitud: lng
+    });
+
+    // Mostrar mensaje informativo
+    this.messageService.info(
+      &#x60;Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}&#x60;,
+      &#x27;Ubicación actualizada&#x27;,
+      2000
+    );
+  }
+  reloadMap(): void {
+    this.mapLoading &#x3D; true;
+
+    // Limpiar el contenedor del mapa
+    const mapElement &#x3D; document.getElementById(&#x27;map&#x27;);
+    if (mapElement) {
+      mapElement.innerHTML &#x3D; &#x27;&#x27;;
+    }
+
+    // Reintentar inicializar el mapa después de un momento
+    setTimeout(() &#x3D;&gt; {
+      this.initMap();
+    }, 500);
+  }
+
+  centerMapOnDistrict(): void {
+    const distritoId &#x3D; this.localForm.get(&#x27;idDistrito&#x27;)?.value;
+
+    // Coordenadas aproximadas de algunos distritos de Lima
+    const distritosCoords: { [key: number]: [number, number] } &#x3D; {
+      1: [-12.1267, -76.9956], // Santiago de Surco
+      2: [-12.1586, -76.9733], // San Juan de Miraflores
+      3: [-12.0722, -77.0461]  // Jesús María
+    };
+
+    if (distritoId &amp;&amp; distritosCoords[distritoId]) {
+      const coords &#x3D; distritosCoords[distritoId];
+      if (this.map) {
+        this.map.setView(coords, 15);
+        this.updateMarkerPosition(coords[0], coords[1]);
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
+  crearLocal(): void {
+    if (this.localForm.invalid) {
+      this.messageService.warn(
+        &#x27;Por favor complete todos los campos correctamente antes de continuar&#x27;,
+        &#x27;Campos incompletos&#x27;,
+        3000
+      );
+      this.localForm.markAllAsTouched();
+      return;
+    }
+
+    const formData &#x3D; this.localForm.value;
+
+    // Crear el objeto de datos según la interfaz CrearLocalRequest
+    const localData: CrearLocalRequest &#x3D; {
+      nombre: formData.nombre,
+      direccion: formData.direccion,
+      urlMapa:formData.urlMapa,
+      aforoTotal: formData.aforoTotal,
+      idDistrito: formData.idDistrito
+    };
+
+    // Llamar al servicio para crear el local
+    this.localService.postCrearLocal(localData).subscribe({
+      next: (response) &#x3D;&gt; {
+        console.log(&#x27;Local creado exitosamente:&#x27;, response);
+
+        // Mostrar mensaje de éxito
+        this.messageService.success(
+          &#x60;Local &quot;${localData.nombre}&quot; registrado exitosamente en las coordenadas: ${formData.latitud.toFixed(6)}, ${formData.longitud.toFixed(6)}&#x60;,
+          &#x27;Local creado&#x27;,
+          4000
+        );
+
+        // Redirigir después de 2 segundos
+        setTimeout(() &#x3D;&gt; {
+          this.router.navigate([&#x27;/administrador/gestionLocales&#x27;]);
+        }, 2000);
+      },
+      error: (error) &#x3D;&gt; {
+        console.error(&#x27;Error al crear el local:&#x27;, error);
+
+        // Mostrar mensaje de error
+        this.messageService.error(
+          &#x27;No se pudo crear el local. Por favor, inténtelo de nuevo.&#x27;,
+          &#x27;Error al crear local&#x27;,
+          5000
+        );
+      }
+    });
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;container&quot;&gt;
+  &lt;div class&#x3D;&quot;header-section&quot;&gt;
+    &lt;h1 class&#x3D;&quot;title&quot;&gt;
+      &lt;i class&#x3D;&quot;pi pi-plus-circle&quot;&gt;&lt;/i&gt;
+      Crear Nuevo Local
+    &lt;/h1&gt;
+
+    &lt;p-button
+      label&#x3D;&quot;Volver a Gestión&quot;
+      icon&#x3D;&quot;pi pi-arrow-left&quot;
+      severity&#x3D;&quot;secondary&quot;
+      routerLink&#x3D;&quot;/administrador/gestionLocales&quot;
+      class&#x3D;&quot;back-button&quot;&gt;
+    &lt;/p-button&gt;
+  &lt;/div&gt;
+
+  &lt;div class&#x3D;&quot;form-content&quot;&gt;
+    &lt;p-card class&#x3D;&quot;local-card&quot;&gt;
+      &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+        &lt;div class&#x3D;&quot;card-header&quot;&gt;
+          &lt;h3&gt;
+            &lt;i class&#x3D;&quot;pi pi-map-marker&quot;&gt;&lt;/i&gt;
+            Información del Local
+          &lt;/h3&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+        &lt;form [formGroup]&#x3D;&quot;localForm&quot; class&#x3D;&quot;local-form&quot;&gt;
+          &lt;div class&#x3D;&quot;form-grid&quot;&gt;
+            &lt;div class&#x3D;&quot;form-left&quot;&gt;
+              &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                &lt;label for&#x3D;&quot;nombre&quot; class&#x3D;&quot;field-label&quot;&gt;
+                  &lt;i class&#x3D;&quot;pi pi-building&quot;&gt;&lt;/i&gt;
+                  1) Nombre del Local *
+                &lt;/label&gt;
+                &lt;input
+                  id&#x3D;&quot;nombre&quot;
+                  type&#x3D;&quot;text&quot;
+                  pInputText
+                  formControlName&#x3D;&quot;nombre&quot;
+                  placeholder&#x3D;&quot;Ej. Centro de usos Múltiples...&quot;
+                  class&#x3D;&quot;form-input&quot; /&gt;
+              &lt;/div&gt;
+
+              &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                &lt;label for&#x3D;&quot;direccion&quot; class&#x3D;&quot;field-label&quot;&gt;
+                  &lt;i class&#x3D;&quot;pi pi-home&quot;&gt;&lt;/i&gt;
+                  2) Dirección *
+                &lt;/label&gt;
+                &lt;input
+                  id&#x3D;&quot;direccion&quot;
+                  type&#x3D;&quot;text&quot;
+                  pInputText
+                  formControlName&#x3D;&quot;direccion&quot;
+                  placeholder&#x3D;&quot;Ej. Av. Principal 123...&quot;
+                  class&#x3D;&quot;form-input&quot; /&gt;
+              &lt;/div&gt;
+
+              &lt;div class&#x3D;&quot;form-row&quot;&gt;
+                &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                  &lt;label for&#x3D;&quot;distrito&quot; class&#x3D;&quot;field-label&quot;&gt;
+                    &lt;i class&#x3D;&quot;pi pi-map&quot;&gt;&lt;/i&gt;
+                    3) Distrito *
+                  &lt;/label&gt;
+                  &lt;div class&#x3D;&quot;distrito-container&quot;&gt;
+                    &lt;p-dropdown
+                      id&#x3D;&quot;distrito&quot;
+                      formControlName&#x3D;&quot;idDistrito&quot;
+                      [options]&#x3D;&quot;distritos&quot;
+                      optionLabel&#x3D;&quot;label&quot;
+                      optionValue&#x3D;&quot;value&quot;
+                      placeholder&#x3D;&quot;Seleccionar distrito...&quot;
+                      class&#x3D;&quot;distrito-select&quot;
+                      (onChange)&#x3D;&quot;centerMapOnDistrict()&quot;&gt;
+                    &lt;/p-dropdown&gt;
+                    &lt;p-button
+                      icon&#x3D;&quot;pi pi-crosshairs&quot;
+                      (onClick)&#x3D;&quot;centerMapOnDistrict()&quot;
+                      [disabled]&#x3D;&quot;!localForm.get(&#x27;idDistrito&#x27;)?.value&quot;
+                      class&#x3D;&quot;distrito-btn&quot;
+                      size&#x3D;&quot;small&quot;
+                      severity&#x3D;&quot;info&quot;
+                      [outlined]&#x3D;&quot;true&quot;
+                      pTooltip&#x3D;&quot;Centrar mapa en distrito&quot;
+                      tooltipPosition&#x3D;&quot;top&quot;&gt;
+                    &lt;/p-button&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+
+                &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                  &lt;label for&#x3D;&quot;aforo&quot; class&#x3D;&quot;field-label&quot;&gt;
+                    &lt;i class&#x3D;&quot;pi pi-users&quot;&gt;&lt;/i&gt;
+                    4) Aforo Máximo *
+                  &lt;/label&gt;
+                  &lt;p-inputNumber
+                    id&#x3D;&quot;aforo&quot;
+                    formControlName&#x3D;&quot;aforoTotal&quot;
+                    placeholder&#x3D;&quot;Ej. 5000&quot;
+                    [min]&#x3D;&quot;1&quot;
+                    [useGrouping]&#x3D;&quot;true&quot;
+                    class&#x3D;&quot;form-input&quot;&gt;
+                  &lt;/p-inputNumber&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+
+              &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                &lt;label for&#x3D;&quot;estado&quot; class&#x3D;&quot;field-label&quot;&gt;
+                  &lt;i class&#x3D;&quot;pi pi-check-circle&quot;&gt;&lt;/i&gt;
+                  5) Estado *
+                &lt;/label&gt;
+                &lt;p-dropdown
+                  id&#x3D;&quot;estado&quot;
+                  formControlName&#x3D;&quot;estado&quot;
+                  [options]&#x3D;&quot;estados&quot;
+                  optionLabel&#x3D;&quot;label&quot;
+                  optionValue&#x3D;&quot;value&quot;
+                  placeholder&#x3D;&quot;Seleccionar estado...&quot;
+                  class&#x3D;&quot;form-input&quot;&gt;
+                &lt;/p-dropdown&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;form-right&quot;&gt;
+              &lt;div class&#x3D;&quot;form-field&quot;&gt;
+                &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                  &lt;i class&#x3D;&quot;pi pi-globe&quot;&gt;&lt;/i&gt;
+                  6) Ubicación en el Mapa *
+                &lt;/label&gt;
+
+                &lt;div class&#x3D;&quot;map-section&quot;&gt;
+                  &lt;div class&#x3D;&quot;map-wrapper&quot;&gt;
+                    &lt;div id&#x3D;&quot;map&quot; class&#x3D;&quot;map-container&quot;&gt;
+                      &lt;div class&#x3D;&quot;map-loading&quot; *ngIf&#x3D;&quot;mapLoading&quot;&gt;
+                        &lt;div class&#x3D;&quot;loading-spinner&quot;&gt;
+                          &lt;p-progressSpinner strokeWidth&#x3D;&quot;4&quot; fill&#x3D;&quot;#1976d2&quot;&gt;&lt;/p-progressSpinner&gt;
+                        &lt;/div&gt;
+                        &lt;p&gt;Cargando mapa...&lt;/p&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+
+                  &lt;div class&#x3D;&quot;map-info&quot;&gt;
+                    &lt;div class&#x3D;&quot;coordinates-display&quot;&gt;
+                      &lt;h4&gt;
+                        &lt;i class&#x3D;&quot;pi pi-map-marker&quot;&gt;&lt;/i&gt;
+                        Coordenadas Seleccionadas
+                      &lt;/h4&gt;
+                      &lt;div class&#x3D;&quot;coord-grid&quot;&gt;
+                        &lt;div class&#x3D;&quot;coord-item&quot;&gt;
+                          &lt;span class&#x3D;&quot;coord-label&quot;&gt;Latitud:&lt;/span&gt;
+                          &lt;span class&#x3D;&quot;coord-value&quot;&gt;{{ selectedCoordinates.lat | number:&#x27;1.6-6&#x27; }}&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;div class&#x3D;&quot;coord-item&quot;&gt;
+                          &lt;span class&#x3D;&quot;coord-label&quot;&gt;Longitud:&lt;/span&gt;
+                          &lt;span class&#x3D;&quot;coord-value&quot;&gt;{{ selectedCoordinates.lng | number:&#x27;1.6-6&#x27; }}&lt;/span&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class&#x3D;&quot;map-instructions&quot;&gt;
+                      &lt;i class&#x3D;&quot;pi pi-info-circle&quot;&gt;&lt;/i&gt;
+                      &lt;span&gt;💡 Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación exacta del local&lt;/span&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class&#x3D;&quot;map-actions&quot; *ngIf&#x3D;&quot;!mapLoading&quot;&gt;
+                      &lt;p-button
+                        label&#x3D;&quot;Recargar Mapa&quot;
+                        icon&#x3D;&quot;pi pi-refresh&quot;
+                        size&#x3D;&quot;small&quot;
+                        severity&#x3D;&quot;secondary&quot;
+                        (onClick)&#x3D;&quot;reloadMap()&quot;&gt;
+                      &lt;/p-button&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;footer&quot;&gt;
+        &lt;div class&#x3D;&quot;card-actions&quot;&gt;
+          &lt;p-button
+            label&#x3D;&quot;Cancelar&quot;
+            icon&#x3D;&quot;pi pi-times&quot;
+            severity&#x3D;&quot;secondary&quot;
+            routerLink&#x3D;&quot;/administrador/gestionLocales&quot;&gt;
+          &lt;/p-button&gt;
+          &lt;p-button
+            label&#x3D;&quot;Crear Local&quot;
+            icon&#x3D;&quot;pi pi-plus&quot;
+            (onClick)&#x3D;&quot;crearLocal()&quot;
+            [disabled]&#x3D;&quot;localForm.invalid&quot;&gt;
+          &lt;/p-button&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+    &lt;/p-card&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Toast para mensajes --&gt;
+  
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./crear-local.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.container {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: &#x27;Segoe UI&#x27;, Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.title i {
+    font-size: 2rem;
+    color: #1976d2;
+}
+
+.back-button {
+    height: fit-content;
+}
+
+/* Contenido del formulario */
+.form-content {
+    margin-top: 2rem;
+}
+
+.local-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    border: none;
+}
+
+/* Header de la tarjeta */
+.card-header {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    color: white;
+    padding: 1.5rem;
+    margin: -1rem -1rem 0 -1rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.card-header i {
+    font-size: 1.25rem;
+}
+
+/* Formulario */
+.local-form {
+    padding: 1.5rem 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.form-left,
+.form-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-label i {
+    color: #1976d2;
+    font-size: 0.85rem;
+}
+
+.form-input {
+    padding: 0.875rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    outline: none;
+}
+
+/* Fila de campos */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Distrito container */
+.distrito-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.distrito-select {
+    flex: 1;
+}
+
+.distrito-btn {
+    height: auto;
+    align-self: stretch;
+}
+
+/* Sección del mapa */
+.map-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.map-wrapper {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e9ecef;
+}
+
+.map-container {
+    height: 400px;
+    width: 100%;
+    position: relative;
+}
+
+.map-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
+
+.loading-spinner {
+    margin-bottom: 1rem;
+}
+
+.map-loading p {
+    color: #1976d2;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Información del mapa */
+.map-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.coordinates-display {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #1976d2;
+}
+
+.coordinates-display h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.coord-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.coord-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.coord-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.coord-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #212529;
+    font-family: &#x27;Courier New&#x27;, monospace;
+}
+
+.map-instructions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: #e3f2fd;
+    border-radius: 8px;
+    color: #1976d2;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.map-instructions i {
+    font-size: 1rem;
+    color: #1976d2;
+}
+
+.map-actions {
+    display: flex;
+    justify-content: center;
+}
+
+/* Acciones de la tarjeta */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .distrito-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .map-container {
+        height: 300px;
+    }
+
+    .coord-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-actions {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .card-actions .p-button {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .map-container {
+        height: 250px;
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+}
+
+::ng-deep .p-button.crear-btn:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+.map-container {
+  height: 300px;
+  width: 100%;
+  border: 2px solid #007bff;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background-color: #f8f9fa;
+  display: block;
+}
+
+/* Asegurar que el div del mapa tenga dimensiones específicas */
+#map {
+  height: 100%;
+  width: 100%;
+  min-height: 300px;
+  display: block;
+  position: relative;
+}
+
+/* Estilos específicos para Leaflet */
+::ng-deep .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* Asegurar que los controles de Leaflet se vean correctamente */
+::ng-deep .leaflet-control-zoom {
+  border: none !important;
+}
+
+::ng-deep .leaflet-control-zoom a {
+  background-color: #fff !important;
+  border: 1px solid #ccc !important;
+  color: #333 !important;
+}
+
+/* Estilos del popup */
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.15) !important;
+}
+
+::ng-deep .leaflet-popup-content {
+  text-align: center !important;
+  margin: 8px 12px !important;
+}
+
+/* Estilos para el indicador de carga */
+.map-wrapper {
+  position: relative;
+}
+
+.map-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(248, 249, 250, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 6px;
+}
+
+.loading-spinner {
+  margin-bottom: 10px;
+}
+
+.map-loading p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+.coordinates-info {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+}
+
+.coordinates-info small {
+  color: #666;
+}
+
+.map-instructions {
+  color: #007bff !important;
+  font-style: italic;
+}
+
+.form-actions {
+  text-align: right;
+  margin-top: 30px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.distrito-container {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+.distrito-select {
+  flex: 1;
+}
+
+::ng-deep .distrito-btn {
+  height: 42px;
+  min-width: 42px;
+}
+
+::ng-deep .distrito-btn .p-button-icon {
+  font-size: 1rem;
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="container">  <div class="header-section">    <h1 class="title">      <i class="pi pi-plus-circle"></i>      Crear Nuevo Local    </h1>    <p-button      label="Volver a Gestión"      icon="pi pi-arrow-left"      severity="secondary"      routerLink="/administrador/gestionLocales"      class="back-button">    </p-button>  </div>  <div class="form-content">    <p-card class="local-card">      <ng-template pTemplate="header">        <div class="card-header">          <h3>            <i class="pi pi-map-marker"></i>            Información del Local          </h3>        </div>      </ng-template>      <ng-template pTemplate="content">        <form [formGroup]="localForm" class="local-form">          <div class="form-grid">            <div class="form-left">              <div class="form-field">                <label for="nombre" class="field-label">                  <i class="pi pi-building"></i>                  1) Nombre del Local *                </label>                <input                  id="nombre"                  type="text"                  pInputText                  formControlName="nombre"                  placeholder="Ej. Centro de usos Múltiples..."                  class="form-input" />              </div>              <div class="form-field">                <label for="direccion" class="field-label">                  <i class="pi pi-home"></i>                  2) Dirección *                </label>                <input                  id="direccion"                  type="text"                  pInputText                  formControlName="direccion"                  placeholder="Ej. Av. Principal 123..."                  class="form-input" />              </div>              <div class="form-row">                <div class="form-field">                  <label for="distrito" class="field-label">                    <i class="pi pi-map"></i>                    3) Distrito *                  </label>                  <div class="distrito-container">                    <p-dropdown                      id="distrito"                      formControlName="idDistrito"                      [options]="distritos"                      optionLabel="label"                      optionValue="value"                      placeholder="Seleccionar distrito..."                      class="distrito-select"                      (onChange)="centerMapOnDistrict()">                    </p-dropdown>                    <p-button                      icon="pi pi-crosshairs"                      (onClick)="centerMapOnDistrict()"                      [disabled]="!localForm.get(\'idDistrito\')?.value"                      class="distrito-btn"                      size="small"                      severity="info"                      [outlined]="true"                      pTooltip="Centrar mapa en distrito"                      tooltipPosition="top">                    </p-button>                  </div>                </div>                <div class="form-field">                  <label for="aforo" class="field-label">                    <i class="pi pi-users"></i>                    4) Aforo Máximo *                  </label>                  <p-inputNumber                    id="aforo"                    formControlName="aforoTotal"                    placeholder="Ej. 5000"                    [min]="1"                    [useGrouping]="true"                    class="form-input">                  </p-inputNumber>                </div>              </div>              <div class="form-field">                <label for="estado" class="field-label">                  <i class="pi pi-check-circle"></i>                  5) Estado *                </label>                <p-dropdown                  id="estado"                  formControlName="estado"                  [options]="estados"                  optionLabel="label"                  optionValue="value"                  placeholder="Seleccionar estado..."                  class="form-input">                </p-dropdown>              </div>            </div>            <div class="form-right">              <div class="form-field">                <label class="field-label">                  <i class="pi pi-globe"></i>                  6) Ubicación en el Mapa *                </label>                <div class="map-section">                  <div class="map-wrapper">                    <div id="map" class="map-container">                      <div class="map-loading" *ngIf="mapLoading">                        <div class="loading-spinner">                          <p-progressSpinner strokeWidth="4" fill="#1976d2"></p-progressSpinner>                        </div>                        <p>Cargando mapa...</p>                      </div>                    </div>                  </div>                  <div class="map-info">                    <div class="coordinates-display">                      <h4>                        <i class="pi pi-map-marker"></i>                        Coordenadas Seleccionadas                      </h4>                      <div class="coord-grid">                        <div class="coord-item">                          <span class="coord-label">Latitud:</span>                          <span class="coord-value">{{ selectedCoordinates.lat | number:\'1.6-6\' }}</span>                        </div>                        <div class="coord-item">                          <span class="coord-label">Longitud:</span>                          <span class="coord-value">{{ selectedCoordinates.lng | number:\'1.6-6\' }}</span>                        </div>                      </div>                    </div>                    <div class="map-instructions">                      <i class="pi pi-info-circle"></i>                      <span>💡 Haz clic en el mapa o arrastra el marcador para seleccionar la ubicación exacta del local</span>                    </div>                    <div class="map-actions" *ngIf="!mapLoading">                      <p-button                        label="Recargar Mapa"                        icon="pi pi-refresh"                        size="small"                        severity="secondary"                        (onClick)="reloadMap()">                      </p-button>                    </div>                  </div>                </div>              </div>            </div>          </div>        </form>      </ng-template>      <ng-template pTemplate="footer">        <div class="card-actions">          <p-button            label="Cancelar"            icon="pi pi-times"            severity="secondary"            routerLink="/administrador/gestionLocales">          </p-button>          <p-button            label="Crear Local"            icon="pi pi-plus"            (onClick)="crearLocal()"            [disabled]="localForm.invalid">          </p-button>        </div>      </ng-template>    </p-card>  </div>  <!-- Toast para mensajes -->  </div></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'CrearLocalComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'CrearLocalComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

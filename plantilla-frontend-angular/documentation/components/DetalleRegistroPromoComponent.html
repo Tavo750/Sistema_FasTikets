@@ -1,0 +1,1222 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  DetalleRegistroPromoComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">providers</td>
+                <td class="col-md-9">
+                                <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-detalle-registro-promo</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./detalle-registro-promo.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./detalle-registro-promo.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#data" >data</a>
+                            </li>
+                            <li>
+                                <a href="#loading" >loading</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#cargarDetalle" >cargarDetalle</a>
+                            </li>
+                            <li>
+                                <a href="#getEstadoCodigo" >getEstadoCodigo</a>
+                            </li>
+                            <li>
+                                <a href="#getEstadoSeverity" >getEstadoSeverity</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#mostrarError" >mostrarError</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(route: ActivatedRoute, router: Router, codigosPromocionalesService: <a href="../injectables/CodigosPromocionalesService.html" target="_self">CodigosPromocionalesService</a>, toast: <a href="../injectables/MessageService.html" target="_self">MessageService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:16</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>route</td>
+                                                  
+                                                        <td>
+                                                                    <code>ActivatedRoute</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>codigosPromocionalesService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CodigosPromocionalesService.html" target="_self" >CodigosPromocionalesService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>toast</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cargarDetalle"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>cargarDetalle</b></span>
+                        <a href="#cargarDetalle"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cargarDetalle(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:43</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getEstadoCodigo"></a>
+                    <span class="name">
+                        <span ><b>getEstadoCodigo</b></span>
+                        <a href="#getEstadoCodigo"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getEstadoCodigo()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:72</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getEstadoSeverity"></a>
+                    <span class="name">
+                        <span ><b>getEstadoSeverity</b></span>
+                        <a href="#getEstadoSeverity"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getEstadoSeverity()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:87</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mostrarError"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>mostrarError</b></span>
+                        <a href="#mostrarError"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>mostrarError(mensaje: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:64</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>mensaje</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="25"
+                                    class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="data"></a>
+                    <span class="name">
+                        <span ><b>data</b></span>
+                        <a href="#data"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Data.html" target="_self" >CodigoPromocional</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:15</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loading"></a>
+                    <span class="name">
+                        <span ><b>loading</b></span>
+                        <a href="#loading"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>true</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/app/pages/modules/administrador/components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component.ts:16</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+import { ActivatedRoute, Router } from &#x27;@angular/router&#x27;;
+import { MessageService } from &#x27;primeng/api&#x27;;
+import { CodigosPromocionalesService } from &#x27;../../../services/codigos-promocionales.service&#x27;;
+import { Data as CodigoPromocional } from &#x27;../../../interfaces/codigos-promocionales/codigos-promocionales.interface&#x27;;
+
+@Component({
+  selector: &#x27;app-detalle-registro-promo&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./detalle-registro-promo.component.html&#x27;,
+  styleUrls: [&#x27;./detalle-registro-promo.component.css&#x27;],
+  providers: [MessageService]
+})
+export class DetalleRegistroPromoComponent implements OnInit {
+  data!: CodigoPromocional;
+  loading: boolean &#x3D; true;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private codigosPromocionalesService: CodigosPromocionalesService,
+    private toast: MessageService
+  ) {}
+
+  ngOnInit(): void {
+    const idParam &#x3D; this.route.snapshot.paramMap.get(&#x27;id&#x27;);
+    if (!idParam) {
+      this.mostrarError(&#x27;ID no válido&#x27;);
+      this.router.navigate([&#x27;/admin/codigos-promocionales&#x27;]);
+      return;
+    }
+
+    const id &#x3D; parseInt(idParam, 10);
+    if (isNaN(id)) {
+      this.mostrarError(&#x27;ID no válido&#x27;);
+      this.router.navigate([&#x27;/admin/codigos-promocionales&#x27;]);
+      return;
+    }
+
+    this.cargarDetalle(id);
+  }
+
+  private cargarDetalle(id: number): void {
+    this.loading &#x3D; true;
+    this.codigosPromocionalesService.getListarCodigosPromocionalesPorId(id)
+      .subscribe({
+        next: (response) &#x3D;&gt; {
+          if (response.ok) {
+            this.data &#x3D; response.data;
+          } else {
+            this.mostrarError(&#x27;No se pudo cargar el detalle del código promocional&#x27;);
+          }
+        },
+        error: (error) &#x3D;&gt; {
+          this.mostrarError(&#x27;Error al cargar el detalle del código promocional&#x27;);
+          console.error(&#x27;Error:&#x27;, error);
+        },
+        complete: () &#x3D;&gt; {
+          this.loading &#x3D; false;
+        }
+      });
+  }
+
+  private mostrarError(mensaje: string): void {
+    this.toast.add({
+      severity: &#x27;error&#x27;,
+      summary: &#x27;Error&#x27;,
+      detail: mensaje
+    });
+  }
+
+  getEstadoCodigo(): string {
+    if (!this.data?.fechaFin) return &#x27;Sin fecha&#x27;;
+
+    const now &#x3D; new Date();
+    const fechaFin &#x3D; new Date(this.data.fechaFin);
+
+    if (fechaFin &lt; now) {
+      return &#x27;Expirado&#x27;;
+    } else if (this.data.stock &lt;&#x3D; 0) {
+      return &#x27;Sin stock&#x27;;
+    } else {
+      return &#x27;Activo&#x27;;
+    }
+  }
+
+  getEstadoSeverity(): string {
+    const estado &#x3D; this.getEstadoCodigo();
+    switch (estado) {
+      case &#x27;Activo&#x27;:
+        return &#x27;success&#x27;;
+      case &#x27;Sin stock&#x27;:
+        return &#x27;warning&#x27;;
+      case &#x27;Expirado&#x27;:
+        return &#x27;danger&#x27;;
+      default:
+        return &#x27;info&#x27;;
+    }
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;container&quot;&gt;
+  &lt;div class&#x3D;&quot;content-container&quot;&gt;
+    &lt;div class&#x3D;&quot;header-section&quot;&gt;
+      &lt;h1 class&#x3D;&quot;title&quot;&gt;
+        &lt;i class&#x3D;&quot;pi pi-eye&quot;&gt;&lt;/i&gt;
+        Detalle del Código Promocional
+      &lt;/h1&gt;
+
+      &lt;p-button
+        label&#x3D;&quot;Volver&quot;
+        icon&#x3D;&quot;pi pi-arrow-left&quot;
+        severity&#x3D;&quot;secondary&quot;
+        [routerLink]&#x3D;&quot;[&#x27;/administrador/codigosPromocionales&#x27;]&quot;
+        &gt;
+      &lt;/p-button&gt;
+    &lt;/div&gt;
+
+    &lt;div class&#x3D;&quot;detail-card&quot;&gt;
+      &lt;div class&#x3D;&quot;detail-grid&quot;&gt;
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Código:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value codigo-highlight&quot;&gt;{{ data.codigo }}&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Descripción:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;{{ data.descripcion || &#x27;Sin descripción&#x27; }}&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Fecha de expiración:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;{{ data.fechaFin | date:&#x27;dd/MM/yyyy HH:mm&#x27; }}&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Tipo de descuento:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;
+            &lt;p-tag [value]&#x3D;&quot;data.tipo &#x3D;&#x3D;&#x3D; &#x27;PORCENTAJE&#x27; ? &#x27;Porcentaje&#x27; : &#x27;Monto Fijo&#x27;&quot;
+                   [severity]&#x3D;&quot;data.tipo &#x3D;&#x3D;&#x3D; &#x27;PORCENTAJE&#x27; ? &#x27;info&#x27; : &#x27;success&#x27;&quot;&gt;
+            &lt;/p-tag&gt;
+          &lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Valor del descuento:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value valor-descuento&quot;&gt;
+            {{ data.tipo &#x3D;&#x3D;&#x3D; &#x27;PORCENTAJE&#x27; ? data.valor + &#x27;%&#x27; : &#x27;S/ &#x27; + (data.valor | number:&#x27;1.2-2&#x27;) }}
+          &lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Stock disponible:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;
+            &lt;p-tag [value]&#x3D;&quot;data.stock.toString()&quot;
+                   [severity]&#x3D;&quot;data.stock &gt; 10 ? &#x27;success&#x27; : data.stock &gt; 0 ? &#x27;warning&#x27; : &#x27;danger&#x27;&quot;&gt;
+            &lt;/p-tag&gt;
+          &lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Usos por cliente:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;{{ data.cantidadPorCliente }}&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;detail-item&quot;&gt;
+          &lt;span class&#x3D;&quot;detail-label&quot;&gt;Estado:&lt;/span&gt;
+          &lt;span class&#x3D;&quot;detail-value&quot;&gt;
+            &lt;p-tag [value]&#x3D;&quot;getEstadoCodigo()&quot;
+                   [severity]&#x3D;&quot;getEstadoSeverity()&quot;&gt;
+            &lt;/p-tag&gt;
+          &lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class&#x3D;&quot;footer-actions&quot;&gt;
+      &lt;p-button
+        label&#x3D;&quot;Volver a la Lista&quot;
+        icon&#x3D;&quot;pi pi-list&quot;
+        [routerLink]&#x3D;&quot;[&#x27;/administrador/codigosPromocionales&#x27;]&quot;&gt;
+      &lt;/p-button&gt;
+
+      &lt;p-button
+        label&#x3D;&quot;Editar Código&quot;
+        icon&#x3D;&quot;pi pi-pencil&quot;
+        [routerLink]&#x3D;&quot;[&#x27;/administrador/codigosPromocionales/editar&#x27;, data.idCodigoPromocional]&quot;&gt;
+      &lt;/p-button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./detalle-registro-promo.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">/* Container principal */
+.container {
+  padding: 2rem;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+/* Content container */
+.content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e9ecef;
+  padding: 2rem;
+}
+
+/* Header section */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e88e5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.title i {
+  font-size: 1.75rem;
+  color: #1e88e5;
+}
+
+.back-button {
+  background: #6c757d !important;
+  border-color: #6c757d !important;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #5a6268 !important;
+  border-color: #5a6268 !important;
+  transform: translateY(-1px);
+}
+
+/* Detail card */
+.detail-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dee2e6;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: #212529;
+  font-weight: 500;
+}
+
+.codigo-highlight {
+  font-family: &#x27;Courier New&#x27;, monospace;
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 1px solid #bbdefb;
+}
+
+.valor-descuento {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* Tags customization */
+::ng-deep .p-tag {
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+}
+
+/* Footer actions */
+.footer-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.list-button {
+  background: #6c757d !important;
+  border-color: #6c757d !important;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.list-button:hover {
+  background: #5a6268 !important;
+  border-color: #5a6268 !important;
+  transform: translateY(-1px);
+}
+
+.edit-button {
+  background: #ffc107 !important;
+  border-color: #ffc107 !important;
+  color: #212529 !important;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+  background: #e0a800 !important;
+  border-color: #d39e00 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .content-container {
+    padding: 1.5rem;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+    justify-content: center;
+  }
+
+  .detail-card {
+    padding: 1.5rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .list-button,
+  .edit-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .detail-item {
+    padding: 0.75rem;
+  }
+
+  .codigo-highlight {
+    font-size: 1rem;
+  }
+
+  .valor-descuento {
+    font-size: 1.1rem;
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="container">  <div class="content-container">    <div class="header-section">      <h1 class="title">        <i class="pi pi-eye"></i>        Detalle del Código Promocional      </h1>      <p-button        label="Volver"        icon="pi pi-arrow-left"        severity="secondary"        [routerLink]="[\'/administrador/codigosPromocionales\']"        >      </p-button>    </div>    <div class="detail-card">      <div class="detail-grid">        <div class="detail-item">          <span class="detail-label">Código:</span>          <span class="detail-value codigo-highlight">{{ data.codigo }}</span>        </div>        <div class="detail-item">          <span class="detail-label">Descripción:</span>          <span class="detail-value">{{ data.descripcion || \'Sin descripción\' }}</span>        </div>        <div class="detail-item">          <span class="detail-label">Fecha de expiración:</span>          <span class="detail-value">{{ data.fechaFin | date:\'dd/MM/yyyy HH:mm\' }}</span>        </div>        <div class="detail-item">          <span class="detail-label">Tipo de descuento:</span>          <span class="detail-value">            <p-tag [value]="data.tipo === \'PORCENTAJE\' ? \'Porcentaje\' : \'Monto Fijo\'"                   [severity]="data.tipo === \'PORCENTAJE\' ? \'info\' : \'success\'">            </p-tag>          </span>        </div>        <div class="detail-item">          <span class="detail-label">Valor del descuento:</span>          <span class="detail-value valor-descuento">            {{ data.tipo === \'PORCENTAJE\' ? data.valor + \'%\' : \'S/ \' + (data.valor | number:\'1.2-2\') }}          </span>        </div>        <div class="detail-item">          <span class="detail-label">Stock disponible:</span>          <span class="detail-value">            <p-tag [value]="data.stock.toString()"                   [severity]="data.stock > 10 ? \'success\' : data.stock > 0 ? \'warning\' : \'danger\'">            </p-tag>          </span>        </div>        <div class="detail-item">          <span class="detail-label">Usos por cliente:</span>          <span class="detail-value">{{ data.cantidadPorCliente }}</span>        </div>        <div class="detail-item">          <span class="detail-label">Estado:</span>          <span class="detail-value">            <p-tag [value]="getEstadoCodigo()"                   [severity]="getEstadoSeverity()">            </p-tag>          </span>        </div>      </div>    </div>    <div class="footer-actions">      <p-button        label="Volver a la Lista"        icon="pi pi-list"        [routerLink]="[\'/administrador/codigosPromocionales\']">      </p-button>      <p-button        label="Editar Código"        icon="pi pi-pencil"        [routerLink]="[\'/administrador/codigosPromocionales/editar\', data.idCodigoPromocional]">      </p-button>    </div>  </div></div></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'DetalleRegistroPromoComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'DetalleRegistroPromoComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

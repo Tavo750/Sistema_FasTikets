@@ -1,0 +1,1910 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  CrearUsuarioComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-crear-usuario</code></td>
+            </tr>
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./crear-usuario.component.html</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrl</td>
+                <td class="col-md-9"><code>./crear-usuario.component.css</code></td>
+            </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#departamentos" >departamentos</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#dialogRef" >dialogRef</a>
+                            </li>
+                            <li>
+                                <a href="#distritos" >distritos</a>
+                            </li>
+                            <li>
+                                <a href="#loadingDistritos" >loadingDistritos</a>
+                            </li>
+                            <li>
+                                <a href="#loadingProvincias" >loadingProvincias</a>
+                            </li>
+                            <li>
+                                <a href="#provincias" >provincias</a>
+                            </li>
+                            <li>
+                                <a href="#registroForm" >registroForm</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#router" >router</a>
+                            </li>
+                            <li>
+                                <a href="#tiposDocumento" >tiposDocumento</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#cargarDepartamentos" >cargarDepartamentos</a>
+                            </li>
+                            <li>
+                                <a href="#mostrarDialogExitoso" >mostrarDialogExitoso</a>
+                            </li>
+                            <li>
+                                <a href="#mostrarPoliticas" >mostrarPoliticas</a>
+                            </li>
+                            <li>
+                                <a href="#mostrarTerminos" >mostrarTerminos</a>
+                            </li>
+                            <li>
+                                <a href="#navigateToHome" >navigateToHome</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnDestroy" >ngOnDestroy</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#onlyNumbers" >onlyNumbers</a>
+                            </li>
+                            <li>
+                                <a href="#onPaste" >onPaste</a>
+                            </li>
+                            <li>
+                                <a href="#onSubmit" >onSubmit</a>
+                            </li>
+                            <li>
+                                <a href="#setupDepartamentoListener" >setupDepartamentoListener</a>
+                            </li>
+                            <li>
+                                <a href="#setupProvinciaListener" >setupProvinciaListener</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(router: Router, fb: FormBuilder, dialogService: DialogService, registroUsuarioService: <a href="../injectables/RegistroUsuarioService.html" target="_self">RegistroUsuarioService</a>, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:30</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>fb</td>
+                                                  
+                                                        <td>
+                                                                    <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>dialogService</td>
+                                                  
+                                                        <td>
+                                                                    <code>DialogService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>registroUsuarioService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RegistroUsuarioService.html" target="_self" >RegistroUsuarioService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cargarDepartamentos"></a>
+                    <span class="name">
+                        <span ><b>cargarDepartamentos</b></span>
+                        <a href="#cargarDepartamentos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cargarDepartamentos()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:64</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mostrarDialogExitoso"></a>
+                    <span class="name">
+                        <span ><b>mostrarDialogExitoso</b></span>
+                        <a href="#mostrarDialogExitoso"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>mostrarDialogExitoso()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="185"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:185</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mostrarPoliticas"></a>
+                    <span class="name">
+                        <span ><b>mostrarPoliticas</b></span>
+                        <a href="#mostrarPoliticas"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>mostrarPoliticas(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:163</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mostrarTerminos"></a>
+                    <span class="name">
+                        <span ><b>mostrarTerminos</b></span>
+                        <a href="#mostrarTerminos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>mostrarTerminos(event: Event)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:146</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>Event</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="navigateToHome"></a>
+                    <span class="name">
+                        <span ><b>navigateToHome</b></span>
+                        <a href="#navigateToHome"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>navigateToHome()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="381"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:381</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnDestroy"></a>
+                    <span class="name">
+                        <span ><b>ngOnDestroy</b></span>
+                        <a href="#ngOnDestroy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnDestroy()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="179"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:179</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onlyNumbers"></a>
+                    <span class="name">
+                        <span ><b>onlyNumbers</b></span>
+                        <a href="#onlyNumbers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onlyNumbers(event: KeyboardEvent)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="338"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:338</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Permite solo números en el input</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>KeyboardEvent</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Evento de teclado</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onPaste"></a>
+                    <span class="name">
+                        <span ><b>onPaste</b></span>
+                        <a href="#onPaste"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onPaste(event: ClipboardEvent, fieldName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="360"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:360</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Maneja el evento paste para asegurar solo números</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>event</td>
+                                            <td>
+                                                        <code>ClipboardEvent</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Evento de pegado</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>fieldName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Nombre del campo</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onSubmit"></a>
+                    <span class="name">
+                        <span ><b>onSubmit</b></span>
+                        <a href="#onSubmit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onSubmit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="197"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:197</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setupDepartamentoListener"></a>
+                    <span class="name">
+                        <span ><b>setupDepartamentoListener</b></span>
+                        <a href="#setupDepartamentoListener"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>setupDepartamentoListener()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:80</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setupProvinciaListener"></a>
+                    <span class="name">
+                        <span ><b>setupProvinciaListener</b></span>
+                        <a href="#setupProvinciaListener"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>setupProvinciaListener()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:113</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="departamentos"></a>
+                    <span class="name">
+                        <span ><b>departamentos</b></span>
+                        <a href="#departamentos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Departamento.html" target="_self" >Departamento[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dialogRef"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>dialogRef</b></span>
+                        <a href="#dialogRef"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>DynamicDialogRef | undefined</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:22</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="distritos"></a>
+                    <span class="name">
+                        <span ><b>distritos</b></span>
+                        <a href="#distritos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Distrito.html" target="_self" >Distrito[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:27</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadingDistritos"></a>
+                    <span class="name">
+                        <span ><b>loadingDistritos</b></span>
+                        <a href="#loadingDistritos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:30</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadingProvincias"></a>
+                    <span class="name">
+                        <span ><b>loadingProvincias</b></span>
+                        <a href="#loadingProvincias"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:29</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="provincias"></a>
+                    <span class="name">
+                        <span ><b>provincias</b></span>
+                        <a href="#provincias"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Provincia.html" target="_self" >Provincia[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:26</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registroForm"></a>
+                    <span class="name">
+                        <span ><b>registroForm</b></span>
+                        <a href="#registroForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:23</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="router"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>router</b></span>
+                        <a href="#router"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Router</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:33</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="tiposDocumento"></a>
+                    <span class="name">
+                        <span ><b>tiposDocumento</b></span>
+                        <a href="#tiposDocumento"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>Object.values(TipoDocumento)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/app/pages/full-pages/crear-usuario/crear-usuario.component.ts:24</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+import { Router } from &#x27;@angular/router&#x27;;
+import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { DialogService, DynamicDialogRef } from &#x27;primeng/dynamicdialog&#x27;;
+import { DialogTerminosComponent } from &#x27;./dialog-terminos/dialog-terminos.component&#x27;;
+import { DialogPoliticaComponent } from &#x27;./dialog-politica/dialog-politica.component&#x27;;
+import { DialogExitosoComponent } from &#x27;./dialog-exitoso/dialog-exitoso.component&#x27;;
+import { RegistroUsuarioService } from &#x27;../../../core/services/registro-usuario.service&#x27;;
+import { RegistroResponse, RegistroUsuario } from &#x27;../../../core/interfaces/registro_usuario.interface&#x27;;
+import { TipoDocumento } from &#x27;../../../core/interfaces/tipo-documento.enum&#x27;;
+import { MessageService } from &#x27;../../../core/services/message.service&#x27;;
+import { Departamento, Distrito, Provincia } from &#x27;../../../core/interfaces/ubigeo.interface&#x27;;
+
+
+@Component({
+  selector: &#x27;app-crear-usuario&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./crear-usuario.component.html&#x27;,
+  styleUrl: &#x27;./crear-usuario.component.css&#x27;
+})
+export class CrearUsuarioComponent implements OnInit {
+  private dialogRef: DynamicDialogRef | undefined;
+  registroForm: FormGroup;
+  tiposDocumento &#x3D; Object.values(TipoDocumento);
+  departamentos: Departamento[] &#x3D; [];
+  provincias: Provincia[] &#x3D; [];
+  distritos: Distrito[] &#x3D; [];
+
+  loadingProvincias &#x3D; false;
+  loadingDistritos &#x3D; false;
+
+  constructor(
+    public router: Router,
+    private fb: FormBuilder,
+    private dialogService: DialogService,
+    private registroUsuarioService: RegistroUsuarioService,
+    private messageService: MessageService
+  ) {
+    this.registroForm &#x3D; this.fb.group({
+      nombres: [&#x27;&#x27;, Validators.required],
+      apellidos: [&#x27;&#x27;, Validators.required],
+      correo: [&#x27;&#x27;, [Validators.required, Validators.email]],
+      contrasena: [&#x27;&#x27;, Validators.required],
+      repitaContrasena: [&#x27;&#x27;, Validators.required],
+      fechaNacimiento: [&#x27;&#x27;, Validators.required],
+      departamento: [&#x27;&#x27;, Validators.required],
+      provincia: [&#x27;&#x27;, Validators.required],
+      distrito: [&#x27;&#x27;, Validators.required],
+      direccion: [&#x27;&#x27;, Validators.required],
+      telefono: [&#x27;&#x27;, [Validators.required, Validators.pattern(&#x27;^[0-9]{9}$&#x27;)]],
+      tipoDocumento: [TipoDocumento.DNI, Validators.required],
+      numeroDocumento: [&#x27;&#x27;, [Validators.required, Validators.pattern(&#x27;^[0-9]{8}$&#x27;)]]
+    });
+  }
+
+  ngOnInit(): void {
+    this.cargarDepartamentos();
+    this.setupDepartamentoListener();
+    this.setupProvinciaListener();
+    // Aquí puedes cargar los datos de departamentos y distritos
+  }
+
+//&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; Cargar los datos de departamentos, provincias y distritos &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+cargarDepartamentos(): void {
+  this.registroUsuarioService.getDepartamentos().subscribe({
+    next: (response) &#x3D;&gt; {
+      if (response.ok &amp;&amp; response.data) {
+        this.departamentos &#x3D; response.data;
+      } else {
+        this.messageService.error(response.mensaje || &#x27;Error al cargar departamentos&#x27;);
+      }
+    },
+    error: (error) &#x3D;&gt; {
+      console.error(&#x27;Error al cargar departamentos:&#x27;, error);
+      this.messageService.error(&#x27;Error al cargar departamentos&#x27;);
+    }
+  });
+}
+
+setupDepartamentoListener(): void {
+  this.registroForm.get(&#x27;departamento&#x27;)?.valueChanges.subscribe(departamentoId &#x3D;&gt; {
+    if (departamentoId) {
+      // Resetear provincia y distrito
+      this.registroForm.patchValue({
+        provincia: &#x27;&#x27;,
+        distrito: &#x27;&#x27;
+      });
+      this.provincias &#x3D; [];
+      this.distritos &#x3D; [];
+
+      // Cargar provincias
+      this.loadingProvincias &#x3D; true;
+      this.registroUsuarioService.getProvincias(departamentoId).subscribe({
+        next: (response) &#x3D;&gt; {
+          if (response.ok &amp;&amp; response.data) {
+            this.provincias &#x3D; response.data;
+          } else {
+            console.error(&#x27;Error al cargar provincias:&#x27;, response.mensaje);
+            this.messageService.error(response.mensaje || &#x27;Error al cargar provincias&#x27;);
+          }
+          this.loadingProvincias &#x3D; false;
+        },
+        error: (error) &#x3D;&gt; {
+
+          console.error(&#x27;Error al cargar provincias:&#x27;, error);
+          this.messageService.error(&#x27;Error al cargar provincias&#x27;);
+          this.loadingProvincias &#x3D; false;
+        }
+      });
+    }
+  });
+}
+setupProvinciaListener(): void {
+  this.registroForm.get(&#x27;provincia&#x27;)?.valueChanges.subscribe(provinciaId &#x3D;&gt; {
+    if (provinciaId) {
+      // Resetear distrito
+      this.registroForm.patchValue({ distrito: &#x27;&#x27; });
+      this.distritos &#x3D; [];
+
+      // Cargar distritos
+      this.loadingDistritos &#x3D; true;
+      this.registroUsuarioService.getDistritos(provinciaId).subscribe({
+        next: (response) &#x3D;&gt; {
+          if (response.ok &amp;&amp; response.data) {
+            this.distritos &#x3D; response.data;
+          } else {
+            console.error(&#x27;Error al cargar distritos:&#x27;, response.mensaje);
+            this.messageService.error(response.mensaje || &#x27;Error al cargar distritos&#x27;);
+          }
+          this.loadingDistritos &#x3D; false;
+        },
+        error: (error) &#x3D;&gt; {
+          console.error(&#x27;Error al cargar distritos:&#x27;, error);
+          this.messageService.error(&#x27;Error al cargar distritos&#x27;);
+          this.loadingDistritos &#x3D; false;
+        }
+      });
+    }
+  });
+}
+
+
+
+
+  //&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; se abre el dialogo de terminos y condiciones &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+  mostrarTerminos(event: Event): void {
+    event.preventDefault();
+    this.dialogRef &#x3D; this.dialogService.open(DialogTerminosComponent, {
+
+      width: &#x27;40%&#x27;,
+      contentStyle: { &#x27;max-height&#x27;: &#x27;500px&#x27;, &#x27;overflow-y&#x27;: &#x27;auto&#x27; },
+      baseZIndex: 10000
+    });
+
+    this.dialogRef.onClose.subscribe((acepto: boolean) &#x3D;&gt; {
+      if (acepto) {
+        console.log(&#x27;Términos aceptados&#x27;);
+      }
+    });
+  }
+
+  //&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D; se abre el dialogo de politicas de privacidad &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+    mostrarPoliticas(event: Event): void {
+    event.preventDefault();
+    this.dialogRef &#x3D; this.dialogService.open(DialogPoliticaComponent, {
+
+      width: &#x27;40%&#x27;,
+      contentStyle: { &#x27;max-height&#x27;: &#x27;500px&#x27;, &#x27;overflow-y&#x27;: &#x27;auto&#x27; },
+      baseZIndex: 10000
+    });
+
+    this.dialogRef.onClose.subscribe((acepto: boolean) &#x3D;&gt; {
+      if (acepto) {
+        console.log(&#x27;Términos aceptados&#x27;);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.dialogRef) {
+      this.dialogRef.close();
+    }
+  }
+
+  mostrarDialogExitoso(): void {
+    this.dialogRef &#x3D; this.dialogService.open(DialogExitosoComponent, {
+      width: &#x27;30%&#x27;,
+      contentStyle: { &#x27;max-height&#x27;: &#x27;500px&#x27;, &#x27;overflow-y&#x27;: &#x27;auto&#x27; },
+      baseZIndex: 10000
+    });
+
+    this.dialogRef.onClose.subscribe((result: any) &#x3D;&gt; {
+      console.log(&#x27;Dialog exitoso cerrado&#x27;);
+    });
+  }
+
+  onSubmit(): void {
+    if (this.registroForm.valid) {
+      // Verificar que las contraseñas coincidan
+      if (this.registroForm.get(&#x27;contrasena&#x27;)?.value !&#x3D;&#x3D; this.registroForm.get(&#x27;repitaContrasena&#x27;)?.value) {
+        this.messageService.error(&#x27;Las contraseñas no coinciden&#x27;);
+        return;
+      }
+
+      // Formatear la fecha de nacimiento a ISO string si es un objeto Date
+      const fechaNacimiento &#x3D; this.registroForm.get(&#x27;fechaNacimiento&#x27;)?.value;
+      const fechaFormateada &#x3D; fechaNacimiento instanceof Date ?
+        fechaNacimiento.toISOString().split(&#x27;T&#x27;)[0] : fechaNacimiento;
+
+      const email &#x3D; this.registroForm.get(&#x27;correo&#x27;)?.value.trim().toLowerCase();
+
+      const usuario: RegistroUsuario &#x3D; {
+        tipoDocumento: this.registroForm.get(&#x27;tipoDocumento&#x27;)?.value,
+        docIdentidad: this.registroForm.get(&#x27;numeroDocumento&#x27;)?.value.trim(),
+        nombres: this.registroForm.get(&#x27;nombres&#x27;)?.value.trim(),
+        apellidos: this.registroForm.get(&#x27;apellidos&#x27;)?.value.trim(),
+        email: email,
+        contrasena: this.registroForm.get(&#x27;contrasena&#x27;)?.value,
+        telefono: this.registroForm.get(&#x27;telefono&#x27;)?.value.trim(),
+        fechaNacimiento: fechaFormateada,
+        direccion: this.registroForm.get(&#x27;direccion&#x27;)?.value.trim(),
+        idDistrito: parseInt(this.registroForm.get(&#x27;distrito&#x27;)?.value) || 1   // aqui se debe cambiar por el id del distrito seleccionado
+      };
+
+      // Validar que todos los campos requeridos tengan valor
+      for (const [key, value] of Object.entries(usuario)) {
+        if (!value &amp;&amp; value !&#x3D;&#x3D; 0) {
+          this.messageService.error(&#x60;El campo ${key} es requerido&#x60;);
+          return;
+        }
+      }
+
+      this.registroUsuarioService.postRegistro(usuario).subscribe({
+        next: (response: any) &#x3D;&gt; {
+          // Verificar si la respuesta tiene la estructura esperada
+          if (response &amp;&amp; typeof response &#x3D;&#x3D;&#x3D; &#x27;object&#x27;) {
+            if (response.ok &amp;&amp; response.data &amp;&amp; response.data.exito) {
+              this.messageService.success(response.data.mensaje || &#x27;Usuario registrado exitosamente&#x27;);
+              this.mostrarDialogExitoso();
+              this.registroForm.reset();
+            } else if (response.ok &#x3D;&#x3D;&#x3D; false) {
+              this.messageService.error(response.data?.mensaje || response.mensaje || &#x27;Error en el registro&#x27;);
+            } else {
+              // Respuesta exitosa pero estructura diferente
+              this.messageService.success(&#x27;Usuario registrado exitosamente&#x27;);
+              this.mostrarDialogExitoso();
+              this.registroForm.reset();
+            }
+          } else {
+            // Respuesta exitosa sin estructura JSON (posible texto plano)
+            this.messageService.success(&#x27;Usuario registrado exitosamente&#x27;);
+            this.mostrarDialogExitoso();
+            this.registroForm.reset();
+          }
+        },
+        error: (error) &#x3D;&gt; {
+          let mensajeError &#x3D; &#x27;Error en el registro&#x27;;
+
+          // Si el error tiene estructura de respuesta HTTP
+          if (error?.error) {
+            mensajeError &#x3D; error.error.mensaje || error.error.message || mensajeError;
+          } else if (error?.mensaje) {
+            mensajeError &#x3D; error.mensaje;
+          } else if (error?.message) {
+            mensajeError &#x3D; error.message;
+          }
+
+          this.messageService.error(mensajeError);
+        },
+      });
+    } else {
+      // Marcar todos los campos como tocados para mostrar los errores
+      Object.keys(this.registroForm.controls).forEach(key &#x3D;&gt; {
+        const control &#x3D; this.registroForm.get(key);
+        if (control?.errors) {
+          let errorMessage &#x3D; &#x27;&#x27;;
+          if (control.errors[&#x27;required&#x27;]) {
+            switch(key) {
+              case &#x27;nombres&#x27;:
+                errorMessage &#x3D; &#x27;El campo Nombres es obligatorio&#x27;;
+                break;
+              case &#x27;apellidos&#x27;:
+                errorMessage &#x3D; &#x27;El campo Apellidos es obligatorio&#x27;;
+                break;
+              case &#x27;correo&#x27;:
+                errorMessage &#x3D; &#x27;El campo Correo Electrónico es obligatorio&#x27;;
+                break;
+              case &#x27;contrasena&#x27;:
+                errorMessage &#x3D; &#x27;El campo Contraseña es obligatorio&#x27;;
+                break;
+              case &#x27;repitaContrasena&#x27;:
+                errorMessage &#x3D; &#x27;Debe repetir la contraseña&#x27;;
+                break;
+              case &#x27;fechaNacimiento&#x27;:
+                errorMessage &#x3D; &#x27;La Fecha de Nacimiento es obligatoria&#x27;;
+                break;
+              case &#x27;departamento&#x27;:
+                errorMessage &#x3D; &#x27;Debe seleccionar un Departamento&#x27;;
+                break;
+              case &#x27;distrito&#x27;:
+                errorMessage &#x3D; &#x27;Debe seleccionar un Distrito&#x27;;
+                break;
+              case &#x27;direccion&#x27;:
+                errorMessage &#x3D; &#x27;La Dirección es obligatoria&#x27;;
+                break;
+              case &#x27;telefono&#x27;:
+                errorMessage &#x3D; &#x27;El Número de Teléfono es obligatorio&#x27;;
+                break;
+              case &#x27;tipoDocumento&#x27;:
+                errorMessage &#x3D; &#x27;Debe seleccionar un Tipo de Documento&#x27;;
+                break;
+              case &#x27;numeroDocumento&#x27;:
+                errorMessage &#x3D; &#x27;El Número de Documento es obligatorio&#x27;;
+                break;
+              default:
+                errorMessage &#x3D; &#x27;Este campo es obligatorio&#x27;;
+            }
+          } else if (control.errors[&#x27;email&#x27;]) {
+            errorMessage &#x3D; &#x27;El formato del correo electrónico no es válido&#x27;;
+          } else if (control.errors[&#x27;pattern&#x27;]) {
+            if (key &#x3D;&#x3D;&#x3D; &#x27;numeroDocumento&#x27;) {
+              errorMessage &#x3D; &#x27;El número de documento debe tener exactamente 8 dígitos numéricos&#x27;;
+            } else if (key &#x3D;&#x3D;&#x3D; &#x27;telefono&#x27;) {
+              errorMessage &#x3D; &#x27;El número de teléfono debe tener exactamente 9 dígitos numéricos&#x27;;
+            }
+          }
+          this.messageService.error(errorMessage);
+        }
+        control?.markAsTouched();
+      });
+    }
+  }
+
+  /**
+   * Permite solo números en el input
+   * @param event Evento de teclado
+   */
+  onlyNumbers(event: KeyboardEvent): void {
+    const charCode &#x3D; event.which ? event.which : event.keyCode;
+    // Permitir: backspace, delete, tab, escape, enter
+    if ([8, 9, 27, 13, 46].indexOf(charCode) !&#x3D;&#x3D; -1 ||
+        // Permitir: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (charCode &#x3D;&#x3D;&#x3D; 65 &amp;&amp; event.ctrlKey &#x3D;&#x3D;&#x3D; true) ||
+        (charCode &#x3D;&#x3D;&#x3D; 67 &amp;&amp; event.ctrlKey &#x3D;&#x3D;&#x3D; true) ||
+        (charCode &#x3D;&#x3D;&#x3D; 86 &amp;&amp; event.ctrlKey &#x3D;&#x3D;&#x3D; true) ||
+        (charCode &#x3D;&#x3D;&#x3D; 88 &amp;&amp; event.ctrlKey &#x3D;&#x3D;&#x3D; true)) {
+      return;
+    }
+    // Asegurar que solo sea un número
+    if (charCode &lt; 48 || charCode &gt; 57) {
+      event.preventDefault();
+    }
+  }
+
+  /**
+   * Maneja el evento paste para asegurar solo números
+   * @param event Evento de pegado
+   * @param fieldName Nombre del campo
+   */
+  onPaste(event: ClipboardEvent, fieldName: string): void {
+    event.preventDefault();
+    const clipboardData &#x3D; event.clipboardData?.getData(&#x27;text&#x27;) || &#x27;&#x27;;
+
+    // Filtrar solo números
+    const numbersOnly &#x3D; clipboardData.replace(/[^0-9]/g, &#x27;&#x27;);
+
+    // Aplicar límite según el campo
+    let maxLength &#x3D; 0;
+    if (fieldName &#x3D;&#x3D;&#x3D; &#x27;telefono&#x27;) {
+      maxLength &#x3D; 9;
+    } else if (fieldName &#x3D;&#x3D;&#x3D; &#x27;numeroDocumento&#x27;) {
+      maxLength &#x3D; 8;
+    }
+
+    const limitedValue &#x3D; numbersOnly.substring(0, maxLength);
+
+    // Actualizar el valor del formulario
+    this.registroForm.get(fieldName)?.setValue(limitedValue);
+  }
+
+  navigateToHome() {
+    this.router.navigate([&#x27;/home&#x27;]);
+  }
+
+
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;header class&#x3D;&quot;header&quot;&gt;
+  &lt;div class&#x3D;&quot;logo&quot; (click)&#x3D;&quot;navigateToHome()&quot;&gt;
+    &lt;img src&#x3D;&quot;img/logo/logo-fasticket.jpg&quot; alt&#x3D;&quot;FASTICKET&quot;&gt;
+  &lt;/div&gt;
+  &lt;div class&#x3D;&quot;header-buttons&quot;&gt;
+    &lt;button class&#x3D;&quot;btn-header&quot; (click)&#x3D;&quot;router.navigate([&#x27;/login&#x27;])&quot;&gt;Iniciar Sesion&lt;/button&gt;
+    &lt;!-- Botón con icono de casita --&gt;
+    &lt;button class&#x3D;&quot;btn-icon&quot; (click)&#x3D;&quot;router.navigate([&#x27;/home&#x27;])&quot;&gt;
+      &lt;img src&#x3D;&quot;img/logo/home.jpg&quot; alt&#x3D;&quot;Inicio&quot;&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;div class&#x3D;&quot;login-container&quot;&gt;
+  &lt;!-- Lado izquierdo con la imagen --&gt;
+  &lt;div class&#x3D;&quot;poster&quot;&gt;
+    &lt;img src&#x3D;&quot;img/logo/concierto.jpg&quot; alt&#x3D;&quot;Concierto&quot;&gt;
+  &lt;/div&gt;
+
+&lt;!-- Lado derecho con el formulario de registro --&gt;
+  &lt;div class&#x3D;&quot;form-container&quot;&gt;
+    &lt;h1&gt;¡Crea tu cuenta!&lt;/h1&gt;
+    &lt;p class&#x3D;&quot;subtitle&quot;&gt;Regístrate y accede a muchos beneficios&lt;/p&gt;
+
+    &lt;form [formGroup]&#x3D;&quot;registroForm&quot; (ngSubmit)&#x3D;&quot;onSubmit()&quot;&gt;
+      &lt;input type&#x3D;&quot;text&quot; placeholder&#x3D;&quot;Nombres *&quot; formControlName&#x3D;&quot;nombres&quot; required&gt;
+      &lt;input type&#x3D;&quot;text&quot; placeholder&#x3D;&quot;Apellidos *&quot; formControlName&#x3D;&quot;apellidos&quot; required&gt;
+      &lt;input type&#x3D;&quot;email&quot; placeholder&#x3D;&quot;Correo Electrónico *&quot; formControlName&#x3D;&quot;correo&quot; required&gt;
+      &lt;input type&#x3D;&quot;password&quot; placeholder&#x3D;&quot;Contraseña *&quot; formControlName&#x3D;&quot;contrasena&quot; required&gt;
+      &lt;input type&#x3D;&quot;password&quot; placeholder&#x3D;&quot;Repita Contraseña *&quot; formControlName&#x3D;&quot;repitaContrasena&quot; required&gt;
+
+      &lt;div class&#x3D;&quot;form-row&quot;&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-date&quot;&gt;
+          &lt;input type&#x3D;&quot;date&quot; placeholder&#x3D;&quot;Fecha de nacimiento *&quot; formControlName&#x3D;&quot;fechaNacimiento&quot; required&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Departamento --&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-departamento&quot;&gt;
+          &lt;select
+            id&#x3D;&quot;departamento&quot;
+            placeholder&#x3D;&quot;Departamento *&quot;
+            formControlName&#x3D;&quot;departamento&quot;
+            class&#x3D;&quot;form-control&quot;&gt;
+            &lt;option value&#x3D;&quot;&quot;&gt;Departamento *&lt;/option&gt;
+            &lt;option *ngFor&#x3D;&quot;let dep of departamentos&quot; [value]&#x3D;&quot;dep.idDepartamento&quot;&gt;
+              {{ dep.nombre }}
+            &lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Provincia --&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-provincia&quot;&gt;
+          &lt;select
+            id&#x3D;&quot;provincia&quot;
+            placeholder&#x3D;&quot;Provincia *&quot;
+            formControlName&#x3D;&quot;provincia&quot;
+            class&#x3D;&quot;form-control&quot;
+            [disabled]&#x3D;&quot;!provincias.length || loadingProvincias&quot;&gt;
+            &lt;option value&#x3D;&quot;&quot;&gt;
+              {{ loadingProvincias ? &#x27;Cargando...&#x27; : &#x27;Provincia *&#x27; }}
+            &lt;/option&gt;
+            &lt;option *ngFor&#x3D;&quot;let prov of provincias&quot; [value]&#x3D;&quot;prov.idProvincia&quot;&gt;
+              {{ prov.nombre }}
+            &lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Distrito --&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-distrito&quot;&gt;
+          &lt;select
+            id&#x3D;&quot;distrito&quot;
+            placeholder&#x3D;&quot;Distrito *&quot;
+            formControlName&#x3D;&quot;distrito&quot;
+            class&#x3D;&quot;form-control&quot;
+            [disabled]&#x3D;&quot;!distritos.length || loadingDistritos&quot;&gt;
+            &lt;option value&#x3D;&quot;&quot;&gt;
+              {{ loadingDistritos ? &#x27;Cargando...&#x27; : &#x27;Distrito *&#x27; }}
+            &lt;/option&gt;
+            &lt;option *ngFor&#x3D;&quot;let dist of distritos&quot; [value]&#x3D;&quot;dist.idDistrito&quot;&gt;
+              {{ dist.nombre }}
+            &lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;input type&#x3D;&quot;text&quot; placeholder&#x3D;&quot;Dirección domiciliaria *&quot; formControlName&#x3D;&quot;direccion&quot; required&gt;
+
+      &lt;div class&#x3D;&quot;form-row&quot;&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-telefono&quot;&gt;
+          &lt;input type&#x3D;&quot;tel&quot; placeholder&#x3D;&quot;Número de Teléfono *&quot; formControlName&#x3D;&quot;telefono&quot;
+                 maxlength&#x3D;&quot;9&quot;
+                 (keypress)&#x3D;&quot;onlyNumbers($event)&quot;
+                 (paste)&#x3D;&quot;onPaste($event, &#x27;telefono&#x27;)&quot;
+                 required&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-tipo-doc&quot;&gt;
+          &lt;select formControlName&#x3D;&quot;tipoDocumento&quot; required&gt;
+            &lt;option value&#x3D;&quot;&quot;&gt;Tipo de Documento *&lt;/option&gt;
+            &lt;option value&#x3D;&quot;DNI&quot;&gt;DNI&lt;/option&gt;
+            &lt;option value&#x3D;&quot;PASAPORTE&quot;&gt;Pasaporte&lt;/option&gt;
+            &lt;option value&#x3D;&quot;ce&quot;&gt;Carnet de Extranjería&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/div&gt;
+        &lt;div class&#x3D;&quot;form-group form-group-num-doc&quot;&gt;
+          &lt;input type&#x3D;&quot;text&quot; placeholder&#x3D;&quot;Número de Documento *&quot; formControlName&#x3D;&quot;numeroDocumento&quot;
+                 maxlength&#x3D;&quot;8&quot;
+                 (keypress)&#x3D;&quot;onlyNumbers($event)&quot;
+                 (paste)&#x3D;&quot;onPaste($event, &#x27;numeroDocumento&#x27;)&quot;
+                 required&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;button type&#x3D;&quot;button&quot; class&#x3D;&quot;btn-login&quot; (click)&#x3D;&quot;onSubmit()&quot;&gt;Continuar&lt;/button&gt;
+
+      &lt;p class&#x3D;&quot;terms-text&quot;&gt;
+        Al registrarse acepta los &lt;a href&#x3D;&quot;#&quot; (click)&#x3D;&quot;mostrarTerminos($event)&quot;&gt;Términos del Servicio&lt;/a&gt;&lt;br&gt;
+        y la &lt;a href&#x3D;&quot;#&quot;  (click)&#x3D;&quot;mostrarPoliticas($event)&quot;&gt;Política de Privacidad&lt;/a&gt;
+      &lt;/p&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><header class="header">  <div class="logo" (click)="navigateToHome()">    <img src="img/logo/logo-fasticket.jpg" alt="FASTICKET">  </div>  <div class="header-buttons">    <button class="btn-header" (click)="router.navigate([\'/login\'])">Iniciar Sesion</button>    <!-- Botón con icono de casita -->    <button class="btn-icon" (click)="router.navigate([\'/home\'])">      <img src="img/logo/home.jpg" alt="Inicio">    </button>  </div></header><div class="login-container">  <!-- Lado izquierdo con la imagen -->  <div class="poster">    <img src="img/logo/concierto.jpg" alt="Concierto">  </div><!-- Lado derecho con el formulario de registro -->  <div class="form-container">    <h1>¡Crea tu cuenta!</h1>    <p class="subtitle">Regístrate y accede a muchos beneficios</p>    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">      <input type="text" placeholder="Nombres *" formControlName="nombres" required>      <input type="text" placeholder="Apellidos *" formControlName="apellidos" required>      <input type="email" placeholder="Correo Electrónico *" formControlName="correo" required>      <input type="password" placeholder="Contraseña *" formControlName="contrasena" required>      <input type="password" placeholder="Repita Contraseña *" formControlName="repitaContrasena" required>      <div class="form-row">        <div class="form-group form-group-date">          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>        </div>        <!-- Departamento -->        <div class="form-group form-group-departamento">          <select            id="departamento"            placeholder="Departamento *"            formControlName="departamento"            class="form-control">            <option value="">Departamento *</option>            <option *ngFor="let dep of departamentos" [value]="dep.idDepartamento">              {{ dep.nombre }}            </option>          </select>        </div>        <!-- Provincia -->        <div class="form-group form-group-provincia">          <select            id="provincia"            placeholder="Provincia *"            formControlName="provincia"            class="form-control"            [disabled]="!provincias.length || loadingProvincias">            <option value="">              {{ loadingProvincias ? \'Cargando...\' : \'Provincia *\' }}            </option>            <option *ngFor="let prov of provincias" [value]="prov.idProvincia">              {{ prov.nombre }}            </option>          </select>        </div>        <!-- Distrito -->        <div class="form-group form-group-distrito">          <select            id="distrito"            placeholder="Distrito *"            formControlName="distrito"            class="form-control"            [disabled]="!distritos.length || loadingDistritos">            <option value="">              {{ loadingDistritos ? \'Cargando...\' : \'Distrito *\' }}            </option>            <option *ngFor="let dist of distritos" [value]="dist.idDistrito">              {{ dist.nombre }}            </option>          </select>        </div>      </div>      <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>      <div class="form-row">        <div class="form-group form-group-telefono">          <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"                 maxlength="9"                 (keypress)="onlyNumbers($event)"                 (paste)="onPaste($event, \'telefono\')"                 required>        </div>        <div class="form-group form-group-tipo-doc">          <select formControlName="tipoDocumento" required>            <option value="">Tipo de Documento *</option>            <option value="DNI">DNI</option>            <option value="PASAPORTE">Pasaporte</option>            <option value="ce">Carnet de Extranjería</option>          </select>        </div>        <div class="form-group form-group-num-doc">          <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"                 maxlength="8"                 (keypress)="onlyNumbers($event)"                 (paste)="onPaste($event, \'numeroDocumento\')"                 required>        </div>      </div>      <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>      <p class="terms-text">        Al registrarse acepta los <a href="#" (click)="mostrarTerminos($event)">Términos del Servicio</a><br>        y la <a href="#"  (click)="mostrarPoliticas($event)">Política de Privacidad</a>      </p>    </form>  </div></div></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'CrearUsuarioComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'CrearUsuarioComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

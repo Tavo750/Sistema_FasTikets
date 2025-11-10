@@ -1,0 +1,2394 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  BeneficiosComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-beneficios</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./beneficios.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./beneficios.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#benefitsByTier" >benefitsByTier</a>
+                            </li>
+                            <li>
+                                <a href="#historialPuntosRaw" >historialPuntosRaw</a>
+                            </li>
+                            <li>
+                                <a href="#history" >history</a>
+                            </li>
+                            <li>
+                                <a href="#isLoadingHistory" >isLoadingHistory</a>
+                            </li>
+                            <li>
+                                <a href="#isLoadingPoints" >isLoadingPoints</a>
+                            </li>
+                            <li>
+                                <a href="#memberships" >memberships</a>
+                            </li>
+                            <li>
+                                <a href="#points" >points</a>
+                            </li>
+                            <li>
+                                <a href="#selectedTier" >selectedTier</a>
+                            </li>
+                            <li>
+                                <a href="#showHistory" >showHistory</a>
+                            </li>
+                            <li>
+                                <a href="#targetBlack" >targetBlack</a>
+                            </li>
+                            <li>
+                                <a href="#tier" >tier</a>
+                            </li>
+                            <li>
+                                <a href="#tierRange" >tierRange</a>
+                            </li>
+                            <li>
+                                <a href="#userName" >userName</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#calculateTierByPoints" >calculateTierByPoints</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#cargarHistorialPuntos" >cargarHistorialPuntos</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#cargarPuntosCliente" >cargarPuntosCliente</a>
+                            </li>
+                            <li>
+                                <a href="#closeHistory" >closeHistory</a>
+                            </li>
+                            <li>
+                                <a href="#closeTier" >closeTier</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#determinarEstadoPunto" >determinarEstadoPunto</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#formatearFecha" >formatearFecha</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#handlePuntosError" >handlePuntosError</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#openTier" >openTier</a>
+                            </li>
+                            <li>
+                                <a href="#refreshPoints" >refreshPoints</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#transformarHistorialParaVista" >transformarHistorialParaVista</a>
+                            </li>
+                            <li>
+                                <a href="#viewPointsHistory" >viewPointsHistory</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#progressToBlack" >progressToBlack</a>
+                                </li>
+                                <li>
+                                    <a href="#progressMarkerLeft" >progressMarkerLeft</a>
+                                </li>
+                                <li>
+                                    <a href="#puntosDisplay" >puntosDisplay</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(router: Router, route: ActivatedRoute, beneficiosService: <a href="../injectables/BeneficiosService.html" target="_self">BeneficiosService</a>, historialPuntosService: <a href="../injectables/HistorialPuntosService.html" target="_self">HistorialPuntosService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:99</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>route</td>
+                                                  
+                                                        <td>
+                                                                    <code>ActivatedRoute</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>beneficiosService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/BeneficiosService.html" target="_self" >BeneficiosService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>historialPuntosService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/HistorialPuntosService.html" target="_self" >HistorialPuntosService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="calculateTierByPoints"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>calculateTierByPoints</b></span>
+                        <a href="#calculateTierByPoints"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>calculateTierByPoints(points: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="170"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:170</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Calcula el tier basado en los puntos acumulados</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>points</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Puntos acumulados del cliente</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Tier</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Tier correspondiente</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cargarHistorialPuntos"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>cargarHistorialPuntos</b></span>
+                        <a href="#cargarHistorialPuntos"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cargarHistorialPuntos()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="222"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:222</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Carga el historial de puntos del cliente autenticado</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cargarPuntosCliente"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>cargarPuntosCliente</b></span>
+                        <a href="#cargarPuntosCliente"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cargarPuntosCliente()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="123"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:123</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Carga los puntos del cliente autenticado desde el servicio
+El endpoint usa el token de autenticación para identificar automáticamente al cliente</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="closeHistory"></a>
+                    <span class="name">
+                        <span ><b>closeHistory</b></span>
+                        <a href="#closeHistory"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>closeHistory()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:192</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="closeTier"></a>
+                    <span class="name">
+                        <span ><b>closeTier</b></span>
+                        <a href="#closeTier"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>closeTier()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="182"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:182</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="determinarEstadoPunto"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>determinarEstadoPunto</b></span>
+                        <a href="#determinarEstadoPunto"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>determinarEstadoPunto(item: <a href="../interfaces/Datum.html" target="_self">Datum</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="275"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:275</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Determina el estado del punto basado en los datos del servidor</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>item</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Datum.html" target="_self" >Datum</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#EstadoPuntos" target="_self" >EstadoPuntos</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="formatearFecha"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>formatearFecha</b></span>
+                        <a href="#formatearFecha"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>formatearFecha(fecha: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank">Date</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:294</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Formatea una fecha para mostrar en la vista</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>fecha</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handlePuntosError"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>handlePuntosError</b></span>
+                        <a href="#handlePuntosError"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handlePuntosError(mensaje: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="158"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:158</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Maneja errores al cargar puntos</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>mensaje</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:114</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="openTier"></a>
+                    <span class="name">
+                        <span ><b>openTier</b></span>
+                        <a href="#openTier"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>openTier(t: <a href="../undefineds/Tier.html" target="_self">Tier</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:177</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>t</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Tier</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="refreshPoints"></a>
+                    <span class="name">
+                        <span ><b>refreshPoints</b></span>
+                        <a href="#refreshPoints"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>refreshPoints()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="199"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:199</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Refresca los puntos del cliente (útil para botón de actualizar)</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="transformarHistorialParaVista"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>transformarHistorialParaVista</b></span>
+                        <a href="#transformarHistorialParaVista"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>transformarHistorialParaVista(historialRaw: <a href="../interfaces/Datum.html" target="_self">Datum[]</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="253"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:253</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Transforma los datos del servidor al formato esperado por la vista</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>historialRaw</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Datum.html" target="_self" >Datum[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Datos raw del servidor</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>MovimientoPuntos[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Array de MovimientoPuntos para la vista</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="viewPointsHistory"></a>
+                    <span class="name">
+                        <span ><b>viewPointsHistory</b></span>
+                        <a href="#viewPointsHistory"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>viewPointsHistory()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="187"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:187</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="benefitsByTier"></a>
+                    <span class="name">
+                        <span ><b>benefitsByTier</b></span>
+                        <a href="#benefitsByTier"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Record&lt;Tier | string[]&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    BRONCE: [
+      &#x27;Descuento del 10% en compras&#x27;,
+      &#x27;Acceso a preventas seleccionadas&#x27;,
+      &#x27;Soporte estándar&#x27;,
+      &#x27;Acumulación de puntos&#x27;
+    ],
+    PLATA: [
+      &#x27;Descuento del 25% en todas las entradas&#x27;,
+      &#x27;Puntos dobles en compras&#x27;,
+      &#x27;Acceso exclusivo a pre-ventas&#x27;,
+      &#x27;Beneficios especiales en lanzamientos&#x27;
+    ],
+    ORO: [
+      &#x27;Descuento del 40% en todas las entradas&#x27;,
+      &#x27;Puntos triples en compras&#x27;,
+      &#x27;Acceso exclusivo a pre-ventas&#x27;,
+      &#x27;Beneficios especiales en lanzamientos&#x27;,
+      &#x27;Atención prioritaria&#x27;
+    ],
+    BLACK: [
+      &#x27;Concierge 24/7&#x27;,
+      &#x27;Meet &amp; Greet sujetos a stock&#x27;,
+      &#x27;Upgrades automáticos&#x27;,
+      &#x27;Invitaciones a eventos VIP&#x27;
+    ]
+  }</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:67</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="historialPuntosRaw"></a>
+                    <span class="name">
+                        <span ><b>historialPuntosRaw</b></span>
+                        <a href="#historialPuntosRaw"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../interfaces/Datum.html" target="_self" >Datum[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="98" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:98</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="history"></a>
+                    <span class="name">
+                        <span ><b>history</b></span>
+                        <a href="#history"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>MovimientoPuntos[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="97" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:97</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isLoadingHistory"></a>
+                    <span class="name">
+                        <span ><b>isLoadingHistory</b></span>
+                        <a href="#isLoadingHistory"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:99</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isLoadingPoints"></a>
+                    <span class="name">
+                        <span ><b>isLoadingPoints</b></span>
+                        <a href="#isLoadingPoints"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:41</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="memberships"></a>
+                    <span class="name">
+                        <span ><b>memberships</b></span>
+                        <a href="#memberships"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    { id: &#x27;BRONCE&#x27; as const, label: &#x27;Bronce&#x27;, image: &#x27;/img/membresias/lingotes/bronce.jpg&#x27; },
+    { id: &#x27;PLATA&#x27;  as const, label: &#x27;Plata&#x27;,  image: &#x27;/img/membresias/lingotes/plata.jpg&#x27;  },
+    { id: &#x27;ORO&#x27;    as const, label: &#x27;Oro&#x27;,    image: &#x27;/img/membresias/lingotes/oro.jpg&#x27;    },
+  ]</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="points"></a>
+                    <span class="name">
+                        <span ><b>points</b></span>
+                        <a href="#points"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>0</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:39</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="selectedTier"></a>
+                    <span class="name">
+                        <span ><b>selectedTier</b></span>
+                        <a href="#selectedTier"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Tier | null</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="showHistory"></a>
+                    <span class="name">
+                        <span ><b>showHistory</b></span>
+                        <a href="#showHistory"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="96" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:96</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="targetBlack"></a>
+                    <span class="name">
+                        <span ><b>targetBlack</b></span>
+                        <a href="#targetBlack"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>500</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:40</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="tier"></a>
+                    <span class="name">
+                        <span ><b>tier</b></span>
+                        <a href="#tier"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Tier</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;PLATA&#x27;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:33</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="tierRange"></a>
+                    <span class="name">
+                        <span ><b>tierRange</b></span>
+                        <a href="#tierRange"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#Tier" target="_self" >Record&lt;Tier | string&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    BRONCE: &#x27;hasta 30 entradas&#x27;,
+    PLATA:  &#x27;de 30 a 50 entradas&#x27;,
+    ORO:    &#x27;más de 50 entradas&#x27;,
+    BLACK:  &#x27;beneficios premium&#x27;
+  }</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:59</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="userName"></a>
+                    <span class="name">
+                        <span ><b>userName</b></span>
+                        <a href="#userName"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&#x27;PAPS&#x27;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="progressToBlack"></a>
+                        <span class="name"><b>progressToBlack</b><a href="#progressToBlack"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>progressToBlack()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:43</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="progressMarkerLeft"></a>
+                        <span class="name"><b>progressMarkerLeft</b><a href="#progressMarkerLeft"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>progressMarkerLeft()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:47</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="puntosDisplay"></a>
+                        <span class="name"><b>puntosDisplay</b><a href="#puntosDisplay"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>puntosDisplay()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="212" class="link-to-prism">src/app/pages/modules/usuario/components/beneficios/beneficios.component.ts:212</a></div>
+                                </td>
+                            </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-description"><p>Getter para mostrar el estado de los puntos</p>
+</div>
+
+                                <div class="io-description">
+                                    <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                </div>
+                        </td>
+                    </tr>
+
+            </tbody>
+        </table>
+</section>
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit } from &#x27;@angular/core&#x27;;
+import { Router, ActivatedRoute } from &#x27;@angular/router&#x27;;
+import { BeneficiosService } from &#x27;../../services/beneficios.service&#x27;;
+import { BeneficiosResponse } from &#x27;../../interfaces/beneficios/beneficios.interface&#x27;;
+import { HistorialPuntosService } from &#x27;../../services/historial-puntos.service&#x27;;
+import { HistorialPuntosResponse, Datum } from &#x27;../../interfaces/beneficios/historial-puntos.interface&#x27;;
+
+type Tier &#x3D; &#x27;BRONCE&#x27; | &#x27;PLATA&#x27; | &#x27;ORO&#x27; | &#x27;BLACK&#x27;;
+type EstadoPuntos &#x3D; &#x27;Vigentes&#x27; | &#x27;Canjeado&#x27;;
+
+interface Membership {
+  id: Tier;
+  label: string;
+  image: string;
+}
+interface MovimientoPuntos {
+  fechaAdquisicion: string;
+  fechaVencimiento: string;
+  estado: EstadoPuntos;
+  fechaCanje: string | &#x27;-&#x27;;
+  cantidad: number;
+}
+
+@Component({
+  selector: &#x27;app-beneficios&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./beneficios.component.html&#x27;,
+  styleUrls: [&#x27;./beneficios.component.css&#x27;]
+})
+export class BeneficiosComponent implements OnInit {
+
+  userName &#x3D; &#x27;PAPS&#x27;;
+  tier: Tier &#x3D; &#x27;PLATA&#x27;;  // nivel real del usuario (solo para saludo)
+
+  // Sin selección por defecto en &quot;Nuestras Membresías&quot;
+  selectedTier: Tier | null &#x3D; null;
+
+  // Puntos - ahora dinámicos
+  points &#x3D; 0;
+  targetBlack &#x3D; 500;
+  isLoadingPoints &#x3D; false;
+
+  get progressToBlack(): number {
+    return Math.min(Math.round((this.points / this.targetBlack) * 100), 100);
+  }
+  // Posición del marcador sobre el banner (compensa el ancho del marcador)
+  get progressMarkerLeft(): string {
+    return &#x60;calc(${this.progressToBlack}% - 10px)&#x60;;
+  }
+
+  // Lingotes
+  memberships &#x3D; [
+    { id: &#x27;BRONCE&#x27; as const, label: &#x27;Bronce&#x27;, image: &#x27;/img/membresias/lingotes/bronce.jpg&#x27; },
+    { id: &#x27;PLATA&#x27;  as const, label: &#x27;Plata&#x27;,  image: &#x27;/img/membresias/lingotes/plata.jpg&#x27;  },
+    { id: &#x27;ORO&#x27;    as const, label: &#x27;Oro&#x27;,    image: &#x27;/img/membresias/lingotes/oro.jpg&#x27;    },
+  ];
+
+  // Subtítulo/rango por tier
+  tierRange: Record&lt;Tier, string&gt; &#x3D; {
+    BRONCE: &#x27;hasta 30 entradas&#x27;,
+    PLATA:  &#x27;de 30 a 50 entradas&#x27;,
+    ORO:    &#x27;más de 50 entradas&#x27;,
+    BLACK:  &#x27;beneficios premium&#x27;
+  };
+
+  // Beneficios (mock)
+  benefitsByTier: Record&lt;Tier, string[]&gt; &#x3D; {
+    BRONCE: [
+      &#x27;Descuento del 10% en compras&#x27;,
+      &#x27;Acceso a preventas seleccionadas&#x27;,
+      &#x27;Soporte estándar&#x27;,
+      &#x27;Acumulación de puntos&#x27;
+    ],
+    PLATA: [
+      &#x27;Descuento del 25% en todas las entradas&#x27;,
+      &#x27;Puntos dobles en compras&#x27;,
+      &#x27;Acceso exclusivo a pre-ventas&#x27;,
+      &#x27;Beneficios especiales en lanzamientos&#x27;
+    ],
+    ORO: [
+      &#x27;Descuento del 40% en todas las entradas&#x27;,
+      &#x27;Puntos triples en compras&#x27;,
+      &#x27;Acceso exclusivo a pre-ventas&#x27;,
+      &#x27;Beneficios especiales en lanzamientos&#x27;,
+      &#x27;Atención prioritaria&#x27;
+    ],
+    BLACK: [
+      &#x27;Concierge 24/7&#x27;,
+      &#x27;Meet &amp; Greet sujetos a stock&#x27;,
+      &#x27;Upgrades automáticos&#x27;,
+      &#x27;Invitaciones a eventos VIP&#x27;
+    ]
+  };
+
+  // Historial - ahora dinámico
+  showHistory &#x3D; false;
+  history: MovimientoPuntos[] &#x3D; [];
+  historialPuntosRaw: Datum[] &#x3D; [];
+  isLoadingHistory &#x3D; false;
+
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private beneficiosService: BeneficiosService,
+    private historialPuntosService: HistorialPuntosService
+  ) {
+    // Deep-link opcional: ?tier&#x3D;ORO
+    const qpTier &#x3D; (this.route.snapshot.queryParamMap.get(&#x27;tier&#x27;) as Tier) || null;
+    if (qpTier &amp;&amp; [&#x27;BRONCE&#x27;,&#x27;PLATA&#x27;,&#x27;ORO&#x27;,&#x27;BLACK&#x27;].includes(qpTier)) {
+      this.selectedTier &#x3D; qpTier;
+    }
+  }
+
+  ngOnInit(): void {
+    // Cargar puntos del cliente autenticado al inicializar el componente
+    this.cargarPuntosCliente();
+  }
+
+  /**
+   * Carga los puntos del cliente autenticado desde el servicio
+   * El endpoint usa el token de autenticación para identificar automáticamente al cliente
+   */
+  private cargarPuntosCliente(): void {
+    this.isLoadingPoints &#x3D; true;
+    
+    this.beneficiosService.getObtenerPuntosDeClienteAutenticado()
+      .subscribe({
+        next: (response: BeneficiosResponse) &#x3D;&gt; {
+          if (response.ok &amp;&amp; response.data) {
+            // Actualizar puntos y tier dinámicamente
+            this.points &#x3D; response.data.puntosAcumulados;
+            this.tier &#x3D; this.calculateTierByPoints(this.points);
+            
+            console.log(&#x27;Cliente ID:&#x27;, response.data.idCliente);
+            console.log(&#x27;Puntos cargados:&#x27;, this.points);
+            console.log(&#x27;Tier calculado:&#x27;, this.tier);
+            console.log(&#x27;Mensaje del servidor:&#x27;, response.data.mensaje);
+            
+            // Opcional: mostrar mensaje de éxito
+            // this.messageService.success(&#x60;Puntos actualizados: ${this.points}&#x60;, &#x27;Beneficios&#x27;);
+          } else {
+            console.error(&#x27;Error en la respuesta del servidor:&#x27;, response.mensaje);
+            this.handlePuntosError(&#x27;Error en la respuesta del servidor&#x27;);
+          }
+          this.isLoadingPoints &#x3D; false;
+        },
+        error: (error) &#x3D;&gt; {
+          console.error(&#x27;Error al cargar puntos del cliente autenticado:&#x27;, error);
+          this.handlePuntosError(&#x27;Error de conexión al cargar puntos&#x27;);
+          this.isLoadingPoints &#x3D; false;
+        }
+      });
+  }
+
+  /**
+   * Maneja errores al cargar puntos
+   */
+  private handlePuntosError(mensaje: string): void {
+    this.points &#x3D; 0;
+    this.tier &#x3D; &#x27;BRONCE&#x27;;
+    // Opcional: mostrar mensaje de error al usuario
+    // this.messageService.error(mensaje, &#x27;Error&#x27;);
+  }
+
+  /**
+   * Calcula el tier basado en los puntos acumulados
+   * @param points Puntos acumulados del cliente
+   * @returns Tier correspondiente
+   */
+  private calculateTierByPoints(points: number): Tier {
+    if (points &gt;&#x3D; 500) return &#x27;BLACK&#x27;;
+    if (points &gt;&#x3D; 200) return &#x27;ORO&#x27;;
+    if (points &gt;&#x3D; 100) return &#x27;PLATA&#x27;;
+    return &#x27;BRONCE&#x27;;
+  }
+
+  openTier(t: Tier) {
+    this.selectedTier &#x3D; t;
+    //this.router.navigate([], { queryParams: { tier: t }, queryParamsHandling: &#x27;merge&#x27; });
+  }
+
+  closeTier() {
+    this.selectedTier &#x3D; null;
+    //this.router.navigate([], { queryParams: { tier: null }, queryParamsHandling: &#x27;merge&#x27; });
+  }
+
+  viewPointsHistory() { 
+    this.showHistory &#x3D; true; 
+    this.cargarHistorialPuntos();
+  }
+  
+  closeHistory() { 
+    this.showHistory &#x3D; false; 
+  }
+
+  /**
+   * Refresca los puntos del cliente (útil para botón de actualizar)
+   */
+  refreshPoints(): void {
+    if (!this.isLoadingPoints) {
+      this.cargarPuntosCliente();
+      // Si el historial está visible, también refrescar
+      if (this.showHistory &amp;&amp; !this.isLoadingHistory) {
+        this.cargarHistorialPuntos();
+      }
+    }
+  }
+
+  /**
+   * Getter para mostrar el estado de los puntos
+   */
+  get puntosDisplay(): string {
+    if (this.isLoadingPoints) {
+      return &#x27;Cargando...&#x27;;
+    }
+    return this.points.toString();
+  }
+
+  /**
+   * Carga el historial de puntos del cliente autenticado
+   */
+  private cargarHistorialPuntos(): void {
+    this.isLoadingHistory &#x3D; true;
+    
+    this.historialPuntosService.getObtenerHistorialDePuntosDeClienteAutenticado()
+      .subscribe({
+        next: (response: HistorialPuntosResponse) &#x3D;&gt; {
+          if (response.ok &amp;&amp; response.data) {
+            this.historialPuntosRaw &#x3D; response.data;
+            this.history &#x3D; this.transformarHistorialParaVista(response.data);
+            
+            console.log(&#x27;Historial de puntos cargado:&#x27;, this.historialPuntosRaw);
+            console.log(&#x27;Historial transformado:&#x27;, this.history);
+          } else {
+            console.error(&#x27;Error en la respuesta del historial:&#x27;, response.mensaje);
+            this.history &#x3D; [];
+          }
+          this.isLoadingHistory &#x3D; false;
+        },
+        error: (error) &#x3D;&gt; {
+          console.error(&#x27;Error al cargar historial de puntos:&#x27;, error);
+          this.history &#x3D; [];
+          this.isLoadingHistory &#x3D; false;
+        }
+      });
+  }
+
+  /**
+   * Transforma los datos del servidor al formato esperado por la vista
+   * @param historialRaw Datos raw del servidor
+   * @returns Array de MovimientoPuntos para la vista
+   */
+  private transformarHistorialParaVista(historialRaw: Datum[]): MovimientoPuntos[] {
+    return historialRaw.map(item &#x3D;&gt; {
+      // Determinar el estado basado en el tipo de transacción y si está activo
+      const estado: EstadoPuntos &#x3D; this.determinarEstadoPunto(item);
+      
+      // Formatear fechas
+      const fechaTransaccion &#x3D; this.formatearFecha(item.fechaTransaccion);
+      const fechaVencimiento &#x3D; this.formatearFecha(item.fechaVencimiento);
+      
+      return {
+        fechaAdquisicion: fechaTransaccion,
+        fechaVencimiento: fechaVencimiento,
+        estado: estado,
+        fechaCanje: estado &#x3D;&#x3D;&#x3D; &#x27;Canjeado&#x27; ? fechaTransaccion : &#x27;-&#x27;,
+        cantidad: Math.abs(item.cantPuntos) // Usar valor absoluto para mostrar
+      };
+    });
+  }
+
+  /**
+   * Determina el estado del punto basado en los datos del servidor
+   */
+  private determinarEstadoPunto(item: Datum): EstadoPuntos {
+    // Si no está activo o es una transacción negativa (canje), es &quot;Canjeado&quot;
+    if (!item.activo || item.cantPuntos &lt; 0 || item.tipoTransaccion.includes(&#x27;CANJE&#x27;)) {
+      return &#x27;Canjeado&#x27;;
+    }
+    
+    // Si la fecha de vencimiento ya pasó, también es considerado como usado
+    const fechaVencimiento &#x3D; new Date(item.fechaVencimiento);
+    const hoy &#x3D; new Date();
+    if (fechaVencimiento &lt; hoy) {
+      return &#x27;Canjeado&#x27;;
+    }
+    
+    return &#x27;Vigentes&#x27;;
+  }
+
+  /**
+   * Formatea una fecha para mostrar en la vista
+   */
+  private formatearFecha(fecha: Date): string {
+    const fechaObj &#x3D; new Date(fecha);
+    return fechaObj.toLocaleDateString(&#x27;es-ES&#x27;, {
+      day: &#x27;2-digit&#x27;,
+      month: &#x27;2-digit&#x27;,
+      year: &#x27;numeric&#x27;
+    });
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;beneficios-page&quot;&gt;
+
+  &lt;!-- Saludo + insignia de nivel (membresía a la derecha) --&gt;
+  &lt;div class&#x3D;&quot;p-card greeting-card&quot;&gt;
+    &lt;div class&#x3D;&quot;greet-row&quot;&gt;
+      &lt;h2 class&#x3D;&quot;title-xl&quot;&gt;Hola, {{ userName }}&lt;/h2&gt;
+      &lt;p-tag [value]&#x3D;&quot;tier&quot; severity&#x3D;&quot;secondary&quot; styleClass&#x3D;&quot;tier-badge&quot;&gt;&lt;/p-tag&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Saldo de Puntos --&gt;
+  &lt;p-card class&#x3D;&quot;points-card&quot;&gt;
+    &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+      &lt;h3 class&#x3D;&quot;section-title&quot;&gt;Saldo de Puntos&lt;/h3&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+      &lt;div class&#x3D;&quot;points-col&quot;&gt;
+        &lt;!-- Línea 1: moneda + número centrados --&gt;
+        &lt;div class&#x3D;&quot;points-row&quot;&gt;
+          &lt;img class&#x3D;&quot;coin-icon&quot; src&#x3D;&quot;/img/iconos/coin.svg&quot; alt&#x3D;&quot;moneda&quot; /&gt;
+          &lt;div class&#x3D;&quot;points-number&quot;&gt;{{ points }} puntos&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;!-- Línea 2: leyenda centrada --&gt;
+        &lt;small class&#x3D;&quot;points-rate&quot;&gt;1 punto equivale a S/ 0.50&lt;/small&gt;
+        &lt;!-- Línea 3: botón negro centrado --&gt;
+        &lt;p-button
+          label&#x3D;&quot;Ver Historial de Puntos&quot;
+          styleClass&#x3D;&quot;btn-history&quot;
+          size&#x3D;&quot;small&quot;
+          (onClick)&#x3D;&quot;viewPointsHistory()&quot;&gt;
+        &lt;/p-button&gt;
+      &lt;/div&gt;
+    &lt;/ng-template&gt;
+  &lt;/p-card&gt;
+
+  &lt;!-- Progreso hacia black --&gt;
+  &lt;p-card class&#x3D;&quot;progress-card&quot;&gt;
+    &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+      &lt;h3 class&#x3D;&quot;section-title&quot;&gt;Progreso hacia black&lt;/h3&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+      &lt;p-progressbar [value]&#x3D;&quot;progressToBlack&quot; [showValue]&#x3D;&quot;true&quot; styleClass&#x3D;&quot;progress-pill&quot;&gt;
+      &lt;/p-progressbar&gt;
+      &lt;div class&#x3D;&quot;progress-meta text-sm&quot;&gt;
+        {{ points }} / {{ targetBlack }} pts ({{ progressToBlack }}%)
+      &lt;/div&gt;
+    &lt;/ng-template&gt;
+  &lt;/p-card&gt;
+
+  &lt;!-- Nuestras Membresías --&gt;
+  &lt;p-card class&#x3D;&quot;memberships-card&quot;&gt;
+    &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+      &lt;h3 class&#x3D;&quot;section-title&quot;&gt;Nuestras Membresías&lt;/h3&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+      &lt;!-- Vista 1: lingotes (sin selección) --&gt;
+      &lt;div *ngIf&#x3D;&quot;!selectedTier&quot; class&#x3D;&quot;membership-row d-flex justify-content-around flex-wrap gap-3&quot;&gt;
+        &lt;div
+          class&#x3D;&quot;membership-item pointer&quot;
+          *ngFor&#x3D;&quot;let m of memberships&quot;
+          (click)&#x3D;&quot;openTier(m.id)&quot;
+          tabindex&#x3D;&quot;0&quot;
+          role&#x3D;&quot;button&quot;&gt;
+          &lt;img [src]&#x3D;&quot;m.image&quot; [alt]&#x3D;&quot;m.label&quot; /&gt;
+          &lt;p-tag
+            [value]&#x3D;&quot;m.label&quot;
+            [severity]&#x3D;&quot;m.id &#x3D;&#x3D;&#x3D; &#x27;ORO&#x27; ? &#x27;warning&#x27; : (m.id &#x3D;&#x3D;&#x3D; &#x27;PLATA&#x27; ? &#x27;info&#x27; : &#x27;help&#x27;)&quot;&gt;
+          &lt;/p-tag&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Vista 2: detalle (oculta lingotes) --&gt;
+      &lt;div *ngIf&#x3D;&quot;selectedTier as t&quot; class&#x3D;&quot;tier-details-wrapper&quot;&gt;
+        &lt;div class&#x3D;&quot;detail-header&quot;&gt;
+          &lt;button class&#x3D;&quot;back-btn&quot; type&#x3D;&quot;button&quot; (click)&#x3D;&quot;closeTier()&quot; aria-label&#x3D;&quot;Volver&quot;&gt;
+            &lt;i class&#x3D;&quot;pi pi-chevron-left&quot;&gt;&lt;/i&gt;
+          &lt;/button&gt;
+
+          &lt;div class&#x3D;&quot;detail-headline&quot;&gt;
+            &lt;p-tag [value]&#x3D;&quot;t&quot; severity&#x3D;&quot;secondary&quot; styleClass&#x3D;&quot;mr-2&quot;&gt;&lt;/p-tag&gt;
+            &lt;span class&#x3D;&quot;range-text&quot;&gt;{{ tierRange[t] }}&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class&#x3D;&quot;benefits-grid&quot;&gt;
+          &lt;div class&#x3D;&quot;benefit-row&quot; *ngFor&#x3D;&quot;let b of benefitsByTier[t]&quot;&gt;
+            &lt;div class&#x3D;&quot;ticket-icon&quot;&gt;
+              &lt;img src&#x3D;&quot;/img/iconos/ticketMembresia.svg&quot; alt&#x3D;&quot;ticket&quot; /&gt;
+            &lt;/div&gt;
+            &lt;div class&#x3D;&quot;benefit-text&quot;&gt;{{ b }}&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/ng-template&gt;
+  &lt;/p-card&gt;
+
+&lt;/div&gt;
+
+&lt;!-- Diálogo: Historial de Puntos --&gt;
+&lt;p-dialog
+  header&#x3D;&quot;Historial de Puntos&quot;
+  [(visible)]&#x3D;&quot;showHistory&quot;
+  [modal]&#x3D;&quot;true&quot;
+  [dismissableMask]&#x3D;&quot;true&quot;
+  [closable]&#x3D;&quot;false&quot;
+  [style]&#x3D;&quot;{ width: &#x27;700px&#x27;, maxWidth: &#x27;95vw&#x27; }&quot;&gt;
+
+  &lt;p-table [value]&#x3D;&quot;history&quot; responsiveLayout&#x3D;&quot;scroll&quot;&gt;
+    &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+      &lt;tr&gt;
+        &lt;th&gt;FECHA ADQUISICIÓN&lt;/th&gt;
+        &lt;th&gt;FECHA VENCIMIENTO&lt;/th&gt;
+        &lt;th&gt;ESTADO&lt;/th&gt;
+        &lt;th&gt;FECHA CANJE&lt;/th&gt;
+        &lt;th class&#x3D;&quot;text-right&quot;&gt;CANTIDAD PUNTOS&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/ng-template&gt;
+
+    &lt;ng-template pTemplate&#x3D;&quot;body&quot; let-row&gt;
+      &lt;tr&gt;
+        &lt;td&gt;{{ row.fechaAdquisicion }}&lt;/td&gt;
+        &lt;td&gt;{{ row.fechaVencimiento }}&lt;/td&gt;
+        &lt;td&gt;
+          &lt;p-tag [value]&#x3D;&quot;row.estado&quot; [severity]&#x3D;&quot;row.estado &#x3D;&#x3D;&#x3D; &#x27;Vigentes&#x27; ? &#x27;info&#x27; : &#x27;success&#x27;&quot;&gt;&lt;/p-tag&gt;
+        &lt;/td&gt;
+        &lt;td&gt;{{ row.fechaCanje }}&lt;/td&gt;
+        &lt;td class&#x3D;&quot;text-right&quot;&gt;{{ row.cantidad }}&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/ng-template&gt;
+  &lt;/p-table&gt;
+
+  &lt;ng-template pTemplate&#x3D;&quot;footer&quot;&gt;
+    &lt;div class&#x3D;&quot;dialog-footer-center&quot;&gt;
+      &lt;p-button label&#x3D;&quot;Cerrar&quot; (onClick)&#x3D;&quot;closeHistory()&quot;&gt;&lt;/p-button&gt;
+    &lt;/div&gt;
+  &lt;/ng-template&gt;
+&lt;/p-dialog&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./beneficios.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">/* Layout base */
+.beneficios-page { display: grid; gap: 1rem; }
+
+/* ---------- Saludo ---------- */
+.greeting-card { padding: .75rem 1rem; }
+.greet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tier-badge { font-weight: 700; text-transform: uppercase; }
+
+/* Títulos */
+.title-xl { margin: 0; font-size: 2rem; font-weight: 800; }
+.section-title { margin: 0; font-weight: 800; }
+
+/* ---------- Saldo de puntos (centrado en columna) ---------- */
+.points-card .p-card-header { padding-bottom: 0; }
+.points-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+}
+.points-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;                 /* separa moneda y número */
+}
+.coin-icon { width: 46px; height: 46px; display: block; }
+.points-number { font-size: 2.2rem; font-weight: 800; line-height: 1; text-align: center; }
+.points-rate { color: #6b7280; text-align: center; }
+
+/* Botón negro (PrimeNG) */
+:host ::ng-deep .btn-history.p-button {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+}
+:host ::ng-deep .btn-history.p-button:hover {
+  background: #111 !important;
+  border-color: #111 !important;
+}
+
+/* ---------- Progreso hacia black ---------- */
+.progress-card .p-card-header { padding-bottom: .25rem; }
+.progress-visual { width: 100%; }
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 82px;                 /* ajusta al alto de tu banner */
+  border-radius: 12px;
+  background-image: url(&#x27;/img/banners/progress-silver-gold.png&#x27;); /* tu banner */
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.progress-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;  height: 20px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.12);
+}
+.progress-meta {
+  margin-top: .5rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* ---------- Lingotes ---------- */
+.membership-item {
+  background: #f7f8f9;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  gap: .5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  border: 2px solid transparent;
+}
+.membership-item.pointer { cursor: pointer; }
+.membership-item:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.06); }
+.membership-item img { width: 110px; height: auto; display: block; }
+
+/* ---------- Detalle de beneficios ---------- */
+.tier-details-wrapper {
+  background: #f7f8f9;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+}
+.detail-header {
+  display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem;
+}
+.back-btn {
+  border: none; background: transparent;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; font-size: 1.1rem;
+}
+.back-btn:hover { background: #eceff3; }
+.detail-headline { display: flex; align-items: center; gap: .5rem; }
+.range-text { color: #6b7280; font-size: .95rem; }
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 1rem 2rem;
+}
+@media (max-width: 768px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+}
+
+/* Fila de beneficio: icono + texto */
+.benefit-row {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: .75rem;
+}
+.ticket-icon {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border-radius: 0; padding: 0;
+}
+.ticket-icon img { width: 44px; height: 44px; display: block; border-radius: 10px; }
+.benefit-text { font-weight: 600; color: #222; }
+
+/* Utilidades */
+.text-sm { font-size: .9rem; }
+
+/* Asegura que la barra sea visible (alto, ancho y colores) */
+:host ::ng-deep .progress-pill.p-progressbar {
+  display: block;
+  width: 100%;
+  height: 18px;              /* alto visible */
+  background: #e5e7eb;       /* pista gris clara */
+  border-radius: 9999px;
+}
+:host ::ng-deep .progress-pill .p-progressbar-value {
+  height: 100%;
+  border-radius: 9999px;
+  background: #111;          /* color del avance */
+}</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="beneficios-page">  <!-- Saludo + insignia de nivel (membresía a la derecha) -->  <div class="p-card greeting-card">    <div class="greet-row">      <h2 class="title-xl">Hola, {{ userName }}</h2>      <p-tag [value]="tier" severity="secondary" styleClass="tier-badge"></p-tag>    </div>  </div>  <!-- Saldo de Puntos -->  <p-card class="points-card">    <ng-template pTemplate="header">      <h3 class="section-title">Saldo de Puntos</h3>    </ng-template>    <ng-template pTemplate="content">      <div class="points-col">        <!-- Línea 1: moneda + número centrados -->        <div class="points-row">          <img class="coin-icon" src="/img/iconos/coin.svg" alt="moneda" />          <div class="points-number">{{ points }} puntos</div>        </div>        <!-- Línea 2: leyenda centrada -->        <small class="points-rate">1 punto equivale a S/ 0.50</small>        <!-- Línea 3: botón negro centrado -->        <p-button          label="Ver Historial de Puntos"          styleClass="btn-history"          size="small"          (onClick)="viewPointsHistory()">        </p-button>      </div>    </ng-template>  </p-card>  <!-- Progreso hacia black -->  <p-card class="progress-card">    <ng-template pTemplate="header">      <h3 class="section-title">Progreso hacia black</h3>    </ng-template>    <ng-template pTemplate="content">      <p-progressbar [value]="progressToBlack" [showValue]="true" styleClass="progress-pill">      </p-progressbar>      <div class="progress-meta text-sm">        {{ points }} / {{ targetBlack }} pts ({{ progressToBlack }}%)      </div>    </ng-template>  </p-card>  <!-- Nuestras Membresías -->  <p-card class="memberships-card">    <ng-template pTemplate="header">      <h3 class="section-title">Nuestras Membresías</h3>    </ng-template>    <ng-template pTemplate="content">      <!-- Vista 1: lingotes (sin selección) -->      <div *ngIf="!selectedTier" class="membership-row d-flex justify-content-around flex-wrap gap-3">        <div          class="membership-item pointer"          *ngFor="let m of memberships"          (click)="openTier(m.id)"          tabindex="0"          role="button">          <img [src]="m.image" [alt]="m.label" />          <p-tag            [value]="m.label"            [severity]="m.id === \'ORO\' ? \'warning\' : (m.id === \'PLATA\' ? \'info\' : \'help\')">          </p-tag>        </div>      </div>      <!-- Vista 2: detalle (oculta lingotes) -->      <div *ngIf="selectedTier as t" class="tier-details-wrapper">        <div class="detail-header">          <button class="back-btn" type="button" (click)="closeTier()" aria-label="Volver">            <i class="pi pi-chevron-left"></i>          </button>          <div class="detail-headline">            <p-tag [value]="t" severity="secondary" styleClass="mr-2"></p-tag>            <span class="range-text">{{ tierRange[t] }}</span>          </div>        </div>        <div class="benefits-grid">          <div class="benefit-row" *ngFor="let b of benefitsByTier[t]">            <div class="ticket-icon">              <img src="/img/iconos/ticketMembresia.svg" alt="ticket" />            </div>            <div class="benefit-text">{{ b }}</div>          </div>        </div>      </div>    </ng-template>  </p-card></div><!-- Diálogo: Historial de Puntos --><p-dialog  header="Historial de Puntos"  [(visible)]="showHistory"  [modal]="true"  [dismissableMask]="true"  [closable]="false"  [style]="{ width: \'700px\', maxWidth: \'95vw\' }">  <p-table [value]="history" responsiveLayout="scroll">    <ng-template pTemplate="header">      <tr>        <th>FECHA ADQUISICIÓN</th>        <th>FECHA VENCIMIENTO</th>        <th>ESTADO</th>        <th>FECHA CANJE</th>        <th class="text-right">CANTIDAD PUNTOS</th>      </tr>    </ng-template>    <ng-template pTemplate="body" let-row>      <tr>        <td>{{ row.fechaAdquisicion }}</td>        <td>{{ row.fechaVencimiento }}</td>        <td>          <p-tag [value]="row.estado" [severity]="row.estado === \'Vigentes\' ? \'info\' : \'success\'"></p-tag>        </td>        <td>{{ row.fechaCanje }}</td>        <td class="text-right">{{ row.cantidad }}</td>      </tr>    </ng-template>  </p-table>  <ng-template pTemplate="footer">    <div class="dialog-footer-center">      <p-button label="Cerrar" (onClick)="closeHistory()"></p-button>    </div>  </ng-template></p-dialog></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'BeneficiosComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'BeneficiosComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

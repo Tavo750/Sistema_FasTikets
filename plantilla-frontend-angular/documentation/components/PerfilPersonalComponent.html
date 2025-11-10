@@ -1,0 +1,1825 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>plantilla documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">plantilla documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content component">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Components</li>
+  <li class="breadcrumb-item"
+  >
+  PerfilPersonalComponent</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" class="nav-link"
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+        <li class="nav-item">
+            <a href="#templateData" class="nav-link"
+                role="tab" id="templateData-tab" data-bs-toggle="tab" data-link="template">Template</a>
+        </li>
+        <li class="nav-item">
+            <a href="#styleData" class="nav-link"
+                role="tab" id="styleData-tab" data-bs-toggle="tab" data-link="style">Styles</a>
+        </li>
+        <li class="nav-item">
+            <a href="#tree" class="nav-link"
+                role="tab" id="tree-tab" data-bs-toggle="tab" data-link="dom-tree">DOM Tree</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info"><p class="comment">
+    <h3>File</h3>
+</p>
+<p class="comment">
+    <code>src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts</code>
+</p>
+
+
+
+
+    <p class="comment">
+        <h3>Implements</h3>
+    </p>
+    <p class="comment">
+                <code>OnInit</code>
+                <code>OnDestroy</code>
+    </p>
+
+
+<section data-compodoc="block-metadata">
+    <h3>Metadata</h3>
+    <table class="table table-sm table-hover metadata">
+        <tbody>
+
+
+
+
+
+
+
+
+
+
+
+
+            <tr>
+                <td class="col-md-3">selector</td>
+                <td class="col-md-9"><code>app-perfil-personal</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">styleUrls</td>
+                <td class="col-md-9"><code>./perfil-personal.component.css</code></td>
+            </tr>
+
+
+
+            <tr>
+                <td class="col-md-3">templateUrl</td>
+                <td class="col-md-9"><code>./perfil-personal.component.html</code></td>
+            </tr>
+
+
+
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#destroy$" >destroy$</a>
+                            </li>
+                            <li>
+                                <a href="#editForm" >editForm</a>
+                            </li>
+                            <li>
+                                <a href="#isEditing" >isEditing</a>
+                            </li>
+                            <li>
+                                <a href="#perfilForm" >perfilForm</a>
+                            </li>
+                            <li>
+                                <a href="#tiposDocumento" >tiposDocumento</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#cambiarContrasena" >cambiarContrasena</a>
+                            </li>
+                            <li>
+                                <a href="#cancelarEdicion" >cancelarEdicion</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#cargarDatosUsuario" >cargarDatosUsuario</a>
+                            </li>
+                            <li>
+                                <a href="#getTipoDocumentoNombre" >getTipoDocumentoNombre</a>
+                            </li>
+                            <li>
+                                <a href="#guardarCambios" >guardarCambios</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#initForms" >initForms</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnDestroy" >ngOnDestroy</a>
+                            </li>
+                            <li>
+                                <a href="#ngOnInit" >ngOnInit</a>
+                            </li>
+                            <li>
+                                <a href="#toggleEditMode" >toggleEditMode</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+    <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(fb: FormBuilder, messageService: <a href="../injectables/MessageService.html" target="_self">MessageService</a>, router: Router, perfilPersonalService: <a href="../injectables/PerfilPersonalService.html" target="_self">PerfilPersonalService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:27</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>fb</td>
+                                                  
+                                                        <td>
+                                                                    <code>FormBuilder</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>messageService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/MessageService.html" target="_self" >MessageService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>router</td>
+                                                  
+                                                        <td>
+                                                                    <code>Router</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>perfilPersonalService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/PerfilPersonalService.html" target="_self" >PerfilPersonalService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>sessionService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/SessionService.html" target="_self" >SessionService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+
+
+
+
+    <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cambiarContrasena"></a>
+                    <span class="name">
+                        <span ><b>cambiarContrasena</b></span>
+                        <a href="#cambiarContrasena"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cambiarContrasena()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:215</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cancelarEdicion"></a>
+                    <span class="name">
+                        <span ><b>cancelarEdicion</b></span>
+                        <a href="#cancelarEdicion"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>cancelarEdicion()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:136</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cargarDatosUsuario"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>cargarDatosUsuario</b></span>
+                        <a href="#cargarDatosUsuario"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cargarDatosUsuario()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="53"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:53</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getTipoDocumentoNombre"></a>
+                    <span class="name">
+                        <span ><b>getTipoDocumentoNombre</b></span>
+                        <a href="#getTipoDocumentoNombre"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getTipoDocumentoNombre(valor: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="219"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:219</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>valor</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="guardarCambios"></a>
+                    <span class="name">
+                        <span ><b>guardarCambios</b></span>
+                        <a href="#guardarCambios"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>guardarCambios()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:141</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initForms"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>initForms</b></span>
+                        <a href="#initForms"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>initForms()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:105</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnDestroy"></a>
+                    <span class="name">
+                        <span ><b>ngOnDestroy</b></span>
+                        <a href="#ngOnDestroy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnDestroy()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ngOnInit"></a>
+                    <span class="name">
+                        <span ><b>ngOnInit</b></span>
+                        <a href="#ngOnInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>ngOnInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:43</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toggleEditMode"></a>
+                    <span class="name">
+                        <span ><b>toggleEditMode</b></span>
+                        <a href="#toggleEditMode"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>toggleEditMode()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="125"
+                                    class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:125</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+    <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="destroy$"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>destroy$</b></span>
+                        <a href="#destroy$"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Subject&lt;void&gt;()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:27</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="editForm"></a>
+                    <span class="name">
+                        <span ><b>editForm</b></span>
+                        <a href="#editForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:24</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isEditing"></a>
+                    <span class="name">
+                        <span ><b>isEditing</b></span>
+                        <a href="#isEditing"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>false</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="perfilForm"></a>
+                    <span class="name">
+                        <span ><b>perfilForm</b></span>
+                        <a href="#perfilForm"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>FormGroup</code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:23</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="tiposDocumento"></a>
+                    <span class="name">
+                        <span ><b>tiposDocumento</b></span>
+                        <a href="#tiposDocumento"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#TipoDocumento" target="_self" >TipoDocumento[]</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/app/pages/modules/usuario/components/perfil-personal/perfil-personal.component.ts:26</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+</div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Component, OnInit, OnDestroy } from &#x27;@angular/core&#x27;;
+import { FormBuilder, FormGroup, Validators } from &#x27;@angular/forms&#x27;;
+import { MessageService } from &#x27;primeng/api&#x27;;
+import { Router } from &#x27;@angular/router&#x27;;
+import { Subject } from &#x27;rxjs&#x27;;
+import { takeUntil } from &#x27;rxjs/operators&#x27;;
+import { PerfilPersonalService } from &#x27;../../services/perfil-personal.service&#x27;;
+import { SessionService } from &#x27;../../../../../shared/services/session.service&#x27;;
+
+
+interface TipoDocumento {
+  nombre: string;
+  valor: string;
+}
+
+@Component({
+  selector: &#x27;app-perfil-personal&#x27;,
+  standalone: false,
+  templateUrl: &#x27;./perfil-personal.component.html&#x27;,
+  styleUrls: [&#x27;./perfil-personal.component.css&#x27;]
+})
+export class PerfilPersonalComponent implements OnInit, OnDestroy {
+  perfilForm!: FormGroup;
+  editForm!: FormGroup;
+  isEditing: boolean &#x3D; false;
+  tiposDocumento: TipoDocumento[];
+  private destroy$ &#x3D; new Subject&lt;void&gt;();
+
+  constructor(
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private router: Router,
+    private perfilPersonalService: PerfilPersonalService,
+    private sessionService: SessionService
+  ) {
+    this.tiposDocumento &#x3D; [
+      { nombre: &#x27;Documento Nacional de Identidad (DNI)&#x27;, valor: &#x27;DNI&#x27; },
+      { nombre: &#x27;Carné de Extranjería&#x27;, valor: &#x27;CE&#x27; },
+      { nombre: &#x27;Pasaporte&#x27;, valor: &#x27;PA&#x27; }
+    ];
+  }
+
+  ngOnInit(): void {
+    this.initForms();
+    this.cargarDatosUsuario();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private cargarDatosUsuario(): void {
+    const currentUser &#x3D; this.sessionService.getCurrentUser();
+
+    if (!currentUser || !currentUser.idUsuario) {
+      this.messageService.add({
+        severity: &#x27;error&#x27;,
+        summary: &#x27;Error de sesión&#x27;,
+        detail: &#x27;No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.&#x27;,
+        life: 3000
+      });
+      this.router.navigate([&#x27;/login&#x27;]);
+      return;
+    }
+
+    this.perfilPersonalService.getobtenerPerfilPorId(currentUser.idUsuario)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (response) &#x3D;&gt; {
+        if (response.ok &amp;&amp; response.data) {
+          const datosUsuario &#x3D; {
+            nombres: response.data.nombres,
+            apellidos: response.data.apellidos,
+            correo: response.data.email,
+            telefono: response.data.telefono,
+            tipoDocumento: response.data.tipoDocumento,
+            numeroDocumento: response.data.docIdentidad,
+            direccion: response.data.direccion
+          };
+
+          this.perfilForm.patchValue(datosUsuario);
+          this.editForm.patchValue(datosUsuario);
+        } else {
+          this.messageService.add({
+            severity: &#x27;warn&#x27;,
+            summary: &#x27;Datos no encontrados&#x27;,
+            detail: response.mensaje || &#x27;No se pudieron cargar los datos del perfil&#x27;,
+            life: 3000
+          });
+        }
+      },
+      error: (error) &#x3D;&gt; {
+        console.error(&#x27;Error al cargar el perfil:&#x27;, error);
+        this.messageService.add({
+          severity: &#x27;error&#x27;,
+          summary: &#x27;Error al cargar datos&#x27;,
+          detail: &#x27;Ocurrió un error al cargar los datos del perfil. Intente nuevamente.&#x27;,
+          life: 3000
+        });
+      }
+    });
+  }
+
+  private initForms(): void {
+    this.perfilForm &#x3D; this.fb.group({
+      nombres: [&#x27;&#x27;, [Validators.required]],
+      apellidos: [&#x27;&#x27;, [Validators.required]],
+      correo: [&#x27;&#x27;, [Validators.required, Validators.email]],
+      telefono: [&#x27;&#x27;, [Validators.required]],
+      tipoDocumento: [&#x27;&#x27;, [Validators.required]],
+      numeroDocumento: [&#x27;&#x27;, [Validators.required]],
+      direccion: [&#x27;&#x27;, [Validators.required]]
+    });
+
+    this.editForm &#x3D; this.fb.group({
+      nombres: [&#x27;&#x27;, [Validators.required]],
+      apellidos: [&#x27;&#x27;, [Validators.required]],
+      correo: [&#x27;&#x27;, [Validators.required, Validators.email]],
+      telefono: [&#x27;&#x27;, [Validators.required]],
+      direccion: [&#x27;&#x27;, [Validators.required]]
+    });
+  }
+
+  toggleEditMode(): void {
+    this.isEditing &#x3D; true;
+    this.editForm.patchValue({
+      nombres: this.perfilForm.get(&#x27;nombres&#x27;)?.value,
+      apellidos: this.perfilForm.get(&#x27;apellidos&#x27;)?.value,
+      correo: this.perfilForm.get(&#x27;correo&#x27;)?.value,
+      telefono: this.perfilForm.get(&#x27;telefono&#x27;)?.value,
+      direccion: this.perfilForm.get(&#x27;direccion&#x27;)?.value
+    });
+  }
+
+  cancelarEdicion(): void {
+    this.isEditing &#x3D; false;
+    this.editForm.reset();
+  }
+
+  guardarCambios(): void {
+    if (this.editForm.invalid) {
+      this.messageService.add({
+        severity: &#x27;warn&#x27;,
+        summary: &#x27;Campos incompletos&#x27;,
+        detail: &#x27;Por favor complete todos los campos correctamente antes de continuar&#x27;,
+        life: 3000
+      });
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    const currentUser &#x3D; this.sessionService.getCurrentUser();
+
+    if (!currentUser || !currentUser.idUsuario) {
+      this.messageService.add({
+        severity: &#x27;error&#x27;,
+        summary: &#x27;Error de sesión&#x27;,
+        detail: &#x27;No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.&#x27;,
+        life: 3000
+      });
+      return;
+    }
+
+    const datosActualizados &#x3D; {
+      nombres: this.editForm.get(&#x27;nombres&#x27;)?.value,
+      apellidos: this.editForm.get(&#x27;apellidos&#x27;)?.value,
+      telefono: this.editForm.get(&#x27;telefono&#x27;)?.value,
+      direccion: this.editForm.get(&#x27;direccion&#x27;)?.value,
+      email: this.editForm.get(&#x27;correo&#x27;)?.value
+    };
+
+    this.perfilPersonalService.putActualizarPerfilPorId(currentUser.idUsuario, datosActualizados)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+      next: (response) &#x3D;&gt; {
+        if (response.ok) {
+          this.perfilForm.patchValue({
+            nombres: datosActualizados.nombres,
+            apellidos: datosActualizados.apellidos,
+            correo: datosActualizados.email,
+            telefono: datosActualizados.telefono,
+            direccion: datosActualizados.direccion
+          });
+
+          this.messageService.add({
+            severity: &#x27;success&#x27;,
+            summary: &#x27;Perfil actualizado&#x27;,
+            detail: &#x27;Los datos del perfil se han actualizado exitosamente&#x27;,
+            life: 3000
+          });
+
+          this.isEditing &#x3D; false;
+        } else {
+          this.messageService.add({
+            severity: &#x27;warn&#x27;,
+            summary: &#x27;Error al actualizar&#x27;,
+            detail: response.mensaje || &#x27;No se pudieron actualizar los datos del perfil&#x27;,
+            life: 3000
+          });
+        }
+      },
+      error: (error) &#x3D;&gt; {
+        console.error(&#x27;Error al actualizar el perfil:&#x27;, error);
+        this.messageService.add({
+          severity: &#x27;error&#x27;,
+          summary: &#x27;Error al actualizar&#x27;,
+          detail: &#x27;Ocurrió un error al actualizar los datos del perfil. Intente nuevamente.&#x27;,
+          life: 3000
+        });
+      }
+    });
+  }
+
+  cambiarContrasena(): void {
+    this.router.navigate([&#x27;/usuario/perfilPersonal/cambiarContra&#x27;]);
+  }
+
+  getTipoDocumentoNombre(valor: string): string {
+    const tipo &#x3D; this.tiposDocumento.find(t &#x3D;&gt; t.valor &#x3D;&#x3D;&#x3D; valor);
+    return tipo ? tipo.nombre : valor;
+  }
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="templateData">
+        <pre class="line-numbers"><code class="language-html">&lt;div class&#x3D;&quot;container&quot;&gt;
+  &lt;div class&#x3D;&quot;header-section&quot;&gt;
+    &lt;h1 class&#x3D;&quot;title&quot;&gt;
+      &lt;i class&#x3D;&quot;pi pi-user&quot;&gt;&lt;/i&gt;
+      Perfil de Usuario
+    &lt;/h1&gt;
+
+    &lt;p-button
+      label&#x3D;&quot;Editar Perfil&quot;
+      icon&#x3D;&quot;pi pi-pencil&quot;
+      *ngIf&#x3D;&quot;!isEditing&quot;
+      class&#x3D;&quot;edit-button&quot;
+      (click)&#x3D;&quot;toggleEditMode()&quot;&gt;
+    &lt;/p-button&gt;
+  &lt;/div&gt;
+
+  &lt;div class&#x3D;&quot;profile-content&quot;&gt;
+    &lt;!-- Vista de solo lectura --&gt;
+    &lt;p-card *ngIf&#x3D;&quot;!isEditing&quot; class&#x3D;&quot;profile-card&quot;&gt;
+      &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+        &lt;div class&#x3D;&quot;card-header&quot;&gt;
+          &lt;h3&gt;
+            &lt;i class&#x3D;&quot;pi pi-info-circle&quot;&gt;&lt;/i&gt;
+            Información Personal
+          &lt;/h3&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+        &lt;form [formGroup]&#x3D;&quot;perfilForm&quot; class&#x3D;&quot;profile-form&quot;&gt;
+          &lt;div class&#x3D;&quot;profile-grid&quot;&gt;
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-user&quot;&gt;&lt;/i&gt;
+                Nombres:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;nombres&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-user&quot;&gt;&lt;/i&gt;
+                Apellidos:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;apellidos&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field full-width&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-envelope&quot;&gt;&lt;/i&gt;
+                Correo Electrónico:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;correo&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-phone&quot;&gt;&lt;/i&gt;
+                Teléfono:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;telefono&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-id-card&quot;&gt;&lt;/i&gt;
+                Tipo de Documento:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;tipoDocumento&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-hashtag&quot;&gt;&lt;/i&gt;
+                Número de Documento:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{ perfilForm.get(&#x27;numeroDocumento&#x27;)?.value }}&lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;profile-field&quot;&gt;
+              &lt;label class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-map&quot;&gt;&lt;/i&gt;
+                Dirección:
+              &lt;/label&gt;
+              &lt;div class&#x3D;&quot;field-value&quot;&gt;{{perfilForm.get(&#x27;direccion&#x27;)?.value}}&lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;footer&quot;&gt;
+        &lt;div class&#x3D;&quot;card-actions&quot;&gt;
+          &lt;p-button
+            label&#x3D;&quot;Cambiar Contraseña&quot;
+            icon&#x3D;&quot;pi pi-key&quot;
+            severity&#x3D;&quot;secondary&quot;
+            routerLink&#x3D;&quot;/usuario/perfilPersonal/cambiarContra&quot;
+            (click)&#x3D;&quot;cambiarContrasena()&quot;&gt;
+          &lt;/p-button&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+    &lt;/p-card&gt;
+
+    &lt;!-- Vista de edición --&gt;
+    &lt;p-card *ngIf&#x3D;&quot;isEditing&quot; class&#x3D;&quot;profile-card edit-mode&quot;&gt;
+      &lt;ng-template pTemplate&#x3D;&quot;header&quot;&gt;
+        &lt;div class&#x3D;&quot;card-header&quot;&gt;
+          &lt;h3&gt;
+            &lt;i class&#x3D;&quot;pi pi-pencil&quot;&gt;&lt;/i&gt;
+            Editar Información Personal
+          &lt;/h3&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;content&quot;&gt;
+        &lt;form [formGroup]&#x3D;&quot;editForm!&quot; class&#x3D;&quot;profile-form&quot;&gt;
+          &lt;div class&#x3D;&quot;edit-grid&quot;&gt;
+            &lt;div class&#x3D;&quot;form-field&quot;&gt;
+              &lt;label for&#x3D;&quot;nombresEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-user&quot;&gt;&lt;/i&gt;
+                Nombres *
+              &lt;/label&gt;
+              &lt;input
+                id&#x3D;&quot;nombresEdit&quot;
+                type&#x3D;&quot;text&quot;
+                pInputText
+                formControlName&#x3D;&quot;nombres&quot;
+                class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;Ingrese sus nombres&quot; /&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;form-field&quot;&gt;
+              &lt;label for&#x3D;&quot;apellidosEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-user&quot;&gt;&lt;/i&gt;
+                Apellidos *
+              &lt;/label&gt;
+              &lt;input
+                id&#x3D;&quot;apellidosEdit&quot;
+                type&#x3D;&quot;text&quot;
+                pInputText
+                formControlName&#x3D;&quot;apellidos&quot;
+                class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;Ingrese sus apellidos&quot; /&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;form-field full-width&quot;&gt;
+              &lt;label for&#x3D;&quot;correoEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-envelope&quot;&gt;&lt;/i&gt;
+                Correo Electrónico *
+              &lt;/label&gt;
+              &lt;input
+                id&#x3D;&quot;correoEdit&quot;
+                type&#x3D;&quot;email&quot;
+                pInputText
+                formControlName&#x3D;&quot;correo&quot;
+                class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;ejemplo@correo.com&quot;
+                readonly
+                [disabled]&#x3D;&quot;true&quot; /&gt;
+            &lt;/div&gt;
+
+            &lt;div class&#x3D;&quot;form-field&quot;&gt;
+              &lt;label for&#x3D;&quot;telefonoEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-phone&quot;&gt;&lt;/i&gt;
+                Teléfono *
+              &lt;/label&gt;
+              &lt;input
+                id&#x3D;&quot;telefonoEdit&quot;
+                type&#x3D;&quot;tel&quot;
+                pInputText
+                formControlName&#x3D;&quot;telefono&quot;
+                class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;999 999 999&quot; /&gt;
+            &lt;/div&gt;
+
+             &lt;!--  &lt;div class&#x3D;&quot;form-field&quot;&gt;
+              &lt;label for&#x3D;&quot;departamentoEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-map&quot;&gt;&lt;/i&gt;
+                Departamento *
+              &lt;/label&gt;
+              &lt;input id&#x3D;&quot;departamentoEdit&quot; type&#x3D;&quot;text&quot; pInputText formControlName&#x3D;&quot;departamento&quot; class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;Departamento&quot; /&gt;
+            &lt;/div&gt;
+            &lt;div class&#x3D;&quot;form-field&quot;&gt;
+              &lt;label for&#x3D;&quot;distritoEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-map-marker&quot;&gt;&lt;/i&gt;
+                Distrito *
+              &lt;/label&gt;
+              &lt;input id&#x3D;&quot;distritoEdit&quot; type&#x3D;&quot;text&quot; pInputText formControlName&#x3D;&quot;distrito&quot; class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;Distrito&quot; /&gt;
+            &lt;/div&gt; --&gt;
+
+            &lt;div class&#x3D;&quot;form-field full-width&quot;&gt;
+              &lt;label for&#x3D;&quot;direccionEdit&quot; class&#x3D;&quot;field-label&quot;&gt;
+                &lt;i class&#x3D;&quot;pi pi-home&quot;&gt;&lt;/i&gt;
+                Dirección Domiciliaria *
+              &lt;/label&gt;
+              &lt;input
+                id&#x3D;&quot;direccionEdit&quot;
+                type&#x3D;&quot;text&quot;
+                pInputText
+                formControlName&#x3D;&quot;direccion&quot;
+                class&#x3D;&quot;form-input&quot;
+                placeholder&#x3D;&quot;Dirección completa&quot; /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/form&gt;
+      &lt;/ng-template&gt;
+
+      &lt;ng-template pTemplate&#x3D;&quot;footer&quot;&gt;
+        &lt;div class&#x3D;&quot;card-actions&quot;&gt;
+          &lt;p-button
+            label&#x3D;&quot;Cancelar&quot;
+            icon&#x3D;&quot;pi pi-times&quot;
+            severity&#x3D;&quot;secondary&quot;
+            (click)&#x3D;&quot;cancelarEdicion()&quot;&gt;
+          &lt;/p-button&gt;
+          &lt;p-button
+            label&#x3D;&quot;Guardar Cambios&quot;
+            icon&#x3D;&quot;pi pi-check&quot;
+            (click)&#x3D;&quot;guardarCambios()&quot;
+            [disabled]&#x3D;&quot;editForm.invalid&quot;&gt;
+          &lt;/p-button&gt;
+        &lt;/div&gt;
+      &lt;/ng-template&gt;
+    &lt;/p-card&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Toast para mensajes --&gt;
+  
+&lt;/div&gt;
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="styleData">
+                <p class="comment">
+                    <code>./perfil-personal.component.css</code>
+                </p>
+                <pre class="line-numbers"><code class="language-scss">.container {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: &#x27;Segoe UI&#x27;, Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #1c224d;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.title i {
+    font-size: 2rem;
+    color: #1976d2;
+}
+
+.edit-button {
+    height: fit-content;
+}
+
+/* Contenido del perfil */
+.profile-content {
+    margin-top: 2rem;
+}
+
+.profile-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    border: none;
+}
+
+.profile-card.edit-mode {
+    border: 2px solid #dc3545;
+}
+
+/* Header de la tarjeta */
+.card-header {
+    background: linear-gradient(135deg, #dc3545, #dc3545);
+    color: white;
+    padding: 1.5rem;
+    margin: -1rem -1rem 0 -1rem;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.card-header i {
+    font-size: 1.25rem;
+}
+
+/* Formulario de perfil */
+.profile-form {
+    padding: 1.5rem 0;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+/* Campos del perfil (vista de lectura) */
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+.profile-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-label i {
+    color: #dc3545;
+    font-size: 0.85rem;
+}
+
+.field-value {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #212529;
+    padding: 0.5rem 0;
+    min-height: 1.5rem;
+}
+
+/* Campos del formulario (vista de edición) */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-input {
+    padding: 0.875rem;
+    font-size: 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Acciones de la tarjeta */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .profile-grid,
+    .edit-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .profile-field.full-width,
+    .form-field.full-width {
+        grid-column: 1;
+    }
+
+    .card-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .field-value {
+        font-size: 1rem;
+    }
+
+    .form-input {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Mejoras visuales para PrimeNG */
+:host ::ng-deep {
+    .p-card {
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+    }
+
+    .p-card .p-card-content {
+        padding: 1.5rem;
+        background: white;
+    }
+
+    .p-card .p-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-top: 2px solid #e9ecef;
+    }
+
+    .p-button {
+        font-weight: 600;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .p-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .p-inputtext {
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.875rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .p-inputtext:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.25);
+    }
+}
+:host ::ng-deep .p-inputtext:enabled:focus {
+    border-color: #91E345 !important;
+    box-shadow: 0 0 0 1px #91E345 !important;
+}
+
+
+.sticky-actions{
+  position: sticky;
+  bottom: 0;                       /* se “pega” al borde inferior visible */
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  margin-top: 3rem;
+
+  /* fondo para que no se vea “transparente” al hacer scroll */
+  background: var(--surface-card);
+  box-shadow: 0 -4px 12px rgba(0,0,0,.05);
+  z-index: 5;                      /* por encima del contenido */
+}
+
+/* Un poco más de aire al fondo de la card para que no tape contenido */
+.card{
+  padding-bottom: 2.5rem;
+}
+
+/* Contenedor en fila */
+.membership-row {
+  display: flex;
+  gap: 24px;                  /* separación entre tarjetas */
+  justify-content: space-around;
+  align-items: stretch;
+  flex-wrap: wrap;            /* permite pasar a otra línea en pantallas chicas */
+  padding: 8px 4px;
+}
+
+/* Cada lingote (columna fija) */
+.membership-item {
+  flex: 0 1 160px;            /* ancho objetivo ~160px, permite wrap */
+  background: #f7f8f9;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  transition: box-shadow .2s ease, transform .15s ease;
+}
+
+.membership-item img {
+  width: 110px;
+  height: auto;
+  display: block;
+}
+
+/* (Opcional) hover bonito */
+.membership-item:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+}
+</code></pre>
+    </div>
+
+    <div class="tab-pane fade " id="tree">
+        <div id="tree-container"></div>
+        <div class="tree-legend">
+            <div class="title">
+                <b>Legend</b>
+            </div>
+            <div>
+                <div class="color htmlelement"></div><span>Html element</span>
+            </div>
+            <div>
+                <div class="color component"></div><span>Component</span>
+            </div>
+            <div>
+                <div class="color directive"></div><span>Html element with directive</span>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+<script src="../js/libs/vis-network.min.js"></script>
+<script src="../js/libs/htmlparser.js"></script>
+<script src="../js/libs/deep-iterator.js"></script>
+<script>
+        var COMPONENT_TEMPLATE = '<div><div class="container">  <div class="header-section">    <h1 class="title">      <i class="pi pi-user"></i>      Perfil de Usuario    </h1>    <p-button      label="Editar Perfil"      icon="pi pi-pencil"      *ngIf="!isEditing"      class="edit-button"      (click)="toggleEditMode()">    </p-button>  </div>  <div class="profile-content">    <!-- Vista de solo lectura -->    <p-card *ngIf="!isEditing" class="profile-card">      <ng-template pTemplate="header">        <div class="card-header">          <h3>            <i class="pi pi-info-circle"></i>            Información Personal          </h3>        </div>      </ng-template>      <ng-template pTemplate="content">        <form [formGroup]="perfilForm" class="profile-form">          <div class="profile-grid">            <div class="profile-field">              <label class="field-label">                <i class="pi pi-user"></i>                Nombres:              </label>              <div class="field-value">{{ perfilForm.get(\'nombres\')?.value }}</div>            </div>            <div class="profile-field">              <label class="field-label">                <i class="pi pi-user"></i>                Apellidos:              </label>              <div class="field-value">{{ perfilForm.get(\'apellidos\')?.value }}</div>            </div>            <div class="profile-field full-width">              <label class="field-label">                <i class="pi pi-envelope"></i>                Correo Electrónico:              </label>              <div class="field-value">{{ perfilForm.get(\'correo\')?.value }}</div>            </div>            <div class="profile-field">              <label class="field-label">                <i class="pi pi-phone"></i>                Teléfono:              </label>              <div class="field-value">{{ perfilForm.get(\'telefono\')?.value }}</div>            </div>            <div class="profile-field">              <label class="field-label">                <i class="pi pi-id-card"></i>                Tipo de Documento:              </label>              <div class="field-value">{{ perfilForm.get(\'tipoDocumento\')?.value }}</div>            </div>            <div class="profile-field">              <label class="field-label">                <i class="pi pi-hashtag"></i>                Número de Documento:              </label>              <div class="field-value">{{ perfilForm.get(\'numeroDocumento\')?.value }}</div>            </div>            <div class="profile-field">              <label class="field-label">                <i class="pi pi-map"></i>                Dirección:              </label>              <div class="field-value">{{perfilForm.get(\'direccion\')?.value}}</div>            </div>          </div>        </form>      </ng-template>      <ng-template pTemplate="footer">        <div class="card-actions">          <p-button            label="Cambiar Contraseña"            icon="pi pi-key"            severity="secondary"            routerLink="/usuario/perfilPersonal/cambiarContra"            (click)="cambiarContrasena()">          </p-button>        </div>      </ng-template>    </p-card>    <!-- Vista de edición -->    <p-card *ngIf="isEditing" class="profile-card edit-mode">      <ng-template pTemplate="header">        <div class="card-header">          <h3>            <i class="pi pi-pencil"></i>            Editar Información Personal          </h3>        </div>      </ng-template>      <ng-template pTemplate="content">        <form [formGroup]="editForm!" class="profile-form">          <div class="edit-grid">            <div class="form-field">              <label for="nombresEdit" class="field-label">                <i class="pi pi-user"></i>                Nombres *              </label>              <input                id="nombresEdit"                type="text"                pInputText                formControlName="nombres"                class="form-input"                placeholder="Ingrese sus nombres" />            </div>            <div class="form-field">              <label for="apellidosEdit" class="field-label">                <i class="pi pi-user"></i>                Apellidos *              </label>              <input                id="apellidosEdit"                type="text"                pInputText                formControlName="apellidos"                class="form-input"                placeholder="Ingrese sus apellidos" />            </div>            <div class="form-field full-width">              <label for="correoEdit" class="field-label">                <i class="pi pi-envelope"></i>                Correo Electrónico *              </label>              <input                id="correoEdit"                type="email"                pInputText                formControlName="correo"                class="form-input"                placeholder="ejemplo@correo.com"                readonly                [disabled]="true" />            </div>            <div class="form-field">              <label for="telefonoEdit" class="field-label">                <i class="pi pi-phone"></i>                Teléfono *              </label>              <input                id="telefonoEdit"                type="tel"                pInputText                formControlName="telefono"                class="form-input"                placeholder="999 999 999" />            </div>             <!--  <div class="form-field">              <label for="departamentoEdit" class="field-label">                <i class="pi pi-map"></i>                Departamento *              </label>              <input id="departamentoEdit" type="text" pInputText formControlName="departamento" class="form-input"                placeholder="Departamento" />            </div>            <div class="form-field">              <label for="distritoEdit" class="field-label">                <i class="pi pi-map-marker"></i>                Distrito *              </label>              <input id="distritoEdit" type="text" pInputText formControlName="distrito" class="form-input"                placeholder="Distrito" />            </div> -->            <div class="form-field full-width">              <label for="direccionEdit" class="field-label">                <i class="pi pi-home"></i>                Dirección Domiciliaria *              </label>              <input                id="direccionEdit"                type="text"                pInputText                formControlName="direccion"                class="form-input"                placeholder="Dirección completa" />            </div>          </div>        </form>      </ng-template>      <ng-template pTemplate="footer">        <div class="card-actions">          <p-button            label="Cancelar"            icon="pi pi-times"            severity="secondary"            (click)="cancelarEdicion()">          </p-button>          <p-button            label="Guardar Cambios"            icon="pi pi-check"            (click)="guardarCambios()"            [disabled]="editForm.invalid">          </p-button>        </div>      </ng-template>    </p-card>  </div>  <!-- Toast para mensajes -->  </div></div>'
+    var COMPONENTS = [{'name': 'AppComponent', 'selector': 'app-root'},{'name': 'AuditoriaComponent', 'selector': 'app-auditoria'},{'name': 'BeneficiosComponent', 'selector': 'app-beneficios'},{'name': 'CambiarContraComponent', 'selector': 'app-cambiar-contra'},{'name': 'CambiarContrasenaAdminComponent', 'selector': 'app-cambiar-contrasena-admin'},{'name': 'CambiarContrasenaUsuarioComponent', 'selector': 'app-cambiar-contrasena-usuario'},{'name': 'CarritoCompraComponent', 'selector': 'app-carrito-compra'},{'name': 'CarritoItemComponent', 'selector': 'app-carrito-item'},{'name': 'CodigosPromocionalesComponent', 'selector': 'app-codigos-promocionales'},{'name': 'CompraEntradasComponent', 'selector': 'app-compra-entradas'},{'name': 'ConfirmarTransferenciaComponent', 'selector': 'app-confirmar-transferencia'},{'name': 'CrearEventoComponent', 'selector': 'app-crear-evento'},{'name': 'CrearLocalComponent', 'selector': 'app-crear-local'},{'name': 'CrearUsuarioComponent', 'selector': 'app-crear-usuario'},{'name': 'DetalleRegistroPromoComponent', 'selector': 'app-detalle-registro-promo'},{'name': 'DialogEnvioComponent', 'selector': 'app-dialog-envio'},{'name': 'DialogExitosoComponent', 'selector': 'app-dialog-exitoso'},{'name': 'DialogoComponent', 'selector': 'app-dialogo'},{'name': 'DialogPoliticaComponent', 'selector': 'app-dialog-politica'},{'name': 'DialogTerminosComponent', 'selector': 'app-dialog-terminos'},{'name': 'EditarClienteAdmiComponent', 'selector': 'app-editar-cliente-admi'},{'name': 'EditarEventoComponent', 'selector': 'app-editar-evento'},{'name': 'EditarLocalComponent', 'selector': 'app-editar-local'},{'name': 'EditarRegistroPromoComponent', 'selector': 'app-editar-registro-promo'},{'name': 'ErrorComponent', 'selector': 'app-error'},{'name': 'EventoComponent', 'selector': 'app-evento'},{'name': 'FooterComponent', 'selector': 'app-footer'},{'name': 'GestionClientesComponent', 'selector': 'app-gestion-clientes'},{'name': 'GestionEventosComponent', 'selector': 'app-gestion-eventos'},{'name': 'GestionLocalesComponent', 'selector': 'app-gestion-locales'},{'name': 'HeaderComponent', 'selector': 'app-header'},{'name': 'HistorialComprasComponent', 'selector': 'app-historial-compras'},{'name': 'InicioComponent', 'selector': 'app-inicio'},{'name': 'LayoutComponent', 'selector': 'app-layout'},{'name': 'LoadingSpinnerComponent', 'selector': 'shared-loading-spinner'},{'name': 'LogErroresComponent', 'selector': 'app-log-errores'},{'name': 'LoginComponent', 'selector': 'app-login'},{'name': 'MisEntradasComponent', 'selector': 'app-mis-entradas'},{'name': 'PerfilAdministradorComponent', 'selector': 'app-perfil-administrador'},{'name': 'PerfilPersonalComponent', 'selector': 'app-perfil-personal'},{'name': 'RegistroCodigosPromoComponent', 'selector': 'app-registro-codigos-promo'},{'name': 'ResumenCarritoCompraComponent', 'selector': 'app-resumen-carrito-compra'},{'name': 'SidebarComponent', 'selector': 'app-sidebar'},{'name': 'SidebarItemComponent', 'selector': 'app-sidebar-item'},{'name': 'VerDetalleClienteAdmiComponent', 'selector': 'app-ver-detalle-cliente-admi'}];
+    var DIRECTIVES = [];
+    var ACTUAL_COMPONENT = {'name': 'PerfilPersonalComponent'};
+</script>
+<script src="../js/tree.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'component';
+            var COMPODOC_CURRENT_PAGE_URL = 'PerfilPersonalComponent.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

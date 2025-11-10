@@ -24,6 +24,7 @@ export class AuthInterceptor implements HttpInterceptor {
       '/public',
       '/api/v1/eventos', // Eventos públicos
       '/api/v1/auth/login', // Login específico
+      '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
       'localhost:8081/api/v1/eventos', // Eventos con dominio completo
       'localhost:8081/api/v1/auth/login' // Login con dominio completo
     ];
