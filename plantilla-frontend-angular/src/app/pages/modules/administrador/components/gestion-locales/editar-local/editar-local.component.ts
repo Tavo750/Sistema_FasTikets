@@ -7,6 +7,8 @@ import { LocalService } from '../../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 import { ListarLocalesResponse, Data } from '../../../interfaces/gestion-locales/local.interface';
+import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
+import { Departamento, Distrito, Provincia } from '../../../../../../core/interfaces/ubigeo.interface';
 
 const iconDefault = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -42,24 +44,15 @@ localForm: FormGroup;
     lng: this.defaultLng
   };
 
-  distritos = [
-    { label: 'Seleccionar...', value: '' },
-    { label: 'Santiago de Surco', value: 'Santiago de Surco' },
-    { label: 'San Juan de Miraflores', value: 'San Juan de Miraflores' },
-    { label: 'Jesús María', value: 'Jesús María' }
-  ];
+  // Listas para los dropdowns de ubigeo
+  departamentos: Departamento[] = [];
+  provincias: Provincia[] = [];
+  distritos: Distrito[] = [];
 
   estados = [
     { label: 'HABILITADO', value: 'HABILITADO' },
     { label: 'DESHABILITADO', value: 'DESHABILITADO' }
   ];
-
-  // Mapeo de distritos a sus IDs (esto debería venir de un servicio en una implementación real)
-  private distritosMap = new Map([
-    ['Santiago de Surco', 1],
-    ['San Juan de Miraflores', 2],
-    ['Jesús María', 3]
-  ]);
 
   constructor(
       public router: Router,
@@ -67,12 +60,15 @@ localForm: FormGroup;
       private messageService: MessageService,
       private fb: FormBuilder,
       private localService: LocalService,
-      private customMessageService: CustomMessageService
+      private customMessageService: CustomMessageService,
+      private registroUsuarioService: RegistroUsuarioService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
         direccion: ['', [Validators.required]],
-        distrito: ['', [Validators.required]],
+        idDepartamento: [null, [Validators.required]],
+        idProvincia: [null, [Validators.required]],
+        idDistrito: [null, [Validators.required]],
         aforo: ['', [Validators.required, Validators.min(1)]],
         estado: ['HABILITADO', [Validators.required]],
         latitud: [this.defaultLat, [Validators.required]],
@@ -81,6 +77,9 @@ localForm: FormGroup;
     }
 
   ngOnInit(): void {
+    // Cargar departamentos primero
+    this.cargarDepartamentos();
+
     // Obtener el ID del local desde los parámetros de la ruta
     this.route.params.subscribe(params => {
       this.localId = +params['id']; // El + convierte string a número
@@ -105,16 +104,8 @@ localForm: FormGroup;
           const localEncontrado: Data | undefined = response.data.find((local: Data) => local.idLocal === this.localId);
 
           if (localEncontrado) {
-            // Rellenar el formulario con los datos del local
-            this.localForm.patchValue({
-              nombre: localEncontrado.nombre,
-              direccion: localEncontrado.direccion,
-              distrito: localEncontrado.nombreDistrito,
-              aforo: localEncontrado.aforoTotal,
-              estado: localEncontrado.activo ? 'HABILITADO' : 'DESHABILITADO'
-            });
-
-            this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+            // Cargar ubigeo según el distrito del local
+            this.cargarUbigeoPorDistrito(localEncontrado.idDistrito, localEncontrado);
           } else {
             this.customMessageService.error('No se encontró el local especificado', 'Error');
             this.router.navigate(['/administrador/gestionLocales']);
@@ -129,6 +120,117 @@ localForm: FormGroup;
         console.error('Error al cargar los datos del local:', error);
         this.customMessageService.error('Error al cargar los datos del local', 'Error');
         this.isLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Carga el departamento y provincia según el distrito seleccionado
+   * y llena el formulario con los datos del local
+   */
+  private cargarUbigeoPorDistrito(idDistrito: number, localData: Data): void {
+    // Buscar el distrito en todas las provincias y departamentos
+    // Como no tenemos un servicio directo, cargamos todos los departamentos
+    // y buscamos el distrito correspondiente
+    this.registroUsuarioService.getDepartamentos().subscribe({
+      next: (deptResponse) => {
+        if (deptResponse.ok && deptResponse.data) {
+          this.departamentos = deptResponse.data;
+
+          // Buscar en cada departamento sus provincias
+          let encontrado = false;
+          let currentDeptIndex = 0;
+
+          const buscarEnDepartamentos = () => {
+            if (currentDeptIndex >= this.departamentos.length || encontrado) {
+              if (!encontrado) {
+                // Si no se encontró, solo llenar los datos básicos
+                this.localForm.patchValue({
+                  nombre: localData.nombre,
+                  direccion: localData.direccion,
+                  idDistrito: idDistrito,
+                  aforo: localData.aforoTotal,
+                  estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
+                });
+                this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+              }
+              return;
+            }
+
+            const dept = this.departamentos[currentDeptIndex];
+            this.registroUsuarioService.getProvincias(dept.idDepartamento.toString()).subscribe({
+              next: (provResponse) => {
+                if (provResponse.ok && provResponse.data && !encontrado) {
+                  let currentProvIndex = 0;
+
+                  const buscarEnProvincias = () => {
+                    if (currentProvIndex >= provResponse.data.length || encontrado) {
+                      currentDeptIndex++;
+                      buscarEnDepartamentos();
+                      return;
+                    }
+
+                    const prov = provResponse.data[currentProvIndex];
+                    this.registroUsuarioService.getDistritos(prov.idProvincia.toString()).subscribe({
+                      next: (distResponse) => {
+                        if (distResponse.ok && distResponse.data && !encontrado) {
+                          const distritoEncontrado = distResponse.data.find(d => d.idDistrito === idDistrito);
+
+                          if (distritoEncontrado) {
+                            encontrado = true;
+                            // Cargar las provincias del departamento encontrado
+                            this.cargarProvincias(dept.idDepartamento);
+                            // Esperar a que se carguen las provincias
+                            setTimeout(() => {
+                              // Cargar los distritos de la provincia encontrada
+                              this.cargarDistritos(prov.idProvincia);
+                              // Esperar a que se carguen los distritos
+                              setTimeout(() => {
+                                // Llenar el formulario
+                                this.localForm.patchValue({
+                                  nombre: localData.nombre,
+                                  direccion: localData.direccion,
+                                  idDepartamento: dept.idDepartamento,
+                                  idProvincia: prov.idProvincia,
+                                  idDistrito: idDistrito,
+                                  aforo: localData.aforoTotal,
+                                  estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
+                                });
+                                this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+                              }, 300);
+                            }, 300);
+                          } else {
+                            currentProvIndex++;
+                            buscarEnProvincias();
+                          }
+                        }
+                      },
+                      error: () => {
+                        currentProvIndex++;
+                        buscarEnProvincias();
+                      }
+                    });
+                  };
+
+                  buscarEnProvincias();
+                } else {
+                  currentDeptIndex++;
+                  buscarEnDepartamentos();
+                }
+              },
+              error: () => {
+                currentDeptIndex++;
+                buscarEnDepartamentos();
+              }
+            });
+          };
+
+          buscarEnDepartamentos();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar departamentos:', error);
+        this.customMessageService.error('Error al cargar los datos de ubicación', 'Error');
       }
     });
   }
@@ -272,18 +374,91 @@ localForm: FormGroup;
     }, 500);
   }
 
+  // Métodos para cargar ubigeo en cascada
+  cargarDepartamentos(): void {
+    this.registroUsuarioService.getDepartamentos().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.departamentos = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar departamentos:', error);
+        this.customMessageService.error('Error al cargar los departamentos', 'Error');
+      }
+    });
+  }
+
+  onDepartamentoChange(event: any): void {
+    const departamentoId = event.value;
+
+    // Reiniciar provincia y distrito
+    this.localForm.patchValue({
+      idProvincia: null,
+      idDistrito: null
+    });
+    this.provincias = [];
+    this.distritos = [];
+
+    if (departamentoId) {
+      this.cargarProvincias(departamentoId);
+    }
+  }
+
+  cargarProvincias(departamentoId: number): void {
+    this.registroUsuarioService.getProvincias(departamentoId.toString()).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.provincias = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar provincias:', error);
+        this.customMessageService.error('Error al cargar las provincias', 'Error');
+      }
+    });
+  }
+
+  onProvinciaChange(event: any): void {
+    const provinciaId = event.value;
+
+    // Reiniciar distrito
+    this.localForm.patchValue({
+      idDistrito: null
+    });
+    this.distritos = [];
+
+    if (provinciaId) {
+      this.cargarDistritos(provinciaId);
+    }
+  }
+
+  cargarDistritos(provinciaId: number): void {
+    this.registroUsuarioService.getDistritos(provinciaId.toString()).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.distritos = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar distritos:', error);
+        this.customMessageService.error('Error al cargar los distritos', 'Error');
+      }
+    });
+  }
+
   centerMapOnDistrict(): void {
-    const distrito = this.localForm.get('distrito')?.value;
+    const distritoId = this.localForm.get('idDistrito')?.value;
 
     // Coordenadas aproximadas de algunos distritos de Lima
-    const distritosCoords: { [key: string]: [number, number] } = {
-      'Santiago de Surco': [-12.1267, -76.9956],
-      'San Juan de Miraflores': [-12.1586, -76.9733],
-      'Jesús María': [-12.0722, -77.0461]
+    const distritosCoords: { [key: number]: [number, number] } = {
+      1: [-12.1267, -76.9956], // Santiago de Surco
+      2: [-12.1586, -76.9733], // San Juan de Miraflores
+      3: [-12.0722, -77.0461]  // Jesús María
     };
 
-    if (distrito && distritosCoords[distrito]) {
-      const coords = distritosCoords[distrito];
+    if (distritoId && distritosCoords[distritoId]) {
+      const coords = distritosCoords[distritoId];
       if (this.map) {
         this.map.setView(coords, 15);
         this.updateMarkerPosition(coords[0], coords[1]);
@@ -310,9 +485,9 @@ localForm: FormGroup;
     const localData: CrearLocalRequest = {
       nombre: formData.nombre,
       direccion: formData.direccion,
-      urlMapa:formData.urlMapa,
+      urlMapa: formData.urlMapa,
       aforoTotal: formData.aforo,
-      idDistrito: this.distritosMap.get(formData.distrito) || 1 // Obtener el ID del distrito
+      idDistrito: formData.idDistrito
     };
 
     this.isLoading = true;
