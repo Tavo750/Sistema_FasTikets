@@ -22,6 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/registro',
       '/auth/recuperar-password',
       '/public',
+      '/carrito/items',
       '/api/v1/eventos', // Eventos públicos
       '/api/v1/auth/login', // Login específico
       '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
