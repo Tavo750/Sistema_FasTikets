@@ -1,16 +1,32 @@
+export interface departamentoResponse {
+  ok: boolean;
+  mensaje: string;
+  data: Departamento[];
+}
+
+export interface provinciaResponse {
+  ok: boolean;
+  mensaje: string;
+  data: Provincia[];
+}
+
+export interface distritoResponse {
+  ok: boolean;
+  mensaje: string;
+  data: Distrito[];
+}
+
 export interface Departamento {
-  id: string;
+  idDepartamento: number;
   nombre: string;
 }
 
 export interface Provincia {
-  id: string;
+  idProvincia: number;
   nombre: string;
-  departamento_id: string;
 }
 
 export interface Distrito {
-  id: string;
+  idDistrito: number;
   nombre: string;
-  provincia_id: string;
 }

@@ -1,10 +1,13 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from '../../../../../../core/services/message.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LocalService } from '../../../services/local.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
+import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
+import { Departamento, Distrito, Provincia } from '../../../../../../core/interfaces/ubigeo.interface';
 import * as L from 'leaflet';
+import { getCoordenadasPorUbigeo, tieneCoordenadasEspecificas } from './distritos-coordenadas';
 
 // Configuración para corregir los iconos de Leaflet usando CDN
 const iconDefault = L.icon({
@@ -25,7 +28,7 @@ const iconDefault = L.icon({
 })
 
 
-export class CrearLocalComponent implements AfterViewInit, OnDestroy {
+export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
   localForm: FormGroup;
   map!: L.Map;
   private marker!: L.Marker;
@@ -40,12 +43,10 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
     lng: this.defaultLng
   };
 
-  distritos = [
-    { label: 'Seleccionar...', value: null },
-    { label: 'Santiago de Surco', value: 1 },
-    { label: 'San Juan de Miraflores', value: 2 },
-    { label: 'Jesús María', value: 3 }
-  ];
+  // Listas para los dropdowns de ubigeo
+  departamentos: Departamento[] = [];
+  provincias: Provincia[] = [];
+  distritos: Distrito[] = [];
 
   estados = [
     { label: 'HABILITADO', value: 'HABILITADO' },
@@ -56,11 +57,14 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
       public router: Router,
       private messageService: MessageService,
       private fb: FormBuilder,
-      private localService: LocalService
+      private localService: LocalService,
+      private registroUsuarioService: RegistroUsuarioService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
         direccion: ['', [Validators.required]],
+        idDepartamento: [null, [Validators.required]],
+        idProvincia: [null, [Validators.required]],
         idDistrito: [null, [Validators.required]],
         aforoTotal: ['', [Validators.required, Validators.min(1)]],
         estado: ['HABILITADO', [Validators.required]],
@@ -68,6 +72,10 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
         longitud: [this.defaultLng, [Validators.required]]
       });
     }
+
+  ngOnInit(): void {
+    this.cargarDepartamentos();
+  }
 
   ngAfterViewInit(): void {
     // Verificar si Leaflet está disponible
@@ -210,21 +218,132 @@ export class CrearLocalComponent implements AfterViewInit, OnDestroy {
     }, 500);
   }
 
+  // Métodos para cargar ubigeo en cascada
+  cargarDepartamentos(): void {
+    this.registroUsuarioService.getDepartamentos().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.departamentos = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar departamentos:', error);
+        this.messageService.error('Error al cargar los departamentos', 'Error', 3000);
+      }
+    });
+  }
+
+  onDepartamentoChange(event: any): void {
+    const departamentoId = event.value;
+
+    // Reiniciar provincia y distrito
+    this.localForm.patchValue({
+      idProvincia: null,
+      idDistrito: null
+    });
+    this.provincias = [];
+    this.distritos = [];
+
+    if (departamentoId) {
+      this.cargarProvincias(departamentoId);
+    }
+  }
+
+  cargarProvincias(departamentoId: number): void {
+    this.registroUsuarioService.getProvincias(departamentoId.toString()).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.provincias = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar provincias:', error);
+        this.messageService.error('Error al cargar las provincias', 'Error', 3000);
+      }
+    });
+  }
+
+  onProvinciaChange(event: any): void {
+    const provinciaId = event.value;
+
+    // Reiniciar distrito
+    this.localForm.patchValue({
+      idDistrito: null
+    });
+    this.distritos = [];
+
+    if (provinciaId) {
+      this.cargarDistritos(provinciaId);
+    }
+  }
+
+  cargarDistritos(provinciaId: number): void {
+    this.registroUsuarioService.getDistritos(provinciaId.toString()).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.distritos = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar distritos:', error);
+        this.messageService.error('Error al cargar los distritos', 'Error', 3000);
+      }
+    });
+  }
+
+  onDistritoChange(event: any): void {
+    const distritoId = event.value;
+    if (distritoId) {
+      // Centrar el mapa automáticamente cuando se selecciona un distrito
+      this.centerMapOnDistrict();
+    }
+  }
+
   centerMapOnDistrict(): void {
     const distritoId = this.localForm.get('idDistrito')?.value;
 
-    // Coordenadas aproximadas de algunos distritos de Lima
-    const distritosCoords: { [key: number]: [number, number] } = {
-      1: [-12.1267, -76.9956], // Santiago de Surco
-      2: [-12.1586, -76.9733], // San Juan de Miraflores
-      3: [-12.0722, -77.0461]  // Jesús María
-    };
+    if (!distritoId) {
+      this.messageService.warn(
+        'Por favor seleccione un distrito',
+        'Distrito no seleccionado',
+        3000
+      );
+      return;
+    }
 
-    if (distritoId && distritosCoords[distritoId]) {
-      const coords = distritosCoords[distritoId];
-      if (this.map) {
-        this.map.setView(coords, 15);
-        this.updateMarkerPosition(coords[0], coords[1]);
+    // Buscar el distrito seleccionado en la lista para obtener su nombre
+    const distritoSeleccionado = this.distritos.find(d => d.idDistrito === distritoId);
+
+    if (!distritoSeleccionado) {
+      console.warn('Distrito no encontrado en la lista:', distritoId);
+      return;
+    }
+
+    // Convertir el idDistrito a string con formato de 6 dígitos (ubigeo)
+    // El idDistrito del backend corresponde al código de ubigeo
+    const ubigeoId = distritoId.toString().padStart(6, '0');
+
+    // Obtener las coordenadas usando el archivo de coordenadas
+    const coords = getCoordenadasPorUbigeo(ubigeoId);
+
+    if (this.map && coords) {
+      // Centrar el mapa en las coordenadas del distrito
+      this.map.setView(coords, 15);
+      this.updateMarkerPosition(coords[0], coords[1]);
+
+      // Verificar si son coordenadas específicas o por defecto
+      if (tieneCoordenadasEspecificas(ubigeoId)) {
+        this.messageService.success(
+          `Mapa centrado en ${distritoSeleccionado.nombre}`,
+          'Ubicación encontrada',
+          3000
+        );
+      } else {
+        this.messageService.info(
+          `Coordenadas aproximadas para ${distritoSeleccionado.nombre}. Ajusta la ubicación manualmente.`,
+          'Ubicación aproximada',
+          4000
+        );
       }
     }
   }

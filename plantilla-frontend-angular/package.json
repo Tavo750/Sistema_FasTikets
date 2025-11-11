@@ -7,7 +7,9 @@
     "build": "ng build --configuration production",
     "build:dev": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "compodoc": "npx --yes @compodoc/compodoc -p tsconfig.doc.json",
+    "compodoc:serve": "npx --yes @compodoc/compodoc -p tsconfig.doc.json -s"
   },
   "private": true,
   "dependencies": {

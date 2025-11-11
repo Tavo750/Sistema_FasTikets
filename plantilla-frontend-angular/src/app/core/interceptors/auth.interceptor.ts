@@ -18,15 +18,15 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // URLs que NO requieren token (endpoints públicos)
     const publicEndpoints = [
-  '/auth/login',
-  '/auth/registro',
-  '/auth/recuperar-password',
-  '/public',
-  '/carrito/items',
-  '/api/v1/eventos', // Eventos públicos
-  '/api/v1/auth/login', // Login específico
-  'localhost:8081/api/v1/eventos', // Eventos con dominio completo
-  'localhost:8081/api/v1/auth/login' // Login con dominio completo
+      '/auth/login',
+      '/auth/registro',
+      '/auth/recuperar-password',
+      '/public',
+      '/api/v1/eventos', // Eventos públicos
+      '/api/v1/auth/login', // Login específico
+      '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
+      'localhost:8081/api/v1/eventos', // Eventos con dominio completo
+      'localhost:8081/api/v1/auth/login' // Login con dominio completo
     ];
 
     // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../environment/environment';
 import { RegistroResponse, RegistroUsuario } from '../interfaces/registro_usuario.interface';
-import { Departamento, Distrito, Provincia } from '../interfaces/ubigeo.interface';
+import { Departamento, departamentoResponse, Distrito, distritoResponse, Provincia, provinciaResponse } from '../interfaces/ubigeo.interface';
 import { baseUrl } from '../../global';
 
 @Injectable({
@@ -23,16 +23,16 @@ export class RegistroUsuarioService {
 
 
   //================= Ubigeo ==================
-  getDepartamentos(): Observable<Departamento[]> {
-    return this.http.get<Departamento[]>(`${baseUrl}/departamentos`);
+  getDepartamentos(): Observable<departamentoResponse> {
+    return this.http.get<departamentoResponse>(`${baseUrl}/geografia/departamentos`);
   }
 
-  getProvincias(departamentoId: string): Observable<Provincia[]> {
-    return this.http.get<Provincia[]>(`${baseUrl}/provincias?departamento_id=${departamentoId}`);
+  getProvincias(departamentoId: string): Observable<provinciaResponse> {
+    return this.http.get<provinciaResponse>(`${baseUrl}/geografia/departamentos/${departamentoId}/provincias`);
   }
 
-  getDistritos(provinciaId: string): Observable<Distrito[]> {
-    return this.http.get<Distrito[]>(`${baseUrl}/distritos?provincia_id=${provinciaId}`);
+  getDistritos(provinciaId: string): Observable<distritoResponse> {
+    return this.http.get<distritoResponse>(`${baseUrl}/geografia/provincias/${provinciaId}/distritos`);
   }
 
 }

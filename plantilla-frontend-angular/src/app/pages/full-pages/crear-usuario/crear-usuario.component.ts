@@ -63,11 +63,16 @@ export class CrearUsuarioComponent implements OnInit {
 //=========================== Cargar los datos de departamentos, provincias y distritos ==========
 cargarDepartamentos(): void {
   this.registroUsuarioService.getDepartamentos().subscribe({
-    next: (data) => {
-      this.departamentos = data;
+    next: (response) => {
+      if (response.ok && response.data) {
+        this.departamentos = response.data;
+      } else {
+        this.messageService.error(response.mensaje || 'Error al cargar departamentos');
+      }
     },
     error: (error) => {
       console.error('Error al cargar departamentos:', error);
+      this.messageService.error('Error al cargar departamentos');
     }
   });
 }
@@ -86,12 +91,19 @@ setupDepartamentoListener(): void {
       // Cargar provincias
       this.loadingProvincias = true;
       this.registroUsuarioService.getProvincias(departamentoId).subscribe({
-        next: (data) => {
-          this.provincias = data;
+        next: (response) => {
+          if (response.ok && response.data) {
+            this.provincias = response.data;
+          } else {
+            console.error('Error al cargar provincias:', response.mensaje);
+            this.messageService.error(response.mensaje || 'Error al cargar provincias');
+          }
           this.loadingProvincias = false;
         },
         error: (error) => {
+
           console.error('Error al cargar provincias:', error);
+          this.messageService.error('Error al cargar provincias');
           this.loadingProvincias = false;
         }
       });
@@ -108,12 +120,18 @@ setupProvinciaListener(): void {
       // Cargar distritos
       this.loadingDistritos = true;
       this.registroUsuarioService.getDistritos(provinciaId).subscribe({
-        next: (data) => {
-          this.distritos = data;
+        next: (response) => {
+          if (response.ok && response.data) {
+            this.distritos = response.data;
+          } else {
+            console.error('Error al cargar distritos:', response.mensaje);
+            this.messageService.error(response.mensaje || 'Error al cargar distritos');
+          }
           this.loadingDistritos = false;
         },
         error: (error) => {
           console.error('Error al cargar distritos:', error);
+          this.messageService.error('Error al cargar distritos');
           this.loadingDistritos = false;
         }
       });

@@ -42,7 +42,7 @@
             formControlName="departamento"
             class="form-control">
             <option value="">Departamento *</option>
-            <option *ngFor="let dep of departamentos" [value]="dep.id">
+            <option *ngFor="let dep of departamentos" [value]="dep.idDepartamento">
               {{ dep.nombre }}
             </option>
           </select>
@@ -59,7 +59,7 @@
             <option value="">
               {{ loadingProvincias ? 'Cargando...' : 'Provincia *' }}
             </option>
-            <option *ngFor="let prov of provincias" [value]="prov.id">
+            <option *ngFor="let prov of provincias" [value]="prov.idProvincia">
               {{ prov.nombre }}
             </option>
           </select>
@@ -76,7 +76,7 @@
             <option value="">
               {{ loadingDistritos ? 'Cargando...' : 'Distrito *' }}
             </option>
-            <option *ngFor="let dist of distritos" [value]="dist.id">
+            <option *ngFor="let dist of distritos" [value]="dist.idDistrito">
               {{ dist.nombre }}
             </option>
           </select>
