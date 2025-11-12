@@ -2,6 +2,8 @@ import { Component, Input, AfterViewInit, ViewChild, ElementRef, OnInit } from '
 import { Router, ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import { CartService } from '../../../../../../shared/services/cart.service';
+import { CarritoService } from '../../../../../../shared/services/carrito.service';
+import { SessionService } from '../../../../../../shared/services/session.service';
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { MessageService } from 'primeng/api';
 import { EventoService } from '../../../../administrador/services/evento.service';
@@ -42,7 +44,9 @@ export class EventoComponent implements AfterViewInit, OnInit {
     private purchaseService: PurchaseService,
     private messageService: MessageService,
     private eventoService: EventoService,
-    private localService: LocalService
+    private localService: LocalService,
+    private carritoService: CarritoService,
+    private sessionService: SessionService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -414,10 +418,71 @@ export class EventoComponent implements AfterViewInit, OnInit {
         eventId: this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-')
       };
 
-      // Añadir tickets al carrito
-      this.cartService.addEventTicketsToCart(selectedTickets, eventInfo);
+      // Actualizar el carrito local (BehaviorSubject) para reflejar la UI
+      const localIds = this.cartService.addEventTicketsToCart(selectedTickets, eventInfo);
 
-      // Mostrar mensaje de éxito
+      // Si el usuario está autenticado, persistir cada item en la BD mediante el endpoint
+      const currentUser = this.sessionService.getCurrentUser();
+      if (currentUser && currentUser.idUsuario) {
+        const idCliente = currentUser.idUsuario;
+
+        selectedTickets.forEach((ticket, index) => {
+          const idTipoTicket = (ticket as any).id || (ticket as any).idTipoTicket;
+          const cantidad = ticket.quantity;
+          const localId = localIds[index];
+
+          if (idTipoTicket && cantidad > 0) {
+            this.carritoService.addItemToServer(idTipoTicket, cantidad, idCliente).subscribe({
+              next: (resp: any) => {
+                // Extraer el id asignado por el servidor si está disponible
+                let serverId: number | undefined;
+                try {
+                  serverId = resp?.data?.idItemCarrito || resp?.data?.id || resp?.idItemCarrito || resp?.id;
+                  if (!serverId && typeof resp === 'object') {
+                    serverId = resp['idItemCarrito'] || resp['id'];
+                  }
+                } catch (e) {
+                  console.warn('No se pudo obtener serverId de la respuesta', resp);
+                }
+
+                if (serverId && localId) {
+                  this.cartService.setServerId(localId, serverId);
+                }
+              },
+              error: (err: any) => {
+                // Registro y notificación de error de sincronización
+                try {
+                  const status = err?.status;
+                  const body = err?.error;
+                  const message = err?.message || (body && (body.mensaje || body.message)) || 'Error desconocido';
+                  console.error('Error guardando item en servidor:', { status, body, message });
+                  this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Sincronización parcial',
+                    detail: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`
+                  });
+                } catch (e) {
+                  console.error('Error procesando error del servidor', e);
+                  this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Sincronización parcial',
+                    detail: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.'
+                  });
+                }
+              }
+            });
+          }
+        });
+      } else {
+        // No autenticado: informar que para persistir en BD se requiere sesión
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Sesión requerida',
+          detail: 'Inicia sesión para sincronizar el carrito en la base de datos.'
+        });
+      }
+
+      // Mensaje rápido de éxito en la UI
       const totalTickets = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
       this.messageService.add({
         severity: 'success',
@@ -425,7 +490,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
         detail: `${totalTickets} entrada(s) añadida(s) al carrito correctamente`
       });
 
-      // Opcional: limpiar selección de tickets
+      // Limpiar selección de tickets
       this.resetTicketQuantities();
     }
 

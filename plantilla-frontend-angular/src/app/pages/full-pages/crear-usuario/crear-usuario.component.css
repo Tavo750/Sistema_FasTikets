@@ -75,21 +75,72 @@ form{
 
 /* Inputs estilo suave */
 input, select{
-  width:100%; margin:6px 0; padding:12px 14px;
-  background:#f7f7f7; border:1px solid #e5e5e5; border-radius:8px;
-  outline:none; transition:border .2s, box-shadow .2s;
+  width:100%; 
+  margin:6px 0; 
+  padding:12px 14px;
+  background:#f7f7f7; 
+  border:1px solid #e5e5e5; 
+  border-radius:8px;
+  outline:none; 
+  transition:border .2s, box-shadow .2s;
   font-size:14px;
+  height: 44px;
+  box-sizing: border-box;
 }
+
 input:focus, select:focus{
-  border-color:#b6b6b6; box-shadow:0 0 0 3px rgba(0,0,0,.05);
+  border-color:#b6b6b6; 
+  box-shadow:0 0 0 3px rgba(0,0,0,.05);
+}
+
+select{
+  cursor: pointer;
 }
 
 /* Contenedores para campos en fila */
 .form-row{
-  width:100%; display:flex; gap:12px; margin:6px 0;
+  width:100%; 
+  display:flex; 
+  gap:12px; 
+  margin:6px 0;
+  align-items: stretch;
 }
-.form-row input, .form-row select{
-  margin:0;
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.form-group input,
+.form-group select{
+  width: 100%;
+  margin: 0;
+  flex: 1;
+}
+
+/* Anchos específicos para cada campo en las filas */
+.form-group-date{
+  flex: 1.2;
+}
+
+.form-group-departamento,
+.form-group-provincia,
+.form-group-distrito{
+  flex: 1;
+}
+
+.form-group-telefono{
+  flex: 1.2;
+}
+
+.form-group-tipo-doc{
+  flex: 1;
+}
+
+.form-group-num-doc{
+  flex: 1;
 }
 
 /* Botón verde centrado */
@@ -121,16 +172,32 @@ input:focus, select:focus{
   .poster{ flex:0 0 44%; }          /* antes 50% */
   .form-container h1{ font-size:40px; }
   form{ max-width:380px; }           /* antes 440px */
-  input{ padding:10px 12px; }
+  input, select{ padding:10px 12px; height: 42px; }
   .btn-login{ width:200px; height:40px; }
+  .form-row{ gap:8px; }
 }
 
-/* 2) Forzar 1 columna un poco antes (1100px) para que no “apriete” nada */
+/* 2) Forzar 1 columna un poco antes (1100px) para que no "apriete" nada */
 @media (max-width: 1100px){
   .login-container{ flex-direction:column; max-width:760px; gap:16px; }
   .poster{ height:300px; flex:0 0 auto; }
   .form-container h1{ font-size:36px; }
   form{ max-width:420px; }
+  .form-row{ 
+    flex-wrap: wrap; 
+  }
+  .form-group-date,
+  .form-group-telefono{
+    flex: 1 1 100%;
+  }
+  .form-group-departamento,
+  .form-group-provincia,
+  .form-group-distrito,
+  .form-group-tipo-doc,
+  .form-group-num-doc{
+    flex: 1 1 calc(33.333% - 8px);
+    min-width: 120px;
+  }
 }
 
 /* 3) Si el ALTO es corto (ej. 1366×768), recorta alturas/tamaños para que todo entre */
@@ -138,7 +205,7 @@ input:focus, select:focus{
   .form-container{ padding:0; }
   .form-container h1{ font-size:34px; margin-bottom:6px; }
   .subtitle{ margin-bottom:18px; }
-  input{ margin:8px 0; padding:10px 12px; }
+  input, select{ margin:8px 0; padding:10px 12px; height: 40px; }
   .btn-login{ height:38px; width:190px; }
-  .btn-google{ height:42px; }
+  .form-row{ gap:8px; margin:4px 0; }
 }

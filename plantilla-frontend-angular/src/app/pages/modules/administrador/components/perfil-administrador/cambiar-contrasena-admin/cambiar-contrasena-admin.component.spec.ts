@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { CambiarContrasenaAdminComponent } from './cambiar-contrasena-admin.component';
 
@@ -8,7 +11,12 @@ describe('CambiarContrasenaAdminComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CambiarContrasenaAdminComponent]
+      declarations: [CambiarContrasenaAdminComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 

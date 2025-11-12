@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { SessionService } from './session.service';
 
 export interface CartItem {
   id: number;
@@ -12,6 +14,8 @@ export interface CartItem {
   ticketType?: string;
   eventDate?: string;
   eventVenue?: string;
+  // id asignado por el servidor al persistir el item del carrito (opcional)
+  serverId?: number;
 }
 
 export interface TicketForCart {
@@ -30,8 +34,7 @@ export class CartService {
   private nextId = 1;
 
   constructor() {
-    // Cargar datos del localStorage si existen
-    this.loadCartFromStorage();
+    // No usamos localStorage: todo el estado se manejará por BD/servidor.
   }
 
   // Obtener todos los items del carrito
@@ -54,12 +57,13 @@ export class CartService {
       venue: string;
       eventId?: string;
     }
-  ): void {
+  ): number[] {
     const currentItems = this.cartItemsSubject.value;
     const newItems = [...currentItems];
+    const createdLocalIds: number[] = [];
 
     tickets.forEach(ticket => {
-      if (ticket.quantity > 0) {
+  if (ticket.quantity > 0) {
         // Verificar si ya existe un item similar en el carrito
         const existingItemIndex = newItems.findIndex(item =>
           item.title === eventInfo.title &&
@@ -69,6 +73,7 @@ export class CartService {
         if (existingItemIndex !== -1) {
           // Si existe, actualizar la cantidad
           newItems[existingItemIndex].quantity += ticket.quantity;
+          createdLocalIds.push(newItems[existingItemIndex].id);
         } else {
           // Si no existe, crear nuevo item
           const newItem: CartItem = {
@@ -84,12 +89,32 @@ export class CartService {
             eventVenue: eventInfo.venue
           };
           newItems.push(newItem);
+          createdLocalIds.push(newItem.id);
         }
       }
     });
 
     this.cartItemsSubject.next(newItems);
-    this.saveCartToStorage();
+    // Defensive: ensure no cart-related keys remain in localStorage.
+    // Algunos navegadores o versiones antiguas del proyecto pudieron persistir el carrito
+    // en localStorage bajo distintas claves. Para evitar que pulsar "Añadir al carrito"
+    // vuelva a dejar datos en el storage, limpiamos cualquier clave común relacionada
+    // con carrito antes de devolver los ids locales.
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const pattern = /cart|carrito|shopping|cartitems|shopping_cart/i;
+        Object.keys(window.localStorage).forEach(key => {
+          if (pattern.test(key)) {
+            window.localStorage.removeItem(key);
+          }
+        });
+      }
+    } catch (e) {
+      // No bloquear la operación si el acceso a localStorage falla (p. ej. modo SSR o bloqueo de terceros)
+      // Solo registramos en consola para depuración si es necesario.
+      // console.warn('No se pudo limpiar localStorage de claves de carrito:', e);
+    }
+    return createdLocalIds;
   }
 
   // Añadir un item individual al carrito
@@ -107,7 +132,19 @@ export class CartService {
     }
 
     this.cartItemsSubject.next([...currentItems]);
-    this.saveCartToStorage();
+    // Evitar persistencia accidental en localStorage
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const pattern = /cart|carrito|shopping|cartitems|shopping_cart/i;
+        Object.keys(window.localStorage).forEach(key => {
+          if (pattern.test(key)) {
+            window.localStorage.removeItem(key);
+          }
+        });
+      }
+    } catch (e) {
+      // silently ignore
+    }
   }
 
   // Remover item del carrito
@@ -115,7 +152,6 @@ export class CartService {
     const currentItems = this.cartItemsSubject.value;
     const filteredItems = currentItems.filter(item => item.id !== itemId);
     this.cartItemsSubject.next(filteredItems);
-    this.saveCartToStorage();
   }
 
   // Actualizar cantidad de un item
@@ -129,7 +165,7 @@ export class CartService {
       } else {
         item.quantity = quantity;
         this.cartItemsSubject.next([...currentItems]);
-        this.saveCartToStorage();
+        // no persistence on client; state is managed server-side
       }
     }
   }
@@ -137,7 +173,45 @@ export class CartService {
   // Limpiar carrito
   clearCart(): void {
     this.cartItemsSubject.next([]);
-    this.saveCartToStorage();
+    // no persistence on client; state is managed server-side
+  }
+
+  /**
+   * Reemplaza el contenido del carrito en memoria por los items que vienen del servidor.
+   * Esto es útil para sincronizar el estado inicial del frontend con la BD cuando el usuario
+   * inicia sesión o carga su carrito.
+   */
+  setCartItems(items: CartItem[]): void {
+    // Asegurar ids locales únicos
+    items.forEach(item => {
+      if (!item.id || typeof item.id !== 'number') {
+        item.id = this.nextId++;
+      } else {
+        // Mantener nextId por encima de cualquier id existente para evitar colisiones
+        if (item.id >= this.nextId) this.nextId = item.id + 1;
+      }
+    });
+
+    this.cartItemsSubject.next([...items]);
+  }
+
+  // Remover item del carrito en memoria (actualiza el BehaviorSubject) sin persistencia en cliente
+  removeLocalOnly(itemId: number): void {
+    const currentItems = this.cartItemsSubject.value;
+    const filteredItems = currentItems.filter(item => item.id !== itemId);
+    this.cartItemsSubject.next(filteredItems);
+    // NOTE: operación en memoria únicamente
+  }
+
+  // Establecer el serverId (id del item en la BD) para un item local
+  setServerId(localId: number, serverId: number): void {
+    const items = this.cartItemsSubject.value;
+    const item = items.find(i => i.id === localId);
+    if (item) {
+      item.serverId = serverId;
+      this.cartItemsSubject.next([...items]);
+      // actualización en memoria
+    }
   }
 
   // Obtener cantidad total de items
@@ -150,30 +224,5 @@ export class CartService {
     return this.cartItemsSubject.value.reduce((total, item) => total + (item.price * item.quantity), 0);
   }
 
-  // Guardar carrito en localStorage
-  private saveCartToStorage(): void {
-    try {
-      const cartData = {
-        items: this.cartItemsSubject.value,
-        nextId: this.nextId
-      };
-      localStorage.setItem('fastikets-cart', JSON.stringify(cartData));
-    } catch (error) {
-      console.error('Error al guardar el carrito en localStorage:', error);
-    }
-  }
-
-  // Cargar carrito desde localStorage
-  private loadCartFromStorage(): void {
-    try {
-      const savedCart = localStorage.getItem('fastikets-cart');
-      if (savedCart) {
-        const cartData = JSON.parse(savedCart);
-        this.cartItemsSubject.next(cartData.items || []);
-        this.nextId = cartData.nextId || 1;
-      }
-    } catch (error) {
-      console.error('Error al cargar el carrito desde localStorage:', error);
-    }
-  }
+  // Nota: la persistencia del carrito en localStorage fue eliminada; el estado se maneja desde el servidor.
 }

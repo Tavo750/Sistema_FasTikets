@@ -22,6 +22,11 @@
     <h1>Iniciar Sesión</h1>
     <p class="subtitle">Ingresa y accede a muchos beneficios</p>
 
+    <!-- Mensaje informativo si viene de una redirección -->
+    <div *ngIf="loginMessage" class="info-message" style="background-color: #e3f2fd; color: #1976d2; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center;">
+      {{ loginMessage }}
+    </div>
+
     <form (ngSubmit)="onSubmit()">
       <input type="email" placeholder="Correo Electrónico" [(ngModel)]="username" name="username" required>
       <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required>

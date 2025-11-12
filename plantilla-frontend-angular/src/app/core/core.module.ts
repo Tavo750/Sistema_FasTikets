@@ -6,7 +6,6 @@ import { FooterComponent } from './components/footer/footer.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { RouterModule } from '@angular/router';
 import { PrimeNgModule } from '../prime-ng/prime-ng.module';
-import { SharedModule } from 'primeng/api';
 import { SidebarItemComponent } from './components/sidebar-item/sidebar-item.component';
 import { FormsModule } from '@angular/forms';
 
@@ -23,7 +22,6 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     RouterModule,
     PrimeNgModule,
-    SharedModule,
     FormsModule
   ],
   exports: [

@@ -9,6 +9,7 @@ import { RegistroUsuarioService } from '../../../core/services/registro-usuario.
 import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/registro_usuario.interface';
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 import { MessageService } from '../../../core/services/message.service';
+import { Departamento, Distrito, Provincia } from '../../../core/interfaces/ubigeo.interface';
 
 
 @Component({
@@ -21,6 +22,12 @@ export class CrearUsuarioComponent implements OnInit {
   private dialogRef: DynamicDialogRef | undefined;
   registroForm: FormGroup;
   tiposDocumento = Object.values(TipoDocumento);
+  departamentos: Departamento[] = [];
+  provincias: Provincia[] = [];
+  distritos: Distrito[] = [];
+
+  loadingProvincias = false;
+  loadingDistritos = false;
 
   constructor(
     public router: Router,
@@ -37,6 +44,7 @@ export class CrearUsuarioComponent implements OnInit {
       repitaContrasena: ['', Validators.required],
       fechaNacimiento: ['', Validators.required],
       departamento: ['', Validators.required],
+      provincia: ['', Validators.required],
       distrito: ['', Validators.required],
       direccion: ['', Validators.required],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
@@ -46,8 +54,94 @@ export class CrearUsuarioComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.cargarDepartamentos();
+    this.setupDepartamentoListener();
+    this.setupProvinciaListener();
     // Aquí puedes cargar los datos de departamentos y distritos
   }
+
+//=========================== Cargar los datos de departamentos, provincias y distritos ==========
+cargarDepartamentos(): void {
+  this.registroUsuarioService.getDepartamentos().subscribe({
+    next: (response) => {
+      if (response.ok && response.data) {
+        this.departamentos = response.data;
+      } else {
+        this.messageService.error(response.mensaje || 'Error al cargar departamentos');
+      }
+    },
+    error: (error) => {
+      console.error('Error al cargar departamentos:', error);
+      this.messageService.error('Error al cargar departamentos');
+    }
+  });
+}
+
+setupDepartamentoListener(): void {
+  this.registroForm.get('departamento')?.valueChanges.subscribe(departamentoId => {
+    if (departamentoId) {
+      // Resetear provincia y distrito
+      this.registroForm.patchValue({
+        provincia: '',
+        distrito: ''
+      });
+      this.provincias = [];
+      this.distritos = [];
+
+      // Cargar provincias
+      this.loadingProvincias = true;
+      this.registroUsuarioService.getProvincias(departamentoId).subscribe({
+        next: (response) => {
+          if (response.ok && response.data) {
+            this.provincias = response.data;
+          } else {
+            console.error('Error al cargar provincias:', response.mensaje);
+            this.messageService.error(response.mensaje || 'Error al cargar provincias');
+          }
+          this.loadingProvincias = false;
+        },
+        error: (error) => {
+
+          console.error('Error al cargar provincias:', error);
+          this.messageService.error('Error al cargar provincias');
+          this.loadingProvincias = false;
+        }
+      });
+    }
+  });
+}
+setupProvinciaListener(): void {
+  this.registroForm.get('provincia')?.valueChanges.subscribe(provinciaId => {
+    if (provinciaId) {
+      // Resetear distrito
+      this.registroForm.patchValue({ distrito: '' });
+      this.distritos = [];
+
+      // Cargar distritos
+      this.loadingDistritos = true;
+      this.registroUsuarioService.getDistritos(provinciaId).subscribe({
+        next: (response) => {
+          if (response.ok && response.data) {
+            this.distritos = response.data;
+          } else {
+            console.error('Error al cargar distritos:', response.mensaje);
+            this.messageService.error(response.mensaje || 'Error al cargar distritos');
+          }
+          this.loadingDistritos = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar distritos:', error);
+          this.messageService.error('Error al cargar distritos');
+          this.loadingDistritos = false;
+        }
+      });
+    }
+  });
+}
+
+
+
+
   //=========================== se abre el dialogo de terminos y condiciones ==========
   mostrarTerminos(event: Event): void {
     event.preventDefault();
@@ -125,7 +219,7 @@ export class CrearUsuarioComponent implements OnInit {
         telefono: this.registroForm.get('telefono')?.value.trim(),
         fechaNacimiento: fechaFormateada,
         direccion: this.registroForm.get('direccion')?.value.trim(),
-        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1
+        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1   // aqui se debe cambiar por el id del distrito seleccionado
       };
 
       // Validar que todos los campos requeridos tengan valor
@@ -161,7 +255,7 @@ export class CrearUsuarioComponent implements OnInit {
         },
         error: (error) => {
           let mensajeError = 'Error en el registro';
-          
+
           // Si el error tiene estructura de respuesta HTTP
           if (error?.error) {
             mensajeError = error.error.mensaje || error.error.message || mensajeError;
@@ -170,7 +264,7 @@ export class CrearUsuarioComponent implements OnInit {
           } else if (error?.message) {
             mensajeError = error.message;
           }
-          
+
           this.messageService.error(mensajeError);
         },
       });

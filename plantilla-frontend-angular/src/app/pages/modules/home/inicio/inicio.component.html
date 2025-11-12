@@ -1,11 +1,39 @@
 <div class="contenedor">
   <!-- HERO SECTION -->
   <div class="hero-section">
-    <h1 class="titulo-principal">
-      <i class="pi pi-calendar" style="margin-right: 0.5rem;"></i>
-      Próximos Eventos
-    </h1>
-    <p class="subtitulo">Descubre los mejores conciertos y eventos musicales</p>
+    <div class="hero-content">
+      <div class="hero-text">
+        <span class="hero-kicker"><i class="pi pi-ticket"></i> Fasticket</span>
+        <h1 class="titulo-principal">Próximos eventos que no te puedes perder</h1>
+        <p class="subtitulo">Explora conciertos, festivales y experiencias únicas con una compra rápida, segura y sin complicaciones.</p>
+        <div class="hero-actions">
+
+        </div>
+        <div class="hero-pill-list" *ngIf="categorias.length > 0">
+          <span class="hero-pill" *ngFor="let categoria of categorias | slice:0:4">
+            <i class="pi pi-hashtag"></i> {{ categoria }}
+          </span>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-visual-card">
+          <span class="hero-visual-badge"><i class="pi pi-bolt"></i> Tendencia</span>
+          <h3>Experiencias inmersivas</h3>
+          <p>Encuentra el evento ideal para cada momento y asegura tu entrada en segundos.</p>
+          <div class="hero-visual-metrics">
+            <div class="metric">
+              <span class="metric-number">{{ eventos.length }}</span>
+              <span class="metric-label">Eventos activos</span>
+            </div>
+            <div class="metric">
+              <span class="metric-number">{{ ubicaciones.length }}</span>
+              <span class="metric-label">Locales disponibles</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- FILTROS CON PRIMENG -->
@@ -63,6 +91,30 @@
     </div>
   </p-panel>
 
+  <section class="popular-categories" *ngIf="categorias.length > 0">
+    <h3>Explora por género musical</h3>
+    <p>Selecciona una categoría para acotar la búsqueda y descubre nuevas propuestas.</p>
+    <div class="category-chip-group">
+      <button
+        type="button"
+        class="category-chip"
+        *ngFor="let categoria of categorias"
+        (click)="filtrarPorCategoria(categoria)"
+        [class.is-active]="categoriaSeleccionada === categoria">
+        <i class="pi pi-star"></i>
+        <span>{{ categoria }}</span>
+      </button>
+      <button
+        type="button"
+        class="category-chip reset"
+        *ngIf="categoriaSeleccionada"
+        (click)="filtrarPorCategoria(null)">
+        <i class="pi pi-times"></i>
+        <span>Ver todas</span>
+      </button>
+    </div>
+  </section>
+
   <!-- ESTADÍSTICAS RÁPIDAS -->
   <div class="estadisticas">
     <div class="stat-card">
@@ -89,64 +141,83 @@
   </div>
 
   <!-- EVENTOS CON CARDS DE PRIMENG -->
-  <div class="eventos-grid" *ngIf="obtenerEventosPagina().length > 0">
-    <p-card
-      *ngFor="let evento of obtenerEventosPagina(); let i = index"
-      styleClass="evento-card"
-      [style]="{'animation-delay': (i * 0.1) + 's'}">
-
-      <ng-template pTemplate="header">
-        <div class="evento-imagen">
-          <img [src]="evento.imagen" [alt]="evento.nombre" />
-          <div class="categoria-badge">
-            <p-tag [value]="evento.categoria" [severity]="getCategorySeverity(evento.categoria)"></p-tag>
-          </div>
+  <ng-container *ngIf="cargandoEventos; else eventosList">
+    <div class="eventos-grid skeleton-grid">
+      <div class="evento-card skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line shorter"></div>
         </div>
-      </ng-template>
-
-      <div class="evento-content">
-        <h3 class="evento-titulo">{{ evento.nombre }}</h3>
-
-        <div class="evento-detalles">
-          <div class="detalle-item">
-            <i class="pi pi-calendar-plus"></i>
-            <span>{{ evento.fecha }}</span>
-          </div>
-
-          <div class="detalle-item">
-            <i class="pi pi-map-marker"></i>
-            <span>{{ evento.lugar }}</span>
-          </div>
-
-          <!-- <div class="detalle-item precio-destacado">
-            <i class="pi pi-dollar"></i>
-            <span>Desde S/ {{ evento.precio | number:'1.2-2' }}</span>
-          </div> -->
+        <div class="skeleton-footer">
+          <span></span>
+          <span></span>
         </div>
       </div>
+    </div>
+  </ng-container>
 
-      <ng-template pTemplate="footer">
-        <div class="evento-acciones">
-          <p-button
-            label="Ver Detalles"
-            icon="pi pi-eye"
-            (onClick)="goToEvento(evento.id)"
-            styleClass="evento-btn-detalle">
-          </p-button>
-          <p-button
-            label="Comprar"
-            icon="pi pi-shopping-cart"
-            (onClick)="comprarEvento(evento)"
-            styleClass="evento-btn-comprar"
-            severity="danger">
-          </p-button>
+  <ng-template #eventosList>
+    <div class="eventos-grid" *ngIf="obtenerEventosPagina().length > 0">
+      <p-card
+        *ngFor="let evento of obtenerEventosPagina(); let i = index"
+        styleClass="evento-card"
+        [style]="{'animation-delay': (i * 0.1) + 's'}">
+
+        <ng-template pTemplate="header">
+          <div class="evento-imagen">
+            <img [src]="evento.imagen" [alt]="evento.nombre" />
+            <div class="categoria-badge">
+              <p-tag [value]="evento.categoria" [severity]="getCategorySeverity(evento.categoria)"></p-tag>
+            </div>
+          </div>
+        </ng-template>
+
+        <div class="evento-content">
+          <h3 class="evento-titulo">{{ evento.nombre }}</h3>
+
+          <div class="evento-detalles">
+            <div class="detalle-item">
+              <i class="pi pi-calendar-plus"></i>
+              <span>{{ evento.fecha }}</span>
+            </div>
+
+            <div class="detalle-item">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ evento.lugar }}</span>
+            </div>
+
+            <!-- <div class="detalle-item precio-destacado">
+              <i class="pi pi-dollar"></i>
+              <span>Desde S/ {{ evento.precio | number:'1.2-2' }}</span>
+            </div> -->
+          </div>
         </div>
-      </ng-template>
-    </p-card>
-  </div>
+
+        <ng-template pTemplate="footer">
+          <div class="evento-acciones">
+            <p-button
+              label="Ver Detalles"
+              icon="pi pi-eye"
+              (onClick)="goToEvento(evento.id)"
+              styleClass="evento-btn-detalle">
+            </p-button>
+            <p-button
+              label="Comprar"
+              icon="pi pi-shopping-cart"
+              (onClick)="comprarEvento(evento)"
+              styleClass="evento-btn-comprar"
+              severity="danger">
+            </p-button>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </ng-template>
 
   <!-- MENSAJE CUANDO NO HAY EVENTOS -->
-  <div class="no-events" *ngIf="obtenerEventosPagina().length === 0">
+  <div class="no-events" *ngIf="!cargandoEventos && obtenerEventosPagina().length === 0">
     <i class="pi pi-calendar-times"></i>
     <h3>No se encontraron eventos</h3>
     <p>Intenta ajustar los filtros para encontrar más eventos disponibles.</p>
@@ -159,7 +230,7 @@
   </div>
 
   <!-- PAGINACIÓN CON PRIMENG -->
-  <div class="paginacion-container" *ngIf="eventosFiltrados.length > eventosPorPagina">
+  <div class="paginacion-container" *ngIf="!cargandoEventos && eventosFiltrados.length > eventosPorPagina">
     <p-paginator
       [rows]="eventosPorPagina"
       [totalRecords]="eventosFiltrados.length"
@@ -171,16 +242,92 @@
     </p-paginator>
   </div>
 
-  <!-- SECCIÓN DE INFORMACIÓN ADICIONAL -->
-  <div class="info-adicional">
-    <div class="info-card">
-      <h4>¿Por qué elegirnos?</h4>
-      <ul>
-        <li><i class="pi pi-check-circle"></i> Compra 100% segura</li>
-        <li><i class="pi pi-check-circle"></i> Entradas verificadas</li>
-        <li><i class="pi pi-check-circle"></i> Soporte 24/7</li>
-        <li><i class="pi pi-check-circle"></i> Mejores precios garantizados</li>
-      </ul>
+  <!-- SECCIÓN DE PIE COMERCIAL -->
+</div>
+
+<footer class="footer-section">
+  <div class="footer-inner">
+
+    <!-- <div class="footer-cta">
+      <div class="footer-cta-text">
+        <span class="footer-kicker">Tu entrada empieza aquí</span>
+        <h3>Vive experiencias épicas con Fasticket</h3>
+        <p>Recibe lanzamientos exclusivos, preventas y beneficios especiales para los fans más apasionados.</p>
+      </div>
+      <div class="footer-cta-actions">
+        <p-button label="Crear cuenta" icon="pi pi-user-plus" styleClass="footer-btn primary"></p-button>
+        <p-button label="Habla con nosotros" icon="pi pi-whatsapp" styleClass="footer-btn ghost" severity="secondary"></p-button>
+      </div>
+    </div> -->
+
+    <div class="footer-grid">
+      <div class="footer-column brand">
+        <div class="footer-logo">
+          <i class="pi pi-ticket"></i>
+          <span>Fasticket</span>
+        </div>
+        <p>Tu aliado para encontrar, comprar y disfrutar los mejores eventos del país.</p>
+        <div class="footer-apps">
+          <a href="#" class="app-chip">
+            <i class="pi pi-apple"></i>
+            <div>
+              <small>Descarga en</small>
+              <strong>App Store</strong>
+            </div>
+          </a>
+          <a href="#" class="app-chip">
+            <i class="pi pi-google"></i>
+            <div>
+              <small>Disponible en</small>
+              <strong>Play Store</strong>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-column">
+        <h4>Conócenos</h4>
+        <ul>
+          <li><a href="#">Sobre Fasticket</a></li>
+          <li><a href="#">Nuestros partners</a></li>
+          <li><a href="#">Promotores</a></li>
+          <li><a href="#">Trabaja con nosotros</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Soporte</h4>
+        <ul>
+          <li><a href="#">Centro de ayuda</a></li>
+          <li><a href="#">Preguntas frecuentes</a></li>
+          <li><a href="#">Libro de reclamaciones</a></li>
+          <li><a href="#">Canales de contacto</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h4>Legales</h4>
+        <ul>
+          <li><a href="#">Términos y condiciones</a></li>
+          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="#">Política de cookies</a></li>
+          <li><a href="#">Uso de datos personales</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-social">
+        <span>Síguenos:</span>
+        <a href="#" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
+        <a href="#" aria-label="TikTok"><i class="pi pi-video"></i></a>
+        <a href="#" aria-label="YouTube"><i class="pi pi-youtube"></i></a>
+      </div>
+      <div class="footer-lang">
+        <button type="button"><i class="pi pi-globe"></i> Español</button>
+      </div>
+      <div class="footer-copy">© {{ currentYear || '2024' }} Fasticket. Todos los derechos reservados.</div>
     </div>
   </div>
-</div>
+</footer>

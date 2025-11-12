@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PerfilPersonalService } from '../../services/perfil-personal.service';
 import { SessionService } from '../../../../../shared/services/session.service';
 
@@ -17,11 +19,12 @@ interface TipoDocumento {
   templateUrl: './perfil-personal.component.html',
   styleUrls: ['./perfil-personal.component.css']
 })
-export class PerfilPersonalComponent implements OnInit {
+export class PerfilPersonalComponent implements OnInit, OnDestroy {
   perfilForm!: FormGroup;
   editForm!: FormGroup;
   isEditing: boolean = false;
   tiposDocumento: TipoDocumento[];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -42,9 +45,14 @@ export class PerfilPersonalComponent implements OnInit {
     this.cargarDatosUsuario();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private cargarDatosUsuario(): void {
     const currentUser = this.sessionService.getCurrentUser();
-    
+
     if (!currentUser || !currentUser.idUsuario) {
       this.messageService.add({
         severity: 'error',
@@ -56,7 +64,9 @@ export class PerfilPersonalComponent implements OnInit {
       return;
     }
 
-    this.perfilPersonalService.getobtenerPerfilPorId(currentUser.idUsuario).subscribe({
+    this.perfilPersonalService.getobtenerPerfilPorId(currentUser.idUsuario)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         if (response.ok && response.data) {
           const datosUsuario = {
@@ -141,7 +151,7 @@ export class PerfilPersonalComponent implements OnInit {
     }
 
     const currentUser = this.sessionService.getCurrentUser();
-    
+
     if (!currentUser || !currentUser.idUsuario) {
       this.messageService.add({
         severity: 'error',
@@ -160,7 +170,9 @@ export class PerfilPersonalComponent implements OnInit {
       email: this.editForm.get('correo')?.value
     };
 
-    this.perfilPersonalService.putActualizarPerfilPorId(currentUser.idUsuario, datosActualizados).subscribe({
+    this.perfilPersonalService.putActualizarPerfilPorId(currentUser.idUsuario, datosActualizados)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         if (response.ok) {
           this.perfilForm.patchValue({

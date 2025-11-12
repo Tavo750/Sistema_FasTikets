@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { BeneficiosService } from '../../services/beneficios.service';
+import { BeneficiosResponse } from '../../interfaces/beneficios/beneficios.interface';
+import { HistorialPuntosService } from '../../services/historial-puntos.service';
+import { HistorialPuntosResponse, Datum } from '../../interfaces/beneficios/historial-puntos.interface';
 
 type Tier = 'BRONCE' | 'PLATA' | 'ORO' | 'BLACK';
 type EstadoPuntos = 'Vigentes' | 'Canjeado';
@@ -23,7 +27,7 @@ interface MovimientoPuntos {
   templateUrl: './beneficios.component.html',
   styleUrls: ['./beneficios.component.css']
 })
-export class BeneficiosComponent {
+export class BeneficiosComponent implements OnInit {
 
   userName = 'PAPS';
   tier: Tier = 'PLATA';  // nivel real del usuario (solo para saludo)
@@ -31,9 +35,10 @@ export class BeneficiosComponent {
   // Sin selección por defecto en "Nuestras Membresías"
   selectedTier: Tier | null = null;
 
-  // Puntos
-  points = 190;
+  // Puntos - ahora dinámicos
+  points = 0;
   targetBlack = 500;
+  isLoadingPoints = false;
 
   get progressToBlack(): number {
     return Math.min(Math.round((this.points / this.targetBlack) * 100), 100);
@@ -87,22 +92,86 @@ export class BeneficiosComponent {
     ]
   };
 
-  // Historial (mock)
+  // Historial - ahora dinámico
   showHistory = false;
-  history: MovimientoPuntos[] = [
-    { fechaAdquisicion: '15/09/2025', fechaVencimiento: '15/09/2026', estado: 'Vigentes',  fechaCanje: '-',           cantidad: 50 },
-    { fechaAdquisicion: '16/09/2025', fechaVencimiento: '15/09/2026', estado: 'Vigentes',  fechaCanje: '-',           cantidad: 50 },
-    { fechaAdquisicion: '17/09/2025', fechaVencimiento: '15/09/2026', estado: 'Vigentes',  fechaCanje: '-',           cantidad: 50 },
-    { fechaAdquisicion: '15/09/2025', fechaVencimiento: '15/09/2026', estado: 'Canjeado',  fechaCanje: '19/09/2025',  cantidad: 50 },
-    { fechaAdquisicion: '15/09/2025', fechaVencimiento: '05/05/2026', estado: 'Canjeado',  fechaCanje: '15/09/2025',  cantidad: 50 },
-  ];
+  history: MovimientoPuntos[] = [];
+  historialPuntosRaw: Datum[] = [];
+  isLoadingHistory = false;
 
-  constructor(private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private beneficiosService: BeneficiosService,
+    private historialPuntosService: HistorialPuntosService
+  ) {
     // Deep-link opcional: ?tier=ORO
     const qpTier = (this.route.snapshot.queryParamMap.get('tier') as Tier) || null;
     if (qpTier && ['BRONCE','PLATA','ORO','BLACK'].includes(qpTier)) {
       this.selectedTier = qpTier;
     }
+  }
+
+  ngOnInit(): void {
+    // Cargar puntos del cliente autenticado al inicializar el componente
+    this.cargarPuntosCliente();
+  }
+
+  /**
+   * Carga los puntos del cliente autenticado desde el servicio
+   * El endpoint usa el token de autenticación para identificar automáticamente al cliente
+   */
+  private cargarPuntosCliente(): void {
+    this.isLoadingPoints = true;
+    
+    this.beneficiosService.getObtenerPuntosDeClienteAutenticado()
+      .subscribe({
+        next: (response: BeneficiosResponse) => {
+          if (response.ok && response.data) {
+            // Actualizar puntos y tier dinámicamente
+            this.points = response.data.puntosAcumulados;
+            this.tier = this.calculateTierByPoints(this.points);
+            
+            console.log('Cliente ID:', response.data.idCliente);
+            console.log('Puntos cargados:', this.points);
+            console.log('Tier calculado:', this.tier);
+            console.log('Mensaje del servidor:', response.data.mensaje);
+            
+            // Opcional: mostrar mensaje de éxito
+            // this.messageService.success(`Puntos actualizados: ${this.points}`, 'Beneficios');
+          } else {
+            console.error('Error en la respuesta del servidor:', response.mensaje);
+            this.handlePuntosError('Error en la respuesta del servidor');
+          }
+          this.isLoadingPoints = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar puntos del cliente autenticado:', error);
+          this.handlePuntosError('Error de conexión al cargar puntos');
+          this.isLoadingPoints = false;
+        }
+      });
+  }
+
+  /**
+   * Maneja errores al cargar puntos
+   */
+  private handlePuntosError(mensaje: string): void {
+    this.points = 0;
+    this.tier = 'BRONCE';
+    // Opcional: mostrar mensaje de error al usuario
+    // this.messageService.error(mensaje, 'Error');
+  }
+
+  /**
+   * Calcula el tier basado en los puntos acumulados
+   * @param points Puntos acumulados del cliente
+   * @returns Tier correspondiente
+   */
+  private calculateTierByPoints(points: number): Tier {
+    if (points >= 500) return 'BLACK';
+    if (points >= 200) return 'ORO';
+    if (points >= 100) return 'PLATA';
+    return 'BRONCE';
   }
 
   openTier(t: Tier) {
@@ -115,6 +184,119 @@ export class BeneficiosComponent {
     //this.router.navigate([], { queryParams: { tier: null }, queryParamsHandling: 'merge' });
   }
 
-  viewPointsHistory() { this.showHistory = true; }
-  closeHistory() { this.showHistory = false; }
+  viewPointsHistory() { 
+    this.showHistory = true; 
+    this.cargarHistorialPuntos();
+  }
+  
+  closeHistory() { 
+    this.showHistory = false; 
+  }
+
+  /**
+   * Refresca los puntos del cliente (útil para botón de actualizar)
+   */
+  refreshPoints(): void {
+    if (!this.isLoadingPoints) {
+      this.cargarPuntosCliente();
+      // Si el historial está visible, también refrescar
+      if (this.showHistory && !this.isLoadingHistory) {
+        this.cargarHistorialPuntos();
+      }
+    }
+  }
+
+  /**
+   * Getter para mostrar el estado de los puntos
+   */
+  get puntosDisplay(): string {
+    if (this.isLoadingPoints) {
+      return 'Cargando...';
+    }
+    return this.points.toString();
+  }
+
+  /**
+   * Carga el historial de puntos del cliente autenticado
+   */
+  private cargarHistorialPuntos(): void {
+    this.isLoadingHistory = true;
+    
+    this.historialPuntosService.getObtenerHistorialDePuntosDeClienteAutenticado()
+      .subscribe({
+        next: (response: HistorialPuntosResponse) => {
+          if (response.ok && response.data) {
+            this.historialPuntosRaw = response.data;
+            this.history = this.transformarHistorialParaVista(response.data);
+            
+            console.log('Historial de puntos cargado:', this.historialPuntosRaw);
+            console.log('Historial transformado:', this.history);
+          } else {
+            console.error('Error en la respuesta del historial:', response.mensaje);
+            this.history = [];
+          }
+          this.isLoadingHistory = false;
+        },
+        error: (error) => {
+          console.error('Error al cargar historial de puntos:', error);
+          this.history = [];
+          this.isLoadingHistory = false;
+        }
+      });
+  }
+
+  /**
+   * Transforma los datos del servidor al formato esperado por la vista
+   * @param historialRaw Datos raw del servidor
+   * @returns Array de MovimientoPuntos para la vista
+   */
+  private transformarHistorialParaVista(historialRaw: Datum[]): MovimientoPuntos[] {
+    return historialRaw.map(item => {
+      // Determinar el estado basado en el tipo de transacción y si está activo
+      const estado: EstadoPuntos = this.determinarEstadoPunto(item);
+      
+      // Formatear fechas
+      const fechaTransaccion = this.formatearFecha(item.fechaTransaccion);
+      const fechaVencimiento = this.formatearFecha(item.fechaVencimiento);
+      
+      return {
+        fechaAdquisicion: fechaTransaccion,
+        fechaVencimiento: fechaVencimiento,
+        estado: estado,
+        fechaCanje: estado === 'Canjeado' ? fechaTransaccion : '-',
+        cantidad: Math.abs(item.cantPuntos) // Usar valor absoluto para mostrar
+      };
+    });
+  }
+
+  /**
+   * Determina el estado del punto basado en los datos del servidor
+   */
+  private determinarEstadoPunto(item: Datum): EstadoPuntos {
+    // Si no está activo o es una transacción negativa (canje), es "Canjeado"
+    if (!item.activo || item.cantPuntos < 0 || item.tipoTransaccion.includes('CANJE')) {
+      return 'Canjeado';
+    }
+    
+    // Si la fecha de vencimiento ya pasó, también es considerado como usado
+    const fechaVencimiento = new Date(item.fechaVencimiento);
+    const hoy = new Date();
+    if (fechaVencimiento < hoy) {
+      return 'Canjeado';
+    }
+    
+    return 'Vigentes';
+  }
+
+  /**
+   * Formatea una fecha para mostrar en la vista
+   */
+  private formatearFecha(fecha: Date): string {
+    const fechaObj = new Date(fecha);
+    return fechaObj.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }
 }

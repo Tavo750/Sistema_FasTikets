@@ -1,4 +1,3 @@
-
 <div class="container">
   <div class="header-section">
     <h1 class="title">
@@ -60,19 +59,57 @@
 
               <div class="form-row">
                 <div class="form-field">
+                  <label for="departamento" class="field-label">
+                    <i class="pi pi-map"></i>
+                    3) Departamento *
+                  </label>
+                  <p-dropdown
+                    id="departamento"
+                    formControlName="idDepartamento"
+                    [options]="departamentos"
+                    optionLabel="nombre"
+                    optionValue="idDepartamento"
+                    placeholder="Seleccionar departamento..."
+                    class="form-input"
+                    (onChange)="onDepartamentoChange($event)">
+                  </p-dropdown>
+                </div>
+
+                <div class="form-field">
+                  <label for="provincia" class="field-label">
+                    <i class="pi pi-map"></i>
+                    4) Provincia *
+                  </label>
+                  <p-dropdown
+                    id="provincia"
+                    formControlName="idProvincia"
+                    [options]="provincias"
+                    optionLabel="nombre"
+                    optionValue="idProvincia"
+                    placeholder="Seleccionar provincia..."
+                    class="form-input"
+                    [disabled]="!localForm.get('idDepartamento')?.value || provincias.length === 0"
+                    (onChange)="onProvinciaChange($event)">
+                  </p-dropdown>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
                   <label for="distrito" class="field-label">
                     <i class="pi pi-map"></i>
-                    3) Distrito *
+                    5) Distrito *
                   </label>
                   <div class="distrito-container">
                     <p-dropdown
                       id="distrito"
                       formControlName="idDistrito"
                       [options]="distritos"
-                      optionLabel="label"
-                      optionValue="value"
+                      optionLabel="nombre"
+                      optionValue="idDistrito"
                       placeholder="Seleccionar distrito..."
                       class="distrito-select"
+                      [disabled]="!localForm.get('idProvincia')?.value || distritos.length === 0"
                       (onChange)="centerMapOnDistrict()">
                     </p-dropdown>
                     <p-button
@@ -92,7 +129,7 @@
                 <div class="form-field">
                   <label for="aforo" class="field-label">
                     <i class="pi pi-users"></i>
-                    4) Aforo Máximo *
+                    6) Aforo Máximo *
                   </label>
                   <p-inputNumber
                     id="aforo"
@@ -108,7 +145,7 @@
               <div class="form-field">
                 <label for="estado" class="field-label">
                   <i class="pi pi-check-circle"></i>
-                  5) Estado *
+                  7) Estado *
                 </label>
                 <p-dropdown
                   id="estado"
@@ -126,7 +163,7 @@
               <div class="form-field">
                 <label class="field-label">
                   <i class="pi pi-globe"></i>
-                  6) Ubicación en el Mapa *
+                  8) Ubicación en el Mapa *
                 </label>
 
                 <div class="map-section">
@@ -201,5 +238,5 @@
   </div>
 
   <!-- Toast para mensajes -->
-  <p-toast></p-toast>
+
 </div>

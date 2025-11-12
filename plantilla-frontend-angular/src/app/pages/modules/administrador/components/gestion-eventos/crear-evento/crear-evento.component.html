@@ -83,6 +83,7 @@
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
                 (onSelect)="onFechaSeleccionada($event)"
+                panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
 
@@ -100,6 +101,7 @@
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
                 (onSelect)="onHoraInicioSeleccionada($event)"
+                panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
 
@@ -117,6 +119,7 @@
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
                 (onSelect)="onHoraFinalSeleccionada($event)"
+                panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
           </div>
@@ -137,40 +140,6 @@
             />
           </div>
           -->
-
-          <div class="form-field">
-            <label class="field-label">
-              <i class="pi pi-send"></i>
-              Publicación del evento
-            </label>
-            <div class="publicar-options">
-              <div class="publicar-option">
-                <p-checkbox
-                  [(ngModel)]="publicarInmediatamente"
-                  binary="true"
-                  inputId="inmediatamente"
-                  (onChange)="onPublicarInmediatamente()"
-                ></p-checkbox>
-                <label for="inmediatamente" class="checkbox-label">Publicar inmediatamente</label>
-              </div>
-
-              <div class="publicar-option">
-                <p-checkbox
-                  [(ngModel)]="publicarAPartirDe"
-                  binary="true"
-                  inputId="apartirDe"
-                  (onChange)="onPublicarAPartirDe()"
-                ></p-checkbox>
-                <label for="apartirDe" class="checkbox-label">Programar publicación:</label>
-                <p-datepicker
-                  [(ngModel)]="fechaPublicacion"
-                  placeholder="Seleccionar fecha..."
-                  [disabled]="!publicarAPartirDe"
-                  styleClass="fecha-publicacion"
-                ></p-datepicker>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Columna Derecha -->
