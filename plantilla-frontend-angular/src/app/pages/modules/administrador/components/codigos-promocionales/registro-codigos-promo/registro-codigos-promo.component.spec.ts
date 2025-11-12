@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { RegistroCodigosPromoComponent } from './registro-codigos-promo.component';
 
@@ -8,7 +11,12 @@ describe('RegistroCodigosPromoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RegistroCodigosPromoComponent]
+      declarations: [RegistroCodigosPromoComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 
