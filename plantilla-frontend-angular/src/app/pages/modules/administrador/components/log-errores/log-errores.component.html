@@ -1,1 +1,175 @@
-<p>log-errores works!</p>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-exclamation-triangle"></i>
+      Log de Errores del Sistema
+    </h1>
+    <p-button 
+      label="Registrar Nuevo Error" 
+      icon="pi pi-plus" 
+      (onClick)="registrarNuevoError()"
+      class="add-button">
+    </p-button>
+  </div>
+
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="filter-row">
+        <div class="field">
+          <label for="fechaDesde">Desde:</label>
+          <p-calendar 
+            id="fechaDesde"
+            [(ngModel)]="fechaDesde" 
+            dateFormat="dd/mm/yy" 
+            placeholder="Fecha inicial"
+            [appendTo]="'body'"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            class="w-full">
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="fechaHasta">Hasta:</label>
+          <p-calendar 
+            id="fechaHasta"
+            [(ngModel)]="fechaHasta" 
+            dateFormat="dd/mm/yy" 
+            placeholder="Fecha final"
+            [appendTo]="'body'"
+            [showButtonBar]="true"
+            [showIcon]="true"
+            class="w-full">
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="severidad">Severidad:</label>
+          <p-dropdown 
+            id="severidad"
+            [(ngModel)]="filtroSeveridad" 
+            [options]="severidadOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            placeholder="Todas"
+            class="w-full">
+          </p-dropdown>
+        </div>
+        <div class="filter-actions">
+          <p-button 
+            label="Filtrar" 
+            icon="pi pi-search" 
+            (onClick)="filtrar()">
+          </p-button>
+          <p-button 
+            label="Limpiar" 
+            icon="pi pi-times" 
+            severity="secondary" 
+            (onClick)="limpiarFiltros()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+  </p-panel>
+
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Errores Registrados ({{ filteredErrores.length }})
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <p-table 
+        [value]="filteredErrores" 
+        [rows]="10" 
+        [paginator]="true" 
+        [rowsPerPageOptions]="[5, 10, 20]" 
+        [showCurrentPageReport]="true" 
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} errores"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        [sortMode]="'multiple'"
+        styleClass="custom-table"
+        [loading]="false"
+        #dt>
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="fechaHora">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha/Hora
+                <p-sortIcon field="fechaHora"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="severidad">
+              <div class="header-content">
+                <i class="pi pi-exclamation-circle"></i>
+                Severidad
+                <p-sortIcon field="severidad"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="modulo">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Módulo
+                <p-sortIcon field="modulo"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="mensajeBreve">
+              <div class="header-content">
+                <i class="pi pi-file-text"></i>
+                Mensaje Breve
+                <p-sortIcon field="mensajeBreve"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="accion">
+              <div class="header-content">
+                <i class="pi pi-cogs"></i>
+                Acción
+                <p-sortIcon field="accion"></p-sortIcon>
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-error>
+          <tr class="table-row">
+            <td class="date-cell">{{ error.fechaHora | date:'dd-MM-yyyy HH:mm:ss' }}</td>
+            <td class="severity-cell">
+              <p-tag 
+                [value]="error.severidad" 
+                [severity]="getSeveridadSeverity(error.severidad)"
+                class="severity-tag">
+              </p-tag>
+            </td>
+            <td class="module-cell">
+              <div class="module-content">
+                <i class="pi pi-cog module-icon"></i>
+                <span class="module-text">{{ error.modulo }}</span>
+              </div>
+            </td>
+            <td class="description-cell">{{ error.mensajeBreve }}</td>
+            <td class="accion-cell">{{ error.accion }}</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron errores</h3>
+                <p>Intenta ajustar los filtros de búsqueda o registrar un nuevo error.</p>
+                <p-button
+                  label="Registrar Primer Error"
+                  icon="pi pi-plus"
+                  (onClick)="registrarNuevoError()">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
