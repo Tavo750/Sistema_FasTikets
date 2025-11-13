@@ -1,0 +1,63 @@
+<div class="support-container">
+  <h1>Ayuda y Soporte</h1>
+
+  <p class="intro">
+    ¡Hola! Estamos aquí para ayudarte a que tu experiencia en FasTicket sea perfecta.
+  </p>
+
+  <p>
+    Si tienes alguna duda sobre la compra de entradas, el uso de nuestra plataforma
+    o necesitas ayuda con tu cuenta, te invitamos a consultar nuestra sección de
+    Preguntas Frecuentes (FAQ). Ahí encontrarás respuestas a los temas más comunes.
+  </p>
+
+  <p>
+    Si no encuentras lo que buscas, por favor, contáctanos a través del formulario a continuación.
+  </p>
+
+  <h2>¿Necesitas ayuda con algo específico?</h2>
+
+  <ul class="help-list">
+    <li>
+      Para consultas sobre un evento o ticket: incluye el nombre del evento y el ID de tu ticket.
+    </li>
+    <li>
+      Para problemas con tu cuenta: explica brevemente la situación y tu nombre de usuario.
+    </li>
+  </ul>
+
+  <form class="support-form" (ngSubmit)="enviarCorreo()">
+    <div class="field">
+      <label for="asunto">Asunto:</label>
+      <input
+        id="asunto"
+        type="text"
+        pInputText
+        [(ngModel)]="asunto"
+        name="asunto"
+        placeholder="Escribir..."
+      />
+    </div>
+
+    <div class="field">
+      <label for="mensaje">Tu Mensaje:</label>
+      <textarea
+        id="mensaje"
+        rows="7"
+        pTextarea
+        [(ngModel)]="mensaje"
+        name="mensaje"
+        placeholder="Escribir...">
+      </textarea>
+    </div>
+
+    <div class="actions">
+      <button
+        pButton
+        type="submit"
+        label="Enviar Correo"
+        class="p-button-success p-button-rounded enviar-btn">
+      </button>
+    </div>
+  </form>
+</div>

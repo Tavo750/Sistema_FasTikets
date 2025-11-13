@@ -9,6 +9,7 @@ import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/
 import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.component';
 import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
 import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
+import { AsuntoSoporteComponent } from './components/ayuda-soporte/asunto-soporte/asunto-soporte.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilPersonal', pathMatch: 'full' },
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'ayudaSoporte', component: AyudaSoporteComponent },
   { path: 'configuracion', component: ConfiguracionComponent },
   { path: 'configuracion/cambiarContrasena', component: CambiarMiContrasenaClienteComponent },
+  {path: 'ayudaSoporte/asuntoSoporte', component: AsuntoSoporteComponent}
 ];
 
 @NgModule({

@@ -1,0 +1,72 @@
+.faq-container {
+  max-width: 900px;
+  margin: 1.5rem auto;
+  padding: 2.25rem 2rem 3rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.faq-container h1 {
+  font-size: 2.4rem;
+  margin: 0 0 0.25rem 0;
+  font-weight: 800;
+  color: #111827; /* gris oscuro */
+}
+
+.faq-section {
+  margin-bottom: 1.75rem;
+}
+
+.faq-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.faq-list {
+  list-style: disc inside;
+  margin: 0 0 0 0.5rem;
+  padding: 0;
+}
+
+.faq-list li {
+  margin: 0.6rem 0;
+}
+
+.faq-list li strong {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.faq-list li p {
+  margin: 0;
+  line-height: 1.45;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.faq-actions {
+  margin-top: 2.25rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.siguiente-btn {
+  padding: 0.55rem 1.8rem;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 12px rgba(16,185,129,0.12);
+}
+
+.faq-header .lead {
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.98rem;
+}
+
+@media (max-width: 780px) {
+  .faq-container { padding: 1rem; margin: 1rem; }
+  .faq-container h1 { font-size: 1.6rem; }
+}

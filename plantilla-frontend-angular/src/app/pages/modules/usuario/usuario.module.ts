@@ -20,6 +20,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.component';
 import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
 import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
+import { AsuntoSoporteComponent } from './components/ayuda-soporte/asunto-soporte/asunto-soporte.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { CambiarMiContrasenaClienteComponent } from './components/configuracion/
     HistorialComprasComponent,
   ConfirmarTransferenciaComponent,
   AyudaSoporteComponent,
-  CambiarMiContrasenaClienteComponent
+  CambiarMiContrasenaClienteComponent,
+  AsuntoSoporteComponent
   ],
   imports: [
     CommonModule,
