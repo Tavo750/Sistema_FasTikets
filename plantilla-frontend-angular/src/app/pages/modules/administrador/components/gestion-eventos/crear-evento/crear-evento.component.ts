@@ -669,6 +669,59 @@ export class CrearEventoComponent implements OnInit{
 
 
   /**
+   * Guarda los datos generales del evento (Sección 1)
+   * Valida solo los campos de la sección 1 antes de crear el evento
+   */
+  onGuardarDatosGenerales(): void {
+    // Validar solo los datos generales
+    if (!this.validarDatosGenerales()) {
+      return;
+    }
+
+    // Verificar que se haya seleccionado un local
+    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
+      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
+      return;
+    }
+
+    // // Verificar que se haya seleccionado un banner
+    // if (!this.formulario.banner) {
+    //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+    //   return;
+    // }
+
+    // Asignar el idLocal del local seleccionado al evento
+    this.evento.idLocal = parseInt(this.formulario.localString);
+
+    // Preparar datos básicos del evento
+    const datosEvento = this.prepararDatosEventoBasicos();
+
+    // Mostrar mensaje de carga
+    this.messageService.info('Guardando datos del evento...', 'Procesando');
+
+    // Llamar al servicio para crear el evento con datos básicos
+    this.eventoService.postCrearEvento(datosEvento).subscribe({
+      next: (response) => {
+        this.messageService.handleBackendResponse(response, false, 'Datos Guardados');
+
+        if (response.ok && response.data) {
+          this.messageService.success('Datos generales del evento guardados exitosamente', 'Éxito');
+
+          // Guardar el ID del evento creado para futuras actualizaciones
+          if (response.data.idEvento) {
+            this.idEvento = response.data.idEvento;
+            this.messageService.info(`Evento creado con ID: ${this.idEvento}`, 'Información');
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error al guardar datos del evento:', error);
+        this.messageService.handleHttpError(error);
+      }
+    });
+  }
+
+  /**
    * Método para crear el evento
    * Asigna el idLocal del local seleccionado y llama a postCrearEvento
    */
