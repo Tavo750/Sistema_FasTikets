@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 
 import { UsuarioRoutingModule } from './usuario-routing.module';
+import { CoreModule } from '../../../core/core.module';
 
 import { PrimeNgModule } from '../../../prime-ng/prime-ng.module';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -31,6 +32,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
     FormsModule,
     ReactiveFormsModule,
     UsuarioRoutingModule,
+    CoreModule,
     PrimeNgModule,
     ProgressBarModule
   ],

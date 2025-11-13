@@ -14,6 +14,13 @@
 .title-xl { margin: 0; font-size: 2rem; font-weight: 800; }
 .section-title { margin: 0; font-weight: 800; }
 
+/* Loading state para el nombre del usuario */
+.loading-text { 
+  color: #6b7280; 
+  font-style: italic; 
+  font-weight: 400;
+}
+
 /* ---------- Saldo de puntos (centrado en columna) ---------- */
 .points-card .p-card-header { padding-bottom: 0; }
 .points-col {

@@ -1,0 +1,310 @@
+.page {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.content-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.error-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.required-asterisk {
+  color: #e74c3c;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Estilos específicos para campos de PrimeNG */
+:host ::ng-deep .p-dropdown,
+:host ::ng-deep .p-calendar,
+:host ::ng-deep .p-inputtextarea {
+  width: 100%;
+}
+
+:host ::ng-deep .p-dropdown .p-dropdown-label {
+  padding: 0.75rem 1rem;
+}
+
+:host ::ng-deep .p-calendar .p-inputtext {
+  padding: 0.75rem 1rem;
+}
+
+/* Estilos específicos para el calendario */
+:host ::ng-deep .p-datepicker {
+  min-width: 300px;
+  z-index: 9999 !important;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-header {
+  padding: 0.857rem;
+  background: #1976d2;
+  color: #ffffff;
+  border-bottom: 1px solid #0d47a1;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-prev,
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-next {
+  color: #ffffff;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-prev:hover,
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-next:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-title {
+  color: #ffffff;
+  margin: 0 auto;
+}
+
+:host ::ng-deep .p-datepicker .p-datepicker-header .p-datepicker-title select {
+  color: #1976d2;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .p-datepicker table {
+  width: 100%;
+  margin: 0.857rem 0;
+}
+
+:host ::ng-deep .p-datepicker table td {
+  padding: 0.5rem;
+}
+
+:host ::ng-deep .p-datepicker table td > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 auto;
+  width: 2.286rem;
+  height: 2.286rem;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+:host ::ng-deep .p-datepicker table td > span:hover {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+:host ::ng-deep .p-datepicker table td > span.p-highlight {
+  background: #1976d2;
+  color: #ffffff;
+}
+
+:host ::ng-deep .p-timepicker {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem;
+  background: #f8f9fa;
+}
+
+:host ::ng-deep .p-timepicker button {
+  background: #1976d2;
+  color: #ffffff;
+  border: 1px solid #1976d2;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+:host ::ng-deep .p-timepicker button:hover {
+  background: #1565c0;
+  border-color: #1565c0;
+}
+
+:host ::ng-deep .p-calendar-w-btn .p-datepicker-trigger {
+  background: #1976d2;
+  color: #ffffff;
+  border: 1px solid #1976d2;
+  padding: 0.75rem;
+  border-radius: 0 6px 6px 0;
+}
+
+:host ::ng-deep .p-calendar-w-btn .p-datepicker-trigger:hover {
+  background: #1565c0;
+  border-color: #1565c0;
+}
+
+:host ::ng-deep .p-buttonset .p-button {
+  background: #1976d2;
+  border: 1px solid #1976d2;
+  color: #ffffff;
+  border-radius: 4px;
+  margin: 0 0.25rem;
+}
+
+:host ::ng-deep .p-buttonset .p-button:hover {
+  background: #1565c0;
+  border-color: #1565c0;
+}
+
+:host ::ng-deep .p-inputtextarea {
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Estilos para campos inválidos */
+:host ::ng-deep .ng-invalid.ng-dirty {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25) !important;
+}
+
+/* Estilos para botones */
+:host ::ng-deep .p-button {
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+:host ::ng-deep .p-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .p-button-secondary {
+  background: #6c757d;
+  border-color: #6c757d;
+}
+
+:host ::ng-deep .p-button-secondary:hover {
+  background: #5a6268;
+  border-color: #545b62;
+}
+
+:host ::ng-deep .p-button-success {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+:host ::ng-deep .p-button-success:hover {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+/* Toast personalizados */
+:host ::ng-deep .p-toast .p-toast-message {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:host ::ng-deep .p-toast .p-toast-message.p-toast-message-success {
+  background-color: #4caf50;
+  border: solid #4caf50;
+  border-width: 0 0 0 6px;
+  color: #ffffff;
+}
+
+:host ::ng-deep .p-toast .p-toast-message-success .p-toast-message-icon,
+:host ::ng-deep .p-toast .p-toast-message-success .p-toast-icon-close {
+  color: #ffffff;
+}
+
+:host ::ng-deep .p-toast .p-toast-message-success .p-toast-summary {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+:host ::ng-deep .p-toast .p-toast-message-success .p-toast-detail {
+  color: #ffffff;
+  margin-top: 0.25rem;
+}
+
+:host ::ng-deep .p-toast .p-toast-message-success .p-toast-message-content {
+  padding: 1rem 1.25rem;
+}
+
+:host ::ng-deep .p-toast.p-toast-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+:host ::ng-deep .p-toast .p-toast-message {
+  margin: 0 0 1rem 0;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page {
+    padding: 1rem;
+  }
+  
+  .form-container {
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .p-button {
+    width: 100%;
+  }
+}

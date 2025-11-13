@@ -4,6 +4,7 @@ import { BeneficiosService } from '../../services/beneficios.service';
 import { BeneficiosResponse } from '../../interfaces/beneficios/beneficios.interface';
 import { HistorialPuntosService } from '../../services/historial-puntos.service';
 import { HistorialPuntosResponse, Datum } from '../../interfaces/beneficios/historial-puntos.interface';
+import { LoginService } from '../../../../../core/services/login.service';
 
 type Tier = 'BRONCE' | 'PLATA' | 'ORO' | 'BLACK';
 type EstadoPuntos = 'Vigentes' | 'Canjeado';
@@ -29,7 +30,8 @@ interface MovimientoPuntos {
 })
 export class BeneficiosComponent implements OnInit {
 
-  userName = 'PAPS';
+  userName = 'Usuario';
+  isLoadingUserName = true;
   tier: Tier = 'PLATA';  // nivel real del usuario (solo para saludo)
 
   // Sin selección por defecto en "Nuestras Membresías"
@@ -102,7 +104,8 @@ export class BeneficiosComponent implements OnInit {
     private router: Router, 
     private route: ActivatedRoute,
     private beneficiosService: BeneficiosService,
-    private historialPuntosService: HistorialPuntosService
+    private historialPuntosService: HistorialPuntosService,
+    private loginService: LoginService
   ) {
     // Deep-link opcional: ?tier=ORO
     const qpTier = (this.route.snapshot.queryParamMap.get('tier') as Tier) || null;
@@ -112,8 +115,38 @@ export class BeneficiosComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Cargar datos del usuario autenticado
+    this.cargarDatosUsuario();
     // Cargar puntos del cliente autenticado al inicializar el componente
     this.cargarPuntosCliente();
+  }
+
+  /**
+   * Carga los datos del usuario autenticado
+   */
+  private cargarDatosUsuario(): void {
+    try {
+      const usuario = this.loginService.getCurrentUser();
+      const persona = this.loginService.getCurrentPersona();
+      
+      if (persona && persona.nombreCompleto) {
+        // Usar el nombre completo de la persona
+        this.userName = persona.nombreCompleto;
+      } else if (usuario && usuario.nombPers) {
+        // Fallback al nombre del usuario en cacheStore
+        this.userName = usuario.nombPers;
+      } else {
+        // Último fallback
+        this.userName = 'Usuario';
+      }
+      
+      console.log('Nombre de usuario cargado:', this.userName);
+      this.isLoadingUserName = false;
+    } catch (error) {
+      console.error('Error al cargar datos del usuario:', error);
+      this.userName = 'Usuario';
+      this.isLoadingUserName = false;
+    }
   }
 
   /**

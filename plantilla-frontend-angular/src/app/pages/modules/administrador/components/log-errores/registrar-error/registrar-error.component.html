@@ -1,0 +1,158 @@
+<div class="page">
+  <div class="content-container">
+    <div class="header-section">
+      <h1 class="page-title">Registro de errores</h1>
+    </div>
+
+    <div class="form-container">
+      <form [formGroup]="errorForm" (ngSubmit)="onSubmit()" class="error-form">
+        
+        <!-- Fecha/Hora -->
+        <div class="form-field">
+          <label for="fechaHora" class="field-label required">
+            Fecha/Hora: <span class="required-asterisk">*</span>
+          </label>
+          <p-calendar 
+            id="fechaHora"
+            formControlName="fechaHora"
+            [showTime]="true"
+            [showSeconds]="true"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            [appendTo]="'body'"
+            [showButtonBar]="true"
+            placeholder="Seleccione fecha y hora"
+            [class]="isFieldInvalid('fechaHora') ? 'ng-invalid ng-dirty' : ''"
+            styleClass="w-full">
+          </p-calendar>
+          <small class="error-message" *ngIf="isFieldInvalid('fechaHora')">
+            {{ getFieldError('fechaHora') }}
+          </small>
+        </div>
+
+        <!-- Severidad -->
+        <div class="form-field">
+          <label for="severidad" class="field-label required">
+            Severidad: <span class="required-asterisk">*</span>
+          </label>
+          <p-dropdown
+            id="severidad"
+            formControlName="severidad"
+            [options]="severidades"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccione"
+            [class]="isFieldInvalid('severidad') ? 'ng-invalid ng-dirty' : ''"
+            styleClass="w-full">
+          </p-dropdown>
+          <small class="error-message" *ngIf="isFieldInvalid('severidad')">
+            {{ getFieldError('severidad') }}
+          </small>
+        </div>
+
+        <!-- Módulo -->
+        <div class="form-field">
+          <label for="modulo" class="field-label required">
+            Módulo: <span class="required-asterisk">*</span>
+          </label>
+          <p-dropdown
+            id="modulo"
+            formControlName="modulo"
+            [options]="modulos"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccione"
+            [class]="isFieldInvalid('modulo') ? 'ng-invalid ng-dirty' : ''"
+            styleClass="w-full">
+          </p-dropdown>
+          <small class="error-message" *ngIf="isFieldInvalid('modulo')">
+            {{ getFieldError('modulo') }}
+          </small>
+        </div>
+
+        <!-- Mensaje breve -->
+        <div class="form-field">
+          <label for="mensajeBreve" class="field-label required">
+            Mensaje breve: <span class="required-asterisk">*</span>
+          </label>
+          <textarea
+            id="mensajeBreve"
+            formControlName="mensajeBreve"
+            pInputTextarea
+            placeholder="Escribir"
+            rows="3"
+            [class]="isFieldInvalid('mensajeBreve') ? 'ng-invalid ng-dirty' : ''"
+            class="w-full">
+          </textarea>
+          <small class="error-message" *ngIf="isFieldInvalid('mensajeBreve')">
+            {{ getFieldError('mensajeBreve') }}
+          </small>
+        </div>
+
+        <!-- Detalle técnico -->
+        <div class="form-field">
+          <label for="detalleTecnico" class="field-label required">
+            Detalle técnico: <span class="required-asterisk">*</span>
+          </label>
+          <textarea
+            id="detalleTecnico"
+            formControlName="detalleTecnico"
+            pInputTextarea
+            placeholder="Escribir"
+            rows="4"
+            [class]="isFieldInvalid('detalleTecnico') ? 'ng-invalid ng-dirty' : ''"
+            class="w-full">
+          </textarea>
+          <small class="error-message" *ngIf="isFieldInvalid('detalleTecnico')">
+            {{ getFieldError('detalleTecnico') }}
+          </small>
+        </div>
+
+        <!-- Traza -->
+        <div class="form-field">
+          <label for="traza" class="field-label required">
+            Traza: <span class="required-asterisk">*</span>
+          </label>
+          <p-dropdown
+            id="traza"
+            formControlName="traza"
+            [options]="trazas"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccione"
+            [class]="isFieldInvalid('traza') ? 'ng-invalid ng-dirty' : ''"
+            styleClass="w-full">
+          </p-dropdown>
+          <small class="error-message" *ngIf="isFieldInvalid('traza')">
+            {{ getFieldError('traza') }}
+          </small>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            styleClass="p-button-secondary"
+            (onClick)="onCancel()"
+            [disabled]="loading"
+            type="button">
+          </p-button>
+          
+          <p-button
+            label="Registrar"
+            icon="pi pi-check"
+            styleClass="p-button-success"
+            type="submit"
+            [loading]="loading"
+            [disabled]="errorForm.invalid">
+          </p-button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast para mensajes -->
+<p-toast position="top-right"></p-toast>

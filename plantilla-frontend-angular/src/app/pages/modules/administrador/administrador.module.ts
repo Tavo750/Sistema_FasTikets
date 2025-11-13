@@ -11,6 +11,7 @@ import { GestionEventosComponent } from './components/gestion-eventos/gestion-ev
 import { GestionClientesComponent } from './components/gestion-clientes/gestion-clientes.component';
 import { CodigosPromocionalesComponent } from './components/codigos-promocionales/codigos-promocionales.component';
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
+import { RegistrarErrorComponent } from './components/log-errores/registrar-error/registrar-error.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { PerfilAdministradorComponent } from './components/perfil-administrador/perfil-administrador.component';
 import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
@@ -39,6 +40,7 @@ import { DetalleRegistroPromoComponent } from './components/codigos-promocionale
     GestionClientesComponent,
     CodigosPromocionalesComponent,
     LogErroresComponent,
+    RegistrarErrorComponent,
     AuditoriaComponent,
     PerfilAdministradorComponent,
     CrearLocalComponent,

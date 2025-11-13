@@ -11,6 +11,7 @@ import { RegistroCodigosPromoComponent } from './components/codigos-promocionale
 import { EditarRegistroPromoComponent } from './components/codigos-promocionales/editar-registro-promo/editar-registro-promo.component';
 import { DetalleRegistroPromoComponent } from './components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component';
 import { LogErroresComponent } from './components/log-errores/log-errores.component';
+import { RegistrarErrorComponent } from './components/log-errores/registrar-error/registrar-error.component';
 import { AuditoriaComponent } from './components/auditoria/auditoria.component';
 import { CrearLocalComponent } from './components/gestion-locales/crear-local/crear-local.component';
 import { EditarLocalComponent } from './components/gestion-locales/editar-local/editar-local.component';
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'codigosPromocionales/editar/:id', component: EditarRegistroPromoComponent },
   { path: 'codigosPromocionales/detalle/:id', component: DetalleRegistroPromoComponent },
   { path: 'logErrores', component: LogErroresComponent },
+  { path: 'logErrores/registrar', component: RegistrarErrorComponent },
   { path: 'auditoria', component: AuditoriaComponent },
 ];
 
