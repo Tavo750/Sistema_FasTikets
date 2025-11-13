@@ -40,6 +40,12 @@ export class MenuService {
       icon: 'pi pi-cog',
       iconRef: 'iconSubopcion1',
       routerLink: ['/usuario/configuracion'],
+    },
+    {
+      label: 'Ayuda y Soporte',
+      icon: 'pi pi-cog',
+      iconRef: 'iconSubopcion1',
+      routerLink: ['/usuario/ayudaSoporte'],
     }
   ];
 

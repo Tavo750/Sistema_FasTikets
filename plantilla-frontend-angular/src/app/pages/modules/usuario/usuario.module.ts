@@ -17,6 +17,7 @@ import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 
 import { ProgressBarModule } from 'primeng/progressbar';
+import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     PerfilPersonalComponent,
     CambiarContrasenaUsuarioComponent,
     HistorialComprasComponent,
-    ConfirmarTransferenciaComponent
+    ConfirmarTransferenciaComponent,
+    AyudaSoporteComponent
   ],
   imports: [
     CommonModule,
