@@ -17,6 +17,8 @@ import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 
 import { ProgressBarModule } from 'primeng/progressbar';
+import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
+import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +27,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
     PerfilPersonalComponent,
     CambiarContrasenaUsuarioComponent,
     HistorialComprasComponent,
-    ConfirmarTransferenciaComponent
+    ConfirmarTransferenciaComponent,
+    CambiarMiContrasenaClienteComponent
   ],
   imports: [
     CommonModule,
@@ -34,7 +37,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
     UsuarioRoutingModule,
     CoreModule,
     PrimeNgModule,
-    ProgressBarModule
+    ProgressBarModule,
   ],
   providers: [
     MessageService,

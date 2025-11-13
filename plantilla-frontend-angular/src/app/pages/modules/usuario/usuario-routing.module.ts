@@ -6,6 +6,8 @@ import { HistorialComprasComponent } from './components/historial-compras/histor
 import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.component';
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
+import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
+import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilPersonal', pathMatch: 'full' },
@@ -15,6 +17,8 @@ const routes: Routes = [
   { path: 'misEntradas', component: MisEntradasComponent },
   { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
+  { path: 'configuracion', component: ConfiguracionComponent },
+  { path: 'configuracion/cambiarContrasena', component: CambiarMiContrasenaClienteComponent },
 ];
 
 @NgModule({

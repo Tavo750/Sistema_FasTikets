@@ -1,0 +1,69 @@
+<div class="cambiar-contrasena-container">
+  <h1 class="titulo">Cambiar mi contraseña</h1>
+
+  <form [formGroup]="form" (ngSubmit)="cambiarContrasena()">
+    <div class="form-field">
+      <label for="actual">Contraseña actual <span class="required">*</span></label>
+      <p-password 
+        id="actual"
+        formControlName="contrasenaActual"
+        [toggleMask]="true"
+        [feedback]="false"
+        placeholder="Escribe..."
+        styleClass="w-full">
+      </p-password>
+      <small class="p-error" *ngIf="form.get('contrasenaActual')?.invalid && form.get('contrasenaActual')?.touched">
+        La contraseña actual es requerida
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="nueva">Contraseña nueva <span class="required">*</span></label>
+      <p-password 
+        id="nueva"
+        formControlName="contrasenaNueva"
+        [toggleMask]="true"
+        placeholder="Escribe..."
+        styleClass="w-full"
+        [mediumRegex]="'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{6,}'"
+        [strongRegex]="'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&]).{8,}'">
+      </p-password>
+      <small class="p-error" *ngIf="form.get('contrasenaNueva')?.invalid && form.get('contrasenaNueva')?.touched">
+        La contraseña debe tener al menos 6 caracteres
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label for="repetir">Repetir la nueva contraseña <span class="required">*</span></label>
+      <p-password 
+        id="repetir"
+        formControlName="confirmarContrasena"
+        [toggleMask]="true"
+        [feedback]="false"
+        placeholder="Escribe..."
+        styleClass="w-full">
+      </p-password>
+      <small class="p-error" *ngIf="form.get('confirmarContrasena')?.invalid && form.get('confirmarContrasena')?.touched">
+        Las contraseñas no coinciden
+      </small>
+    </div>
+
+    <div class="form-actions">
+      <p-button 
+        label="Volver" 
+        [outlined]="true"
+        severity="secondary"
+        type="button"
+        (onClick)="volver()">
+      </p-button>
+      <p-button 
+        label="Cambiar" 
+        severity="success"
+        type="submit"
+        [loading]="loading">
+      </p-button>
+    </div>
+  </form>
+</div>
+
+<p-toast></p-toast>
