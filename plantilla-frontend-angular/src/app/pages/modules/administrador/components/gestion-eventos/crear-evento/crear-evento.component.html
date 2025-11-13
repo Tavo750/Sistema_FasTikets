@@ -218,6 +218,32 @@
               decrementButtonIcon="pi pi-minus"
             ></p-inputNumber>
           </div>
+
+          <!-- Selección del local -->
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-map-marker"></i>
+              Seleccionar local
+            </label>
+            <p-dropdown
+              [(ngModel)]="formulario.localString"
+              [options]="localesOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar local para el evento..."
+              styleClass="form-input"
+              panelStyleClass="calendar-up"
+              [loading]="cargandoLocales"
+              [disabled]="cargandoLocales"
+              (onChange)="onLocalSeleccionado($event)"
+            ></p-dropdown>
+
+            <!-- Indicador de carga -->
+            <div *ngIf="cargandoLocales" class="loading-indicator">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>Cargando locales disponibles...</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -234,31 +260,6 @@
       </div>
 
       <div class="local-content">
-        <!-- Selección del local -->
-        <div class="form-field">
-          <label class="field-label">
-            <i class="pi pi-map-marker"></i>
-            Seleccionar local
-          </label>
-          <p-dropdown
-            [(ngModel)]="formulario.localString"
-            [options]="localesOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Seleccionar local para el evento..."
-            styleClass="form-input"
-            [loading]="cargandoLocales"
-            [disabled]="cargandoLocales"
-            (onChange)="onLocalSeleccionado($event)"
-          ></p-dropdown>
-
-          <!-- Indicador de carga -->
-          <div *ngIf="cargandoLocales" class="loading-indicator">
-            <i class="pi pi-spin pi-spinner"></i>
-            <span>Cargando locales disponibles...</span>
-          </div>
-        </div>
-
         <div class="local-asientos-grid">
           <!-- Categorías -->
           <div class="categorias-section">
