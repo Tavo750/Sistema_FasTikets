@@ -167,7 +167,11 @@
 
         <ng-template pTemplate="header">
           <div class="evento-imagen">
-            <img [src]="evento.imagen" [alt]="evento.nombre" />
+            <img
+              [src]="evento.imagen"
+              [alt]="evento.nombre"
+              (error)="onImageError(evento)"
+              loading="lazy" />
             <div class="categoria-badge">
               <p-tag [value]="evento.categoria" [severity]="getCategorySeverity(evento.categoria)"></p-tag>
             </div>

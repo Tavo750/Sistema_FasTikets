@@ -25,6 +25,7 @@ export class InicioComponent implements OnInit {
   eventosPorPagina: number = 6;
   cargandoEventos: boolean = false;
   currentYear: number = new Date().getFullYear();
+  imagenPorDefecto: string = 'img/logo/concierto.jpg';
 
   // Nuevas propiedades para PrimeNG
   categoriasDropdown: DropdownOption[] = [];
@@ -114,6 +115,9 @@ export class InicioComponent implements OnInit {
   }
 
   private mapearEventoData(eventoData: Data): Evento {
+    const imagenUrl = eventoData.imagenUrl || this.generarImagenPlaceholder(eventoData.nombre);
+    console.log('Mapeando evento:', eventoData.nombre, 'Imagen URL:', imagenUrl);
+
     return {
       id: eventoData.idEvento,
       nombre: eventoData.nombre,
@@ -121,7 +125,7 @@ export class InicioComponent implements OnInit {
       lugar: eventoData.nombreLocal || 'Lugar no especificado',
       categoria: eventoData.tipoEvento,
       precio: this.obtenerPrecioDesde(eventoData.idEvento), // Precio dinámico o valor por defecto
-      imagen: eventoData.imagenUrl || this.generarImagenPlaceholder(eventoData.nombre)
+      imagen: imagenUrl
     };
   }
 
@@ -133,7 +137,7 @@ export class InicioComponent implements OnInit {
   }
 
   private generarImagenPlaceholder(nombreEvento: string): string {
-    return `https://via.placeholder.com/400x200/dc2626/ffffff?text=${encodeURIComponent(nombreEvento)}`;
+    return 'img/logo/concierto.jpg';
   }
 
   private formatearFecha(fecha: Date): string {
@@ -256,5 +260,10 @@ export class InicioComponent implements OnInit {
 
   recargarEventos(): void {
     this.cargarEventos();
+  }
+
+  onImageError(evento: Evento): void {
+    console.error('Error al cargar imagen para evento:', evento.nombre, 'URL:', evento.imagen);
+    evento.imagen = this.imagenPorDefecto;
   }
 }
