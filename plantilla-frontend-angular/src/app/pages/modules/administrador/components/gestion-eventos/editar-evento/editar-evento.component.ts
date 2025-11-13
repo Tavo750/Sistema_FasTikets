@@ -695,17 +695,8 @@ export class EditarEventoComponent implements OnInit{
      * Obtiene la cantidad de zonas por local
      * @returns Objeto con idLocal como key y cantidad como value
      */
-    obtenerConteoZonasPorLocal(): { [idLocal: string]: number } {
-      const conteo: { [idLocal: string]: number } = {};
-
-      this.zonasDisponibles
-        .filter(zona => zona.activo)
-        .forEach(zona => {
-          const idLocal = zona.idLocal.toString();
-          conteo[idLocal] = (conteo[idLocal] || 0) + 1;
-        });
-
-      return conteo;
+    obtenerConteoZonas(): number {
+      return this.zonasDisponibles.filter(zona => zona.activo).length;
     }
 
     // ==================== MÉTODOS PARA ENTRADAS ====================
@@ -1761,8 +1752,8 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      if (!this.formulario.localString || this.formulario.localString.trim() === '') {
-        this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
+      if (!this.idEvento) {
+        this.messageService.error('Debe tener un evento activo antes de agregar categorías', 'Evento Requerido');
         return;
       }
 
@@ -1770,7 +1761,7 @@ export class EditarEventoComponent implements OnInit{
       const datosZona = {
         nombre: this.nuevaCategoria.nombre,
         aforoMax: this.nuevaCategoria.aforoMaximo,
-        idLocal: parseInt(this.formulario.localString)
+        idEvento: this.idEvento
       };
 
       // Llamar al servicio para crear la zona
@@ -1791,7 +1782,7 @@ export class EditarEventoComponent implements OnInit{
                 activo: true,
                 fechaCreacion: null,
                 fechaActualizacion: null,
-                idLocal: zonaCreada.idLocal
+                idEvento: this.idEvento!
               };
 
               this.categoriasLocal.push(nuevaCat);

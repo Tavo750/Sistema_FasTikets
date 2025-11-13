@@ -304,7 +304,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
             activo: true,
             fechaCreacion: null,
             fechaActualizacion: null,
-            idLocal: 0
+            idEvento: 0
           } as ZonaData,
           tickets: [
             { name: 'Platinum', price: 410.00, quantity: 0, description: 'Acceso VIP completo' },
