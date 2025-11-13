@@ -444,11 +444,12 @@ export class CrearEventoComponent implements OnInit{
     this.entradas.preventa.categorias = [...categoriasEntrada];
 
     // Actualizar las opciones del dropdown de validoPara
+    // Usar idZona como value para evitar problemas con nombres y mayúsculas/minúsculas
     this.validoParaOptions = [
       { label: 'Seleccionar', value: '' },
       ...zonas.map(zona => ({
         label: zona.nombre,
-        value: zona.nombre.toLowerCase()
+        value: zona.idZona.toString()
       }))
     ];
   }
@@ -1244,13 +1245,15 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Buscar la zona seleccionada para obtener el idZona
+    // Buscar la zona seleccionada usando el idZona (que ahora viene como value del dropdown)
+    const idZonaSeleccionada = parseInt(this.validoPara);
     const zonaSeleccionada = this.zonasDisponibles.find(zona =>
-      zona.nombre.toLowerCase() === this.validoPara.toLowerCase()
+      zona.idZona === idZonaSeleccionada
     );
 
     if (!zonaSeleccionada) {
       this.messageService.error('No se pudo encontrar la zona seleccionada', 'Error de Validación');
+      console.error('Zona no encontrada. ID buscado:', idZonaSeleccionada, 'Zonas disponibles:', this.zonasDisponibles);
       return;
     }
 
@@ -1422,6 +1425,9 @@ export class CrearEventoComponent implements OnInit{
 
             this.categoriasLocal.push(nuevaCat);
 
+            // Actualizar las opciones del dropdown "Válido para"
+            this.actualizarValidoParaOptions();
+
             // Limpiar los campos
             this.nuevaCategoria = {
               nombre: '',
@@ -1474,6 +1480,9 @@ export class CrearEventoComponent implements OnInit{
               // Actualizar las entradas para reflejar la eliminación
               this.actualizarEntradasTrasEliminacion(categoria.nombre);
 
+              // Actualizar las opciones del dropdown "Válido para"
+              this.actualizarValidoParaOptions();
+
               this.messageService.success(
                 response.mensaje || `Categoría "${categoria.nombre}" eliminada exitosamente`,
                 'Operación Exitosa'
@@ -1492,6 +1501,19 @@ export class CrearEventoComponent implements OnInit{
         });
       }
     );
+  }
+
+  /**
+   * Actualiza las opciones del dropdown "Válido para" con las categorías locales actuales
+   */
+  private actualizarValidoParaOptions(): void {
+    this.validoParaOptions = [
+      { label: 'Seleccionar', value: '' },
+      ...this.categoriasLocal.map(categoria => ({
+        label: categoria.nombre,
+        value: categoria.idZona.toString()
+      }))
+    ];
   }
 
   /**
