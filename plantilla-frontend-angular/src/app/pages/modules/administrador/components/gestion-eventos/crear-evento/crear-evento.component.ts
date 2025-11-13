@@ -331,9 +331,14 @@ export class CrearEventoComponent implements OnInit{
     });
   }
 
-  cargarZonas(idLocal?: number): void {
-    if (!idLocal) {
-      // Si no hay local seleccionado, limpiar las zonas
+  cargarZonas(idEvento?: number): void {
+    // Si no se proporciona un idEvento, intentar obtenerlo del componente
+    if (!idEvento && this.idEvento) {
+      idEvento = this.idEvento;
+    }
+
+    if (!idEvento) {
+      // Si no hay evento creado, limpiar las zonas
       this.zonasDisponibles = [];
       this.categoriasLocal = [];
       // Limpiar también las opciones del dropdown "Válido para"
@@ -346,7 +351,7 @@ export class CrearEventoComponent implements OnInit{
 
     this.cargandoZonas = true;
 
-    this.eventoService.getListarZonas(idLocal).subscribe({
+    this.eventoService.getListarZonas(idEvento).subscribe({
       next: (response) => {
         if (response.ok) {
           // Verificar si response.data es un array o un objeto
@@ -366,11 +371,11 @@ export class CrearEventoComponent implements OnInit{
           this.actualizarEntradasConCategorias(this.zonasDisponibles);
 
           this.messageService.searchSuccess(
-            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`
+            `Se encontraron ${this.zonasDisponibles.length} zonas para el evento`
           );
         } else {
           this.messageService.searchNoResults(
-            response.mensaje || 'No se pudieron cargar las zonas del local'
+            response.mensaje || 'No se pudieron cargar las zonas del evento'
           );
           this.zonasDisponibles = [];
         }
@@ -472,18 +477,19 @@ export class CrearEventoComponent implements OnInit{
         // Actualizar información adicional del local
         this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
 
-        // Cargar las zonas específicas del local seleccionado
-        this.cargarZonas(parseInt(idLocal));
+        // Nota: Las zonas se cargarán después de guardar los datos generales del evento
+        // ya que ahora se requiere el idEvento en lugar del idLocal
 
-        // Limpiar entradas agregadas cuando se cambia el local
-        if (this.entradasAgregadas.length > 0) {
+        // Limpiar categorías y entradas al cambiar de local
+        if (this.categoriasLocal.length > 0 || this.entradasAgregadas.length > 0) {
+          this.categoriasLocal = [];
           this.entradasAgregadas = [];
-          this.messageService.info('Se limpiaron las entradas debido al cambio de local', 'Información');
+          this.messageService.info('Se limpiaron las categorías y entradas debido al cambio de local', 'Información');
         }
       }
     } else {
       // Si no hay local seleccionado, limpiar las categorías y entradas
-      this.cargarZonas(); // Esto limpiará las zonas ya que no se pasa parámetro
+      this.categoriasLocal = [];
       this.entradasAgregadas = [];
     }
   }
@@ -492,11 +498,11 @@ export class CrearEventoComponent implements OnInit{
    * Refresca la lista de zonas manualmente
    */
   refrescarZonas(): void {
-    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+    if (this.idEvento) {
       this.messageService.info('Actualizando lista de zonas...', 'Cargando');
-      this.cargarZonas(parseInt(this.formulario.localString));
+      this.cargarZonas(this.idEvento);
     } else {
-      this.messageService.warn('Debe seleccionar un local para cargar las zonas', 'Local Requerido');
+      this.messageService.warn('Debe guardar los datos generales del evento antes de cargar las zonas', 'Evento Requerido');
     }
   }
 
@@ -528,20 +534,11 @@ export class CrearEventoComponent implements OnInit{
   }
 
   /**
-   * Obtiene la cantidad de zonas por local
-   * @returns Objeto con idLocal como key y cantidad como value
+   * Obtiene la cantidad de zonas del evento actual
+   * @returns Cantidad de zonas activas
    */
-  obtenerConteoZonasPorLocal(): { [idLocal: string]: number } {
-    const conteo: { [idLocal: string]: number } = {};
-
-    this.zonasDisponibles
-      .filter(zona => zona.activo)
-      .forEach(zona => {
-        const idLocal = zona.idLocal.toString();
-        conteo[idLocal] = (conteo[idLocal] || 0) + 1;
-      });
-
-    return conteo;
+  obtenerConteoZonas(): number {
+    return this.zonasDisponibles.filter(zona => zona.activo).length;
   }
 
   // ==================== MÉTODOS PARA ENTRADAS ====================
@@ -709,6 +706,9 @@ export class CrearEventoComponent implements OnInit{
           if (response.data.idEvento) {
             this.idEvento = response.data.idEvento;
             this.messageService.info(`Evento creado con ID: ${this.idEvento}`, 'Información');
+
+            // Cargar las zonas asociadas al evento recién creado
+            this.cargarZonas(this.idEvento);
           }
         }
       },
@@ -1387,8 +1387,8 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
-      this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
+    if (!this.idEvento) {
+      this.messageService.error('Debe guardar los datos generales del evento antes de agregar categorías', 'Evento Requerido');
       return;
     }
 
@@ -1396,7 +1396,7 @@ export class CrearEventoComponent implements OnInit{
     const datosZona = {
       nombre: this.nuevaCategoria.nombre,
       aforoMax: this.nuevaCategoria.aforoMaximo,
-      idLocal: parseInt(this.formulario.localString)
+      idEvento: this.idEvento
     };
 
     // Llamar al servicio para crear la zona
@@ -1417,7 +1417,7 @@ export class CrearEventoComponent implements OnInit{
               activo: true,
               fechaCreacion: null,
               fechaActualizacion: null,
-              idLocal: zonaCreada.idLocal
+              idEvento: this.idEvento!
             };
 
             this.categoriasLocal.push(nuevaCat);
@@ -1543,13 +1543,13 @@ export class CrearEventoComponent implements OnInit{
    * Refresca las categorías del local actual después de cambios
    */
   refrescarCategoriasLocal(): void {
-    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+    if (this.idEvento) {
       this.messageService.info('Actualizando categorías...', 'Cargando');
 
-      // Volver a cargar las zonas desde el servidor para el local actual
-      this.cargarZonas(parseInt(this.formulario.localString));
+      // Volver a cargar las zonas desde el servidor para el evento actual
+      this.cargarZonas(this.idEvento);
     } else {
-      this.messageService.warn('Debe seleccionar un local para actualizar las categorías', 'Local Requerido');
+      this.messageService.warn('Debe guardar los datos generales del evento antes de actualizar las categorías', 'Evento Requerido');
     }
   }
 

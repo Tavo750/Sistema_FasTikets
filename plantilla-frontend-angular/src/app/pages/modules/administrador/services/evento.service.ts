@@ -29,7 +29,7 @@ export class EventoService {
     * @returns Observable con la respuesta del servidor
   */
 
-  postCrearZona(body: { nombre: string; aforoMax: number; idLocal: number }): Observable<ZonaCategoriaResponse> {
+  postCrearZona(body: { nombre: string; aforoMax: number; idEvento: number }): Observable<ZonaCategoriaResponse> {
     const url = `${baseUrl}/zonas`;
     return this.http.post<ZonaCategoriaResponse>(url, body)
       .pipe(
@@ -37,13 +37,13 @@ export class EventoService {
       );
   }
   /**
-   * Obtiene la lista de zonas filtradas por local
-   * @param idLocal ID del local para filtrar las zonas
+   * Obtiene la lista de zonas filtradas por evento
+   * @param idEvento ID del evento para filtrar las zonas
    * @returns Observable con la respuesta que contiene la lista de zonas
    */
 
-  getListarZonas(idLocal: number): Observable<ZonaCategoriaResponse> {
-    const url = `${baseUrl}/zonas?local=${idLocal}`;
+  getListarZonas(idEvento: number): Observable<ZonaCategoriaResponse> {
+    const url = `${baseUrl}/zonas?evento=${idEvento}`;
     return this.http.get<ZonaCategoriaResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError)
