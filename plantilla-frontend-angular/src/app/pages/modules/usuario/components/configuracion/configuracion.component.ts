@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { PerfilPersonalService } from '../../services/perfil-personal.service';
+import { SessionService } from '../../../../../shared/services/session.service';
+import { EliminarCuentaResponse } from '../../interfaces/perfil-personal/eliminar-cuenta.interface';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PrimeNgModule } from '../../../../../prime-ng/prime-ng.module';
@@ -11,7 +14,7 @@ import { PrimeNgModule } from '../../../../../prime-ng/prime-ng.module';
   imports: [CommonModule, FormsModule, PrimeNgModule],
   templateUrl: './configuracion.component.html',
   styleUrls: ['./configuracion.component.css'],
-  providers: [MessageService]
+  // use global MessageService provided in AppModule
 })
 export class ConfiguracionComponent implements OnInit {
   notificaciones = {
@@ -25,7 +28,9 @@ export class ConfiguracionComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private perfilService: PerfilPersonalService,
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
@@ -60,36 +65,25 @@ export class ConfiguracionComponent implements OnInit {
 
   eliminarCuenta(): void {
     if (this.textoConfirmacion.toLowerCase() === 'eliminar') {
-      // TODO: Implementar llamada al servicio para eliminar cuenta
-      // this.configuracionService.eliminarCuenta().subscribe({
-      //   next: (response) => {
-      //     if (response.ok) {
-      //       this.messageService.add({
-      //         severity: 'success',
-      //         summary: 'Cuenta eliminada',
-      //         detail: 'Tu cuenta ha sido eliminada exitosamente'
-      //       });
-      //       // Cerrar sesión y redirigir
-      //       this.authService.logout();
-      //       this.router.navigate(['/home']);
-      //     }
-      //   },
-      //   error: (err) => {
-      //     this.messageService.add({
-      //       severity: 'error',
-      //       summary: 'Error',
-      //       detail: 'No se pudo eliminar la cuenta'
-      //     });
-      //   }
-      // });
-
-      // Simulación
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Cuenta eliminada',
-        detail: 'Tu cuenta ha sido eliminada exitosamente'
+      // Llamada real al servicio para eliminar la cuenta
+      const resp$ = this.perfilService.deleteMiCuenta();
+      resp$.subscribe({
+        next: (response: EliminarCuentaResponse) => {
+          if (response?.ok) {
+            this.messageService.add({ severity: 'success', summary: 'Cuenta eliminada', detail: response.mensaje || 'Tu cuenta ha sido eliminada exitosamente' });
+            // Limpiar sesión y redirigir al home/login
+            this.sessionService.clearUser();
+            this.cerrarDialogoEliminar();
+            this.router.navigate(['/home']);
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response?.mensaje || 'No se pudo eliminar la cuenta' });
+          }
+        },
+        error: (err: any) => {
+          const msg = err?.error?.mensaje || err?.message || 'Error en el servidor';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
+        }
       });
-      this.cerrarDialogoEliminar();
     }
   }
 }

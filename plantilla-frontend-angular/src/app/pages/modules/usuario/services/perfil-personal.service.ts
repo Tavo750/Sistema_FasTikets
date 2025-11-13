@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
 import { BodyPerfilPersonal, PerfilPersonalResponse } from '../interfaces/perfil-personal/perfil-personal.interface';
+import { EliminarCuentaResponse } from '../interfaces/perfil-personal/eliminar-cuenta.interface';
 import { CambiarContrasenaUsuarioRequest, CambiarContrasenaUsuarioResponse } from '../interfaces/perfil-personal/cambiar-contrasena-usuario.interface';
 import { baseUrl } from '../../../../global';
 
@@ -55,6 +56,18 @@ export class PerfilPersonalService {
     const url = `${this.baseUrl}/auth/cambiar-contrasena`;
 
     return this.http.put<CambiarContrasenaUsuarioResponse>(url, requestData)
+      .pipe(
+        catchError(this.httpUtils.handleError.bind(this.httpUtils))
+      );
+  }
+
+  /**
+   * Elimina (desactiva) la cuenta del cliente autenticado (mi cuenta)
+   * @returns Observable con la respuesta del servidor
+   */
+  deleteMiCuenta(): Observable<EliminarCuentaResponse> {
+    const url = `${this.baseUrl}/clientes/mi-cuenta`;
+    return this.http.delete<EliminarCuentaResponse>(url)
       .pipe(
         catchError(this.httpUtils.handleError.bind(this.httpUtils))
       );
