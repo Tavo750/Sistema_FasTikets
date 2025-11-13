@@ -683,13 +683,11 @@ export class CrearEventoComponent implements OnInit{
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return;
     }
-
     // // Verificar que se haya seleccionado un banner
     // if (!this.formulario.banner) {
     //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
     //   return;
     // }
-
     // Asignar el idLocal del local seleccionado al evento
     this.evento.idLocal = parseInt(this.formulario.localString);
 
@@ -725,50 +723,7 @@ export class CrearEventoComponent implements OnInit{
    * Método para crear el evento
    * Asigna el idLocal del local seleccionado y llama a postCrearEvento
    */
-  onCrearEvento(): void {
-    // Validaciones básicas
-    if (!this.validarFormulario()) {
-      return;
-    }
 
-    // Verificar que se haya seleccionado un local
-    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
-      this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
-      return;
-    }
-
-    // Asignar el idLocal del local seleccionado al evento
-    this.evento.idLocal = parseInt(this.formulario.localString);
-
-    // Preparar datos para el servicio
-    const datosEvento = this.prepararDatosEvento();
-
-    // Mostrar mensaje de carga
-    this.messageService.info('Creando evento...', 'Procesando');
-
-    // Llamar al servicio para crear el evento
-    this.eventoService.postCrearEvento(datosEvento).subscribe({
-      next: (response) => {
-        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
-
-        if (response.ok && response.data) {
-          this.messageService.success('Evento creado exitosamente', 'Proceso Completado');
-
-          // Limpiar formulario después de crear exitosamente
-          this.limpiarFormulario();
-
-          // Redirigir a la gestión de eventos después de crear exitosamente
-          setTimeout(() => {
-            this.router.navigate(['/administrador/gestionEventos']);
-          }, 2000);
-        }
-      },
-      error: (error) => {
-        console.error('Error al crear evento:', error);
-        this.messageService.handleHttpError(error);
-      }
-    });
-  }
 
   validarFormulario(): boolean {
     if (!this.evento.nombre || this.evento.nombre.trim() === '') {
