@@ -294,33 +294,6 @@ export class CrearEventoComponent implements OnInit{
     // imagenUrl ya se sincroniza automáticamente cuando se carga el banner
   }
 
-  /**
-   * Método de debug para verificar el estado de los datepickers
-   */
-  private verificarDatepickers(): void {
-    // Método mantenidc para compatibilidad, pero sin logging
-  }  /**
-   * Maneja la selección de fecha del datepicker
-   */
-  onFechaSeleccionada(fecha: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-  }
-
-  /**
-   * Maneja la selección de hora de inicio del datepicker
-   */
-  onHoraInicioSeleccionada(hora: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-
-  }
-
-  /**
-   * Maneja la selección de hora final del datepicker
-   */
-  onHoraFinalSeleccionada(hora: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-  }
-
   cargarLocales(): void {
     this.cargandoLocales = true;
 
@@ -710,9 +683,6 @@ export class CrearEventoComponent implements OnInit{
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return;
     }
-
-    // Verificar estado de los datepickers antes de preparar datos
-    this.verificarDatepickers();
 
     // Asignar el idLocal del local seleccionado al evento
     this.evento.idLocal = parseInt(this.formulario.localString);
