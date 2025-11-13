@@ -61,7 +61,7 @@
               pInputText 
               id="docIdentidad" 
               formControlName="docIdentidad"
-              placeholder="78364573"
+              placeholder="12345678"
               maxlength="8"
               class="input-modern" />
             <small 
@@ -69,29 +69,6 @@
               *ngIf="editarForm.get('docIdentidad')?.invalid && editarForm.get('docIdentidad')?.touched">
               <i class="pi pi-exclamation-circle"></i>
               DNI debe tener 8 dígitos
-            </small>
-          </div>
-
-          <!-- Edad -->
-          <div class="form-field">
-            <label for="edad">
-              <i class="pi pi-calendar"></i>
-              Edad <span class="required">*</span>
-            </label>
-            <input 
-              pInputText 
-              id="edad" 
-              type="number"
-              formControlName="edad"
-              placeholder="35"
-              min="18"
-              max="100"
-              class="input-modern" />
-            <small 
-              class="p-error" 
-              *ngIf="editarForm.get('edad')?.invalid && editarForm.get('edad')?.touched">
-              <i class="pi pi-exclamation-circle"></i>
-              Edad entre 18 y 100 años
             </small>
           </div>
 
@@ -157,47 +134,17 @@
             </small>
           </div>
 
-          <!-- Departamento -->
-          <div class="form-field">
-            <label for="departamento">
-              <i class="pi pi-map"></i>
-              Departamento <span class="required">*</span>
-            </label>
-            <p-select 
-              [options]="departamentos" 
-              formControlName="departamento"
-              placeholder="Seleccione departamento"
-              styleClass="select-modern"
-              [style]="{'width': '100%'}">
-            </p-select>
-          </div>
-
-          <!-- Distrito -->
-          <div class="form-field">
-            <label for="distrito">
-              <i class="pi pi-building"></i>
-              Distrito <span class="required">*</span>
-            </label>
-            <p-select 
-              [options]="distritos" 
-              formControlName="distrito"
-              placeholder="Seleccione distrito"
-              styleClass="select-modern"
-              [style]="{'width': '100%'}">
-            </p-select>
-          </div>
-
-          <!-- Dirección domiciliaria -->
+          <!-- Dirección -->
           <div class="form-field full-width">
             <label for="direccion">
               <i class="pi pi-map-marker"></i>
-              Dirección domiciliaria <span class="required">*</span>
+              Dirección <span class="required">*</span>
             </label>
             <input 
               pInputText 
               id="direccion" 
               formControlName="direccion"
-              placeholder="Av. Principal 123, Distrito"
+              placeholder="Av. Principal 123, Lima"
               class="input-modern" />
             <small 
               class="p-error" 

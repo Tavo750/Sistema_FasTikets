@@ -1,0 +1,115 @@
+<div class="configuracion-container">
+  <h1 class="titulo-principal">Configuración de la Cuenta</h1>
+
+  <div class="notificaciones-section">
+    <h2 class="subtitulo">Notificaciones:</h2>
+
+    <div class="notificacion-item">
+      <p-checkbox 
+        [(ngModel)]="notificaciones.compra" 
+        [binary]="true" 
+        inputId="notif-compra">
+      </p-checkbox>
+      <div class="notificacion-content">
+        <label for="notif-compra" class="notificacion-titulo">
+          Notificaciones de compra
+        </label>
+        <p class="notificacion-descripcion">
+          -Se emitirá un correo confirmando su compra.
+        </p>
+      </div>
+    </div>
+
+    <div class="notificacion-item">
+      <p-checkbox 
+        [(ngModel)]="notificaciones.eventosRecomendados" 
+        [binary]="true" 
+        inputId="notif-eventos">
+      </p-checkbox>
+      <div class="notificacion-content">
+        <label for="notif-eventos" class="notificacion-titulo">
+          Notificaciones de eventos recomendados
+        </label>
+        <p class="notificacion-descripcion">
+          -Se emitirá un correo recomendando eventos de acuerdo a su historial de compra.
+        </p>
+      </div>
+    </div>
+
+    <div class="notificacion-item">
+      <p-checkbox 
+        [(ngModel)]="notificaciones.transferenciaEntradas" 
+        [binary]="true" 
+        inputId="notif-transferencia">
+      </p-checkbox>
+      <div class="notificacion-content">
+        <label for="notif-transferencia" class="notificacion-titulo">
+          Notificaciones de transferencia de entradas
+        </label>
+        <p class="notificacion-descripcion">
+          -Se emitirá un correo confirmando la transferencia de entradas.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="acciones-section">
+    <p-button 
+      label="Cambiar mi contraseña" 
+      [outlined]="true" 
+      severity="secondary"
+      icon="pi pi-key"
+      (onClick)="irACambiarContrasena()">
+    </p-button>
+
+    <p-button 
+      label="Eliminar mi cuenta" 
+      severity="danger"
+      icon="pi pi-trash"
+      (onClick)="mostrarDialogoEliminar()">
+    </p-button>
+  </div>
+</div>
+
+<!-- Dialog de confirmación para eliminar cuenta -->
+<p-dialog 
+  header="Eliminar Cuenta" 
+  [(visible)]="mostrarDialogEliminar" 
+  [modal]="true"
+  [style]="{width: '450px'}"
+  [dismissableMask]="true">
+  
+  <div class="dialog-content">
+    <p class="dialog-pregunta">¿Estás seguro de eliminar tu cuenta?</p>
+    <p class="dialog-advertencia">
+      Esta acción es irreversible y eliminará todos tus datos e historial de compras
+    </p>
+    
+    <div class="confirmacion-input">
+      <label for="confirmText">Para confirmar su decisión escriba <strong>eliminar</strong></label>
+      <input 
+        pInputText 
+        id="confirmText" 
+        [(ngModel)]="textoConfirmacion" 
+        placeholder="Escribe aquí"
+        class="input-confirmacion" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      [text]="true" 
+      severity="secondary"
+      (onClick)="cerrarDialogoEliminar()">
+    </p-button>
+    <p-button 
+      label="Aceptar" 
+      severity="success"
+      [disabled]="textoConfirmacion.toLowerCase() !== 'eliminar'"
+      (onClick)="eliminarCuenta()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

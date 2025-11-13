@@ -7,6 +7,8 @@ import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.com
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.component';
+import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
+import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilPersonal', pathMatch: 'full' },
@@ -17,6 +19,8 @@ const routes: Routes = [
   { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
   { path: 'ayudaSoporte', component: AyudaSoporteComponent },
+  { path: 'configuracion', component: ConfiguracionComponent },
+  { path: 'configuracion/cambiarContrasena', component: CambiarMiContrasenaClienteComponent },
 ];
 
 @NgModule({

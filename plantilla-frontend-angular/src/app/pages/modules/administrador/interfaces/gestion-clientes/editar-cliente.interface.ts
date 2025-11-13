@@ -5,4 +5,5 @@ export interface EditarClienteBody {
     telefono: string;
     direccion: string;
     email: string;
+    idDistrito: number;
 }

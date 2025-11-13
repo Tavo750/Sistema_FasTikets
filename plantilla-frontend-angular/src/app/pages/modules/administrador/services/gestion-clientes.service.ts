@@ -6,6 +6,7 @@ import { HttpUtilsService } from '../../../../shared/services/http-utils.service
 import { GestionClientesAdmiResponse } from '../interfaces/gestion-clientes/gestion-clientes.interface';
 import { GestionClientesListResponse } from '../interfaces/gestion-clientes/gestion-clientes-list.interface';
 import { EditarClienteBody } from '../interfaces/gestion-clientes/editar-cliente.interface';
+import { EliminarClienteResponse } from '../interfaces/gestion-clientes/eliminar-cliente.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -51,9 +52,39 @@ export class GestionClientesService {
    */
   putListarClientesPorId(id: number, body: EditarClienteBody): Observable<GestionClientesAdmiResponse> {
     const url = `${baseUrl}/clientes/${id}/perfil`;
-    return this.http.put<GestionClientesAdmiResponse>(url, body)
-      .pipe(
-        catchError(this.httpUtils.handleError)
-      );
+    console.log('URL de actualización:', url);
+    console.log('Datos enviados:', body);
+    
+    return this.http.put<GestionClientesAdmiResponse>(url, body, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error en la petición:', error);
+        console.error('Estado de la respuesta:', error.status);
+        console.error('Mensaje de error:', error.error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
+  /**
+   * Eliminación lógica de un cliente por su ID
+   * @param id ID del cliente a eliminar (lógico)
+   * @returns Observable con la respuesta del servidor
+   */
+  eliminarClienteLogico(id: number): Observable<EliminarClienteResponse> {
+    const url = `${baseUrl}/clientes/${id}`; // Endpoint esperado para DELETE (ajustar si es otro)
+    console.log('URL eliminación lógica:', url);
+
+    return this.http.delete<EliminarClienteResponse>(url, {
+      headers: { 'Content-Type': 'application/json' }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error al eliminar cliente:', error);
+        return this.httpUtils.handleError(error);
+      })
+    );
   }
 }
