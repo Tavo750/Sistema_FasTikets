@@ -3,7 +3,11 @@
   <!-- Saludo + insignia de nivel (membresía a la derecha) -->
   <div class="p-card greeting-card">
     <div class="greet-row">
-      <h2 class="title-xl">Hola, {{ userName }}</h2>
+      <h2 class="title-xl">
+        Hola, 
+        <span *ngIf="!isLoadingUserName">{{ userName }}</span>
+        <span *ngIf="isLoadingUserName" class="loading-text">Cargando...</span>
+      </h2>
       <p-tag [value]="tier" severity="secondary" styleClass="tier-badge"></p-tag>
     </div>
   </div>
