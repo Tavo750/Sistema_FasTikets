@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { PerfilPersonalService } from '../../../services/perfil-personal.service';
+import { CambiarContrasenaUsuarioRequest, CambiarContrasenaUsuarioResponse } from '../../../interfaces/perfil-personal/cambiar-contrasena-usuario.interface';
 
 @Component({
   selector: 'app-cambiar-mi-contrasena-cliente',
@@ -18,6 +20,7 @@ export class CambiarMiContrasenaClienteComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private messageService: MessageService
+    , private perfilPersonalService: PerfilPersonalService
   ) {}
 
   ngOnInit(): void {
@@ -54,43 +57,41 @@ export class CambiarMiContrasenaClienteComponent implements OnInit {
 
     this.loading = true;
 
-    // TODO: Implementar llamada al servicio
-    // const payload = {
-    //   contrasenaActual: this.form.value.contrasenaActual,
-    //   contrasenaNueva: this.form.value.contrasenaNueva
-    // };
-    //
-    // this.configuracionService.cambiarContrasena(payload).subscribe({
-    //   next: (response) => {
-    //     if (response.ok) {
-    //       this.messageService.add({
-    //         severity: 'success',
-    //         summary: 'Contraseña actualizada',
-    //         detail: response.mensaje
-    //       });
-    //       setTimeout(() => this.volver(), 1500);
-    //     }
-    //   },
-    //   error: (err) => {
-    //     this.loading = false;
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: err.error?.mensaje || 'No se pudo cambiar la contraseña'
-    //     });
-    //   }
-    // });
+    const payload: CambiarContrasenaUsuarioRequest = {
+      contrasenaActual: this.form.value.contrasenaActual,
+      contrasenaNueva: this.form.value.contrasenaNueva,
+      contrasenaConfirmacion: this.form.value.confirmarContrasena
+    };
 
-    // Simulación
-    setTimeout(() => {
-      this.loading = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Contraseña actualizada',
-        detail: 'Tu contraseña ha sido cambiada exitosamente'
-      });
-      setTimeout(() => this.volver(), 1500);
-    }, 1000);
+    this.perfilPersonalService.putCambiarContrasena(payload).subscribe({
+      next: (response: CambiarContrasenaUsuarioResponse) => {
+        this.loading = false;
+        if (response && response.ok) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Contraseña actualizada',
+            detail: response.mensaje || 'Tu contraseña ha sido cambiada exitosamente'
+          });
+          setTimeout(() => this.volver(), 1500);
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudo cambiar la contraseña'
+          });
+        }
+      },
+      error: (err: any) => {
+        this.loading = false;
+        console.error('Error cambiar contraseña:', err);
+        const msg = err?.message || err?.error?.mensaje || 'No se pudo cambiar la contraseña';
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: msg
+        });
+      }
+    });
   }
 
   volver(): void {
