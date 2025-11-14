@@ -262,49 +262,61 @@ activeTab: number = 0;
   }
 
   cargarHistorialPuntos(): void {
-    // Simulación de historial de puntos
-    this.puntos = [
-      {
-        id: 1,
-        estatus: 'Ganado',
-        puntos: 100,
-        fecha: '10/09/2025',
-        cliente: 'Roberto Meriño',
-        tipo: 'Compra',
-        valor: 100,
-        canjeable: true
-      },
-      {
-        id: 3,
-        estatus: 'Canjeado',
-        puntos: 100,
-        fecha: '09/09/2020',
-        cliente: 'Roberto Meriño',
-        tipo: 'Canje',
-        valor: -100,
-        canjeable: false
-      },
-      {
-        id: 4,
-        estatus: 'Ganado',
-        puntos: 20,
-        fecha: '08/09/2002',
-        cliente: 'Roberto Meriño',
-        tipo: 'Referido',
-        valor: 20,
-        canjeable: true
-      },
-      {
-        id: 5,
-        estatus: 'Ganado',
-        puntos: 20,
-        fecha: '07/09/2025',
-        cliente: 'Roberto Meriño',
-        tipo: 'Bono',
-        valor: 20,
-        canjeable: true
-      }
-    ];
+    // Cargar historial real desde el servicio
+    this.gestionClientesService.getHistorialPuntosPorCliente(this.clienteId)
+      .subscribe({
+        next: (res) => {
+          if (res && res.ok) {
+            const serverData = res.data || [];
+            if (serverData.length === 0) {
+              // Mostrar notificación si está vacío
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Sin registros',
+                detail: 'No hay puntos registrados para este cliente'
+              });
+              this.puntos = [];
+              return;
+            }
+
+            // Mapear la respuesta del backend a la estructura que usa la plantilla
+            this.puntos = serverData.map(p => ({
+              // mantener propiedades originales del backend
+              idPuntos: p.idPuntos,
+              cantPuntos: p.cantPuntos,
+              tipoTransaccion: p.tipoTransaccion,
+              fechaTransaccion: p.fechaTransaccion,
+              fechaVencimiento: p.fechaVencimiento,
+              idRegla: p.idRegla,
+              activo: p.activo,
+              idCliente: p.idCliente,
+              // mantener propiedades usadas por la UI anterior para compatibilidad
+              id: p.idPuntos,
+              estatus: p.tipoTransaccion ? (p.tipoTransaccion.toLowerCase() === 'ganado' ? 'Ganado' : (p.tipoTransaccion.toLowerCase() === 'canjeado' ? 'Canjeado' : p.tipoTransaccion)) : 'Desconocido',
+              puntos: p.cantPuntos,
+              fecha: p.fechaTransaccion ? new Date(p.fechaTransaccion).toLocaleDateString() : '',
+              cliente: '',
+              tipo: p.tipoTransaccion || '',
+              valor: p.cantPuntos,
+              canjeable: (p.tipoTransaccion ? p.tipoTransaccion.toLowerCase() === 'ganado' : false)
+            }));
+          } else {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Advertencia',
+              detail: res?.mensaje || 'No se pudo obtener el historial de puntos'
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error al obtener historial de puntos:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo cargar el historial de puntos'
+          });
+        }
+      });
   }
 
   verDetalleCompra(compra: Compra): void {
@@ -355,12 +367,30 @@ activeTab: number = 0;
   }
 
   eliminarPunto(punto: Punto): void {
-    this.puntos = this.puntos.filter(p => p.id !== punto.id);
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Registro eliminado',
-      detail: 'El registro de puntos ha sido eliminado correctamente'
-    });
+    if (!this.clienteId || !punto || !('id' in punto)) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'ID de cliente o punto no válido' });
+      return;
+    }
+
+    this.loading = true;
+    this.gestionClientesService.eliminarPuntoPorCliente(this.clienteId, (punto as any).id)
+      .subscribe({
+        next: (res) => {
+          this.loading = false;
+          if (res && res.ok) {
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: res.mensaje || 'Registro de puntos eliminado' });
+            // recargar el historial desde el servidor
+            this.cargarHistorialPuntos();
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo eliminar el registro' });
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          console.error('Error eliminando punto:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al eliminar el registro de puntos' });
+        }
+      });
   }
 
   volver(): void {

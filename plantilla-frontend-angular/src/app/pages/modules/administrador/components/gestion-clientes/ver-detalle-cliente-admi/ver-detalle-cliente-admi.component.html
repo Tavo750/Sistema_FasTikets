@@ -296,32 +296,53 @@
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="id" class="id-column">
+            <th pSortableColumn="idPuntos" class="id-column">
               <div class="header-content">
                 <i class="pi pi-hashtag"></i>
                 ID
-                <p-sortIcon field="id"></p-sortIcon>
+                <p-sortIcon field="idPuntos"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="estatus">
-              <div class="header-content">
-                <i class="pi pi-check-circle"></i>
-                Estatus
-                <p-sortIcon field="estatus"></p-sortIcon>
-              </div>
-            </th>
-            <th pSortableColumn="puntos">
+            <th pSortableColumn="cantPuntos">
               <div class="header-content">
                 <i class="pi pi-star-fill"></i>
                 Puntos
-                <p-sortIcon field="puntos"></p-sortIcon>
+                <p-sortIcon field="cantPuntos"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="fecha">
+            <th pSortableColumn="tipoTransaccion">
+              <div class="header-content">
+                <i class="pi pi-tag"></i>
+                Tipo
+                <p-sortIcon field="tipoTransaccion"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fechaTransaccion">
               <div class="header-content">
                 <i class="pi pi-calendar"></i>
-                Fecha
-                <p-sortIcon field="fecha"></p-sortIcon>
+                Fecha transacción
+                <p-sortIcon field="fechaTransaccion"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fechaVencimiento">
+              <div class="header-content">
+                <i class="pi pi-clock"></i>
+                Fecha vencimiento
+                <p-sortIcon field="fechaVencimiento"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="idRegla">
+              <div class="header-content">
+                <i class="pi pi-sliders-h"></i>
+                Regla
+                <p-sortIcon field="idRegla"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="activo">
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Activo
+                <p-sortIcon field="activo"></p-sortIcon>
               </div>
             </th>
             <th class="actions-column">
@@ -336,21 +357,21 @@
         <ng-template pTemplate="body" let-punto>
           <tr class="table-row">
             <td class="id-cell">
-              <span class="id-badge">{{ punto.id }}</span>
-            </td>
-            <td>
-              <p-tag 
-                [value]="punto.estatus" 
-                [severity]="getEstatusSeverity(punto.estatus)">
-              </p-tag>
+              <span class="id-badge">{{ punto.idPuntos }}</span>
             </td>
             <td>
               <div class="puntos-content">
-                <span class="puntos-value">{{ punto.puntos }}</span>
+                <span class="puntos-value">{{ punto.cantPuntos }}</span>
                 <span class="puntos-label">puntos</span>
               </div>
             </td>
-            <td>{{ punto.fecha }}</td>
+            <td>{{ punto.tipoTransaccion }}</td>
+            <td>{{ punto.fechaTransaccion ? (punto.fechaTransaccion | date:'shortDate') : '' }}</td>
+            <td>{{ punto.fechaVencimiento ? (punto.fechaVencimiento | date:'shortDate') : '' }}</td>
+            <td>{{ punto.idRegla ?? '-' }}</td>
+            <td>
+              <p-tag [value]="punto.activo ? 'Sí' : 'No'" [severity]="punto.activo ? 'success' : 'danger'"></p-tag>
+            </td>
             <td class="actions-cell">
               <div class="action-buttons">
                 <p-button 

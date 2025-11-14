@@ -7,6 +7,9 @@ import { GestionClientesAdmiResponse } from '../interfaces/gestion-clientes/gest
 import { GestionClientesListResponse } from '../interfaces/gestion-clientes/gestion-clientes-list.interface';
 import { EditarClienteBody } from '../interfaces/gestion-clientes/editar-cliente.interface';
 import { EliminarClienteResponse } from '../interfaces/gestion-clientes/eliminar-cliente.interface';
+import { HistorialComprasResponse } from '../interfaces/gestion-clientes/historial-compras.interface';
+import { HistorialPuntosResponse } from '../interfaces/gestion-clientes/historial-puntos.interface';
+import { EliminarPuntosResponse } from '../interfaces/gestion-clientes/eliminar-puntos-cliente.interace';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -30,6 +33,11 @@ export class GestionClientesService {
       .pipe(
         catchError(this.httpUtils.handleError)
       );
+  }
+
+  eliminarPuntoPorCliente(idCliente: number, idPuntos: number): Observable<EliminarPuntosResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/clientes/${idCliente}/historial-puntos/${idPuntos}`;
+    return this.http.delete<EliminarPuntosResponse>(url).pipe(catchError(this.httpUtils.handleError));
   }
 
   /**
@@ -83,6 +91,37 @@ export class GestionClientesService {
     }).pipe(
       catchError((error) => {
         console.error('Error al eliminar cliente:', error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
+  /**
+   * Obtiene el historial de compras de un cliente por su ID
+   * @param id ID del cliente
+   */
+  getHistorialComprasPorCliente(id: number): Observable<HistorialComprasResponse> {
+    const url = `${baseUrl}/clientes/${id}/historial-compras`;
+    console.log('URL historial compras:', url);
+    return this.http.get<HistorialComprasResponse>(url).pipe(
+      catchError((error) => {
+        console.error('Error obteniendo historial de compras:', error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
+  /**
+   * Obtiene el historial de puntos de un cliente por su ID
+   * @param id ID del cliente
+   */
+  getHistorialPuntosPorCliente(id: number): Observable<HistorialPuntosResponse> {
+    // Endpoint observado en Postman: /admin/fidelizacion/clientes/{id}/historial-puntos
+    const url = `${baseUrl}/admin/fidelizacion/clientes/${id}/historial-puntos`;
+    console.log('URL historial puntos:', url);
+    return this.http.get<HistorialPuntosResponse>(url).pipe(
+      catchError((error) => {
+        console.error('Error obteniendo historial de puntos:', error);
         return this.httpUtils.handleError(error);
       })
     );
