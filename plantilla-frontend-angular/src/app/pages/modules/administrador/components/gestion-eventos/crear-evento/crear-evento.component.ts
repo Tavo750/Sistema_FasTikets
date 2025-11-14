@@ -595,6 +595,7 @@ export class CrearEventoComponent implements OnInit{
   // Manejo de banner subida de imagenes
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
 
@@ -630,9 +631,7 @@ export class CrearEventoComponent implements OnInit{
 
       reader.readAsDataURL(file);
     }
-  }
-
-  mostrarPreview(file: File): void {
+  }  mostrarPreview(file: File): void {
     const reader = new FileReader();
     reader.onload = (e: any) => {
       // Aquí podrías actualizar una variable para mostrar el preview en el HTML
@@ -682,11 +681,7 @@ export class CrearEventoComponent implements OnInit{
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return;
     }
-    // // Verificar que se haya seleccionado un banner
-    // if (!this.formulario.banner) {
-    //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
-    //   return;
-    // }
+
     // Asignar el idLocal del local seleccionado al evento
     this.evento.idLocal = parseInt(this.formulario.localString);
 
@@ -823,14 +818,11 @@ export class CrearEventoComponent implements OnInit{
   prepararDatosEventoBasicos(): CrearEventoRequest {
     // Sincronizar datos del formulario al evento antes de preparar
     this.sincronizarFormularioAEvento();
-
     // Convertir la fecha del datepicker a formato ISO
     const fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
-
     // Formatear horas desde los datepickers con validación mejorada
     const horaInicio = this.time ?
       `${this.time.getHours().toString().padStart(2, '0')}:${this.time.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
-
     const horaFin = this.timeFinal ?
       `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
@@ -840,13 +832,21 @@ export class CrearEventoComponent implements OnInit{
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.formulario.banner!,
-      imagenZonasUrl: this.formulario.mapaZonasFile || undefined,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
-      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
-      idLocal: parseInt(this.formulario.localString) || 1 // Usar el local seleccionado
+      aforoDisponible: this.evento.aforoDisponible,
+      idLocal: parseInt(this.formulario.localString)
     };
+
+    // Solo agregar imagenUrl si hay un archivo File
+    if (this.formulario.banner && this.formulario.banner instanceof File) {
+      datosEvento.imagenUrl = this.formulario.banner;
+    }
+
+    // Solo agregar imagenZonasUrl si hay un archivo File
+    if (this.formulario.mapaZonasFile && this.formulario.mapaZonasFile instanceof File) {
+      datosEvento.imagenZonasUrl = this.formulario.mapaZonasFile;
+    }
 
     return datosEvento;
   }

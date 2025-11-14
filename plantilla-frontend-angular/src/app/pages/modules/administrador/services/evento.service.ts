@@ -70,13 +70,23 @@ export class EventoService {
    * @param body Datos del evento a crear
    * @returns Observable con la respuesta del servidor
    */
+
   postCrearEvento(body: CrearEventoRequest): Observable<CrearEventoResponse> {
     const url = `${baseUrl}/eventos/con-imagen`;
-
-    // Crear FormData para enviar multipart/form-data
     const formData = new FormData();
 
-    // Agregar todos los campos del evento al FormData
+    // Agregar PRIMERO los archivos, DESPUÉS los campos de texto
+    // Solo agregar imagenUrl si existe en body y es un File
+    if (body.imagenUrl && body.imagenUrl instanceof File) {
+      formData.append('imagenUrl', body.imagenUrl, body.imagenUrl.name);
+    }
+
+    // Solo agregar imagenZonasUrl si existe en body y es un File
+    if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
+      formData.append('imagenZonasUrl', body.imagenZonasUrl, body.imagenZonasUrl.name);
+    }
+
+    // Agregar todos los campos de texto
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
@@ -86,16 +96,6 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-
-    // Solo agregar la imagen si es un File válido
-    if (body.imagenUrl && body.imagenUrl instanceof File) {
-      formData.append('imagen', body.imagenUrl);
-    }
-
-    // Solo agregar la imagen de zonas si es un File válido
-    if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
-      formData.append('imagenZonas', body.imagenZonasUrl);
-    }
 
     return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
@@ -162,13 +162,15 @@ export class EventoService {
     // Solo agregar imagenUrl si existe en body y es un File
     // Si no se envía este campo, el backend DEBE mantener la imagen banner existente
     if (body.imagenUrl && body.imagenUrl instanceof File) {
-      formData.append('imagenUrl', body.imagenUrl);
+      // Agregar el archivo con su nombre explícito (tercer parámetro)
+      formData.append('imagenUrl', body.imagenUrl, body.imagenUrl.name);
     }
 
     // Solo agregar imagenZonasUrl si existe en body y es un File
     // Si no se envía este campo, el backend DEBE mantener la imagen de zonas existente
     if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
-      formData.append('imagenZonasUrl', body.imagenZonasUrl);
+      // Agregar el archivo con su nombre explícito (tercer parámetro)
+      formData.append('imagenZonasUrl', body.imagenZonasUrl, body.imagenZonasUrl.name);
     }
 
     return this.http.put<CrearEventoResponse>(url, formData)
