@@ -69,8 +69,11 @@ export class EditarEventoComponent implements OnInit{
       localString: '', // Para el dropdown (string)
       banner: null as File | null,
       bannerUrl: '',
+      bannerUrlOriginal: '', // URL original del banner desde el backend
       mapaUrl: '',
+      mapaZonasUrlOriginal: '', // URL original de la imagen de zonas desde el backend
       mapaFile: null as File | null,
+      mapaZonasFile: null as File | null, // Nueva imagen de zonas
       moneda: 'Nuevo Sol'
     };
 
@@ -252,6 +255,10 @@ export class EditarEventoComponent implements OnInit{
                 idLocal: eventoData.idLocal || 1
               };
 
+              // Guardar las URLs originales de las imágenes
+              this.formulario.bannerUrlOriginal = eventoData.imagenUrl || '';
+              this.formulario.mapaZonasUrlOriginal = eventoData.imagenZonasUrl || '';
+
               // Inicializar formulario con datos del evento cargado
               this.inicializarFormularioDesdeEvento();
 
@@ -321,6 +328,13 @@ export class EditarEventoComponent implements OnInit{
           reader.readAsDataURL(this.evento.imagenUrl);
           this.formulario.banner = this.evento.imagenUrl;
         }
+      }
+
+      // Extraer mapa de zonas de mapaZonasUrlOriginal
+      if (this.formulario.mapaZonasUrlOriginal) {
+        // Si mapaZonasUrlOriginal es un string (URL del servidor), mostrarlo directamente
+        this.formulario.mapaUrl = this.formulario.mapaZonasUrlOriginal;
+        // No establecemos formulario.mapaZonasFile porque no es un File nuevo
       }
 
       // Inicializar localString con idLocal cuando estamos editando un evento existente
@@ -872,14 +886,13 @@ export class EditarEventoComponent implements OnInit{
       // Asignar el idLocal del local seleccionado al evento
       this.evento.idLocal = parseInt(this.formulario.localString);
 
-      // Preparar datos para el servicio
-      const datosEvento = this.prepararDatosEvento();
-
       // Mostrar mensaje de carga
       this.messageService.info('Creando evento...', 'Procesando');
 
-      // Llamar al servicio para crear el evento
-      this.eventoService.postCrearEvento(datosEvento).subscribe({
+      // Preparar datos para el servicio (ahora es async)
+      this.prepararDatosEvento().then(datosEvento => {
+        // Llamar al servicio para crear el evento
+        this.eventoService.postCrearEvento(datosEvento).subscribe({
         next: (response) => {
           this.messageService.handleBackendResponse(response, false, 'Evento Creado');
 
@@ -899,6 +912,10 @@ export class EditarEventoComponent implements OnInit{
           console.error('Error al crear evento:', error);
           this.messageService.handleHttpError(error);
         }
+        });
+      }).catch(error => {
+        console.error('Error al preparar datos del evento:', error);
+        this.messageService.error('Error al procesar las imágenes del evento', 'Error');
       });
     }
 
@@ -933,14 +950,13 @@ export class EditarEventoComponent implements OnInit{
       // Asignar el idLocal del local seleccionado al evento
       this.evento.idLocal = parseInt(this.formulario.localString);
 
-      // Preparar datos para el servicio
-      const datosEvento = this.prepararDatosEvento();
-
       // Mostrar mensaje de carga
       this.messageService.info('Actualizando evento...', 'Procesando');
 
-      // Llamar al servicio para actualizar el evento
-      this.eventoService.putActualizarEvento(this.idEvento, datosEvento).subscribe({
+      // Preparar datos para el servicio (ahora es async)
+      this.prepararDatosEvento().then(datosEvento => {
+        // Llamar al servicio para actualizar el evento
+        this.eventoService.putActualizarEvento(this.idEvento!, datosEvento).subscribe({
         next: (response) => {
           this.messageService.handleBackendResponse(response, false, 'Evento Actualizado');
 
@@ -957,6 +973,10 @@ export class EditarEventoComponent implements OnInit{
           console.error('Error al actualizar evento:', error);
           this.messageService.handleHttpError(error);
         }
+        });
+      }).catch(error => {
+        console.error('Error al preparar datos del evento:', error);
+        this.messageService.error('Error al procesar las imágenes del evento', 'Error');
       });
     }
 
@@ -1144,7 +1164,7 @@ export class EditarEventoComponent implements OnInit{
     /**
      * Prepara los datos del evento en el formato requerido por la API
      */
-    prepararDatosEvento(): CrearEventoRequest {
+    async prepararDatosEvento(): Promise<CrearEventoRequest> {
       // Sincronizar datos del formulario al evento antes de preparar
       this.sincronizarFormularioAEvento();
 
@@ -1158,31 +1178,42 @@ export class EditarEventoComponent implements OnInit{
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
-      // Determinar qué imagen usar:
-      // - Si hay un nuevo archivo cargado (formulario.banner es un File), usarlo
-      // - Si no hay nuevo archivo, enviar null para que el backend mantenga la imagen existente
-      let imagenParaEnviar: any;
-      if (this.formulario.banner && this.formulario.banner instanceof File) {
-        // Hay un nuevo archivo cargado - enviar el File
-        imagenParaEnviar = this.formulario.banner;
-      } else {
-        // No hay nueva imagen - enviar null para mantener la existente
-        // El servicio verificará si es un File válido antes de enviarlo al backend
-        imagenParaEnviar = null as any;
-      }
-
-      const datosEvento = {
+      // Construir el objeto de datos del evento
+      const datosEvento: CrearEventoRequest = {
         nombre: this.evento.nombre.trim(),
         descripcion: this.evento.descripcion.trim(),
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
-        imagenUrl: imagenParaEnviar,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
-        aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+        aforoDisponible: this.evento.aforoDisponible || 1000,
         idLocal: parseInt(this.formulario.localString)
       };
+
+      // Manejo de imagen banner
+      if (this.formulario.banner && this.formulario.banner instanceof File) {
+        // Hay un archivo nuevo cargado
+        datosEvento.imagenUrl = this.formulario.banner;
+      } else if (this.formulario.bannerUrlOriginal) {
+        // No hay archivo nuevo, pero existe URL original - convertirla a File
+        const bannerFile = await this.urlToFile(this.formulario.bannerUrlOriginal, 'banner.jpg');
+        if (bannerFile) {
+          datosEvento.imagenUrl = bannerFile;
+        }
+      }
+
+      // Manejo de imagen de zonas
+      if (this.formulario.mapaZonasFile && this.formulario.mapaZonasFile instanceof File) {
+        // Hay un archivo nuevo cargado
+        datosEvento.imagenZonasUrl = this.formulario.mapaZonasFile;
+      } else if (this.formulario.mapaZonasUrlOriginal) {
+        // No hay archivo nuevo, pero existe URL original - convertirla a File
+        const zonasFile = await this.urlToFile(this.formulario.mapaZonasUrlOriginal, 'zonas.jpg');
+        if (zonasFile) {
+          datosEvento.imagenZonasUrl = zonasFile;
+        }
+      }
 
       return datosEvento;
     }
@@ -1210,8 +1241,11 @@ export class EditarEventoComponent implements OnInit{
         localString: '',
         banner: null,
         bannerUrl: '',
+        bannerUrlOriginal: '',
         mapaUrl: '',
+        mapaZonasUrlOriginal: '',
         mapaFile: null,
+        mapaZonasFile: null,
         moneda: 'Nuevo Sol'
       };
 
@@ -1317,13 +1351,13 @@ export class EditarEventoComponent implements OnInit{
           return;
         }
 
-        // Validar que se haya seleccionado un local
-        if (!this.formulario.localString || this.formulario.localString.trim() === '') {
-          this.messageService.error('Primero debes seleccionar un local antes de subir la imagen del mapa', 'Local Requerido');
+        // Validar que exista el evento (debe estar en modo edición)
+        if (!this.idEvento) {
+          this.messageService.error('No se puede subir la imagen de zonas sin un evento existente', 'Evento Requerido');
           return;
         }
 
-        this.formulario.mapaFile = file;
+        this.formulario.mapaZonasFile = file;
 
         // Mostrar preview de la imagen
         const reader = new FileReader();
@@ -1332,14 +1366,32 @@ export class EditarEventoComponent implements OnInit{
         };
         reader.readAsDataURL(file);
 
-        // Actualizar el local con la nueva imagen del mapa
-        this.actualizarLocalConMapa(file);
+        // Actualizar el evento con la nueva imagen de zonas
+        this.actualizarEventoMapa(file);
 
-        this.messageService.success('Imagen del mapa seleccionada correctamente', 'Mapa Agregado');
+        this.messageService.success('Imagen de zonas seleccionada correctamente', 'Imagen Agregada');
       }
     }
 
 
+
+    /**
+     * Convierte una URL de imagen a un objeto File
+     * @param imageUrl URL de la imagen
+     * @param fileName Nombre del archivo
+     * @returns Promise con el archivo File
+     */
+    private async urlToFile(imageUrl: string, fileName: string): Promise<File | null> {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], fileName, { type: blob.type });
+        return file;
+      } catch (error) {
+        console.error('Error al convertir URL a File:', error);
+        return null;
+      }
+    }
 
     /**
      * Comprime y redimensiona una imagen para que sea lo más pequeña posible
@@ -1421,57 +1473,52 @@ export class EditarEventoComponent implements OnInit{
         reader.readAsDataURL(file);
       });
     }  /**
-     * Actualiza el local con la nueva imagen del mapa
+     * Actualiza el evento con la nueva imagen de zonas
      * @param file Archivo de imagen seleccionado
      */
-    private actualizarLocalConMapa(file: File): void {
-      const idLocal = parseInt(this.formulario.localString);
-
-      if (!idLocal || isNaN(idLocal)) {
-        this.messageService.error('ID del local no válido', 'Error');
+    private actualizarEventoMapa(file: File): void {
+      if (!this.idEvento) {
+        this.messageService.error('No hay un evento para actualizar', 'Error');
         return;
       }
 
-      // Buscar los datos del local seleccionado
-      const localSeleccionado = this.localesDisponibles.find(local =>
-        local.idLocal === idLocal
-      );
-
-      if (!localSeleccionado) {
-        this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
-        return;
-      }
-
-      // Preparar FormData para actualizar el local con imagen
-      const formData = new FormData();
-      formData.append('id', idLocal.toString());
-      formData.append('nombre', localSeleccionado.nombre);
-      formData.append('direccion', localSeleccionado.direccion || '');
-      formData.append('aforoTotal', localSeleccionado.aforoTotal.toString());
-      formData.append('idDistrito', localSeleccionado.idDistrito.toString());
-      formData.append('imagen', file);
+      // Preparar los datos del evento solo con la imagen de zonas
+      // NO incluir imagenUrl para que el backend mantenga el banner existente
+      const datosEvento: CrearEventoRequest = {
+        nombre: this.evento.nombre,
+        descripcion: this.evento.descripcion,
+        fechaEvento: this.evento.fechaEvento,
+        horaInicio: this.evento.horaInicio,
+        horaFin: this.evento.horaFin,
+        // imagenUrl: NO enviamos este campo para mantener el banner existente
+        imagenZonasUrl: file, // Solo actualizar la imagen de zonas
+        tipoEvento: this.evento.tipoEvento,
+        estadoEvento: this.evento.estadoEvento,
+        aforoDisponible: this.evento.aforoDisponible,
+        idLocal: this.evento.idLocal
+      };
 
       // Mostrar mensaje de carga
-      this.messageService.info('Actualizando imagen del mapa...', 'Procesando');
+      this.messageService.info('Actualizando imagen de zonas...', 'Procesando');
 
-      // Llamar al servicio para actualizar el local con imagen
-      this.localService.putActualizarLocalconImagen(idLocal, formData).subscribe({
+      // Llamar al servicio para actualizar el evento
+      this.eventoService.putActualizarEvento(this.idEvento, datosEvento).subscribe({
         next: (response) => {
           this.messageService.success(
-            'Imagen del mapa actualizada exitosamente en el local',
+            'Imagen de zonas actualizada exitosamente',
             'Operación Exitosa'
           );
         },
         error: (error) => {
           this.messageService.error(
-            'Error al actualizar la imagen del mapa en el local: ' + (error.message || 'Error desconocido'),
+            'Error al actualizar la imagen de zonas: ' + (error.message || 'Error desconocido'),
             'Error'
           );
-          console.error('Error al actualizar local con mapa:', error);
+          console.error('Error al actualizar imagen de zonas:', error);
 
           // Limpiar la imagen en caso de error
           this.formulario.mapaUrl = '';
-          this.formulario.mapaFile = null;
+          this.formulario.mapaZonasFile = null;
         }
       });
     }
@@ -1479,69 +1526,13 @@ export class EditarEventoComponent implements OnInit{
     onEliminarMapa(event: any): void {
       this.confirmPopupService.confirmDelete(
         event,
-        '¿Estás seguro de que deseas eliminar la imagen del mapa? Esto también eliminará la imagen del local.',
+        '¿Estás seguro de que deseas eliminar la imagen de zonas?',
         () => {
-          // Limpiar la imagen del local si hay un local seleccionado
-          if (this.formulario.localString && this.formulario.localString.trim() !== '') {
-            this.eliminarImagenMapaDelLocal();
-          } else {
-            // Solo limpiar localmente si no hay local seleccionado
-            this.limpiarImagenMapaLocal();
-          }
-        }
-      );
-    }
-
-    /**
-     * Elimina la imagen del mapa del local en el servidor
-     */
-    private eliminarImagenMapaDelLocal(): void {
-      const idLocal = parseInt(this.formulario.localString);
-
-      if (!idLocal || isNaN(idLocal)) {
-        this.messageService.error('ID del local no válido', 'Error');
-        return;
-      }
-
-      // Buscar los datos del local seleccionado
-      const localSeleccionado = this.localesDisponibles.find(local =>
-        local.idLocal === idLocal
-      );
-
-      if (!localSeleccionado) {
-        this.messageService.error('No se encontraron los datos del local seleccionado', 'Error');
-        return;
-      }
-
-      // Preparar datos para actualizar el local (sin imagen del mapa)
-      const datosLocal: CrearLocalRequest = {
-        nombre: localSeleccionado.nombre,
-        direccion: localSeleccionado.direccion,
-        urlMapa: null as any, // Eliminar la imagen del mapa
-        aforoTotal: localSeleccionado.aforoTotal,
-        idDistrito: localSeleccionado.idDistrito
-      };
-
-      // Mostrar mensaje de carga
-      this.messageService.info('Eliminando imagen del mapa...', 'Procesando');
-
-      // Llamar al servicio para actualizar el local
-      this.localService.putActualizarLocal(idLocal, datosLocal).subscribe({
-        next: (response) => {
+          // Solo limpiar localmente
           this.limpiarImagenMapaLocal();
-          this.messageService.success(
-            'Imagen del mapa eliminada exitosamente del local',
-            'Operación Exitosa'
-          );
-        },
-        error: (error) => {
-          this.messageService.error(
-            'Error al eliminar la imagen del mapa del local: ' + (error.message || 'Error desconocido'),
-            'Error'
-          );
-          console.error('Error al eliminar imagen del mapa del local:', error);
+          this.messageService.success('Imagen de zonas eliminada', 'Operación Exitosa');
         }
-      });
+      );
     }
 
     /**
@@ -1549,7 +1540,7 @@ export class EditarEventoComponent implements OnInit{
      */
     private limpiarImagenMapaLocal(): void {
       this.formulario.mapaUrl = '';
-      this.formulario.mapaFile = null;
+      this.formulario.mapaZonasFile = null;
       this.usarMapaDefault = false;
     }
 

@@ -70,13 +70,23 @@ export class EventoService {
    * @param body Datos del evento a crear
    * @returns Observable con la respuesta del servidor
    */
+
   postCrearEvento(body: CrearEventoRequest): Observable<CrearEventoResponse> {
     const url = `${baseUrl}/eventos/con-imagen`;
-
-    // Crear FormData para enviar multipart/form-data
     const formData = new FormData();
 
-    // Agregar todos los campos del evento al FormData
+    // Agregar PRIMERO los archivos, DESPUÉS los campos de texto
+    // Solo agregar imagenUrl si existe en body y es un File
+    if (body.imagenUrl && body.imagenUrl instanceof File) {
+      formData.append('imagenUrl', body.imagenUrl, body.imagenUrl.name);
+    }
+
+    // Solo agregar imagenZonasUrl si existe en body y es un File
+    if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
+      formData.append('imagenZonasUrl', body.imagenZonasUrl, body.imagenZonasUrl.name);
+    }
+
+    // Agregar todos los campos de texto
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
@@ -86,11 +96,6 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
-    // Solo agregar la imagen si es un File válido
-    if (body.imagenUrl && body.imagenUrl instanceof File) {
-      formData.append('imagen', body.imagenUrl);
-    }
 
     return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
@@ -138,50 +143,40 @@ export class EventoService {
   }
 
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
-    // Verificar si hay una nueva imagen para determinar qué endpoint usar
-    const tieneNuevaImagen = body.imagenUrl && body.imagenUrl instanceof File;
-    
-    if (tieneNuevaImagen) {
-      // Si hay nueva imagen, usar el endpoint con-imagen y enviar FormData
-      const url = `${baseUrl}/eventos/${id}/con-imagen`;
-      const formData = new FormData();
+    // SIEMPRE usar el endpoint con-imagen para preservar las imágenes existentes
+    // Solo agregar campos de imagen al FormData si existen en el body
+    const url = `${baseUrl}/eventos/${id}/con-imagen`;
+    const formData = new FormData();
 
-      formData.append('nombre', body.nombre);
-      formData.append('descripcion', body.descripcion);
-      formData.append('fechaEvento', body.fechaEvento);
-      formData.append('horaInicio', body.horaInicio);
-      formData.append('horaFin', body.horaFin);
-      formData.append('tipoEvento', body.tipoEvento);
-      formData.append('estadoEvento', body.estadoEvento);
-      formData.append('aforoDisponible', body.aforoDisponible.toString());
-      formData.append('idLocal', body.idLocal.toString());
-      formData.append('imagen', body.imagenUrl);
+    // Agregar todos los campos de texto obligatorios
+    formData.append('nombre', body.nombre);
+    formData.append('descripcion', body.descripcion);
+    formData.append('fechaEvento', body.fechaEvento);
+    formData.append('horaInicio', body.horaInicio);
+    formData.append('horaFin', body.horaFin);
+    formData.append('tipoEvento', body.tipoEvento);
+    formData.append('estadoEvento', body.estadoEvento);
+    formData.append('aforoDisponible', body.aforoDisponible.toString());
+    formData.append('idLocal', body.idLocal.toString());
 
-      return this.http.put<CrearEventoResponse>(url, formData)
-        .pipe(
-          catchError(this.httpUtils.handleError)
-        );
-    } else {
-      // Si NO hay nueva imagen, usar el endpoint normal sin imagen (JSON)
-      const url = `${baseUrl}/eventos/${id}`;
-      const bodyJSON = {
-        nombre: body.nombre,
-        descripcion: body.descripcion,
-        fechaEvento: body.fechaEvento,
-        horaInicio: body.horaInicio,
-        horaFin: body.horaFin,
-        tipoEvento: body.tipoEvento,
-        estadoEvento: body.estadoEvento,
-        aforoDisponible: body.aforoDisponible,
-        idLocal: body.idLocal
-        // NO incluir imagenUrl para que el backend mantenga la imagen existente
-      };
-
-      return this.http.put<CrearEventoResponse>(url, bodyJSON)
-        .pipe(
-          catchError(this.httpUtils.handleError)
-        );
+    // Solo agregar imagenUrl si existe en body y es un File
+    // Si no se envía este campo, el backend DEBE mantener la imagen banner existente
+    if (body.imagenUrl && body.imagenUrl instanceof File) {
+      // Agregar el archivo con su nombre explícito (tercer parámetro)
+      formData.append('imagenUrl', body.imagenUrl, body.imagenUrl.name);
     }
+
+    // Solo agregar imagenZonasUrl si existe en body y es un File
+    // Si no se envía este campo, el backend DEBE mantener la imagen de zonas existente
+    if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
+      // Agregar el archivo con su nombre explícito (tercer parámetro)
+      formData.append('imagenZonasUrl', body.imagenZonasUrl, body.imagenZonasUrl.name);
+    }
+
+    return this.http.put<CrearEventoResponse>(url, formData)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
   }
 
 

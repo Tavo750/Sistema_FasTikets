@@ -10,7 +10,8 @@ export interface CrearEventoRequest {
     fechaEvento: string;
     horaInicio: string;
     horaFin: string;
-    imagenUrl: File;
+    imagenUrl?: File; // Opcional: para permitir actualizar solo imagenZonasUrl sin modificar el banner
+    imagenZonasUrl?: File; // Opcional: para permitir actualizar solo imagenUrl sin modificar las zonas
     tipoEvento: string;
     estadoEvento: string;
     aforoDisponible: number;

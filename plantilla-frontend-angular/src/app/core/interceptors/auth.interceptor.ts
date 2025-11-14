@@ -40,6 +40,12 @@ export class AuthInterceptor implements HttpInterceptor {
       'localhost:8081/api/v1/tipos-ticket'
     ];
 
+    // Endpoints con multipart/form-data que necesitan manejo especial
+    const multipartEndpoints = [
+      '/eventos/con-imagen',
+      '/api/v1/eventos/con-imagen'
+    ];
+
     // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)
     const protectedEndpoints = [
       '/api/v1/usuario',
@@ -69,6 +75,7 @@ export class AuthInterceptor implements HttpInterceptor {
     if (currentUser && currentUser.token) {
       // Detectar si se está enviando FormData (para archivos)
       const isFormData = req.body instanceof FormData;
+      const isMultipartEndpoint = multipartEndpoints.some(endpoint => req.url.includes(endpoint));
 
       // Preparar headers base
       const headers: { [key: string]: string } = {
@@ -81,19 +88,21 @@ export class AuthInterceptor implements HttpInterceptor {
         headers['Content-Type'] = 'application/json';
       }
 
-      // Debug: Log de la petición para depuración
-      console.log('🔐 Enviando petición autenticada:', {
-        url: req.url,
-        method: req.method,
-        hasToken: !!currentUser.token,
-        tokenStart: currentUser.token?.substring(0, 20) + '...',
-        headers: headers
-      });
-
-      // Clonar la petición y agregar el header de autorización
-      const authReq = req.clone({
-        setHeaders: headers
-      });
+      // Para endpoints multipart, clonar de forma especial
+      let authReq: HttpRequest<any>;
+      if (isMultipartEndpoint && isFormData) {
+        // Solo agregar header de autorización, sin tocar body ni content-type
+        authReq = req.clone({
+          setHeaders: {
+            'Authorization': `Bearer ${currentUser.token}`
+          }
+        });
+      } else {
+        // Clonar la petición normal
+        authReq = req.clone({
+          setHeaders: headers
+        });
+      }
 
       return next.handle(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
