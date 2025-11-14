@@ -74,7 +74,7 @@
     <div class="results-header">
       <h3>
         <i class="pi pi-list"></i>
-        Errores Registrados ({{ filteredErrores.length }})
+        Errores Registrados ({{ totalRecords }})
       </h3>
     </div>
 
@@ -86,6 +86,7 @@
         [rowsPerPageOptions]="[5, 10, 20]" 
         [showCurrentPageReport]="true" 
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} errores"
+        [totalRecords]="filteredErrores.length"
         [tableStyle]="{ 'min-width': '50rem' }"
         [sortMode]="'multiple'"
         styleClass="custom-table"
@@ -122,11 +123,11 @@
                 <p-sortIcon field="mensajeBreve"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="accion">
+            <th pSortableColumn="detalleTecnico">
               <div class="header-content">
                 <i class="pi pi-cogs"></i>
-                Acción
-                <p-sortIcon field="accion"></p-sortIcon>
+                Detalle Técnico
+                <p-sortIcon field="detalleTecnico"></p-sortIcon>
               </div>
             </th>
           </tr>
@@ -134,7 +135,7 @@
 
         <ng-template pTemplate="body" let-error>
           <tr class="table-row">
-            <td class="date-cell">{{ error.fechaHora | date:'dd-MM-yyyy HH:mm:ss' }}</td>
+            <td class="date-cell">{{ error.fechaHoraString }}</td>
             <td class="severity-cell">
               <p-tag 
                 [value]="error.severidad" 
@@ -149,7 +150,7 @@
               </div>
             </td>
             <td class="description-cell">{{ error.mensajeBreve }}</td>
-            <td class="accion-cell">{{ error.accion }}</td>
+            <td class="accion-cell">{{ error.detalleTecnico }}</td>
           </tr>
         </ng-template>
 

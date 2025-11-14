@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HttpUtilsService } from '../../../../shared/services/http-utils.service';
-import { LogErroresResponse, CrearErrorRequest, CrearErrorResponse } from '../interfaces/log-errores/log-errores-interfaces';
+import { LogErroresResponse, CrearErrorRequest, CrearErrorResponse } from '../interfaces/log-errores/log-errores.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -34,23 +34,20 @@ export class LogErroresService {
   }
 
   /**
-   * Crea un nuevo registro de error
-   * @param errorData Datos del error a crear
-   * @returns Observable con la respuesta del servidor
+   * Crea un nuevo registro de error en el sistema
+   * @param body Datos del error a crear
+   * @returns Observable con la respuesta del servidor que incluye el error creado
    */
-  postCrearError(errorData: CrearErrorRequest): Observable<CrearErrorResponse> {
+  postCrearError(body: CrearErrorRequest): Observable<CrearErrorResponse> {
     const url = `${baseUrl}/admin/logs/errors`;
-    console.log('📝 Creando nuevo error en:', url, errorData);
+    console.log('📝 Creando nuevo error en:', url, body);
     
-    return this.http.post<CrearErrorResponse>(url, errorData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).pipe(
-      catchError((error) => {
-        console.error('❌ Error al crear registro de error:', error);
-        return this.httpUtils.handleError(error);
-      })
-    );
+    return this.http.post<CrearErrorResponse>(url, body)
+      .pipe(
+        catchError((error) => {
+          console.error('❌ Error al crear registro de error:', error);
+          return this.httpUtils.handleError(error);
+        })
+      );
   }
 }

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { LogErroresService } from '../../../services/log-errores.service';
+import { CrearErrorRequest } from '../../../interfaces/log-errores/log-errores.interface';
 
 @Component({
   selector: 'app-registrar-error',
@@ -17,10 +19,8 @@ export class RegistrarErrorComponent implements OnInit {
 
   severidades = [
     { label: 'Seleccione', value: null },
-    { label: 'CRITICO', value: 'CRITICO' },
-    { label: 'ALTO', value: 'ALTO' },
-    { label: 'MEDIO', value: 'MEDIO' },
-    { label: 'BAJO', value: 'BAJO' }
+    { label: 'ERROR', value: 'ERROR' },
+    { label: 'WARN', value: 'WARN' }
   ];
 
   modulos = [
@@ -45,7 +45,8 @@ export class RegistrarErrorComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private logErroresService: LogErroresService
   ) { }
 
   ngOnInit(): void {
@@ -67,21 +68,51 @@ export class RegistrarErrorComponent implements OnInit {
     if (this.errorForm.valid) {
       this.loading = true;
       
-      // Simular guardado
-      setTimeout(() => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Registro exitoso',
-          detail: 'Se registró el error exitosamente',
-          life: 4000
+      const formValue = this.errorForm.value;
+      const payload: CrearErrorRequest = {
+        fechaHora: formValue.fechaHora instanceof Date ? formValue.fechaHora.toISOString() : formValue.fechaHora,
+        severidad: formValue.severidad,
+        modulo: formValue.modulo,
+        mensajeBreve: formValue.mensajeBreve,
+        detalleTecnico: formValue.detalleTecnico,
+        traza: formValue.traza
+      };
+
+      console.log('Payload a enviar:', payload);
+      
+      this.logErroresService.postCrearError(payload)
+        .subscribe({
+          next: (response) => {
+            if (response.ok) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: response.mensaje
+              });
+              
+              // Agregar un pequeño retraso antes de la navegación
+              setTimeout(() => {
+                this.router.navigate(['../'], { relativeTo: this.route })
+                  .then(() => {
+                    console.log('Navegación exitosa');
+                  })
+                  .catch(err => {
+                    console.error('Error en la navegación:', err);
+                    this.mostrarError('Error al redireccionar. Por favor, vuelva al listado manualmente.');
+                  });
+              }, 500);
+            } else {
+              this.mostrarError('No se pudo registrar el error');
+            }
+          },
+          error: (error) => {
+            console.error('Error al registrar el error:', error);
+            this.mostrarError(error.error?.mensaje || 'No se pudo registrar el error');
+          },
+          complete: () => {
+            this.loading = false;
+          }
         });
-        
-        // Volver a la lista después de 2 segundos
-        setTimeout(() => {
-          this.router.navigate(['../'], { relativeTo: this.route });
-        }, 2000);
-      }, 1500);
     } else {
       this.markFormGroupTouched();
       this.messageService.add({
@@ -94,6 +125,14 @@ export class RegistrarErrorComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  private mostrarError(mensaje: string): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: mensaje
+    });
   }
 
   private markFormGroupTouched(): void {
