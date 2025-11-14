@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { GestionClientesService } from '../../../services/gestion-clientes.service';
 import { EditarClienteBody } from '../../../interfaces/gestion-clientes/editar-cliente.interface';
+import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
+import { Departamento, Provincia, Distrito } from '../../../../../../core/interfaces/ubigeo.interface';
 
 interface Cliente {
   id: number;
@@ -30,31 +32,20 @@ export class EditarClienteAdmiComponent  implements OnInit{
   clienteId: number = 0;
   loading: boolean = false;
 
-  // Opciones para los selects
-  departamentos = [
-    { label: 'Selecciona', value: '' },
-    { label: 'Lima', value: 'lima' },
-    { label: 'Arequipa', value: 'arequipa' },
-    { label: 'Cusco', value: 'cusco' },
-    { label: 'Piura', value: 'piura' },
-    { label: 'La Libertad', value: 'la-libertad' }
-  ];
-
-  distritos = [
-    { label: 'Selecciona', value: '' },
-    { label: 'Miraflores', value: 'miraflores' },
-    { label: 'San Isidro', value: 'san-isidro' },
-    { label: 'Barranco', value: 'barranco' },
-    { label: 'Surco', value: 'surco' },
-    { label: 'San Borja', value: 'san-borja' }
-  ];
+  // Opciones dinámicas para ubigeo
+  departamentos: Departamento[] = [];
+  provincias: Provincia[] = [];
+  distritos: Distrito[] = [];
+  selectedDepartamentoId: number | null = null;
+  selectedProvinciaId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
-    private gestionClientesService: GestionClientesService
+    private gestionClientesService: GestionClientesService,
+    private registroService: RegistroUsuarioService
   ) {
     this.editarForm = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2)]],
@@ -63,13 +54,76 @@ export class EditarClienteAdmiComponent  implements OnInit{
       email: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
       direccion: ['', Validators.required],
-      idDistrito: [1] // Valor por defecto 1
+      departamentoId: [''],
+      provinciaId: [''],
+      // Inicializar idDistrito en null para forzar la selección manual
+      idDistrito: [null, Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.clienteId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadDepartamentos();
     this.cargarCliente();
+  }
+
+  private loadDepartamentos(): void {
+    this.registroService.getDepartamentos().subscribe({
+      next: (res: any) => {
+        if (res && res.ok) {
+          this.departamentos = res.data || [];
+        }
+      },
+      error: (err: any) => {
+        console.error('Error cargando departamentos', err);
+      }
+    });
+  }
+
+  onDepartamentoChange(event: any): void {
+    const deptId = event.value;
+    this.selectedDepartamentoId = deptId;
+    this.provincias = [];
+    this.distritos = [];
+    this.editarForm.patchValue({ provinciaId: '', idDistrito: null });
+
+    if (!deptId) return;
+
+    this.registroService.getProvincias(String(deptId)).subscribe({
+      next: (res: any) => {
+        if (res && res.ok) {
+          this.provincias = res.data || [];
+        }
+      },
+      error: (err: any) => {
+        console.error('Error cargando provincias', err);
+      }
+    });
+  }
+
+  onProvinciaChange(event: any): void {
+    const provId = event.value;
+    this.selectedProvinciaId = provId;
+    this.distritos = [];
+    this.editarForm.patchValue({ idDistrito: null });
+
+    if (!provId) return;
+
+    this.registroService.getDistritos(String(provId)).subscribe({
+      next: (res: any) => {
+        if (res && res.ok) {
+          this.distritos = res.data || [];
+        }
+      },
+      error: (err: any) => {
+        console.error('Error cargando distritos', err);
+      }
+    });
+  }
+
+  onDistritoChange(event: any): void {
+    const distritoId = event.value;
+    this.editarForm.patchValue({ idDistrito: distritoId });
   }
 
   cargarCliente(): void {

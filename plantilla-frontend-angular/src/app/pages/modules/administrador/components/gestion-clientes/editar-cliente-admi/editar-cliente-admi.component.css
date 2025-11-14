@@ -131,6 +131,20 @@
   color: #adb5bd;
 }
 
+/* Estilo para inputs de solo lectura (DNI, email) para indicar que no son editables */
+::ng-deep input.input-modern[readonly] {
+  background: #e9ecef; /* fondo ligeramente más oscuro */
+  border-color: #ced4da !important;
+  color: #495057;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+::ng-deep input.input-modern[readonly]:focus {
+  outline: none;
+  box-shadow: none !important;
+}
+
 /* Select Modern */
 ::ng-deep .select-modern .p-select {
   width: 100%;
@@ -279,4 +293,31 @@
 *:focus-visible {
   outline: 2px solid #667eea;
   outline-offset: 2px;
+}
+
+/* Estilos específicos para los p-dropdown dentro de este componente */
+/* Cuando está deshabilitado: color más oscuro y cursor no-allowed */
+::ng-deep .form-card-body .p-dropdown.p-disabled {
+  opacity: 1 !important; /* mantener opacidad pero cambiar fondo */
+  cursor: not-allowed;
+}
+
+::ng-deep .form-card-body .p-dropdown.p-disabled .p-dropdown-label {
+  background: #d6d6d6 !important; /* gris oscuro suave */
+  border: 1px solid #cfcfcf !important;
+  color: #495057 !important;
+}
+
+/* Cuando el dropdown está habilitado (tras seleccionar el nivel anterior), quitar el fondo
+   para que se integre con el diseño y parezca "activo" */
+::ng-deep .form-card-body .p-dropdown:not(.p-disabled) .p-dropdown-label {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: #2c3e50 !important;
+}
+
+/* Ajustes de padding/alto para que se vea consistente con los inputs */
+::ng-deep .form-card-body .p-dropdown .p-dropdown-label {
+  padding: 0.65rem 1rem !important;
+  border-radius: 8px !important;
 }

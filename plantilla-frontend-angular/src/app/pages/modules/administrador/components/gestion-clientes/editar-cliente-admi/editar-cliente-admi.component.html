@@ -61,6 +61,8 @@
               pInputText 
               id="docIdentidad" 
               formControlName="docIdentidad"
+              readonly
+              title="El DNI no puede modificarse"
               placeholder="12345678"
               maxlength="8"
               class="input-modern" />
@@ -103,6 +105,8 @@
               id="email" 
               type="email"
               formControlName="email"
+              readonly
+              title="El correo no puede modificarse"
               placeholder="ejemplo@correo.com"
               class="input-modern" />
             <small 
@@ -151,6 +155,55 @@
               *ngIf="editarForm.get('direccion')?.invalid && editarForm.get('direccion')?.touched">
               <i class="pi pi-exclamation-circle"></i>
               Campo requerido
+            </small>
+          </div>
+
+          <!-- Ubigeo: Departamento / Provincia / Distrito -->
+          <div class="form-field">
+            <label for="departamentoId">
+              <i class="pi pi-globe"></i>
+              Departamento
+            </label>
+            <p-dropdown id="departamentoId" [options]="departamentos" optionLabel="nombre" optionValue="idDepartamento" placeholder="Selecciona" formControlName="departamentoId" (onChange)="onDepartamentoChange($event)"></p-dropdown>
+          </div>
+
+          <div class="form-field">
+            <label for="provinciaId">
+              <i class="pi pi-map"></i>
+              Provincia
+            </label>
+            <p-dropdown
+              id="provinciaId"
+              [options]="provincias"
+              optionLabel="nombre"
+              optionValue="idProvincia"
+              placeholder="Selecciona"
+              formControlName="provinciaId"
+              (onChange)="onProvinciaChange($event)"
+              [disabled]="!editarForm.get('departamentoId')?.value || provincias.length === 0">
+            </p-dropdown>
+          </div>
+
+          <div class="form-field">
+            <label for="idDistrito">
+              <i class="pi pi-map-marker"></i>
+              Distrito <span class="required">*</span>
+            </label>
+            <p-dropdown
+              id="idDistrito"
+              [options]="distritos"
+              optionLabel="nombre"
+              optionValue="idDistrito"
+              placeholder="Selecciona"
+              formControlName="idDistrito"
+              (onChange)="onDistritoChange($event)"
+              [disabled]="!editarForm.get('provinciaId')?.value || distritos.length === 0">
+            </p-dropdown>
+            <small 
+              class="p-error" 
+              *ngIf="editarForm.get('idDistrito')?.invalid && editarForm.get('idDistrito')?.touched">
+              <i class="pi pi-exclamation-circle"></i>
+              Seleccione un distrito
             </small>
           </div>
         </div>
