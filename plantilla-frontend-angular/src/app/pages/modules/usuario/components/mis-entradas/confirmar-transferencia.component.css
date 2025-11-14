@@ -55,3 +55,16 @@
   text-align: center !important;
   margin: 0 auto !important;
 }
+
+/* Reusar estilos de mis-entradas para mantener consistencia visual */
+.transfer-card { max-width: 760px; margin: 1.25rem auto; }
+.greet-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.greet-row .title-xl { margin:0; font-size:1.9rem; font-weight:800; }
+.lead { color:#666; margin-top:0.25rem; }
+.tier-badge { margin-left:auto; }
+.mb-3 { margin-bottom: 0.75rem; }
+
+/* Personalizaciones del progressBar: color y separación - forzar override de PrimeNG */
+:host ::ng-deep .p-progressbar { margin-top: 0.6rem; height: 12px; }
+:host ::ng-deep .p-progressbar .p-progressbar-value { background: #dc2626 !important; box-shadow: none !important; }
+:host ::ng-deep .p-progressbar .p-progressbar-label { color: #fff; font-weight: 600; }

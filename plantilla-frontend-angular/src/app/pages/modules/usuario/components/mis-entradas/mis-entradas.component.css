@@ -8,8 +8,43 @@
 }
 
 .transfer-card {
-	max-width: 760px;
-	margin: 0 auto;
+    max-width: 760px;
+    margin: 2rem auto; /* aumentar separación entre lista y formulario */
+}
+
+/* Lista de entradas */
+.entries-card { max-width: 980px; margin: 0 auto 2.5rem; }
+.greeting-card { margin-bottom: 3rem; }
+
+/* Forzar separación adicional si el host de PrimeNG envuelve la clase en elementos internos */
+:host ::ng-deep .greeting-card {
+	margin-bottom: 4rem !important;
+	display: block !important;
+}
+
+@media (max-width: 768px) {
+	:host ::ng-deep .greeting-card { margin-bottom: 2rem !important; }
+}
+.entries-title { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 700; }
+.selected-summary { margin-top: 0.75rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+.selected-summary .summary-actions { margin-left:auto; }
+
+/* Layout del encabezado: poner el badge a la derecha en la misma línea */
+.greet-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.greet-row .title-xl {
+	margin: 0;
+	font-size: 1.9rem;
+	font-weight: 800;
+}
+
+.tier-badge {
+	margin-left: auto;
 }
 
 .form-row {
@@ -51,4 +86,21 @@
 
 @media (max-width: 768px) {
 	.transfer-card { padding: 0 0.5rem; }
+}
+
+/* Personalizaciones del progressBar: color y separación */
+/* ::ng-deep para forzar el override de estilos de PrimeNG en alcance de componente */
+:host ::ng-deep .p-progressbar {
+	margin-top: 0.6rem; /* bajar un poco la barra respecto al card superior */
+	height: 12px;
+}
+
+:host ::ng-deep .p-progressbar .p-progressbar-value {
+	background: #dc2626 !important; /* rojo */
+	box-shadow: none !important;
+}
+
+:host ::ng-deep .p-progressbar .p-progressbar-label {
+	color: #fff;
+	font-weight: 600;
 }
