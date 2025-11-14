@@ -91,30 +91,6 @@
     </div>
   </p-panel>
 
-  <section class="popular-categories" *ngIf="categorias.length > 0">
-    <h3>Explora por género musical</h3>
-    <p>Selecciona una categoría para acotar la búsqueda y descubre nuevas propuestas.</p>
-    <div class="category-chip-group">
-      <button
-        type="button"
-        class="category-chip"
-        *ngFor="let categoria of categorias"
-        (click)="filtrarPorCategoria(categoria)"
-        [class.is-active]="categoriaSeleccionada === categoria">
-        <i class="pi pi-star"></i>
-        <span>{{ categoria }}</span>
-      </button>
-      <button
-        type="button"
-        class="category-chip reset"
-        *ngIf="categoriaSeleccionada"
-        (click)="filtrarPorCategoria(null)">
-        <i class="pi pi-times"></i>
-        <span>Ver todas</span>
-      </button>
-    </div>
-  </section>
-
   <!-- ESTADÍSTICAS RÁPIDAS -->
   <div class="estadisticas">
     <div class="stat-card">
