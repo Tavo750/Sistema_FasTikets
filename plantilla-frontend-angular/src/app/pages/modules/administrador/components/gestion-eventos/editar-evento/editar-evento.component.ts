@@ -1795,6 +1795,15 @@ export class EditarEventoComponent implements OnInit{
 
               this.categoriasLocal.push(nuevaCat);
 
+              // Actualizar el dropdown de "Válido para" con la nueva categoría
+              this.validoParaOptions.push({
+                label: nuevaCat.nombre,
+                value: nuevaCat.idZona.toString()
+              });
+
+              // También actualizar las entradas con las categorías
+              this.actualizarEntradasConCategorias(this.categoriasLocal);
+
               // Limpiar los campos
               this.nuevaCategoria = {
                 nombre: '',
