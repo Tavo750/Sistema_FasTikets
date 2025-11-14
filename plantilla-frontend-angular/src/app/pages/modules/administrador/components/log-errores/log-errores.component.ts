@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 interface ErrorLog {
   fechaHora: string;
@@ -17,36 +18,8 @@ interface ErrorLog {
 })
 export class LogErroresComponent implements OnInit {
 
-  errores: ErrorLog[] = [
-    {
-      fechaHora: '2025-09-24 15:30:11',
-      severidad: 'CRITICO',
-      modulo: 'Pasarela Pago',
-      mensajeBreve: 'Error de conexión con el servicio de pago de terceros.',
-      accion: 'El sistema intentó procesar una compra, pero falló la conexión externa.'
-    },
-    {
-      fechaHora: '2025-09-24 15:35:45',
-      severidad: 'ALTO',
-      modulo: 'Eventos/API',
-      mensajeBreve: 'El sitio de venta supera el aforo total del local.',
-      accion: 'Un administrador intentó editar el local y asignó cupos incorrectos.'
-    },
-    {
-      fechaHora: '2025-09-24 15:40:02',
-      severidad: 'MEDIO',
-      modulo: 'Autenticacion',
-      mensajeBreve: 'Bloqueo temporal de IP por 5 intentos fallidos de login.',
-      accion: 'El cliente con IP 192.168.1.100 excedió el límite de intentos.'
-    },
-    {
-      fechaHora: '2025-09-24 15:45:22',
-      severidad: 'BAJO',
-      modulo: 'Transferencias',
-      mensajeBreve: 'El código QR de un ticket transferido fue invalidado.',
-      accion: 'La transferencia de ticket ID: 22340 fue completada exitosamente.'
-    }
-  ];
+  errores: ErrorLog[] = [];
+  isLoading: boolean = false;
 
   fechaDesde: Date | null = null;
   fechaHasta: Date | null = null;
@@ -74,10 +47,46 @@ export class LogErroresComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
+    this.inicializarDatosMock();
+  }
+
+  inicializarDatosMock(): void {
+    // Datos mock para desarrollo
+    this.errores = [
+      {
+        fechaHora: '2024-11-13 14:30:15',
+        severidad: 'CRITICO',
+        modulo: 'Autenticación',
+        mensajeBreve: 'Error en validación de credenciales',
+        accion: 'Pendiente de resolución'
+      },
+      {
+        fechaHora: '2024-11-13 13:45:22',
+        severidad: 'ALTO',
+        modulo: 'Pagos',
+        mensajeBreve: 'Fallo en procesamiento de pago',
+        accion: 'En investigación'
+      },
+      {
+        fechaHora: '2024-11-13 12:20:08',
+        severidad: 'MEDIO',
+        modulo: 'Base de Datos',
+        mensajeBreve: 'Timeout en consulta de usuarios',
+        accion: 'Resuelto'
+      },
+      {
+        fechaHora: '2024-11-13 11:15:33',
+        severidad: 'BAJO',
+        modulo: 'Interfaz',
+        mensajeBreve: 'Lentitud en carga de componente',
+        accion: 'Optimizado'
+      }
+    ];
     this.filteredErrores = [...this.errores];
   }
 
