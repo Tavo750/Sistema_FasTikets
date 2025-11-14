@@ -1110,13 +1110,14 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Preparar los datos del evento solo con la imagen de zonas
+    // NO incluir imagenUrl para que el backend mantenga el banner existente
     const datosEvento: CrearEventoRequest = {
       nombre: this.evento.nombre,
       descripcion: this.evento.descripcion,
       fechaEvento: this.evento.fechaEvento,
       horaInicio: this.evento.horaInicio,
       horaFin: this.evento.horaFin,
-      imagenUrl: null as any, // No actualizar el banner
+      // imagenUrl: NO enviamos este campo para mantener el banner existente
       imagenZonasUrl: file, // Solo actualizar la imagen de zonas
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,

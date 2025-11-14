@@ -143,14 +143,17 @@ export class EventoService {
   }
 
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
-    // Verificar si hay una nueva imagen para determinar qué endpoint usar
-    const tieneNuevaImagen = body.imagenUrl && body.imagenUrl instanceof File;
+    // Verificar si hay una nueva imagen (banner o zonas) para determinar qué endpoint usar
+    const tieneNuevaImagenBanner = body.imagenUrl && body.imagenUrl instanceof File;
+    const tieneNuevaImagenZonas = body.imagenZonasUrl && body.imagenZonasUrl instanceof File;
+    const tieneAlgunaImagen = tieneNuevaImagenBanner || tieneNuevaImagenZonas;
 
-    if (tieneNuevaImagen) {
-      // Si hay nueva imagen, usar el endpoint con-imagen y enviar FormData
+    if (tieneAlgunaImagen) {
+      // Si hay alguna imagen nueva, usar el endpoint con-imagen y enviar FormData
       const url = `${baseUrl}/eventos/${id}/con-imagen`;
       const formData = new FormData();
 
+      // Siempre agregar los campos de texto
       formData.append('nombre', body.nombre);
       formData.append('descripcion', body.descripcion);
       formData.append('fechaEvento', body.fechaEvento);
@@ -160,11 +163,16 @@ export class EventoService {
       formData.append('estadoEvento', body.estadoEvento);
       formData.append('aforoDisponible', body.aforoDisponible.toString());
       formData.append('idLocal', body.idLocal.toString());
-      formData.append('imagen', body.imagenUrl);
 
-      // Solo agregar la imagen de zonas si es un File válido
-      if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
-        formData.append('imagenZonas', body.imagenZonasUrl);
+      // IMPORTANTE: Solo agregar campos de imagen si realmente hay un archivo
+      // Si no se envía el campo, el backend debe mantener la imagen existente
+      // Los nombres en FormData deben ser 'imagen' e 'imagenZonas' según la API
+      if (tieneNuevaImagenBanner && body.imagenUrl) {
+        formData.append('imagenUrl', body.imagenUrl);
+      }
+
+      if (tieneNuevaImagenZonas && body.imagenZonasUrl) {
+        formData.append('imagenZonasUrl', body.imagenZonasUrl);
       }
 
       return this.http.put<CrearEventoResponse>(url, formData)
@@ -172,7 +180,7 @@ export class EventoService {
           catchError(this.httpUtils.handleError)
         );
     } else {
-      // Si NO hay nueva imagen, usar el endpoint normal sin imagen (JSON)
+      // Si NO hay ninguna imagen nueva, usar el endpoint normal sin imagen (JSON)
       const url = `${baseUrl}/eventos/${id}`;
       const bodyJSON = {
         nombre: body.nombre,
@@ -184,7 +192,7 @@ export class EventoService {
         estadoEvento: body.estadoEvento,
         aforoDisponible: body.aforoDisponible,
         idLocal: body.idLocal
-        // NO incluir imagenUrl para que el backend mantenga la imagen existente
+        // NO incluir imagenUrl ni imagenZonasUrl para que el backend mantenga las imágenes existentes
       };
 
       return this.http.put<CrearEventoResponse>(url, bodyJSON)
