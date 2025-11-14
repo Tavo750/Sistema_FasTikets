@@ -163,7 +163,20 @@ export class AsuntoSoporteComponent {
       next: (res) => {
         this.loadingSolicitudes = false;
         if (res && res.ok) {
-          this.solicitudes = res.data || [];
+          // Filtrar por el usuario actual: mostrar solo las solicitudes del usuario logeado
+          const currentUser = this.sessionService.getCurrentUser();
+          const myId = currentUser?.idUsuario;
+          const all = res.data || [];
+          if (myId) {
+            this.solicitudes = all.filter(s => s.idUsuario === myId);
+            if (this.solicitudes.length === 0) {
+              this.messageService.add({ severity: 'info', summary: 'Sin solicitudes', detail: 'No tienes solicitudes registradas.' });
+            }
+          } else {
+            // Si no hay sesión, mostramos todo (modo prueba) y avisamos
+            this.solicitudes = all;
+            this.messageService.add({ severity: 'info', summary: 'Modo prueba', detail: 'No se detectó sesión: mostrando todas las solicitudes.' });
+          }
         } else {
           this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo obtener el listado' });
         }
