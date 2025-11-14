@@ -26,7 +26,7 @@
     </li>
   </ul>
 
-  <form class="support-form" (ngSubmit)="enviarCorreo()">
+  <form #supportForm="ngForm" class="support-form" (ngSubmit)="enviarCorreo(supportForm)">
     <div class="field">
       <label for="asunto">Asunto:</label>
       <input
@@ -36,7 +36,13 @@
         [(ngModel)]="asunto"
         name="asunto"
         placeholder="Escribir..."
+        required
+        minlength="3"
       />
+      <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['asunto']?.touched">
+        <div class="error" *ngIf="supportForm.controls['asunto']?.errors?.['required']">El asunto es obligatorio.</div>
+        <div class="error" *ngIf="supportForm.controls['asunto']?.errors?.['minlength']">El asunto debe tener al menos 3 caracteres.</div>
+      </div>
     </div>
 
     <div class="field">
@@ -47,8 +53,28 @@
         pTextarea
         [(ngModel)]="mensaje"
         name="mensaje"
-        placeholder="Escribir...">
+        placeholder="Escribir..."
+        required
+        minlength="5">
       </textarea>
+      <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['mensaje']?.touched">
+        <div class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['required']">El mensaje es obligatorio.</div>
+        <div class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['minlength']">El mensaje es muy corto.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="prioridad">Prioridad:</label>
+      <select id="prioridad" name="prioridad" [(ngModel)]="prioridad" class="p-inputtext" style="width:180px;">
+        <option value="BAJA">Baja</option>
+        <option value="MEDIA">Media</option>
+        <option value="ALTA">Alta</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="ipOrigen">IP Origen (detectada):</label>
+      <input id="ipOrigen" type="text" pInputText [(ngModel)]="ipOrigen" name="ipOrigen" readonly placeholder="Detectando IP..." />
     </div>
 
     <div class="actions">
@@ -56,8 +82,21 @@
         pButton
         type="submit"
         label="Enviar Correo"
-        class="p-button-success p-button-rounded enviar-btn">
+        class="p-button-success p-button-rounded enviar-btn"
+        [disabled]="isLoading">
       </button>
     </div>
   </form>
+
+  <p-dialog header="Solicitud enviada" [(visible)]="mostrarDialogExito" [modal]="true" [closable]="true" [style]="{width: '420px'}">
+    <div *ngIf="ticketData">
+      <p><strong>ID Solicitud:</strong> {{ ticketData.idSolicitud }}</p>
+      <p><strong>Asunto:</strong> {{ ticketData.asunto }}</p>
+      <p><strong>Estado:</strong> {{ ticketData.estado }}</p>
+      <p><strong>Fecha creación:</strong> {{ ticketData.fechaCreacion | date:'short' }}</p>
+    </div>
+    <ng-template pTemplate="footer">
+      <button pButton type="button" label="Cerrar" (click)="mostrarDialogExito = false" class="p-button-text"></button>
+    </ng-template>
+  </p-dialog>
 </div>
