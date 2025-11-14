@@ -61,7 +61,7 @@
     <div class="results-header">
       <h3>
         <i class="pi pi-list"></i>
-        Registros de Auditoría ({{ auditoriasFiltered.length }})
+        Registros de Auditoría ({{ totalRecords }})
       </h3>
     </div>
 
@@ -73,10 +73,11 @@
         [rowsPerPageOptions]="[5, 10, 20]" 
         [showCurrentPageReport]="true" 
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-        [tableStyle]="{ 'min-width': '70rem' }"
+        [totalRecords]="auditoriasFiltered.length"
+        [tableStyle]="{ 'min-width': '50rem' }"
         [sortMode]="'multiple'"
         styleClass="custom-table"
-        [loading]="false"
+        [loading]="isLoading"
         #dt>
         
         <ng-template pTemplate="header">
@@ -109,33 +110,12 @@
                 <p-sortIcon field="descripcion"></p-sortIcon>
               </div>
             </th>
-            <th pSortableColumn="ip">
-              <div class="header-content">
-                <i class="pi pi-globe"></i>
-                Ip
-                <p-sortIcon field="ip"></p-sortIcon>
-              </div>
-            </th>
-            <th pSortableColumn="navegador">
-              <div class="header-content">
-                <i class="pi pi-window-maximize"></i>
-                Navegador
-                <p-sortIcon field="navegador"></p-sortIcon>
-              </div>
-            </th>
-            <th pSortableColumn="sistemaOperativo">
-              <div class="header-content">
-                <i class="pi pi-desktop"></i>
-                Sistema Operativo
-                <p-sortIcon field="sistemaOperativo"></p-sortIcon>
-              </div>
-            </th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-auditoria>
           <tr class="table-row">
-            <td class="fecha-cell">{{ auditoria.fechaHora | date:'dd-MM-yyyy HH:mm:ss' }}</td>
+            <td class="fecha-cell">{{ auditoria.fechaHoraString }}</td>
             <td class="usuario-cell">
               <div class="usuario-content">
                 <i class="pi pi-user usuario-icon"></i>
@@ -150,20 +130,12 @@
               </p-tag>
             </td>
             <td class="descripcion-cell">{{ auditoria.descripcion }}</td>
-            <td class="ip-cell">
-              <div class="ip-content">
-                <i class="pi pi-globe ip-icon"></i>
-                <span class="ip-text">{{ auditoria.ip }}</span>
-              </div>
-            </td>
-            <td class="navegador-cell">{{ auditoria.navegador }}</td>
-            <td class="sistema-cell">{{ auditoria.sistemaOperativo }}</td>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="7">
+            <td colspan="4">
               <div class="no-results">
                 <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
                 <h3>No se encontraron registros de auditoría</h3>
