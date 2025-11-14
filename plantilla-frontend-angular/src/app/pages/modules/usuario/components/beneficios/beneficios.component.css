@@ -1,126 +1,254 @@
-/* Layout base */
-.beneficios-page { display: grid; gap: 1rem; }
+/* Contenedor principal */
+.beneficios-page {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: grid;
+  gap: 2rem;
+}
 
 /* ---------- Saludo ---------- */
-.greeting-card { padding: .75rem 1rem; }
+.greeting-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  border: none;
+  padding: 1.5rem;
+}
+
 .greet-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
-.tier-badge { font-weight: 700; text-transform: uppercase; }
+
+.tier-badge {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 1rem;
+}
 
 /* Títulos */
-.title-xl { margin: 0; font-size: 2rem; font-weight: 800; }
-.section-title { margin: 0; font-weight: 800; }
+.title-xl {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1c224d;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
 
 /* Loading state para el nombre del usuario */
-.loading-text { 
-  color: #6b7280; 
-  font-style: italic; 
+.loading-text {
+  color: #6c757d;
+  font-style: italic;
   font-weight: 400;
 }
 
+/* ---------- Tarjetas ---------- */
+:host ::ng-deep .points-card,
+:host ::ng-deep .progress-card,
+:host ::ng-deep .memberships-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  border: none;
+}
+
+:host ::ng-deep .points-card .p-card-header,
+:host ::ng-deep .progress-card .p-card-header,
+:host ::ng-deep .memberships-card .p-card-header {
+  background: linear-gradient(135deg, #dc3545, #dc3545);
+  color: white;
+  padding: 1.5rem;
+  margin: 0;
+}
+
+:host ::ng-deep .points-card .p-card-content,
+:host ::ng-deep .progress-card .p-card-content,
+:host ::ng-deep .memberships-card .p-card-content {
+  padding: 1.5rem;
+}
+
 /* ---------- Saldo de puntos (centrado en columna) ---------- */
-.points-card .p-card-header { padding-bottom: 0; }
 .points-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .5rem;
+  gap: 1rem;
 }
+
 .points-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .75rem;                 /* separa moneda y número */
+  gap: 1rem;
 }
-.coin-icon { width: 46px; height: 46px; display: block; }
-.points-number { font-size: 2.2rem; font-weight: 800; line-height: 1; text-align: center; }
-.points-rate { color: #6b7280; text-align: center; }
 
-/* Botón negro (PrimeNG) */
-:host ::ng-deep .btn-history.p-button {
-  background: #000 !important;
-  border-color: #000 !important;
-  color: #fff !important;
+.coin-icon {
+  width: 46px;
+  height: 46px;
+  display: block;
 }
+
+.points-number {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: #1c224d;
+}
+
+.points-rate {
+  color: #6c757d;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+/* Botón de historial */
+:host ::ng-deep .btn-history.p-button {
+  background: #1c224d !important;
+  border-color: #1c224d !important;
+  color: #fff !important;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
 :host ::ng-deep .btn-history.p-button:hover {
-  background: #111 !important;
-  border-color: #111 !important;
+  background: #151a3a !important;
+  border-color: #151a3a !important;
+  box-shadow: 0 4px 8px rgba(28, 34, 77, 0.2);
 }
 
 /* ---------- Progreso hacia black ---------- */
-.progress-card .p-card-header { padding-bottom: .25rem; }
-.progress-visual { width: 100%; }
+.progress-visual {
+  width: 100%;
+}
+
 .progress-track {
   position: relative;
   width: 100%;
-  height: 82px;                 /* ajusta al alto de tu banner */
+  height: 82px;
   border-radius: 12px;
-  background-image: url('/img/banners/progress-silver-gold.png'); /* tu banner */
+  background-image: url('/img/banners/progress-silver-gold.png');
   background-size: cover;
   background-position: center;
   overflow: hidden;
 }
+
 .progress-marker {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;  height: 20px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: #111;
+  background: #1c224d;
   border: 2px solid #fff;
-  box-shadow: 0 0 0 3px rgba(0,0,0,.12);
+  box-shadow: 0 0 0 3px rgba(28, 34, 77, 0.12);
 }
+
 .progress-meta {
-  margin-top: .5rem;
+  margin-top: 1rem;
   text-align: center;
-  color: #6b7280;
+  color: #6c757d;
+  font-size: 0.95rem;
 }
 
 /* ---------- Lingotes ---------- */
 .membership-item {
-  background: #f7f8f9;
-  border-radius: 16px;
-  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
   display: flex;
-  gap: .5rem;
+  gap: 1rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  border: 2px solid #e9ecef;
 }
-.membership-item.pointer { cursor: pointer; }
-.membership-item:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.06); }
-.membership-item img { width: 110px; height: auto; display: block; }
+
+.membership-item.pointer {
+  cursor: pointer;
+}
+
+.membership-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-color: #dc3545;
+}
+
+.membership-item img {
+  width: 110px;
+  height: auto;
+  display: block;
+}
 
 /* ---------- Detalle de beneficios ---------- */
 .tier-details-wrapper {
-  background: #f7f8f9;
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e9ecef;
 }
+
 .detail-header {
-  display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
 }
+
 .back-btn {
-  border: none; background: transparent;
-  width: 36px; height: 36px; border-radius: 50%;
-  display: grid; place-items: center; cursor: pointer; font-size: 1.1rem;
+  border: none;
+  background: #dc3545;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: white;
+  transition: all 0.3s ease;
 }
-.back-btn:hover { background: #eceff3; }
-.detail-headline { display: flex; align-items: center; gap: .5rem; }
-.range-text { color: #6b7280; font-size: .95rem; }
+
+.back-btn:hover {
+  background: #c82333;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.detail-headline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.range-text {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
 
 .benefits-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
-  gap: 1rem 2rem;
-}
-@media (max-width: 768px) {
-  .benefits-grid { grid-template-columns: 1fr; }
+  gap: 1.5rem 2rem;
 }
 
 /* Fila de beneficio: icono + texto */
@@ -128,29 +256,109 @@
   display: grid;
   grid-template-columns: 52px 1fr;
   align-items: center;
-  gap: .75rem;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #dc3545;
+  transition: all 0.3s ease;
 }
+
+.benefit-row:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateX(4px);
+}
+
 .ticket-icon {
-  width: 52px; height: 52px;
-  display: flex; align-items: center; justify-content: center;
-  background: transparent; border-radius: 0; padding: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
 }
-.ticket-icon img { width: 44px; height: 44px; display: block; border-radius: 10px; }
-.benefit-text { font-weight: 600; color: #222; }
+
+.ticket-icon img {
+  width: 44px;
+  height: 44px;
+  display: block;
+  border-radius: 10px;
+}
+
+.benefit-text {
+  font-weight: 600;
+  color: #212529;
+  font-size: 0.95rem;
+}
 
 /* Utilidades */
-.text-sm { font-size: .9rem; }
+.text-sm {
+  font-size: 0.9rem;
+}
 
-/* Asegura que la barra sea visible (alto, ancho y colores) */
+/* Barra de progreso */
 :host ::ng-deep .progress-pill.p-progressbar {
   display: block;
   width: 100%;
-  height: 18px;              /* alto visible */
-  background: #e5e7eb;       /* pista gris clara */
+  height: 24px;
+  background: #e9ecef;
   border-radius: 9999px;
+  overflow: hidden;
 }
+
 :host ::ng-deep .progress-pill .p-progressbar-value {
   height: 100%;
   border-radius: 9999px;
-  background: #111;          /* color del avance */
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  transition: width 0.6s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .beneficios-page {
+    padding: 1rem;
+    gap: 1.5rem;
+  }
+
+  .title-xl {
+    font-size: 2rem;
+  }
+
+  .greet-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Diálogo */
+:host ::ng-deep .p-dialog {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #dc3545, #dc3545);
+  color: white;
+  padding: 1.5rem;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.dialog-footer-center {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }

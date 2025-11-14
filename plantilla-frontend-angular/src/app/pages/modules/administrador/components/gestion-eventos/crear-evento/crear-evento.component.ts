@@ -294,33 +294,6 @@ export class CrearEventoComponent implements OnInit{
     // imagenUrl ya se sincroniza automáticamente cuando se carga el banner
   }
 
-  /**
-   * Método de debug para verificar el estado de los datepickers
-   */
-  private verificarDatepickers(): void {
-    // Método mantenidc para compatibilidad, pero sin logging
-  }  /**
-   * Maneja la selección de fecha del datepicker
-   */
-  onFechaSeleccionada(fecha: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-  }
-
-  /**
-   * Maneja la selección de hora de inicio del datepicker
-   */
-  onHoraInicioSeleccionada(hora: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-
-  }
-
-  /**
-   * Maneja la selección de hora final del datepicker
-   */
-  onHoraFinalSeleccionada(hora: Date): void {
-    // Ya no necesitamos sincronización manual - el datepicker maneja todo
-  }
-
   cargarLocales(): void {
     this.cargandoLocales = true;
 
@@ -358,9 +331,14 @@ export class CrearEventoComponent implements OnInit{
     });
   }
 
-  cargarZonas(idLocal?: number): void {
-    if (!idLocal) {
-      // Si no hay local seleccionado, limpiar las zonas
+  cargarZonas(idEvento?: number): void {
+    // Si no se proporciona un idEvento, intentar obtenerlo del componente
+    if (!idEvento && this.idEvento) {
+      idEvento = this.idEvento;
+    }
+
+    if (!idEvento) {
+      // Si no hay evento creado, limpiar las zonas
       this.zonasDisponibles = [];
       this.categoriasLocal = [];
       // Limpiar también las opciones del dropdown "Válido para"
@@ -373,7 +351,7 @@ export class CrearEventoComponent implements OnInit{
 
     this.cargandoZonas = true;
 
-    this.eventoService.getListarZonas(idLocal).subscribe({
+    this.eventoService.getListarZonas(idEvento).subscribe({
       next: (response) => {
         if (response.ok) {
           // Verificar si response.data es un array o un objeto
@@ -393,11 +371,11 @@ export class CrearEventoComponent implements OnInit{
           this.actualizarEntradasConCategorias(this.zonasDisponibles);
 
           this.messageService.searchSuccess(
-            `Se encontraron ${this.zonasDisponibles.length} zonas para el local seleccionado`
+            `Se encontraron ${this.zonasDisponibles.length} zonas para el evento`
           );
         } else {
           this.messageService.searchNoResults(
-            response.mensaje || 'No se pudieron cargar las zonas del local'
+            response.mensaje || 'No se pudieron cargar las zonas del evento'
           );
           this.zonasDisponibles = [];
         }
@@ -466,11 +444,12 @@ export class CrearEventoComponent implements OnInit{
     this.entradas.preventa.categorias = [...categoriasEntrada];
 
     // Actualizar las opciones del dropdown de validoPara
+    // Usar idZona como value para evitar problemas con nombres y mayúsculas/minúsculas
     this.validoParaOptions = [
       { label: 'Seleccionar', value: '' },
       ...zonas.map(zona => ({
         label: zona.nombre,
-        value: zona.nombre.toLowerCase()
+        value: zona.idZona.toString()
       }))
     ];
   }
@@ -499,18 +478,19 @@ export class CrearEventoComponent implements OnInit{
         // Actualizar información adicional del local
         this.messageService.info(`Local seleccionado: ${localSeleccionado.nombre}`, 'Selección');
 
-        // Cargar las zonas específicas del local seleccionado
-        this.cargarZonas(parseInt(idLocal));
+        // Nota: Las zonas se cargarán después de guardar los datos generales del evento
+        // ya que ahora se requiere el idEvento en lugar del idLocal
 
-        // Limpiar entradas agregadas cuando se cambia el local
-        if (this.entradasAgregadas.length > 0) {
+        // Limpiar categorías y entradas al cambiar de local
+        if (this.categoriasLocal.length > 0 || this.entradasAgregadas.length > 0) {
+          this.categoriasLocal = [];
           this.entradasAgregadas = [];
-          this.messageService.info('Se limpiaron las entradas debido al cambio de local', 'Información');
+          this.messageService.info('Se limpiaron las categorías y entradas debido al cambio de local', 'Información');
         }
       }
     } else {
       // Si no hay local seleccionado, limpiar las categorías y entradas
-      this.cargarZonas(); // Esto limpiará las zonas ya que no se pasa parámetro
+      this.categoriasLocal = [];
       this.entradasAgregadas = [];
     }
   }
@@ -519,11 +499,11 @@ export class CrearEventoComponent implements OnInit{
    * Refresca la lista de zonas manualmente
    */
   refrescarZonas(): void {
-    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+    if (this.idEvento) {
       this.messageService.info('Actualizando lista de zonas...', 'Cargando');
-      this.cargarZonas(parseInt(this.formulario.localString));
+      this.cargarZonas(this.idEvento);
     } else {
-      this.messageService.warn('Debe seleccionar un local para cargar las zonas', 'Local Requerido');
+      this.messageService.warn('Debe guardar los datos generales del evento antes de cargar las zonas', 'Evento Requerido');
     }
   }
 
@@ -555,20 +535,11 @@ export class CrearEventoComponent implements OnInit{
   }
 
   /**
-   * Obtiene la cantidad de zonas por local
-   * @returns Objeto con idLocal como key y cantidad como value
+   * Obtiene la cantidad de zonas del evento actual
+   * @returns Cantidad de zonas activas
    */
-  obtenerConteoZonasPorLocal(): { [idLocal: string]: number } {
-    const conteo: { [idLocal: string]: number } = {};
-
-    this.zonasDisponibles
-      .filter(zona => zona.activo)
-      .forEach(zona => {
-        const idLocal = zona.idLocal.toString();
-        conteo[idLocal] = (conteo[idLocal] || 0) + 1;
-      });
-
-    return conteo;
+  obtenerConteoZonas(): number {
+    return this.zonasDisponibles.filter(zona => zona.activo).length;
   }
 
   // ==================== MÉTODOS PARA ENTRADAS ====================
@@ -696,12 +667,12 @@ export class CrearEventoComponent implements OnInit{
 
 
   /**
-   * Método para crear el evento
-   * Asigna el idLocal del local seleccionado y llama a postCrearEvento
+   * Guarda los datos generales del evento (Sección 1)
+   * Valida solo los campos de la sección 1 antes de crear el evento
    */
-  onCrearEvento(): void {
-    // Validaciones básicas
-    if (!this.validarFormulario()) {
+  onGuardarDatosGenerales(): void {
+    // Validar solo los datos generales
+    if (!this.validarDatosGenerales()) {
       return;
     }
 
@@ -710,42 +681,50 @@ export class CrearEventoComponent implements OnInit{
       this.messageService.error('Debe seleccionar un local para el evento', 'Campo Requerido');
       return;
     }
-
-    // Verificar estado de los datepickers antes de preparar datos
-    this.verificarDatepickers();
-
+    // // Verificar que se haya seleccionado un banner
+    // if (!this.formulario.banner) {
+    //   this.messageService.error('Debe seleccionar una imagen banner para el evento', 'Campo Requerido');
+    //   return;
+    // }
     // Asignar el idLocal del local seleccionado al evento
     this.evento.idLocal = parseInt(this.formulario.localString);
 
-    // Preparar datos para el servicio
-    const datosEvento = this.prepararDatosEvento();
+    // Preparar datos básicos del evento
+    const datosEvento = this.prepararDatosEventoBasicos();
 
     // Mostrar mensaje de carga
-    this.messageService.info('Creando evento...', 'Procesando');
+    this.messageService.info('Guardando datos del evento...', 'Procesando');
 
-    // Llamar al servicio para crear el evento
+    // Llamar al servicio para crear el evento con datos básicos
     this.eventoService.postCrearEvento(datosEvento).subscribe({
       next: (response) => {
-        this.messageService.handleBackendResponse(response, false, 'Evento Creado');
+        this.messageService.handleBackendResponse(response, false, 'Datos Guardados');
 
         if (response.ok && response.data) {
-          this.messageService.success('Evento creado exitosamente', 'Proceso Completado');
+          this.messageService.success('Datos generales del evento guardados exitosamente', 'Éxito');
 
-          // Limpiar formulario después de crear exitosamente
-          this.limpiarFormulario();
+          // Guardar el ID del evento creado para futuras actualizaciones
+          if (response.data.idEvento) {
+            this.idEvento = response.data.idEvento;
+            this.messageService.info(`Evento creado con ID: ${this.idEvento}`, 'Información');
 
-          // Redirigir a la gestión de eventos después de crear exitosamente
-          setTimeout(() => {
-            this.router.navigate(['/administrador/gestionEventos']);
-          }, 2000);
+            // Cargar las zonas asociadas al evento recién creado
+            this.cargarZonas(this.idEvento);
+          }
         }
       },
       error: (error) => {
-        console.error('Error al crear evento:', error);
+        console.error('Error al guardar datos del evento:', error);
         this.messageService.handleHttpError(error);
       }
     });
   }
+
+  /**
+   * Método para crear el evento
+   * Asigna el idLocal del local seleccionado y llama a postCrearEvento
+   */
+
 
   validarFormulario(): boolean {
     if (!this.evento.nombre || this.evento.nombre.trim() === '') {
@@ -1266,13 +1245,15 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Buscar la zona seleccionada para obtener el idZona
+    // Buscar la zona seleccionada usando el idZona (que ahora viene como value del dropdown)
+    const idZonaSeleccionada = parseInt(this.validoPara);
     const zonaSeleccionada = this.zonasDisponibles.find(zona =>
-      zona.nombre.toLowerCase() === this.validoPara.toLowerCase()
+      zona.idZona === idZonaSeleccionada
     );
 
     if (!zonaSeleccionada) {
       this.messageService.error('No se pudo encontrar la zona seleccionada', 'Error de Validación');
+      console.error('Zona no encontrada. ID buscado:', idZonaSeleccionada, 'Zonas disponibles:', this.zonasDisponibles);
       return;
     }
 
@@ -1409,8 +1390,8 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    if (!this.formulario.localString || this.formulario.localString.trim() === '') {
-      this.messageService.error('Debe seleccionar un local antes de agregar categorías', 'Local Requerido');
+    if (!this.idEvento) {
+      this.messageService.error('Debe guardar los datos generales del evento antes de agregar categorías', 'Evento Requerido');
       return;
     }
 
@@ -1418,7 +1399,7 @@ export class CrearEventoComponent implements OnInit{
     const datosZona = {
       nombre: this.nuevaCategoria.nombre,
       aforoMax: this.nuevaCategoria.aforoMaximo,
-      idLocal: parseInt(this.formulario.localString)
+      idEvento: this.idEvento
     };
 
     // Llamar al servicio para crear la zona
@@ -1439,10 +1420,13 @@ export class CrearEventoComponent implements OnInit{
               activo: true,
               fechaCreacion: null,
               fechaActualizacion: null,
-              idLocal: zonaCreada.idLocal
+              idEvento: this.idEvento!
             };
 
             this.categoriasLocal.push(nuevaCat);
+
+            // Actualizar las opciones del dropdown "Válido para"
+            this.actualizarValidoParaOptions();
 
             // Limpiar los campos
             this.nuevaCategoria = {
@@ -1496,6 +1480,9 @@ export class CrearEventoComponent implements OnInit{
               // Actualizar las entradas para reflejar la eliminación
               this.actualizarEntradasTrasEliminacion(categoria.nombre);
 
+              // Actualizar las opciones del dropdown "Válido para"
+              this.actualizarValidoParaOptions();
+
               this.messageService.success(
                 response.mensaje || `Categoría "${categoria.nombre}" eliminada exitosamente`,
                 'Operación Exitosa'
@@ -1514,6 +1501,19 @@ export class CrearEventoComponent implements OnInit{
         });
       }
     );
+  }
+
+  /**
+   * Actualiza las opciones del dropdown "Válido para" con las categorías locales actuales
+   */
+  private actualizarValidoParaOptions(): void {
+    this.validoParaOptions = [
+      { label: 'Seleccionar', value: '' },
+      ...this.categoriasLocal.map(categoria => ({
+        label: categoria.nombre,
+        value: categoria.idZona.toString()
+      }))
+    ];
   }
 
   /**
@@ -1565,13 +1565,13 @@ export class CrearEventoComponent implements OnInit{
    * Refresca las categorías del local actual después de cambios
    */
   refrescarCategoriasLocal(): void {
-    if (this.formulario.localString && this.formulario.localString.trim() !== '') {
+    if (this.idEvento) {
       this.messageService.info('Actualizando categorías...', 'Cargando');
 
-      // Volver a cargar las zonas desde el servidor para el local actual
-      this.cargarZonas(parseInt(this.formulario.localString));
+      // Volver a cargar las zonas desde el servidor para el evento actual
+      this.cargarZonas(this.idEvento);
     } else {
-      this.messageService.warn('Debe seleccionar un local para actualizar las categorías', 'Local Requerido');
+      this.messageService.warn('Debe guardar los datos generales del evento antes de actualizar las categorías', 'Evento Requerido');
     }
   }
 

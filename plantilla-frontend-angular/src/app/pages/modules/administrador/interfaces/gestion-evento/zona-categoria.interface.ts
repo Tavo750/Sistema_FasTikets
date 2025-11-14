@@ -13,5 +13,5 @@ export interface Data {
   activo:               boolean;
   fechaCreacion:        null;
   fechaActualizacion:   null;
-  idLocal:              number;
+  idEvento:             number;
 }

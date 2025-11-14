@@ -23,11 +23,21 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/recuperar-password',
       '/public',
       '/carrito/items',
-      '/api/v1/eventos', // Eventos públicos
       '/api/v1/auth/login', // Login específico
       '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
-      'localhost:8081/api/v1/eventos', // Eventos con dominio completo
       'localhost:8081/api/v1/auth/login' // Login con dominio completo
+    ];
+
+    // Endpoints públicos de eventos y locales (solo lectura - GET)
+    const publicEventEndpoints = [
+      '/api/v1/eventos',
+      'localhost:8081/api/v1/eventos',
+      '/api/v1/locales',
+      'localhost:8081/api/v1/locales',
+      '/api/v1/zonas',
+      'localhost:8081/api/v1/zonas',
+      '/api/v1/tipos-ticket',
+      'localhost:8081/api/v1/tipos-ticket'
     ];
 
     // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)
@@ -42,10 +52,13 @@ export class AuthInterceptor implements HttpInterceptor {
     // Verificar si es un endpoint público
     const isPublicEndpoint = publicEndpoints.some(endpoint => req.url.includes(endpoint));
 
+    // Verificar si es un endpoint público de eventos (solo GET)
+    const isPublicEventEndpoint = publicEventEndpoints.some(endpoint => req.url.includes(endpoint)) && req.method === 'GET';
+
     // Verificar si es un endpoint estrictamente protegido
     const isStrictlyProtected = protectedEndpoints.some(endpoint => req.url.includes(endpoint));
 
-    if (isPublicEndpoint) {
+    if (isPublicEndpoint || isPublicEventEndpoint) {
       // Para endpoints públicos, enviar la petición sin modificar
       return next.handle(req);
     }

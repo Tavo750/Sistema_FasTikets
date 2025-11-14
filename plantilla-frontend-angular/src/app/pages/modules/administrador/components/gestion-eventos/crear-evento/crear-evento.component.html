@@ -82,7 +82,6 @@
                 [(ngModel)]="date"
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
-                (onSelect)="onFechaSeleccionada($event)"
                 panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
@@ -100,7 +99,6 @@
                 [showSeconds]="false"
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
-                (onSelect)="onHoraInicioSeleccionada($event)"
                 panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
@@ -118,7 +116,6 @@
                 [showSeconds]="false"
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
-                (onSelect)="onHoraFinalSeleccionada($event)"
                 panelStyleClass="calendar-up"
               ></p-datepicker>
             </div>
@@ -221,6 +218,43 @@
               decrementButtonIcon="pi pi-minus"
             ></p-inputNumber>
           </div>
+
+          <!-- Selección del local -->
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-map-marker"></i>
+              Seleccionar local
+            </label>
+            <p-dropdown
+              [(ngModel)]="formulario.localString"
+              [options]="localesOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar local para el evento..."
+              styleClass="form-input"
+              panelStyleClass="calendar-up"
+              [loading]="cargandoLocales"
+              [disabled]="cargandoLocales"
+              (onChange)="onLocalSeleccionado($event)"
+            ></p-dropdown>
+
+            <!-- Indicador de carga -->
+            <div *ngIf="cargandoLocales" class="loading-indicator">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span>Cargando locales disponibles...</span>
+            </div>
+          </div>
+
+          <!-- Botón de guardar cambios -->
+          <div class="form-field">
+            <p-button
+              label="Guardar Cambios"
+              icon="pi pi-save"
+              (onClick)="onGuardarDatosGenerales()"
+              class="form-input"
+              [style]="{'width': '100%'}"
+            ></p-button>
+          </div>
         </div>
       </div>
 
@@ -237,31 +271,6 @@
       </div>
 
       <div class="local-content">
-        <!-- Selección del local -->
-        <div class="form-field">
-          <label class="field-label">
-            <i class="pi pi-map-marker"></i>
-            Seleccionar local
-          </label>
-          <p-dropdown
-            [(ngModel)]="formulario.localString"
-            [options]="localesOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Seleccionar local para el evento..."
-            styleClass="form-input"
-            [loading]="cargandoLocales"
-            [disabled]="cargandoLocales"
-            (onChange)="onLocalSeleccionado($event)"
-          ></p-dropdown>
-
-          <!-- Indicador de carga -->
-          <div *ngIf="cargandoLocales" class="loading-indicator">
-            <i class="pi pi-spin pi-spinner"></i>
-            <span>Cargando locales disponibles...</span>
-          </div>
-        </div>
-
         <div class="local-asientos-grid">
           <!-- Categorías -->
           <div class="categorias-section">
@@ -545,11 +554,11 @@
         outlined="true"
         (onClick)="onCancelarEvento($event)"
       ></p-button>
-      <p-button
+      <!-- <p-button
         label="Crear Evento"
         icon="pi pi-check"
         (onClick)="onCrearEvento()"
-      ></p-button>
+      ></p-button> -->
     </div>
   </div>
 </div>
