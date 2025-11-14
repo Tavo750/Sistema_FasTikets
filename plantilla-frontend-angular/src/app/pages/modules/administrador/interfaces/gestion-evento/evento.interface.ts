@@ -11,6 +11,7 @@ export interface CrearEventoRequest {
     horaInicio: string;
     horaFin: string;
     imagenUrl: File;
+    imagenZonasUrl?: File;
     tipoEvento: string;
     estadoEvento: string;
     aforoDisponible: number;

@@ -86,10 +86,15 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
+
     // Solo agregar la imagen si es un File válido
     if (body.imagenUrl && body.imagenUrl instanceof File) {
       formData.append('imagen', body.imagenUrl);
+    }
+
+    // Solo agregar la imagen de zonas si es un File válido
+    if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
+      formData.append('imagenZonas', body.imagenZonasUrl);
     }
 
     return this.http.post<CrearEventoResponse>(url, formData)
@@ -140,7 +145,7 @@ export class EventoService {
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
     // Verificar si hay una nueva imagen para determinar qué endpoint usar
     const tieneNuevaImagen = body.imagenUrl && body.imagenUrl instanceof File;
-    
+
     if (tieneNuevaImagen) {
       // Si hay nueva imagen, usar el endpoint con-imagen y enviar FormData
       const url = `${baseUrl}/eventos/${id}/con-imagen`;
@@ -156,6 +161,11 @@ export class EventoService {
       formData.append('aforoDisponible', body.aforoDisponible.toString());
       formData.append('idLocal', body.idLocal.toString());
       formData.append('imagen', body.imagenUrl);
+
+      // Solo agregar la imagen de zonas si es un File válido
+      if (body.imagenZonasUrl && body.imagenZonasUrl instanceof File) {
+        formData.append('imagenZonas', body.imagenZonasUrl);
+      }
 
       return this.http.put<CrearEventoResponse>(url, formData)
         .pipe(
