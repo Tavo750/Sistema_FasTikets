@@ -1,60 +1,71 @@
 <div class="confirm-page">
-  <ng-container *ngIf="!transferCompleted; else successTpl">
-    <h2 class="title">CONFIRMAR TRANSFERENCIA</h2>
-    <p class="subtitle">Revisa los detalles antes de confirmar la transferencia</p>
-
-    <div class="card">
-      <table class="details">
-        <tr>
-          <td>Entrada:</td>
-          <td>{{ data.entryTitle || 'Concierto Rock en Lima' }}</td>
-        </tr>
-        <tr>
-          <td>Fecha del evento:</td>
-          <td>{{ data.eventDate || '15 de Octubre, 2024' }}</td>
-        </tr>
-        <tr>
-          <td>Destinatario:</td>
-          <td>{{ data.nombre || data.email || 'Usuario' }}</td>
-        </tr>
-        <tr>
-          <td>Email:</td>
-          <td>{{ data.email || 'usuario@email.com' }}</td>
-        </tr>
-        <tr>
-          <td>Transferencias restantes:</td>
-          <td>{{ data.remainingTransfers ?? 1 }}</td>
-        </tr>
-      </table>
-
-      <div class="info">Después de esta transferencia, deberás esperar 12 horas antes de poder realizar otra transferencia.</div>
-
-      <div class="actions">
-        <button pButton type="button" class="p-button-success" (click)="confirmar()">Confirmar Transferencia</button>
-        <button pButton type="button" class="p-button-danger" (click)="cancelar()">Cancelar</button>
-      </div>
+  <!-- Reusar estilo y layout de Mis Entradas: saludo superior + progressBar completado -->
+  <p-card class="greeting-card mb-4">
+    <div class="greet-row">
+      <h2 class="title-xl">CONFIRMAR TRANSFERENCIA</h2>
+      <p-tag value="CLIENTE" severity="secondary" styleClass="tier-badge"></p-tag>
     </div>
-  </ng-container>
+    <div class="lead">Revisa los detalles y confirma para completar la transferencia</div>
+  </p-card>
 
-  <ng-template #successTpl>
-    <div class="success-wrap">
-      <div class="success-card">
-        <div class="check-circle">✓</div>
-        <h3 class="success-title">¡TRANSFERENCIA EXITOSA!</h3>
-        <p class="success-sub">La entrada ha sido transferida correctamente</p>
+  <div class="transfer-card">
+    <!-- barra completada: 100% -->
+    <p-progressBar [value]="100" styleClass="mb-3"></p-progressBar>
 
-        <div class="summary">
-          <div class="row"><span class="label">Transferido a:</span><span class="value">{{ data.nombre || data.email || 'Usuario' }}</span></div>
-          <div class="row"><span class="label">Fecha de transferencia:</span><span class="value">{{ fechaTransferencia || (data.transferDate || (data.eventDate || '—')) }}</span></div>
-          <div class="row"><span class="label">Transferencias restantes:</span><span class="value">{{ data.remainingTransfers ?? 1 }}</span></div>
-        </div>
+    <ng-container *ngIf="!transferCompleted; else successTpl">
+      <div class="card">
+        <table class="details">
+          <tr>
+            <td>Entrada:</td>
+            <td>{{ data.entryTitle || 'Concierto Rock en Lima' }}</td>
+          </tr>
+          <tr>
+            <td>Fecha del evento:</td>
+            <td>{{ data.eventDate || '15 de Octubre, 2024' }}</td>
+          </tr>
+          <tr>
+            <td>Destinatario:</td>
+            <td>{{ data.nombre || data.email || 'Usuario' }}</td>
+          </tr>
+          <tr>
+            <td>Email:</td>
+            <td>{{ data.email || 'usuario@email.com' }}</td>
+          </tr>
+          <tr>
+            <td>Transferencias restantes:</td>
+            <td>{{ data.remainingTransfers ?? 1 }}</td>
+          </tr>
+        </table>
+
+        <div class="info">Después de esta transferencia, deberás esperar 12 horas antes de poder realizar otra transferencia.</div>
 
         <div class="actions">
-          <button pButton type="button" class="p-button-secondary view-btn" (click)="viewMyEntries()">Ver Mis Entradas</button>
+          <button pButton type="button" class="p-button-success" (click)="confirmar()">Confirmar Transferencia</button>
+          <button pButton type="button" class="p-button-danger" (click)="cancelar()">Cancelar</button>
         </div>
       </div>
-    </div>
-  </ng-template>
+    </ng-container>
+
+    <ng-template #successTpl>
+      <div class="success-wrap">
+        <div class="success-card">
+          <div class="check-circle">✓</div>
+          <h3 class="success-title">¡TRANSFERENCIA EXITOSA!</h3>
+          <p class="success-sub">La entrada ha sido transferida correctamente</p>
+
+          <div class="summary">
+            <div class="row"><span class="label">Transferido a:</span><span class="value">{{ data.nombre || data.email || 'Usuario' }}</span></div>
+            <div class="row"><span class="label">Fecha de transferencia:</span><span class="value">{{ fechaTransferencia || (data.transferDate || (data.eventDate || '—')) }}</span></div>
+            <div class="row"><span class="label">Transferencias restantes:</span><span class="value">{{ data.remainingTransfers ?? 1 }}</span></div>
+          </div>
+
+          <div class="actions">
+            <button pButton type="button" class="p-button-secondary view-btn" (click)="viewMyEntries()">Ver Mis Entradas</button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
   
   <!-- Dialog de confirmación al cancelar -->
   <p-dialog header="¿Estás seguro que deseas transferir tu entrada?"
