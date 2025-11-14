@@ -26,6 +26,7 @@ export interface Data {
     horaInicio:      string;
     horaFin:         string;
     imagenUrl:       string;
+    imagenZonasUrl?: string;
     tipoEvento:      string;
     estadoEvento:    string;
     aforoDisponible: number;
