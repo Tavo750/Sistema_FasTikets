@@ -330,6 +330,13 @@ export class EditarEventoComponent implements OnInit{
         }
       }
 
+      // Extraer mapa de zonas de mapaZonasUrlOriginal
+      if (this.formulario.mapaZonasUrlOriginal) {
+        // Si mapaZonasUrlOriginal es un string (URL del servidor), mostrarlo directamente
+        this.formulario.mapaUrl = this.formulario.mapaZonasUrlOriginal;
+        // No establecemos formulario.mapaZonasFile porque no es un File nuevo
+      }
+
       // Inicializar localString con idLocal cuando estamos editando un evento existente
       if (this.modoEdicion && this.evento.idLocal) {
         this.formulario.localString = this.evento.idLocal.toString();
