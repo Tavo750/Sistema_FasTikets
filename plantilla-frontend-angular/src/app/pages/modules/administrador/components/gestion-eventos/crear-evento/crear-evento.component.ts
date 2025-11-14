@@ -935,7 +935,7 @@ export class CrearEventoComponent implements OnInit{
       horaFin: horaFin,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
-      aforoDisponible: this.evento.aforoDisponible || 1000,
+      aforoDisponible: this.evento.aforoDisponible,
       idLocal: parseInt(this.formulario.localString)
     };
 
@@ -966,7 +966,7 @@ export class CrearEventoComponent implements OnInit{
       horaFin: '',
       imagenUrl: null as any,
       estadoEvento: 'PUBLICADO',
-      aforoDisponible: 1000,
+      aforoDisponible: 0,
       idLocal: 1
     };
 
@@ -1192,6 +1192,11 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
+    if (!this.entradaStock || this.entradaStock <= 0) {
+      this.messageService.error('Por favor ingresa un stock válido mayor a 0', 'Campo Requerido');
+      return;
+    }
+
     if (!this.validoPara) {
       this.messageService.error('Por favor selecciona para qué categoría es válida la entrada', 'Campo Requerido');
       return;
@@ -1209,12 +1214,12 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar datos para la API (usando valores por defecto para campos omitidos)
+    // Preparar datos para la API
     const datosEntrada = {
       nombre: this.entradaNombre.trim(),
       descripcion: this.entradaDescripcion?.trim() || 'Sin descripción',
       precio: this.entradaPrecio,
-      stock: this.entradaStock || 100, // Valor por defecto si no se especifica
+      stock: this.entradaStock, // Stock ingresado por el usuario
       activo: true,
       idZona: zonaSeleccionada.idZona,
       limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10

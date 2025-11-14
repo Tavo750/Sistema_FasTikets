@@ -222,5 +222,19 @@ export class EventoService {
       );
   }
 
+  /**
+   * Actualiza una entrada existente
+   * @param id ID de la entrada a actualizar
+   * @param body Datos actualizados de la entrada
+   * @returns Observable con la respuesta del servidor
+   */
+  putActualizarEntrada(id: number, body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number }): Observable<EntradaResponse> {
+    const url = `${baseUrl}/tipos-ticket/${id}`;
+    return this.http.put<EntradaResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
 }
 

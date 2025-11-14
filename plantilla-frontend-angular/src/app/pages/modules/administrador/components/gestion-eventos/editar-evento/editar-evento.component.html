@@ -441,6 +441,20 @@
 
           <div class="entrada-field">
             <label class="field-label">
+              <i class="pi pi-file-edit"></i>
+              Descripción
+            </label>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="entradaDescripcion"
+              placeholder="Descripción de la entrada..."
+              class="form-input"
+            />
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
               <i class="pi pi-dollar"></i>
               Precio
             </label>
@@ -450,6 +464,35 @@
               [min]="0"
               [minFractionDigits]="2"
               [maxFractionDigits]="2"
+              [useGrouping]="false"
+              styleClass="form-input"
+            ></p-inputNumber>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
+              <i class="pi pi-hashtag"></i>
+              Stock
+            </label>
+            <p-inputNumber
+              [(ngModel)]="entradaStock"
+              placeholder="100"
+              [min]="1"
+              [useGrouping]="false"
+              styleClass="form-input"
+            ></p-inputNumber>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
+              <i class="pi pi-shield"></i>
+              Límite por persona
+            </label>
+            <p-inputNumber
+              [(ngModel)]="entradaLimitePorPersona"
+              placeholder="10"
+              [min]="1"
+              [max]="50"
               [useGrouping]="false"
               styleClass="form-input"
             ></p-inputNumber>
@@ -475,14 +518,25 @@
             <label class="field-label" style="visibility: hidden;">
               &nbsp;
             </label>
-            <p-button
-              label="Agregar Entrada"
-              icon="pi pi-plus"
-              severity="success"
-              outlined="true"
-              (onClick)="onAgregarEntrada()"
-              class="form-input agregar-btn"
-            ></p-button>
+            <div class="entrada-buttons-group">
+              <p-button
+                [label]="modoEdicionEntrada ? 'Actualizar Entrada' : 'Agregar Entrada'"
+                [icon]="modoEdicionEntrada ? 'pi pi-check' : 'pi pi-plus'"
+                [severity]="modoEdicionEntrada ? 'info' : 'success'"
+                outlined="true"
+                (onClick)="onAgregarEntrada()"
+                class="form-input agregar-btn"
+              ></p-button>
+              <p-button
+                *ngIf="modoEdicionEntrada"
+                label="Cancelar"
+                icon="pi pi-times"
+                severity="secondary"
+                outlined="true"
+                (onClick)="onCancelarEdicionEntrada()"
+                class="cancelar-edicion-btn"
+              ></p-button>
+            </div>
           </div>
         </div>
 
@@ -520,16 +574,28 @@
                   </div>
                 </div>
               </div>
-              <p-button
-                icon="pi pi-trash"
-                severity="danger"
-                outlined="true"
-                size="small"
-                (onClick)="onEliminarEntradaDisponible(entrada.idTipoTicket, $event)"
-                pTooltip="Eliminar entrada"
-                tooltipPosition="left"
-                class="delete-entrada-btn"
-              ></p-button>
+              <div class="entrada-disponible-actions">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="info"
+                  outlined="true"
+                  size="small"
+                  (onClick)="onEditarEntradaDisponible(entrada, $event)"
+                  pTooltip="Editar entrada"
+                  tooltipPosition="left"
+                  class="edit-entrada-btn"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  outlined="true"
+                  size="small"
+                  (onClick)="onEliminarEntradaDisponible(entrada.idTipoTicket, $event)"
+                  pTooltip="Eliminar entrada"
+                  tooltipPosition="left"
+                  class="delete-entrada-btn"
+                ></p-button>
+              </div>
             </div>
           </div>
         </div>

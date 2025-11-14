@@ -148,6 +148,7 @@ export class EditarEventoComponent implements OnInit{
     entradaDescripcion: string = '';
     entradaPrecio: number | null = null;
     entradaStock: number | null = null;
+    entradaLimitePorPersona: number | null = 10;
     validoPara: string = '';
 
     // Array para almacenar las entradas agregadas
@@ -180,6 +181,10 @@ export class EditarEventoComponent implements OnInit{
     // Propiedades para el modo de edición
     modoEdicion: boolean = false;
     cargandoEvento: boolean = false;
+
+    // Propiedades para el modo de edición de entrada
+    modoEdicionEntrada: boolean = false;
+    entradaEditandoId: number | null = null;
 
     nuevaCategoria = {
       nombre: '',
@@ -1545,6 +1550,10 @@ export class EditarEventoComponent implements OnInit{
     }
 
     onAgregarEntrada(): void {
+      // Verificar si estamos en modo edición
+      const modoEdicion = this.modoEdicionEntrada;
+      const idEntradaEditando = this.entradaEditandoId;
+
       // Validaciones esenciales únicamente
       if (!this.entradaNombre.trim()) {
         this.messageService.error('Por favor ingresa un nombre para la entrada', 'Campo Requerido');
@@ -1553,6 +1562,11 @@ export class EditarEventoComponent implements OnInit{
 
       if (!this.entradaPrecio || this.entradaPrecio <= 0) {
         this.messageService.error('Por favor ingresa un precio válido mayor a 0', 'Campo Requerido');
+        return;
+      }
+
+      if (!this.entradaStock || this.entradaStock <= 0) {
+        this.messageService.error('Por favor ingresa un stock válido mayor a 0', 'Campo Requerido');
         return;
       }
 
@@ -1570,67 +1584,122 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      // Preparar datos para la API (usando valores por defecto para campos omitidos)
+      // Preparar datos para la API
       const datosEntrada = {
         nombre: this.entradaNombre.trim(),
         descripcion: this.entradaDescripcion?.trim() || 'Sin descripción',
         precio: this.entradaPrecio,
-        stock: this.entradaStock || 100, // Valor por defecto si no se especifica
+        stock: this.entradaStock, // Stock ingresado por el usuario
         activo: true,
         idZona: zonaSeleccionada.idZona,
-        limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10
+        limitePorPersona: this.entradaLimitePorPersona || 10
       };
 
-      // Mostrar mensaje de procesamiento
-      this.messageService.info('Creando entrada...', 'Procesando');
+      // Si estamos en modo edición, actualizar la entrada existente
+      if (modoEdicion && idEntradaEditando) {
+        this.messageService.info('Actualizando entrada...', 'Procesando');
 
-      // Llamar al servicio para crear la entrada
-      this.eventoService.postCrearEntrada(datosEntrada).subscribe({
-        next: (response) => {
-          if (response.ok) {
-            // Buscar el label de la categoría seleccionada para mostrar
-            const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
-            const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+        this.eventoService.putActualizarEntrada(idEntradaEditando, datosEntrada).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Actualizar la entrada en la lista local
+              const indice = this.entradasPorZonaSeleccionada.findIndex(e => e.idTipoTicket === idEntradaEditando);
+              if (indice !== -1) {
+                this.entradasPorZonaSeleccionada[indice] = response.data;
+              }
 
-            // Crear la nueva entrada para el array local
-            const nuevaEntrada: EntradaAgregada = {
-              id: response.data.idTipoTicket,
-              nombre: response.data.nombre,
-              precio: response.data.precio,
-              validoPara: this.validoPara,
-              validoParaLabel: validoParaLabel,
-              moneda: this.formulario.moneda || 'PEN'
-            };
+              // Limpiar los campos y salir del modo edición
+              this.limpiarCamposEntrada();
+              this.modoEdicionEntrada = false;
+              this.entradaEditandoId = null;
 
-            // Agregar la entrada al array local
-            this.entradasAgregadas.push(nuevaEntrada);
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                `Entrada "${response.data.nombre}" actualizada exitosamente`,
+                'Entrada Actualizada'
+              );
 
-            // Limpiar los campos después de agregar
-            this.limpiarCamposEntrada();
-
-            // Mostrar mensaje de éxito
-            this.messageService.success(
-              `Entrada "${response.data.nombre}" creada exitosamente`,
-              'Entrada Creada'
-            );
-
-            // Mostrar mensaje adicional si existe
-            if (response.mensaje) {
-              this.messageService.info(response.mensaje, 'Información');
+              // Recargar las entradas de la zona
+              if (this.validoPara) {
+                const idZona = parseInt(this.validoPara);
+                if (!isNaN(idZona)) {
+                  this.cargarEntradasPorZona(idZona);
+                }
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo actualizar la entrada',
+                'Error al Actualizar Entrada'
+              );
             }
-          } else {
-            this.messageService.error(
-              response.mensaje || 'No se pudo crear la entrada',
-              'Error al Crear Entrada'
-            );
+          },
+          error: (error) => {
+            console.error('Error al actualizar entrada:', error);
+            this.messageService.handleHttpError(error);
           }
-        },
-        error: (error) => {
-          console.error('Error al crear entrada:', error);
-          this.messageService.handleHttpError(error);
-        }
-      });
-    }  /**
+        });
+      } else {
+        // Modo creación normal
+        this.messageService.info('Creando entrada...', 'Procesando');
+
+        // Llamar al servicio para crear la entrada
+        this.eventoService.postCrearEntrada(datosEntrada).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Buscar el label de la categoría seleccionada para mostrar
+              const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
+              const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+
+              // Crear la nueva entrada para el array local
+              const nuevaEntrada: EntradaAgregada = {
+                id: response.data.idTipoTicket,
+                nombre: response.data.nombre,
+                precio: response.data.precio,
+                validoPara: this.validoPara,
+                validoParaLabel: validoParaLabel,
+                moneda: this.formulario.moneda || 'PEN'
+              };
+
+              // Agregar la entrada al array local
+              this.entradasAgregadas.push(nuevaEntrada);
+
+              // Limpiar los campos después de agregar
+              this.limpiarCamposEntrada();
+
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                `Entrada "${response.data.nombre}" creada exitosamente`,
+                'Entrada Creada'
+              );
+
+              // Mostrar mensaje adicional si existe
+              if (response.mensaje) {
+                this.messageService.info(response.mensaje, 'Información');
+              }
+
+              // Recargar las entradas de la zona
+              if (this.validoPara) {
+                const idZona = parseInt(this.validoPara);
+                if (!isNaN(idZona)) {
+                  this.cargarEntradasPorZona(idZona);
+                }
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo crear la entrada',
+                'Error al Crear Entrada'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al crear entrada:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
+      }
+    }
+
+    /**
      * Limpia todos los campos del formulario de entrada
      */
     private limpiarCamposEntrada(): void {
@@ -1638,7 +1707,10 @@ export class EditarEventoComponent implements OnInit{
       this.entradaDescripcion = '';
       this.entradaPrecio = null;
       this.entradaStock = null;
+      this.entradaLimitePorPersona = 10;
       this.validoPara = '';
+      this.modoEdicionEntrada = false;
+      this.entradaEditandoId = null;
     }
 
     onEliminarEntrada(entradaId: number, event: Event): void {
@@ -1690,6 +1762,38 @@ export class EditarEventoComponent implements OnInit{
           });
         }
       );
+    }
+
+    /**
+     * Edita una entrada disponible de la zona seleccionada
+     * @param entrada Entrada a editar
+     * @param event Evento del botón
+     */
+    onEditarEntradaDisponible(entrada: any, event: Event): void {
+      event.stopPropagation();
+
+      // Cargar los datos de la entrada en los campos del formulario
+      this.entradaNombre = entrada.nombre;
+      this.entradaDescripcion = entrada.descripcion;
+      this.entradaPrecio = entrada.precio;
+      this.entradaStock = entrada.stock;
+      this.entradaLimitePorPersona = entrada.limitePorPersona;
+      this.validoPara = entrada.idZona.toString();
+
+      // Guardar el ID de la entrada que se está editando
+      this.entradaEditandoId = entrada.idTipoTicket;
+      this.modoEdicionEntrada = true;
+
+      // Cambiar el comportamiento del botón "Agregar entrada" temporalmente
+      this.messageService.info('Modifica los datos y presiona "Actualizar entrada" para guardar los cambios', 'Modo Edición');
+    }
+
+    /**
+     * Cancela la edición de entrada y limpia los campos
+     */
+    onCancelarEdicionEntrada(): void {
+      this.limpiarCamposEntrada();
+      this.messageService.info('Edición cancelada', 'Cancelado');
     }
 
     /**
