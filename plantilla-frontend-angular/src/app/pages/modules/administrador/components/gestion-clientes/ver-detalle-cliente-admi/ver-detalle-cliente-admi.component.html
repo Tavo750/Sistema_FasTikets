@@ -38,7 +38,7 @@
 
   <!-- Tabs Section -->
   <div class="tabs-section">
-    <p-tabView [(activeIndex)]="activeTab" styleClass="custom-tabs">
+    <p-tabView [(activeIndex)]="activeTab" (onChange)="onTabChange($event)" styleClass="custom-tabs">
       
       <!-- Tab 1: Datos Personales -->
       <p-tabPanel>
@@ -414,6 +414,86 @@
     </div>
   </div>
 </p-tabPanel>
+      <!-- Tab 4: Ayuda y soporte -->
+<p-tabPanel>
+  <ng-template pTemplate="header">
+    <span class="tab-header">
+      <i class="pi pi-ticket"></i>
+      Ayuda y soporte
+    </span>
+  </ng-template>
+
+  <div class="tab-content-wrapper">
+    <div class="table-card">
+      <!-- Barra de filtros -->
+      <div class="table-filters" style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+  <input pInputText type="text" placeholder="Asunto" [style]="{'width':'220px'}" [(ngModel)]="filterAsunto" />
+  <p-dropdown [options]="estadoFilterOptions" optionLabel="label" optionValue="value" placeholder="Estado" [style]="{'width':'160px'}" [(ngModel)]="filterEstado"></p-dropdown>
+  <p-calendar placeholder="Desde" [(ngModel)]="filterFechaDesde" dateFormat="yy-mm-dd" [style]="{'width':'160px'}"></p-calendar>
+  <p-calendar placeholder="Hasta" [(ngModel)]="filterFechaHasta" dateFormat="yy-mm-dd" [style]="{'width':'160px'}"></p-calendar>
+        <p-button label="Filtrar" icon="pi pi-filter" (onClick)="applyFilters()" class="p-button-outlined"></p-button>
+        <p-button label="Limpiar" icon="pi pi-times" (onClick)="clearFilters()" class="p-button-text"></p-button>
+      </div>
+
+      <p-table
+        [value]="filteredSolicitudes"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="filteredSolicitudes.length"
+        [loading]="loadingSolicitudes"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} solicitudes"
+        styleClass="custom-table"
+        [tableStyle]="{'min-width':'100%'}">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idSolicitud" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="idSolicitud"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="asunto">Asunto <p-sortIcon field="asunto"></p-sortIcon></th>
+            <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+            <th pSortableColumn="fechaCreacion">Fecha creación <p-sortIcon field="fechaCreacion"></p-sortIcon></th>
+            <th class="actions-column">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-s>
+          <tr class="table-row">
+            <td class="id-cell"><span class="id-badge">{{ s.idSolicitud }}</span></td>
+            <td>{{ s.asunto }}</td>
+            <td>
+              <p-tag [value]="s.estado" [severity]="s.estado === 'RESUELTO' ? 'success' : s.estado === 'CERRADO' ? 'danger' : 'info'"></p-tag>
+            </td>
+            <td>{{ s.fechaCreacion ? (s.fechaCreacion | date:'short') : '-' }}</td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="info" size="small" (onClick)="verSolicitud(s)"></p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">
+              <div class="no-results">
+                <i class="pi pi-ticket" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No hay solicitudes registradas</h3>
+                <p>Este cliente no tiene solicitudes de soporte registradas.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</p-tabPanel>
+
     </p-tabView>
   </div>
 </div>
@@ -480,6 +560,57 @@
       label="Cerrar" 
       icon="pi pi-times" 
       (onClick)="mostrarDialogCompra = false" 
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Detalle de Solicitud de Ayuda -->
+<p-dialog 
+  [(visible)]="mostrarDialogSolicitud" 
+  header="Detalle de Solicitud"
+  [modal]="true" 
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+  
+  <div class="detalle-dialog" *ngIf="solicitudSeleccionada">
+    <div class="detalle-row">
+      <span class="label">ID:</span>
+      <span class="value">{{ solicitudSeleccionada.idSolicitud }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Asunto:</span>
+      <span class="value">{{ solicitudSeleccionada.asunto }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Mensaje:</span>
+      <span class="value">{{ solicitudSeleccionada.mensaje }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Estado:</span>
+      <span class="value">{{ solicitudSeleccionada.estado }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Observaciones:</span>
+      <span class="value">{{ solicitudSeleccionada.observaciones || '-' }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">IP Origen:</span>
+      <span class="value">{{ solicitudSeleccionada.ipOrigen || '-' }}</span>
+    </div>
+    <div class="detalle-row destacado">
+      <span class="label">Fecha creación:</span>
+      <span class="value">{{ solicitudSeleccionada.fechaCreacion ? (solicitudSeleccionada.fechaCreacion | date:'short') : '-' }}</span>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogSolicitud = false" 
       severity="secondary">
     </p-button>
   </ng-template>

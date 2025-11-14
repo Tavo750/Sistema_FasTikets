@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { GestionClientesService } from '../../../services/gestion-clientes.service';
+import { AyudaSoporteService } from '../../../../usuario/services/ayuda-soporte.service';
+import { AyudaSoporteListItem } from '../../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 
 interface Cliente {
   idCliente: number;
@@ -73,13 +75,30 @@ activeTab: number = 0;
   puntoSeleccionado: Punto | null = null;
   
   loading: boolean = false;
+  // Ayuda y soporte
+  solicitudes: AyudaSoporteListItem[] = [];
+  loadingSolicitudes: boolean = false;
+  mostrarDialogSolicitud: boolean = false;
+  solicitudSeleccionada: AyudaSoporteListItem | null = null;
+  // Filtros para Ayuda y soporte (barra superior)
+  filterAsunto: string = '';
+  filterEstado: string | null = null;
+  filterFechaDesde: Date | null = null;
+  filterFechaHasta: Date | null = null;
+  estadoFilterOptions = [
+    { label: 'Todos', value: null },
+    { label: 'ABIERTO', value: 'ABIERTO' },
+    { label: 'RESUELTO', value: 'RESUELTO' },
+    { label: 'CERRADO', value: 'CERRADO' }
+  ];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private gestionClientesService: GestionClientesService
+    private gestionClientesService: GestionClientesService,
+    private ayudaSoporteService: AyudaSoporteService
   ) {}
 
   ngOnInit(): void {
@@ -318,6 +337,100 @@ activeTab: number = 0;
         }
       });
   }
+
+    /**
+     * Maneja el cambio de pestaña (p-tabView)
+     */
+    onTabChange(event: any): void {
+      this.activeTab = event.index;
+      // La nueva pestaña "Ayuda y soporte" será la índice 3 (0..3)
+      if (this.activeTab === 3 && this.clienteId > 0) {
+        this.cargarSolicitudes();
+      }
+    }
+
+    cargarSolicitudes(): void {
+      if (!this.clienteId) {
+        this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'ID de cliente no válido para filtrar solicitudes' });
+        return;
+      }
+
+      this.loadingSolicitudes = true;
+      this.ayudaSoporteService.listarSolicitudes().subscribe({
+        next: (res) => {
+          this.loadingSolicitudes = false;
+          if (res && res.ok && Array.isArray(res.data)) {
+            // Filtrar solo las solicitudes pertenecientes al cliente actual (idUsuario === clienteId)
+            this.solicitudes = res.data.filter(s => Number(s.idUsuario) === Number(this.clienteId));
+            if (this.solicitudes.length === 0) {
+              this.messageService.add({ severity: 'info', summary: 'Sin solicitudes', detail: 'No se encontraron solicitudes de soporte para este cliente' });
+            }
+          } else {
+            this.solicitudes = [];
+            this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudieron obtener las solicitudes' });
+          }
+        },
+        error: (err) => {
+          this.loadingSolicitudes = false;
+          console.error('Error al cargar solicitudes de ayuda:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar las solicitudes de soporte' });
+        }
+      });
+    }
+
+    verSolicitud(solicitud: AyudaSoporteListItem): void {
+      this.solicitudSeleccionada = solicitud;
+      this.mostrarDialogSolicitud = true;
+    }
+
+    // Retorna las solicitudes ya filtradas por los controles de la barra
+    get filteredSolicitudes(): AyudaSoporteListItem[] {
+      const asunto = (this.filterAsunto || '').toString().trim().toLowerCase();
+      return this.solicitudes.filter(s => {
+        // filtrar por asunto
+        if (asunto) {
+          const hayAsunto = (s.asunto || '').toString().toLowerCase().includes(asunto);
+          if (!hayAsunto) return false;
+        }
+        // filtrar por estado
+        if (this.filterEstado) {
+          if ((s.estado || '').toString() !== this.filterEstado) return false;
+        }
+        // filtrar por fecha rango (si existen fechas)
+        if (this.filterFechaDesde || this.filterFechaHasta) {
+          const fechaStr = s.fechaCreacion;
+          if (!fechaStr) return false;
+          const fecha = new Date(fechaStr);
+          if (this.filterFechaDesde && fecha < this.startOfDay(this.filterFechaDesde)) return false;
+          if (this.filterFechaHasta && fecha > this.endOfDay(this.filterFechaHasta)) return false;
+        }
+        return true;
+      });
+    }
+
+    applyFilters(): void {
+      // Método placeholder por compatibilidad con el botón de filtro
+      // La tabla usa el getter `filteredSolicitudes` así que los cambios en ngModel ya aplican.
+    }
+
+    clearFilters(): void {
+      this.filterAsunto = '';
+      this.filterEstado = null;
+      this.filterFechaDesde = null;
+      this.filterFechaHasta = null;
+    }
+
+    private startOfDay(d: Date): Date {
+      const x = new Date(d);
+      x.setHours(0,0,0,0);
+      return x;
+    }
+
+    private endOfDay(d: Date): Date {
+      const x = new Date(d);
+      x.setHours(23,59,59,999);
+      return x;
+    }
 
   verDetalleCompra(compra: Compra): void {
     this.compraSeleccionada = compra;
