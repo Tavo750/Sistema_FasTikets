@@ -203,9 +203,9 @@
           <h4>Mapa del Local</h4>
 
           <!-- Imagen del mapa del local -->
-          <div class="mapa-local" *ngIf="localData?.imagenUrl">
+          <div class="mapa-local" *ngIf="eventoData?.imagenZonasUrl">
             <p-image
-              [src]="localData?.imagenUrl"
+              [src]="eventoData?.imagenZonasUrl"
               alt="Mapa del local"
               width="100%"
               height="300"

@@ -294,6 +294,11 @@
 .add-button-container {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelar-categoria-btn {
+  margin-left: 0;
 }
 
 /* Categorías Agregadas */
@@ -312,6 +317,12 @@
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #1976d2;
+}
+
+.categoria-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .categoria-info {
@@ -383,7 +394,7 @@
 
 .entrada-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr auto;
   gap: 1rem;
   align-items: end;
 }
@@ -531,6 +542,18 @@
   .final-actions {
     flex-direction: column;
   }
+}
+
+/* Grupo de botones para entrada */
+.entrada-buttons-group {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.entrada-buttons-group .agregar-btn,
+.entrada-buttons-group .cancelar-edicion-btn {
+  flex: 1;
 }
 
 /* PrimeNG Override Styles */
@@ -945,11 +968,20 @@
   color: #dc2626;
 }
 
-.delete-entrada-btn {
+/* Contenedor de acciones para editar y eliminar */
+.entrada-disponible-actions {
+  display: flex;
+  gap: 0.5rem;
   flex-shrink: 0;
   margin-left: 1rem;
 }
 
+.edit-entrada-btn,
+.delete-entrada-btn {
+  flex-shrink: 0;
+}
+
+::ng-deep .edit-entrada-btn .p-button,
 ::ng-deep .delete-entrada-btn .p-button {
   width: 2.5rem;
   height: 2.5rem;
@@ -957,6 +989,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+::ng-deep .edit-entrada-btn .p-button:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: white !important;
 }
 
 ::ng-deep .delete-entrada-btn .p-button:hover {

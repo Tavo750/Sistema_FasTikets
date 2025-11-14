@@ -51,6 +51,20 @@ export class EventoService {
   }
 
   /**
+   * Actualiza una zona existente
+   * @param id ID de la zona a actualizar
+   * @param body Datos actualizados de la zona
+   * @returns Observable con la respuesta del servidor
+   */
+  putActualizarZona(id: number, body: { nombre: string; aforoMax: number }): Observable<ZonaCategoriaResponse> {
+    const url = `${baseUrl}/zonas/${id}`;
+    return this.http.put<ZonaCategoriaResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
    * Elimina una zona por su ID
    * @param id ID de la zona a eliminar
    * @returns Observable con la respuesta del servidor
@@ -217,6 +231,20 @@ export class EventoService {
   deleteEntrada(id: number): Observable<EliminaEntradaResponse> {
     const url = `${baseUrl}/tipos-ticket/${id}`;
     return this.http.delete<EliminaEntradaResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Actualiza una entrada existente
+   * @param id ID de la entrada a actualizar
+   * @param body Datos actualizados de la entrada
+   * @returns Observable con la respuesta del servidor
+   */
+  putActualizarEntrada(id: number, body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number }): Observable<EntradaResponse> {
+    const url = `${baseUrl}/tipos-ticket/${id}`;
+    return this.http.put<EntradaResponse>(url, body)
       .pipe(
         catchError(this.httpUtils.handleError)
       );

@@ -19,8 +19,8 @@ interface DropdownOption {
 export class InicioComponent implements OnInit {
   eventos: Evento[] = [];
   eventosFiltrados: Evento[] = [];
-  categorias: string[] = ['Rock', 'Rock and Pop', 'Reggae', 'Pop', 'Punk', 'Reguetón', 'Jazz'];
-  ubicaciones: string[] = ['Arena 1 - Cúpula', 'Arena 2', 'Arena 3', 'Movistar Arena'];
+  categorias: string[] = [];
+  ubicaciones: string[] = [];
   paginaActual: number = 1;
   eventosPorPagina: number = 6;
   cargandoEventos: boolean = false;
@@ -58,10 +58,12 @@ export class InicioComponent implements OnInit {
   inicializarDropdowns(): void {
     // Extraer categorías únicas de los eventos cargados
     const categoriasUnicas = [...new Set(this.eventos.map(evento => evento.categoria))];
+    this.categorias = categoriasUnicas;
     this.categoriasDropdown = categoriasUnicas.map(cat => ({ label: cat, value: cat }));
 
     // Extraer ubicaciones únicas de los eventos cargados
     const ubicacionesUnicas = [...new Set(this.eventos.map(evento => evento.lugar))];
+    this.ubicaciones = ubicacionesUnicas;
     this.ubicacionesDropdown = ubicacionesUnicas.map(ub => ({ label: ub, value: ub }));
   }
 

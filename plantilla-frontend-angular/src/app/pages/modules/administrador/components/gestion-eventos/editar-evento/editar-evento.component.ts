@@ -148,6 +148,7 @@ export class EditarEventoComponent implements OnInit{
     entradaDescripcion: string = '';
     entradaPrecio: number | null = null;
     entradaStock: number | null = null;
+    entradaLimitePorPersona: number | null = 10;
     validoPara: string = '';
 
     // Array para almacenar las entradas agregadas
@@ -180,6 +181,15 @@ export class EditarEventoComponent implements OnInit{
     // Propiedades para el modo de edición
     modoEdicion: boolean = false;
     cargandoEvento: boolean = false;
+
+    // Propiedades para el modo de edición de entrada
+    modoEdicionEntrada: boolean = false;
+    entradaEditandoId: number | null = null;
+
+    // Propiedades para el modo de edición de categorías/zonas
+    modoEdicionCategoria: boolean = false;
+    categoriaEditandoId: number | null = null;
+    categoriaEditandoIndex: number | null = null;
 
     nuevaCategoria = {
       nombre: '',
@@ -1545,6 +1555,10 @@ export class EditarEventoComponent implements OnInit{
     }
 
     onAgregarEntrada(): void {
+      // Verificar si estamos en modo edición
+      const modoEdicion = this.modoEdicionEntrada;
+      const idEntradaEditando = this.entradaEditandoId;
+
       // Validaciones esenciales únicamente
       if (!this.entradaNombre.trim()) {
         this.messageService.error('Por favor ingresa un nombre para la entrada', 'Campo Requerido');
@@ -1553,6 +1567,11 @@ export class EditarEventoComponent implements OnInit{
 
       if (!this.entradaPrecio || this.entradaPrecio <= 0) {
         this.messageService.error('Por favor ingresa un precio válido mayor a 0', 'Campo Requerido');
+        return;
+      }
+
+      if (!this.entradaStock || this.entradaStock <= 0) {
+        this.messageService.error('Por favor ingresa un stock válido mayor a 0', 'Campo Requerido');
         return;
       }
 
@@ -1570,67 +1589,122 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      // Preparar datos para la API (usando valores por defecto para campos omitidos)
+      // Preparar datos para la API
       const datosEntrada = {
         nombre: this.entradaNombre.trim(),
         descripcion: this.entradaDescripcion?.trim() || 'Sin descripción',
         precio: this.entradaPrecio,
-        stock: this.entradaStock || 100, // Valor por defecto si no se especifica
+        stock: this.entradaStock, // Stock ingresado por el usuario
         activo: true,
         idZona: zonaSeleccionada.idZona,
-        limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10
+        limitePorPersona: this.entradaLimitePorPersona || 10
       };
 
-      // Mostrar mensaje de procesamiento
-      this.messageService.info('Creando entrada...', 'Procesando');
+      // Si estamos en modo edición, actualizar la entrada existente
+      if (modoEdicion && idEntradaEditando) {
+        this.messageService.info('Actualizando entrada...', 'Procesando');
 
-      // Llamar al servicio para crear la entrada
-      this.eventoService.postCrearEntrada(datosEntrada).subscribe({
-        next: (response) => {
-          if (response.ok) {
-            // Buscar el label de la categoría seleccionada para mostrar
-            const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
-            const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+        this.eventoService.putActualizarEntrada(idEntradaEditando, datosEntrada).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Actualizar la entrada en la lista local
+              const indice = this.entradasPorZonaSeleccionada.findIndex(e => e.idTipoTicket === idEntradaEditando);
+              if (indice !== -1) {
+                this.entradasPorZonaSeleccionada[indice] = response.data;
+              }
 
-            // Crear la nueva entrada para el array local
-            const nuevaEntrada: EntradaAgregada = {
-              id: response.data.idTipoTicket,
-              nombre: response.data.nombre,
-              precio: response.data.precio,
-              validoPara: this.validoPara,
-              validoParaLabel: validoParaLabel,
-              moneda: this.formulario.moneda || 'PEN'
-            };
+              // Limpiar los campos y salir del modo edición
+              this.limpiarCamposEntrada();
+              this.modoEdicionEntrada = false;
+              this.entradaEditandoId = null;
 
-            // Agregar la entrada al array local
-            this.entradasAgregadas.push(nuevaEntrada);
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                `Entrada "${response.data.nombre}" actualizada exitosamente`,
+                'Entrada Actualizada'
+              );
 
-            // Limpiar los campos después de agregar
-            this.limpiarCamposEntrada();
-
-            // Mostrar mensaje de éxito
-            this.messageService.success(
-              `Entrada "${response.data.nombre}" creada exitosamente`,
-              'Entrada Creada'
-            );
-
-            // Mostrar mensaje adicional si existe
-            if (response.mensaje) {
-              this.messageService.info(response.mensaje, 'Información');
+              // Recargar las entradas de la zona
+              if (this.validoPara) {
+                const idZona = parseInt(this.validoPara);
+                if (!isNaN(idZona)) {
+                  this.cargarEntradasPorZona(idZona);
+                }
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo actualizar la entrada',
+                'Error al Actualizar Entrada'
+              );
             }
-          } else {
-            this.messageService.error(
-              response.mensaje || 'No se pudo crear la entrada',
-              'Error al Crear Entrada'
-            );
+          },
+          error: (error) => {
+            console.error('Error al actualizar entrada:', error);
+            this.messageService.handleHttpError(error);
           }
-        },
-        error: (error) => {
-          console.error('Error al crear entrada:', error);
-          this.messageService.handleHttpError(error);
-        }
-      });
-    }  /**
+        });
+      } else {
+        // Modo creación normal
+        this.messageService.info('Creando entrada...', 'Procesando');
+
+        // Llamar al servicio para crear la entrada
+        this.eventoService.postCrearEntrada(datosEntrada).subscribe({
+          next: (response) => {
+            if (response.ok) {
+              // Buscar el label de la categoría seleccionada para mostrar
+              const categoriaSeleccionada = this.validoParaOptions.find(option => option.value === this.validoPara);
+              const validoParaLabel = categoriaSeleccionada ? categoriaSeleccionada.label : this.validoPara;
+
+              // Crear la nueva entrada para el array local
+              const nuevaEntrada: EntradaAgregada = {
+                id: response.data.idTipoTicket,
+                nombre: response.data.nombre,
+                precio: response.data.precio,
+                validoPara: this.validoPara,
+                validoParaLabel: validoParaLabel,
+                moneda: this.formulario.moneda || 'PEN'
+              };
+
+              // Agregar la entrada al array local
+              this.entradasAgregadas.push(nuevaEntrada);
+
+              // Limpiar los campos después de agregar
+              this.limpiarCamposEntrada();
+
+              // Mostrar mensaje de éxito
+              this.messageService.success(
+                `Entrada "${response.data.nombre}" creada exitosamente`,
+                'Entrada Creada'
+              );
+
+              // Mostrar mensaje adicional si existe
+              if (response.mensaje) {
+                this.messageService.info(response.mensaje, 'Información');
+              }
+
+              // Recargar las entradas de la zona
+              if (this.validoPara) {
+                const idZona = parseInt(this.validoPara);
+                if (!isNaN(idZona)) {
+                  this.cargarEntradasPorZona(idZona);
+                }
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'No se pudo crear la entrada',
+                'Error al Crear Entrada'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al crear entrada:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
+      }
+    }
+
+    /**
      * Limpia todos los campos del formulario de entrada
      */
     private limpiarCamposEntrada(): void {
@@ -1638,7 +1712,10 @@ export class EditarEventoComponent implements OnInit{
       this.entradaDescripcion = '';
       this.entradaPrecio = null;
       this.entradaStock = null;
+      this.entradaLimitePorPersona = 10;
       this.validoPara = '';
+      this.modoEdicionEntrada = false;
+      this.entradaEditandoId = null;
     }
 
     onEliminarEntrada(entradaId: number, event: Event): void {
@@ -1690,6 +1767,38 @@ export class EditarEventoComponent implements OnInit{
           });
         }
       );
+    }
+
+    /**
+     * Edita una entrada disponible de la zona seleccionada
+     * @param entrada Entrada a editar
+     * @param event Evento del botón
+     */
+    onEditarEntradaDisponible(entrada: any, event: Event): void {
+      event.stopPropagation();
+
+      // Cargar los datos de la entrada en los campos del formulario
+      this.entradaNombre = entrada.nombre;
+      this.entradaDescripcion = entrada.descripcion;
+      this.entradaPrecio = entrada.precio;
+      this.entradaStock = entrada.stock;
+      this.entradaLimitePorPersona = entrada.limitePorPersona;
+      this.validoPara = entrada.idZona.toString();
+
+      // Guardar el ID de la entrada que se está editando
+      this.entradaEditandoId = entrada.idTipoTicket;
+      this.modoEdicionEntrada = true;
+
+      // Cambiar el comportamiento del botón "Agregar entrada" temporalmente
+      this.messageService.info('Modifica los datos y presiona "Actualizar entrada" para guardar los cambios', 'Modo Edición');
+    }
+
+    /**
+     * Cancela la edición de entrada y limpia los campos
+     */
+    onCancelarEdicionEntrada(): void {
+      this.limpiarCamposEntrada();
+      this.messageService.info('Edición cancelada', 'Cancelado');
     }
 
     /**
@@ -1760,7 +1869,51 @@ export class EditarEventoComponent implements OnInit{
       );
     }
 
+    /**
+     * Edita una categoría/zona existente
+     * @param index Índice de la categoría en el array
+     * @param event Evento del botón
+     */
+    onEditarCategoria(index: number, event: Event): void {
+      event.stopPropagation();
+
+      const categoria = this.categoriasLocal[index];
+      if (!categoria) {
+        this.messageService.error('No se encontró la categoría a editar', 'Error de Datos');
+        return;
+      }
+
+      // Cargar los datos de la categoría en los campos del formulario
+      this.nuevaCategoria.nombre = categoria.nombre;
+      this.nuevaCategoria.aforoMaximo = categoria.aforoMax;
+
+      // Guardar el ID y el índice de la categoría que se está editando
+      this.categoriaEditandoId = categoria.idZona;
+      this.categoriaEditandoIndex = index;
+      this.modoEdicionCategoria = true;
+
+      // Informar al usuario
+      this.messageService.info('Modifica los datos y presiona "Actualizar categoría" para guardar los cambios', 'Modo Edición');
+    }
+
+    /**
+     * Cancela la edición de categoría y limpia los campos
+     */
+    onCancelarEdicionCategoria(): void {
+      this.nuevaCategoria.nombre = '';
+      this.nuevaCategoria.aforoMaximo = null;
+      this.modoEdicionCategoria = false;
+      this.categoriaEditandoId = null;
+      this.categoriaEditandoIndex = null;
+      this.messageService.info('Edición cancelada', 'Cancelado');
+    }
+
     onAgregarCategoria(): void {
+      // Verificar si estamos en modo edición
+      const modoEdicion = this.modoEdicionCategoria;
+      const idCategoriaEditando = this.categoriaEditandoId;
+      const indexCategoriaEditando = this.categoriaEditandoIndex;
+
       if (!this.nuevaCategoria.nombre.trim()) {
         this.messageService.error('Por favor ingresa un nombre para la categoría', 'Campo Requerido');
         return;
@@ -1771,78 +1924,151 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      if (!this.idEvento) {
-        this.messageService.error('Debe tener un evento activo antes de agregar categorías', 'Evento Requerido');
-        return;
-      }
+      // Si estamos en modo edición, actualizar la categoría existente (no requiere idEvento)
+      if (modoEdicion && idCategoriaEditando && indexCategoriaEditando !== null) {
+        const datosActualizacion = {
+          nombre: this.nuevaCategoria.nombre.trim(),
+          aforoMax: this.nuevaCategoria.aforoMaximo!
+        };
 
-      // Preparar datos para el servicio
-      const datosZona = {
-        nombre: this.nuevaCategoria.nombre,
-        aforoMax: this.nuevaCategoria.aforoMaximo,
-        idEvento: this.idEvento
-      };
+        this.messageService.info('Actualizando categoría...', 'Procesando');
 
-      // Llamar al servicio para crear la zona
-      this.eventoService.postCrearZona(datosZona).subscribe({
-        next: (response) => {
-          if (response.ok && response.data) {
-            // Para postCrearZona, response.data debería ser un objeto único, no un array
-            const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
+        this.eventoService.putActualizarZona(idCategoriaEditando, datosActualizacion).subscribe({
+          next: (response) => {
+            if (response.ok && response.data) {
+              const zonaActualizada = Array.isArray(response.data) ? response.data[0] : response.data;
 
-            if (zonaCreada) {
-              // Agregar la nueva categoría a la lista local
-              const nuevaCat: ZonaData = {
-                idZona: zonaCreada.idZona,
-                nombre: this.nuevaCategoria.nombre,
-                aforoMax: this.nuevaCategoria.aforoMaximo!,
-                usuarioCreacion: null,
-                usuarioActualizacion: null,
-                activo: true,
-                fechaCreacion: null,
-                fechaActualizacion: null,
-                idEvento: this.idEvento!
-              };
+              if (zonaActualizada) {
+                // Actualizar la categoría en el array local
+                this.categoriasLocal[indexCategoriaEditando] = {
+                  idZona: zonaActualizada.idZona,
+                  nombre: zonaActualizada.nombre,
+                  aforoMax: zonaActualizada.aforoMax,
+                  usuarioCreacion: zonaActualizada.usuarioCreacion,
+                  usuarioActualizacion: zonaActualizada.usuarioActualizacion,
+                  activo: zonaActualizada.activo,
+                  fechaCreacion: zonaActualizada.fechaCreacion,
+                  fechaActualizacion: zonaActualizada.fechaActualizacion,
+                  idEvento: zonaActualizada.idEvento
+                };
 
-              this.categoriasLocal.push(nuevaCat);
+                // Actualizar el dropdown de "Válido para"
+                const optionIndex = this.validoParaOptions.findIndex(
+                  opt => opt.value === idCategoriaEditando.toString()
+                );
+                if (optionIndex !== -1) {
+                  this.validoParaOptions[optionIndex].label = zonaActualizada.nombre;
+                }
 
-              // Actualizar el dropdown de "Válido para" con la nueva categoría
-              this.validoParaOptions.push({
-                label: nuevaCat.nombre,
-                value: nuevaCat.idZona.toString()
-              });
+                // Actualizar las entradas con las categorías
+                this.actualizarEntradasConCategorias(this.categoriasLocal);
 
-              // También actualizar las entradas con las categorías
-              this.actualizarEntradasConCategorias(this.categoriasLocal);
+                // Limpiar los campos y salir del modo edición
+                this.nuevaCategoria = {
+                  nombre: '',
+                  aforoMaximo: null
+                };
+                this.modoEdicionCategoria = false;
+                this.categoriaEditandoId = null;
+                this.categoriaEditandoIndex = null;
 
-              // Limpiar los campos
-              this.nuevaCategoria = {
-                nombre: '',
-                aforoMaximo: null
-              };
+                this.messageService.success(
+                  response.mensaje || 'Categoría actualizada exitosamente',
+                  'Categoría Actualizada'
+                );
 
-              this.messageService.success(
-                response.mensaje || 'Categoría creada exitosamente',
-                'Operación Exitosa'
-              );
+                // Recargar las zonas
+                if (this.idEvento) {
+                  this.cargarZonas(this.idEvento);
+                }
+              }
             } else {
               this.messageService.error(
-                'No se recibieron datos de la zona creada',
+                response.mensaje || 'No se pudo actualizar la categoría',
+                'Error al Actualizar Categoría'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al actualizar zona:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
+      } else {
+        // Modo creación normal - validar que exista idEvento
+        if (!this.idEvento) {
+          this.messageService.error('Debe tener un evento activo antes de agregar categorías', 'Evento Requerido');
+          return;
+        }
+
+        // Preparar datos para el servicio
+        const datosZona = {
+          nombre: this.nuevaCategoria.nombre,
+          aforoMax: this.nuevaCategoria.aforoMaximo,
+          idEvento: this.idEvento
+        };
+
+        // Llamar al servicio para crear la zona
+        this.eventoService.postCrearZona(datosZona).subscribe({
+          next: (response) => {
+            if (response.ok && response.data) {
+              // Para postCrearZona, response.data debería ser un objeto único, no un array
+              const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
+
+              if (zonaCreada) {
+                // Agregar la nueva categoría a la lista local
+                const nuevaCat: ZonaData = {
+                  idZona: zonaCreada.idZona,
+                  nombre: this.nuevaCategoria.nombre,
+                  aforoMax: this.nuevaCategoria.aforoMaximo!,
+                  usuarioCreacion: null,
+                  usuarioActualizacion: null,
+                  activo: true,
+                  fechaCreacion: null,
+                  fechaActualizacion: null,
+                  idEvento: this.idEvento!
+                };
+
+                this.categoriasLocal.push(nuevaCat);
+
+                // Actualizar el dropdown de "Válido para" con la nueva categoría
+                this.validoParaOptions.push({
+                  label: nuevaCat.nombre,
+                  value: nuevaCat.idZona.toString()
+                });
+
+                // También actualizar las entradas con las categorías
+                this.actualizarEntradasConCategorias(this.categoriasLocal);
+
+                // Limpiar los campos
+                this.nuevaCategoria = {
+                  nombre: '',
+                  aforoMaximo: null
+                };
+
+                this.messageService.success(
+                  response.mensaje || 'Categoría creada exitosamente',
+                  'Operación Exitosa'
+                );
+              } else {
+                this.messageService.error(
+                  'No se recibieron datos de la zona creada',
+                  'Error en la Operación'
+                );
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'Error al crear la categoría',
                 'Error en la Operación'
               );
             }
-          } else {
-            this.messageService.error(
-              response.mensaje || 'Error al crear la categoría',
-              'Error en la Operación'
-            );
+          },
+          error: (error) => {
+            console.error('Error al crear zona:', error);
+            this.messageService.handleHttpError(error);
           }
-        },
-        error: (error) => {
-          console.error('Error al crear zona:', error);
-          this.messageService.handleHttpError(error);
-        }
-      });
+        });
+      }
     }
 
     onEliminarCategoria(index: number, event: any): void {
