@@ -5,6 +5,7 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { MessageService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { AyudaSoporteRequest, AyudaSoporteResponse, AyudaSoporteData } from '../../../interfaces/ayuda-soporte/ayuda-soporte.interface';
+import { AyudaSoporteListItem } from '../../../interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 
 @Component({
   selector: 'app-asunto-soporte',
@@ -24,6 +25,13 @@ export class AsuntoSoporteComponent {
   mostrarDialogExito: boolean = false;
   ticketData?: AyudaSoporteData | null = null;
   isLoading: boolean = false;
+  // listado de solicitudes
+  mostrarListadoDialog: boolean = false;
+  solicitudes: AyudaSoporteListItem[] = [];
+  loadingSolicitudes: boolean = false;
+  // observación seleccionada
+  mostrarObservacionDialog: boolean = false;
+  observacionSeleccionada: string | null = null;
   // Permitir letras (incluyendo tildes), números, espacios y signos de puntuación comunes
   readonly asuntoPattern: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s\-\,\?\!\.\'\"\:\(\)]+$/;
 
@@ -141,5 +149,48 @@ export class AsuntoSoporteComponent {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear la solicitud de soporte' });
       }
     });
+  }
+
+  abrirListado(): void {
+    this.mostrarListadoDialog = true;
+    this.cargarSolicitudes();
+  }
+
+  private cargarSolicitudes(): void {
+    this.loadingSolicitudes = true;
+    this.solicitudes = [];
+    this.ayudaSoporteService.listarSolicitudes().subscribe({
+      next: (res) => {
+        this.loadingSolicitudes = false;
+        if (res && res.ok) {
+          this.solicitudes = res.data || [];
+        } else {
+          this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo obtener el listado' });
+        }
+      },
+      error: (err) => {
+        this.loadingSolicitudes = false;
+        console.error('Error cargando solicitudes:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar las solicitudes' });
+      }
+    });
+  }
+
+  verObservacion(item: AyudaSoporteListItem): void {
+    if (item.observaciones) {
+      this.observacionSeleccionada = item.observaciones;
+      this.mostrarObservacionDialog = true;
+      return;
+    }
+
+    // Si no hay observaciones pero el estado indica resuelto/cerrado, abrir igualmente un diálogo con nota
+    if (item.estado === 'RESUELTO' || item.estado === 'CERRADO') {
+      this.observacionSeleccionada = `El ticket está marcado como ${item.estado}. No hay texto de observación disponible.`;
+      this.mostrarObservacionDialog = true;
+      return;
+    }
+
+    // Si está ABIERTO y no hay observaciones
+    this.messageService.add({ severity: 'info', summary: 'Pendiente', detail: 'Aún no hay respuesta (observaciones vacías).' });
   }
 }

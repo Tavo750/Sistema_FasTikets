@@ -27,6 +27,9 @@
   </ul>
 
   <form #supportForm="ngForm" class="support-form" (ngSubmit)="enviarCorreo(supportForm)">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
+      <button pButton type="button" label="Ver solicitudes" class="p-button-secondary p-button-rounded" (click)="abrirListado()"></button>
+    </div>
     <div class="field">
       <label for="asunto">Asunto:</label>
       <input
@@ -97,6 +100,56 @@
     </div>
     <ng-template pTemplate="footer">
       <button pButton type="button" label="Cerrar" (click)="mostrarDialogExito = false" class="p-button-text"></button>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Diálogo: listado de solicitudes -->
+  <p-dialog header="Listado de solicitudes" [(visible)]="mostrarListadoDialog" [modal]="true" [closable]="true" [style]="{width: '900px'}" (onHide)="solicitudes=[]">
+    <div *ngIf="loadingSolicitudes">Cargando solicitudes...</div>
+    <div *ngIf="!loadingSolicitudes">
+      <table class="p-datatable p-component" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="text-align:left;border-bottom:1px solid #ddd;">
+            <th style="padding:8px;">ID</th>
+            <th style="padding:8px;">Asunto</th>
+            <th style="padding:8px;">Estado</th>
+            <th style="padding:8px;">Fecha</th>
+            <th style="padding:8px;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of solicitudes" style="border-bottom:1px solid #f1f1f1;">
+            <td style="padding:8px;vertical-align:top;">{{ s.idSolicitud }}</td>
+            <td style="padding:8px;vertical-align:top;">{{ s.asunto }}</td>
+            <td style="padding:8px;vertical-align:top;">{{ s.estado }}</td>
+            <td style="padding:8px;vertical-align:top;">{{ s.fechaCreacion | date:'short' }}</td>
+            <td style="padding:8px;vertical-align:top;">
+              <button pButton type="button"
+                [label]="s.observaciones ? 'Ver respuesta' : (s.estado === 'ABIERTO' ? 'No hay respuesta' : 'Ver respuesta')"
+                class="p-button-text"
+                [disabled]="!s.observaciones && s.estado === 'ABIERTO'"
+                (click)="verObservacion(s)">
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="solicitudes.length === 0">
+            <td colspan="5" style="padding:12px;text-align:center;color:#666;">No hay solicitudes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </p-dialog>
+
+  <!-- Diálogo: mostrar observación -->
+  <p-dialog header="Observación" [(visible)]="mostrarObservacionDialog" [modal]="true" [closable]="true" [style]="{width: '520px'}">
+    <div *ngIf="observacionSeleccionada; else noObs">
+      <p style="white-space:pre-wrap;">{{ observacionSeleccionada }}</p>
+    </div>
+    <ng-template #noObs>
+      <p>No hay observaciones para este ticket.</p>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button pButton type="button" label="Cerrar" class="p-button-text" (click)="mostrarObservacionDialog=false"></button>
     </ng-template>
   </p-dialog>
 </div>
