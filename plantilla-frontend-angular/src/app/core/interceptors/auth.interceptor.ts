@@ -28,10 +28,16 @@ export class AuthInterceptor implements HttpInterceptor {
       'localhost:8081/api/v1/auth/login' // Login con dominio completo
     ];
 
-    // Endpoints públicos de eventos (solo lectura - GET)
+    // Endpoints públicos de eventos y locales (solo lectura - GET)
     const publicEventEndpoints = [
       '/api/v1/eventos',
-      'localhost:8081/api/v1/eventos'
+      'localhost:8081/api/v1/eventos',
+      '/api/v1/locales',
+      'localhost:8081/api/v1/locales',
+      '/api/v1/zonas',
+      'localhost:8081/api/v1/zonas',
+      '/api/v1/tipos-ticket',
+      'localhost:8081/api/v1/tipos-ticket'
     ];
 
     // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)

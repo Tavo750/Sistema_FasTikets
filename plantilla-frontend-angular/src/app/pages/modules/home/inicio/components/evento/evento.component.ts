@@ -145,7 +145,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
               this.actualizarDatosLocal();
 
               // Cargar entradas/tickets después de cargar el local
-              this.cargarEntradasEvento(this.eventoData!.idLocal);
+              this.cargarEntradasEvento();
             }
           } else {
             console.warn('No se encontraron datos del local');
@@ -196,15 +196,27 @@ export class EventoComponent implements AfterViewInit, OnInit {
       }, 100);
     }
 
-    cargarEntradasEvento(idLocal: number): void {
+    cargarEntradasEvento(): void {
+      if (!this.eventoId) {
+        console.error('No hay eventoId disponible');
+        this.cargarTicketsDefault();
+        return;
+      }
+
       this.cargandoEntradas = true;
       this.zonasConTickets = []; // Limpiar datos anteriores
 
-      // Primero obtener las zonas del local
-      this.eventoService.getListarZonas(idLocal).subscribe({
+      console.log('Cargando zonas para evento ID:', this.eventoId);
+
+      // Primero obtener las zonas del evento
+      this.eventoService.getListarZonas(this.eventoId).subscribe({
         next: (zonesResponse) => {
+          console.log('Respuesta de zonas:', zonesResponse);
+          
           if (zonesResponse.ok && zonesResponse.data) {
             const zonas: ZonaData[] = Array.isArray(zonesResponse.data) ? zonesResponse.data : [zonesResponse.data];
+            
+            console.log('Zonas encontradas:', zonas.length, zonas);
 
             if (zonas.length === 0) {
               this.cargandoEntradas = false;
@@ -216,12 +228,18 @@ export class EventoComponent implements AfterViewInit, OnInit {
             let zonasProcessed = 0;
 
             zonas.forEach(zona => {
+              console.log('Cargando tickets para zona:', zona.idZona, zona.nombre);
+              
               this.eventoService.getListarEntradasID(zona.idZona).subscribe({
                 next: (ticketsResponse) => {
+                  console.log(`Respuesta tickets para zona ${zona.idZona}:`, ticketsResponse);
+                  
                   const ticketsDeZona: TicketType[] = [];
 
                   if (ticketsResponse.ok && ticketsResponse.data) {
                     const tickets: EntradaData[] = Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [ticketsResponse.data];
+                    
+                    console.log(`Tickets encontrados para zona ${zona.nombre}:`, tickets.length);
 
                     tickets.forEach(ticket => {
                       if (ticket.activo) { // Solo agregar tickets activos
