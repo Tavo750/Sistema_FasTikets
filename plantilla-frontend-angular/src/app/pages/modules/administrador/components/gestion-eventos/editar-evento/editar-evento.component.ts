@@ -306,16 +306,21 @@ export class EditarEventoComponent implements OnInit{
         this.timeFinal = fechaFinal;
       }
 
-      // Extraer banner de imagenUrl (ahora es un File, no string)
+      // Extraer banner de imagenUrl
       if (this.evento.imagenUrl) {
-        // Si estamos editando un evento existente y hay una imagen File
-        // Crear un preview para mostrar en la UI
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.formulario.bannerUrl = e.target.result;
-        };
-        reader.readAsDataURL(this.evento.imagenUrl);
-        this.formulario.banner = this.evento.imagenUrl;
+        // Si imagenUrl es un string (URL del servidor), mostrarlo directamente
+        if (typeof this.evento.imagenUrl === 'string') {
+          this.formulario.bannerUrl = this.evento.imagenUrl;
+          // No establecemos formulario.banner porque no es un File nuevo
+        } else if (this.evento.imagenUrl instanceof File) {
+          // Si es un File (cuando se sube una nueva imagen), leerlo como antes
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.formulario.bannerUrl = e.target.result;
+          };
+          reader.readAsDataURL(this.evento.imagenUrl);
+          this.formulario.banner = this.evento.imagenUrl;
+        }
       }
 
       // Inicializar localString con idLocal cuando estamos editando un evento existente
@@ -812,6 +817,8 @@ export class EditarEventoComponent implements OnInit{
           this.formulario.bannerUrl = '';
           this.formulario.banner = null;
           this.usarBannerDefault = false;
+          // También limpiar la imagenUrl del evento para indicar que se eliminó
+          this.evento.imagenUrl = null as any;
           this.messageService.success('Banner eliminado exitosamente', 'Operación Exitosa');
         }
       );
@@ -1151,13 +1158,26 @@ export class EditarEventoComponent implements OnInit{
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
+      // Determinar qué imagen usar:
+      // - Si hay un nuevo archivo cargado (formulario.banner es un File), usarlo
+      // - Si no hay nuevo archivo, enviar null para que el backend mantenga la imagen existente
+      let imagenParaEnviar: any;
+      if (this.formulario.banner && this.formulario.banner instanceof File) {
+        // Hay un nuevo archivo cargado - enviar el File
+        imagenParaEnviar = this.formulario.banner;
+      } else {
+        // No hay nueva imagen - enviar null para mantener la existente
+        // El servicio verificará si es un File válido antes de enviarlo al backend
+        imagenParaEnviar = null as any;
+      }
+
       const datosEvento = {
         nombre: this.evento.nombre.trim(),
         descripcion: this.evento.descripcion.trim(),
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
-        imagenUrl: this.formulario.banner!,
+        imagenUrl: imagenParaEnviar,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
         aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario

@@ -86,11 +86,11 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    formData.append('imagen', body.imagenUrl);
-    // Agregar la imagen si existe
-    // if (body.imagenUrl) {
-    //   formData.append('imagen', body.imagenUrl);
-    // }
+    
+    // Solo agregar la imagen si es un File válido
+    if (body.imagenUrl && body.imagenUrl instanceof File) {
+      formData.append('imagen', body.imagenUrl);
+    }
 
     return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
@@ -138,31 +138,50 @@ export class EventoService {
   }
 
   putActualizarEvento(id: number, body: CrearEventoRequest): Observable<CrearEventoResponse> {
-    const url = `${baseUrl}/eventos/${id}/con-imagen`;
+    // Verificar si hay una nueva imagen para determinar qué endpoint usar
+    const tieneNuevaImagen = body.imagenUrl && body.imagenUrl instanceof File;
+    
+    if (tieneNuevaImagen) {
+      // Si hay nueva imagen, usar el endpoint con-imagen y enviar FormData
+      const url = `${baseUrl}/eventos/${id}/con-imagen`;
+      const formData = new FormData();
 
-    // Crear FormData para enviar multipart/form-data
-    const formData = new FormData();
+      formData.append('nombre', body.nombre);
+      formData.append('descripcion', body.descripcion);
+      formData.append('fechaEvento', body.fechaEvento);
+      formData.append('horaInicio', body.horaInicio);
+      formData.append('horaFin', body.horaFin);
+      formData.append('tipoEvento', body.tipoEvento);
+      formData.append('estadoEvento', body.estadoEvento);
+      formData.append('aforoDisponible', body.aforoDisponible.toString());
+      formData.append('idLocal', body.idLocal.toString());
+      formData.append('imagen', body.imagenUrl);
 
-    // Agregar todos los campos del evento al FormData
-    formData.append('nombre', body.nombre);
-    formData.append('descripcion', body.descripcion);
-    formData.append('fechaEvento', body.fechaEvento);
-    formData.append('horaInicio', body.horaInicio);
-    formData.append('horaFin', body.horaFin);
-    formData.append('tipoEvento', body.tipoEvento);
-    formData.append('estadoEvento', body.estadoEvento);
-    formData.append('aforoDisponible', body.aforoDisponible.toString());
-    formData.append('idLocal', body.idLocal.toString());
-    formData.append('imagen', body.imagenUrl);
-    // Agregar la imagen si existe
-    // if (body.imagenUrl) {
-    //   formData.append('imagen', body.imagenUrl);
-    // }
+      return this.http.put<CrearEventoResponse>(url, formData)
+        .pipe(
+          catchError(this.httpUtils.handleError)
+        );
+    } else {
+      // Si NO hay nueva imagen, usar el endpoint normal sin imagen (JSON)
+      const url = `${baseUrl}/eventos/${id}`;
+      const bodyJSON = {
+        nombre: body.nombre,
+        descripcion: body.descripcion,
+        fechaEvento: body.fechaEvento,
+        horaInicio: body.horaInicio,
+        horaFin: body.horaFin,
+        tipoEvento: body.tipoEvento,
+        estadoEvento: body.estadoEvento,
+        aforoDisponible: body.aforoDisponible,
+        idLocal: body.idLocal
+        // NO incluir imagenUrl para que el backend mantenga la imagen existente
+      };
 
-    return this.http.put<CrearEventoResponse>(url, formData)
-      .pipe(
-        catchError(this.httpUtils.handleError)
-      );
+      return this.http.put<CrearEventoResponse>(url, bodyJSON)
+        .pipe(
+          catchError(this.httpUtils.handleError)
+        );
+    }
   }
 
 
