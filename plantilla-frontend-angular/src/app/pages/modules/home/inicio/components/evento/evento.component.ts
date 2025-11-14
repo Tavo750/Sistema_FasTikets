@@ -220,7 +220,14 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
             if (zonas.length === 0) {
               this.cargandoEntradas = false;
-              this.cargarTicketsDefault();
+              console.warn('⚠️ Este evento no tiene zonas configuradas');
+              this.messageService.add({
+                severity: 'info',
+                summary: 'Sin zonas disponibles',
+                detail: 'Este evento aún no tiene zonas configuradas. Por favor, contacte al organizador.'
+              });
+              // No cargar tickets por defecto cuando el evento no tiene zonas reales
+              // this.cargarTicketsDefault();
               return;
             }
 
