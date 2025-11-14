@@ -51,6 +51,20 @@ export class EventoService {
   }
 
   /**
+   * Actualiza una zona existente
+   * @param id ID de la zona a actualizar
+   * @param body Datos actualizados de la zona
+   * @returns Observable con la respuesta del servidor
+   */
+  putActualizarZona(id: number, body: { nombre: string; aforoMax: number }): Observable<ZonaCategoriaResponse> {
+    const url = `${baseUrl}/zonas/${id}`;
+    return this.http.put<ZonaCategoriaResponse>(url, body)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
    * Elimina una zona por su ID
    * @param id ID de la zona a eliminar
    * @returns Observable con la respuesta del servidor

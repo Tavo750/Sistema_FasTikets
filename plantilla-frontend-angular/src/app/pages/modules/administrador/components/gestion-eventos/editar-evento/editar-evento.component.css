@@ -294,6 +294,11 @@
 .add-button-container {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelar-categoria-btn {
+  margin-left: 0;
 }
 
 /* Categorías Agregadas */
@@ -312,6 +317,12 @@
   background: #f8f9fa;
   border-radius: 8px;
   border-left: 4px solid #1976d2;
+}
+
+.categoria-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .categoria-info {

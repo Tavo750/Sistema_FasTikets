@@ -186,6 +186,11 @@ export class EditarEventoComponent implements OnInit{
     modoEdicionEntrada: boolean = false;
     entradaEditandoId: number | null = null;
 
+    // Propiedades para el modo de edición de categorías/zonas
+    modoEdicionCategoria: boolean = false;
+    categoriaEditandoId: number | null = null;
+    categoriaEditandoIndex: number | null = null;
+
     nuevaCategoria = {
       nombre: '',
       aforoMaximo: null as number | null
@@ -1864,7 +1869,51 @@ export class EditarEventoComponent implements OnInit{
       );
     }
 
+    /**
+     * Edita una categoría/zona existente
+     * @param index Índice de la categoría en el array
+     * @param event Evento del botón
+     */
+    onEditarCategoria(index: number, event: Event): void {
+      event.stopPropagation();
+
+      const categoria = this.categoriasLocal[index];
+      if (!categoria) {
+        this.messageService.error('No se encontró la categoría a editar', 'Error de Datos');
+        return;
+      }
+
+      // Cargar los datos de la categoría en los campos del formulario
+      this.nuevaCategoria.nombre = categoria.nombre;
+      this.nuevaCategoria.aforoMaximo = categoria.aforoMax;
+
+      // Guardar el ID y el índice de la categoría que se está editando
+      this.categoriaEditandoId = categoria.idZona;
+      this.categoriaEditandoIndex = index;
+      this.modoEdicionCategoria = true;
+
+      // Informar al usuario
+      this.messageService.info('Modifica los datos y presiona "Actualizar categoría" para guardar los cambios', 'Modo Edición');
+    }
+
+    /**
+     * Cancela la edición de categoría y limpia los campos
+     */
+    onCancelarEdicionCategoria(): void {
+      this.nuevaCategoria.nombre = '';
+      this.nuevaCategoria.aforoMaximo = null;
+      this.modoEdicionCategoria = false;
+      this.categoriaEditandoId = null;
+      this.categoriaEditandoIndex = null;
+      this.messageService.info('Edición cancelada', 'Cancelado');
+    }
+
     onAgregarCategoria(): void {
+      // Verificar si estamos en modo edición
+      const modoEdicion = this.modoEdicionCategoria;
+      const idCategoriaEditando = this.categoriaEditandoId;
+      const indexCategoriaEditando = this.categoriaEditandoIndex;
+
       if (!this.nuevaCategoria.nombre.trim()) {
         this.messageService.error('Por favor ingresa un nombre para la categoría', 'Campo Requerido');
         return;
@@ -1875,78 +1924,151 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      if (!this.idEvento) {
-        this.messageService.error('Debe tener un evento activo antes de agregar categorías', 'Evento Requerido');
-        return;
-      }
+      // Si estamos en modo edición, actualizar la categoría existente (no requiere idEvento)
+      if (modoEdicion && idCategoriaEditando && indexCategoriaEditando !== null) {
+        const datosActualizacion = {
+          nombre: this.nuevaCategoria.nombre.trim(),
+          aforoMax: this.nuevaCategoria.aforoMaximo!
+        };
 
-      // Preparar datos para el servicio
-      const datosZona = {
-        nombre: this.nuevaCategoria.nombre,
-        aforoMax: this.nuevaCategoria.aforoMaximo,
-        idEvento: this.idEvento
-      };
+        this.messageService.info('Actualizando categoría...', 'Procesando');
 
-      // Llamar al servicio para crear la zona
-      this.eventoService.postCrearZona(datosZona).subscribe({
-        next: (response) => {
-          if (response.ok && response.data) {
-            // Para postCrearZona, response.data debería ser un objeto único, no un array
-            const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
+        this.eventoService.putActualizarZona(idCategoriaEditando, datosActualizacion).subscribe({
+          next: (response) => {
+            if (response.ok && response.data) {
+              const zonaActualizada = Array.isArray(response.data) ? response.data[0] : response.data;
 
-            if (zonaCreada) {
-              // Agregar la nueva categoría a la lista local
-              const nuevaCat: ZonaData = {
-                idZona: zonaCreada.idZona,
-                nombre: this.nuevaCategoria.nombre,
-                aforoMax: this.nuevaCategoria.aforoMaximo!,
-                usuarioCreacion: null,
-                usuarioActualizacion: null,
-                activo: true,
-                fechaCreacion: null,
-                fechaActualizacion: null,
-                idEvento: this.idEvento!
-              };
+              if (zonaActualizada) {
+                // Actualizar la categoría en el array local
+                this.categoriasLocal[indexCategoriaEditando] = {
+                  idZona: zonaActualizada.idZona,
+                  nombre: zonaActualizada.nombre,
+                  aforoMax: zonaActualizada.aforoMax,
+                  usuarioCreacion: zonaActualizada.usuarioCreacion,
+                  usuarioActualizacion: zonaActualizada.usuarioActualizacion,
+                  activo: zonaActualizada.activo,
+                  fechaCreacion: zonaActualizada.fechaCreacion,
+                  fechaActualizacion: zonaActualizada.fechaActualizacion,
+                  idEvento: zonaActualizada.idEvento
+                };
 
-              this.categoriasLocal.push(nuevaCat);
+                // Actualizar el dropdown de "Válido para"
+                const optionIndex = this.validoParaOptions.findIndex(
+                  opt => opt.value === idCategoriaEditando.toString()
+                );
+                if (optionIndex !== -1) {
+                  this.validoParaOptions[optionIndex].label = zonaActualizada.nombre;
+                }
 
-              // Actualizar el dropdown de "Válido para" con la nueva categoría
-              this.validoParaOptions.push({
-                label: nuevaCat.nombre,
-                value: nuevaCat.idZona.toString()
-              });
+                // Actualizar las entradas con las categorías
+                this.actualizarEntradasConCategorias(this.categoriasLocal);
 
-              // También actualizar las entradas con las categorías
-              this.actualizarEntradasConCategorias(this.categoriasLocal);
+                // Limpiar los campos y salir del modo edición
+                this.nuevaCategoria = {
+                  nombre: '',
+                  aforoMaximo: null
+                };
+                this.modoEdicionCategoria = false;
+                this.categoriaEditandoId = null;
+                this.categoriaEditandoIndex = null;
 
-              // Limpiar los campos
-              this.nuevaCategoria = {
-                nombre: '',
-                aforoMaximo: null
-              };
+                this.messageService.success(
+                  response.mensaje || 'Categoría actualizada exitosamente',
+                  'Categoría Actualizada'
+                );
 
-              this.messageService.success(
-                response.mensaje || 'Categoría creada exitosamente',
-                'Operación Exitosa'
-              );
+                // Recargar las zonas
+                if (this.idEvento) {
+                  this.cargarZonas(this.idEvento);
+                }
+              }
             } else {
               this.messageService.error(
-                'No se recibieron datos de la zona creada',
+                response.mensaje || 'No se pudo actualizar la categoría',
+                'Error al Actualizar Categoría'
+              );
+            }
+          },
+          error: (error) => {
+            console.error('Error al actualizar zona:', error);
+            this.messageService.handleHttpError(error);
+          }
+        });
+      } else {
+        // Modo creación normal - validar que exista idEvento
+        if (!this.idEvento) {
+          this.messageService.error('Debe tener un evento activo antes de agregar categorías', 'Evento Requerido');
+          return;
+        }
+
+        // Preparar datos para el servicio
+        const datosZona = {
+          nombre: this.nuevaCategoria.nombre,
+          aforoMax: this.nuevaCategoria.aforoMaximo,
+          idEvento: this.idEvento
+        };
+
+        // Llamar al servicio para crear la zona
+        this.eventoService.postCrearZona(datosZona).subscribe({
+          next: (response) => {
+            if (response.ok && response.data) {
+              // Para postCrearZona, response.data debería ser un objeto único, no un array
+              const zonaCreada = Array.isArray(response.data) ? response.data[0] : response.data;
+
+              if (zonaCreada) {
+                // Agregar la nueva categoría a la lista local
+                const nuevaCat: ZonaData = {
+                  idZona: zonaCreada.idZona,
+                  nombre: this.nuevaCategoria.nombre,
+                  aforoMax: this.nuevaCategoria.aforoMaximo!,
+                  usuarioCreacion: null,
+                  usuarioActualizacion: null,
+                  activo: true,
+                  fechaCreacion: null,
+                  fechaActualizacion: null,
+                  idEvento: this.idEvento!
+                };
+
+                this.categoriasLocal.push(nuevaCat);
+
+                // Actualizar el dropdown de "Válido para" con la nueva categoría
+                this.validoParaOptions.push({
+                  label: nuevaCat.nombre,
+                  value: nuevaCat.idZona.toString()
+                });
+
+                // También actualizar las entradas con las categorías
+                this.actualizarEntradasConCategorias(this.categoriasLocal);
+
+                // Limpiar los campos
+                this.nuevaCategoria = {
+                  nombre: '',
+                  aforoMaximo: null
+                };
+
+                this.messageService.success(
+                  response.mensaje || 'Categoría creada exitosamente',
+                  'Operación Exitosa'
+                );
+              } else {
+                this.messageService.error(
+                  'No se recibieron datos de la zona creada',
+                  'Error en la Operación'
+                );
+              }
+            } else {
+              this.messageService.error(
+                response.mensaje || 'Error al crear la categoría',
                 'Error en la Operación'
               );
             }
-          } else {
-            this.messageService.error(
-              response.mensaje || 'Error al crear la categoría',
-              'Error en la Operación'
-            );
+          },
+          error: (error) => {
+            console.error('Error al crear zona:', error);
+            this.messageService.handleHttpError(error);
           }
-        },
-        error: (error) => {
-          console.error('Error al crear zona:', error);
-          this.messageService.handleHttpError(error);
-        }
-      });
+        });
+      }
     }
 
     onEliminarCategoria(index: number, event: any): void {

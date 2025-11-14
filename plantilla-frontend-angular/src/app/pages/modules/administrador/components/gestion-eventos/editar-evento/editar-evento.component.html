@@ -310,11 +310,20 @@
 
               <div class="add-button-container">
                 <p-button
-                  icon="pi pi-plus"
-                  severity="success"
+                  [icon]="modoEdicionCategoria ? 'pi pi-check' : 'pi pi-plus'"
+                  [severity]="modoEdicionCategoria ? 'info' : 'success'"
                   outlined="true"
                   (click)="onAgregarCategoria()"
-                  pTooltip="Agregar categoría"
+                  [pTooltip]="modoEdicionCategoria ? 'Actualizar categoría' : 'Agregar categoría'"
+                ></p-button>
+                <p-button
+                  *ngIf="modoEdicionCategoria"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  outlined="true"
+                  (click)="onCancelarEdicionCategoria()"
+                  pTooltip="Cancelar edición"
+                  class="cancelar-categoria-btn"
                 ></p-button>
               </div>
             </div>
@@ -327,13 +336,22 @@
                   <span class="categoria-nombre">{{ categoria.nombre }}</span>
                   <span class="categoria-aforo">Aforo: {{ categoria.aforoMax }}</span>
                 </div>
-                <p-button
-                  icon="pi pi-trash"
-                  severity="danger"
-                  text="true"
-                  (click)="onEliminarCategoria(i, $event)"
-                  pTooltip="Eliminar categoría"
-                ></p-button>
+                <div class="categoria-actions">
+                  <p-button
+                    icon="pi pi-pencil"
+                    severity="info"
+                    text="true"
+                    (click)="onEditarCategoria(i, $event)"
+                    pTooltip="Editar categoría"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    text="true"
+                    (click)="onEliminarCategoria(i, $event)"
+                    pTooltip="Eliminar categoría"
+                  ></p-button>
+                </div>
               </div>
             </div>
           </div>
