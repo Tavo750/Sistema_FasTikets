@@ -69,7 +69,9 @@ export class EditarEventoComponent implements OnInit{
       localString: '', // Para el dropdown (string)
       banner: null as File | null,
       bannerUrl: '',
+      bannerUrlOriginal: '', // URL original del banner desde el backend
       mapaUrl: '',
+      mapaZonasUrlOriginal: '', // URL original de la imagen de zonas desde el backend
       mapaFile: null as File | null,
       mapaZonasFile: null as File | null, // Nueva imagen de zonas
       moneda: 'Nuevo Sol'
@@ -252,6 +254,10 @@ export class EditarEventoComponent implements OnInit{
                 aforoDisponible: eventoData.aforoDisponible || 1000,
                 idLocal: eventoData.idLocal || 1
               };
+
+              // Guardar las URLs originales de las imágenes
+              this.formulario.bannerUrlOriginal = eventoData.imagenUrl || '';
+              this.formulario.mapaZonasUrlOriginal = eventoData.imagenZonasUrl || '';
 
               // Inicializar formulario con datos del evento cargado
               this.inicializarFormularioDesdeEvento();
@@ -873,14 +879,13 @@ export class EditarEventoComponent implements OnInit{
       // Asignar el idLocal del local seleccionado al evento
       this.evento.idLocal = parseInt(this.formulario.localString);
 
-      // Preparar datos para el servicio
-      const datosEvento = this.prepararDatosEvento();
-
       // Mostrar mensaje de carga
       this.messageService.info('Creando evento...', 'Procesando');
 
-      // Llamar al servicio para crear el evento
-      this.eventoService.postCrearEvento(datosEvento).subscribe({
+      // Preparar datos para el servicio (ahora es async)
+      this.prepararDatosEvento().then(datosEvento => {
+        // Llamar al servicio para crear el evento
+        this.eventoService.postCrearEvento(datosEvento).subscribe({
         next: (response) => {
           this.messageService.handleBackendResponse(response, false, 'Evento Creado');
 
@@ -900,6 +905,10 @@ export class EditarEventoComponent implements OnInit{
           console.error('Error al crear evento:', error);
           this.messageService.handleHttpError(error);
         }
+        });
+      }).catch(error => {
+        console.error('Error al preparar datos del evento:', error);
+        this.messageService.error('Error al procesar las imágenes del evento', 'Error');
       });
     }
 
@@ -934,14 +943,13 @@ export class EditarEventoComponent implements OnInit{
       // Asignar el idLocal del local seleccionado al evento
       this.evento.idLocal = parseInt(this.formulario.localString);
 
-      // Preparar datos para el servicio
-      const datosEvento = this.prepararDatosEvento();
-
       // Mostrar mensaje de carga
       this.messageService.info('Actualizando evento...', 'Procesando');
 
-      // Llamar al servicio para actualizar el evento
-      this.eventoService.putActualizarEvento(this.idEvento, datosEvento).subscribe({
+      // Preparar datos para el servicio (ahora es async)
+      this.prepararDatosEvento().then(datosEvento => {
+        // Llamar al servicio para actualizar el evento
+        this.eventoService.putActualizarEvento(this.idEvento!, datosEvento).subscribe({
         next: (response) => {
           this.messageService.handleBackendResponse(response, false, 'Evento Actualizado');
 
@@ -958,6 +966,10 @@ export class EditarEventoComponent implements OnInit{
           console.error('Error al actualizar evento:', error);
           this.messageService.handleHttpError(error);
         }
+        });
+      }).catch(error => {
+        console.error('Error al preparar datos del evento:', error);
+        this.messageService.error('Error al procesar las imágenes del evento', 'Error');
       });
     }
 
@@ -1145,7 +1157,7 @@ export class EditarEventoComponent implements OnInit{
     /**
      * Prepara los datos del evento en el formato requerido por la API
      */
-    prepararDatosEvento(): CrearEventoRequest {
+    async prepararDatosEvento(): Promise<CrearEventoRequest> {
       // Sincronizar datos del formulario al evento antes de preparar
       this.sincronizarFormularioAEvento();
 
@@ -1159,32 +1171,42 @@ export class EditarEventoComponent implements OnInit{
       const horaFin = this.timeFinal ?
         `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
-      // Determinar qué imagen usar:
-      // - Si hay un nuevo archivo cargado (formulario.banner es un File), usarlo
-      // - Si no hay nuevo archivo, enviar null para que el backend mantenga la imagen existente
-      let imagenParaEnviar: any;
-      if (this.formulario.banner && this.formulario.banner instanceof File) {
-        // Hay un nuevo archivo cargado - enviar el File
-        imagenParaEnviar = this.formulario.banner;
-      } else {
-        // No hay nueva imagen - enviar null para mantener la existente
-        // El servicio verificará si es un File válido antes de enviarlo al backend
-        imagenParaEnviar = null as any;
-      }
-
+      // Construir el objeto de datos del evento
       const datosEvento: CrearEventoRequest = {
         nombre: this.evento.nombre.trim(),
         descripcion: this.evento.descripcion.trim(),
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
-        imagenUrl: imagenParaEnviar,
-        imagenZonasUrl: this.formulario.mapaZonasFile || undefined,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
-        aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+        aforoDisponible: this.evento.aforoDisponible || 1000,
         idLocal: parseInt(this.formulario.localString)
       };
+
+      // Manejo de imagen banner
+      if (this.formulario.banner && this.formulario.banner instanceof File) {
+        // Hay un archivo nuevo cargado
+        datosEvento.imagenUrl = this.formulario.banner;
+      } else if (this.formulario.bannerUrlOriginal) {
+        // No hay archivo nuevo, pero existe URL original - convertirla a File
+        const bannerFile = await this.urlToFile(this.formulario.bannerUrlOriginal, 'banner.jpg');
+        if (bannerFile) {
+          datosEvento.imagenUrl = bannerFile;
+        }
+      }
+
+      // Manejo de imagen de zonas
+      if (this.formulario.mapaZonasFile && this.formulario.mapaZonasFile instanceof File) {
+        // Hay un archivo nuevo cargado
+        datosEvento.imagenZonasUrl = this.formulario.mapaZonasFile;
+      } else if (this.formulario.mapaZonasUrlOriginal) {
+        // No hay archivo nuevo, pero existe URL original - convertirla a File
+        const zonasFile = await this.urlToFile(this.formulario.mapaZonasUrlOriginal, 'zonas.jpg');
+        if (zonasFile) {
+          datosEvento.imagenZonasUrl = zonasFile;
+        }
+      }
 
       return datosEvento;
     }
@@ -1212,7 +1234,9 @@ export class EditarEventoComponent implements OnInit{
         localString: '',
         banner: null,
         bannerUrl: '',
+        bannerUrlOriginal: '',
         mapaUrl: '',
+        mapaZonasUrlOriginal: '',
         mapaFile: null,
         mapaZonasFile: null,
         moneda: 'Nuevo Sol'
@@ -1343,6 +1367,24 @@ export class EditarEventoComponent implements OnInit{
     }
 
 
+
+    /**
+     * Convierte una URL de imagen a un objeto File
+     * @param imageUrl URL de la imagen
+     * @param fileName Nombre del archivo
+     * @returns Promise con el archivo File
+     */
+    private async urlToFile(imageUrl: string, fileName: string): Promise<File | null> {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], fileName, { type: blob.type });
+        return file;
+      } catch (error) {
+        console.error('Error al convertir URL a File:', error);
+        return null;
+      }
+    }
 
     /**
      * Comprime y redimensiona una imagen para que sea lo más pequeña posible

@@ -926,19 +926,28 @@ export class CrearEventoComponent implements OnInit{
     const horaFin = this.timeFinal ?
       `${this.timeFinal.getHours().toString().padStart(2, '0')}:${this.timeFinal.getMinutes().toString().padStart(2, '0')}:00` : '00:00:00';
 
+    // Construir el objeto de datos del evento
     const datosEvento: CrearEventoRequest = {
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
       horaInicio: horaInicio,
       horaFin: horaFin,
-      imagenUrl: this.formulario.banner!,
-      imagenZonasUrl: this.formulario.mapaZonasFile || undefined,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
-      aforoDisponible: this.evento.aforoDisponible || 1000, // Usar el valor del input del usuario
+      aforoDisponible: this.evento.aforoDisponible || 1000,
       idLocal: parseInt(this.formulario.localString)
     };
+
+    // Solo agregar imagenUrl si hay un archivo File
+    if (this.formulario.banner && this.formulario.banner instanceof File) {
+      datosEvento.imagenUrl = this.formulario.banner;
+    }
+
+    // Solo agregar imagenZonasUrl si hay un archivo File
+    if (this.formulario.mapaZonasFile && this.formulario.mapaZonasFile instanceof File) {
+      datosEvento.imagenZonasUrl = this.formulario.mapaZonasFile;
+    }
 
     return datosEvento;
   }
