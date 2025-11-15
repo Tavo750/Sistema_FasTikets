@@ -1,13 +1,13 @@
 # Configuración de Netlify para Angular
 [build]
   # Comando para construir la aplicación
-  command = "npm run build"
+  command = "npm run build --configuration production"
 
   # Directorio donde se encuentran los archivos estáticos generados
   publish = "dist/plantilla/browser"
 
   # Directorio base del proyecto
-  base = "."
+  base = "plantilla-frontend-angular"
 
 # Configuración de Node.js
 [build.environment]
