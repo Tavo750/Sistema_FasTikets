@@ -216,73 +216,56 @@ activeTab: number = 0;
   }
 
   cargarHistorialCompras(): void {
-    // Simulación de historial de compras
-    this.compras = [
-      {
-        id: 1,
-        nombreEvento: 'Concierto Buba',
-        local: 'Estadio San Marcod',
-        fechaCompra: '15/07/2024',
-        nombreCliente: 'Roberto Meriño',
-        evento: 'Concierto Buba',
-        tipoEntrada: 'General',
-        categoriaEntrada: 'VIP',
-        correoElectronico: 'roberto@meriño.com',
-        cuponesUtilizados: 'DESCUENTO20',
-        descuento: 20,
-        metodoPago: 'Tarjeta',
-        cantidadTickets: 2,
-        precioTotal: 450.00
+    if (!this.clienteId) {
+      this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'ID de cliente no válido para cargar historial de compras' });
+      return;
+    }
+
+    this.loading = true;
+    this.gestionClientesService.getHistorialComprasPorCliente(this.clienteId).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res && res.ok && Array.isArray(res.data)) {
+          // Mapear la respuesta del backend a la estructura que usa la UI
+          this.compras = res.data.map((oc) => {
+            const o: any = oc as any;
+            // intentar extraer nombre del evento desde items.tipoTicket.nombre
+            const nombreEvento = (o.items && o.items.length > 0 && o.items[0].tipoTicket && o.items[0].tipoTicket.nombre) ? o.items[0].tipoTicket.nombre : '';
+            const cantidadTickets = o.items ? o.items.reduce((acc: number, it: any) => acc + (it.cantidad || 0), 0) : 0;
+            const clienteNombre = o.cliente ? `${o.cliente.nombres || ''} ${o.cliente.apellidos || ''}`.trim() : (o.cliente?.email || '');
+
+            return {
+              id: o.idOrdenCompra || 0,
+              nombreEvento: nombreEvento,
+              local: '',
+              fechaCompra: o.fechaOrden || '',
+              nombreCliente: clienteNombre,
+              evento: nombreEvento,
+              tipoEntrada: '',
+              categoriaEntrada: '',
+              correoElectronico: o.cliente?.email || '',
+              cuponesUtilizados: o.codigoPromocionalAplicado || '',
+              descuento: o.descuentoPromocional ?? 0,
+              metodoPago: o.pago?.metodo || o.metodoPago || '',
+              cantidadTickets: cantidadTickets,
+              precioTotal: o.total ?? 0
+            } as Compra;
+          });
+
+          if (this.compras.length === 0) {
+            this.messageService.add({ severity: 'info', summary: 'Sin compras', detail: 'No se encontraron compras para este cliente' });
+          }
+        } else {
+          this.compras = [];
+          this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo obtener el historial de compras' });
+        }
       },
-      {
-        id: 2,
-        nombreEvento: 'Concierto Miguel',
-        local: 'Estadio Monumental',
-        fechaCompra: '19/09/2020',
-        nombreCliente: 'Roberto Meriño',
-        evento: 'Concierto Miguel',
-        tipoEntrada: 'General',
-        categoriaEntrada: 'Platinium',
-        correoElectronico: 'roberto@meriño.com',
-        cuponesUtilizados: 'NINGUNO',
-        descuento: 0,
-        metodoPago: 'Efectivo',
-        cantidadTickets: 1,
-        precioTotal: 350.00
-      },
-      {
-        id: 3,
-        nombreEvento: 'Concierto Shakira',
-        local: 'Estadio Nacional',
-        fechaCompra: '10/09/2025',
-        nombreCliente: 'Roberto Meriño',
-        evento: 'Concierto Shakira',
-        tipoEntrada: 'General',
-        categoriaEntrada: 'General',
-        correoElectronico: 'roberto@meriño.com',
-        cuponesUtilizados: 'NINGUNO',
-        descuento: 0,
-        metodoPago: 'Yape',
-        cantidadTickets: 3,
-        precioTotal: 180.00
-      },
-      {
-        id: 4,
-        nombreEvento: 'Concierto Shakira',
-        local: 'Estadio Nacional',
-        fechaCompra: '10/09/2025',
-        nombreCliente: 'Roberto Meriño',
-        evento: 'Concierto Shakira',
-        tipoEntrada: 'General',
-        categoriaEntrada: 'General',
-        correoElectronico: 'roberto@meriño.com',
-        cuponesUtilizados: 'PRIMERACOMPRA',
-        descuento: 15,
-        metodoPago: 'Tarjeta',
-        cantidadTickets: 1,
-        precioTotal: 85.00
+      error: (err) => {
+        this.loading = false;
+        console.error('Error al cargar historial de compras:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar historial de compras' });
       }
-    ];
+    });
   }
 
   cargarHistorialPuntos(): void {
