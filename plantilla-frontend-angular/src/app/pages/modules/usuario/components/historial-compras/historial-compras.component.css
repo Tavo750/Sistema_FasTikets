@@ -1,0 +1,124 @@
+.historial-container {
+  padding: 18px;
+}
+.historial-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.historial-header h2 {
+  margin: 0 0 10px 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+.filters {
+  display: flex;
+  gap: 18px;
+  align-items: flex-end;
+  width: 100%;
+}
+.filters .filter-item { display:flex; flex-direction:column; }
+.filters select,
+.filters input[type="date"] {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  min-width: 190px;
+}
+.filters label { font-size: 13px; color: #666; margin-bottom:6px; }
+.historial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.purchase-card {
+  display: block;
+  background: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.card-image img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px 8px 0 0;
+}
+.card-content {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+.card-body {
+  padding: 14px;
+}
+.card-title {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.title-strong { font-weight: 700; }
+.card-meta { color: #333; font-size: 14px; line-height: 1.5; margin-bottom: 12px; }
+.meta-value { font-weight: 600; margin-left: 6px; }
+.card-actions { display:flex; justify-content:flex-end; }
+.status-text { font-weight: 700; }
+.status-approved { color: #2ecc71; }
+.status-rejected { color: #e74c3c; }
+.status-transfer { color: #f39c12; }
+.btn-detail {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.btn-detail:hover { opacity: 0.95; }
+
+
+
+@media (max-width: 1100px) {
+  .historial-grid { grid-template-columns: repeat(2, 1fr); }
+  .filters { gap: 14px; }
+  .filters select, .filters input[type="date"] { min-width: 160px; }
+}
+@media (max-width: 700px) {
+  .historial-grid { grid-template-columns: 1fr; }
+  .card-image img { height: 180px; }
+  .filters { flex-wrap: wrap; gap: 12px; }
+  .filters .filter-item { width: 100%; }
+  .filters select, .filters input[type="date"] { width: 100%; min-width: auto; }
+}
+
+.detail-page { padding: 12px 0; }
+.detail-card { margin: 0 auto; width: 100%; max-width: 1100px; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.detail-top img { width: 100%; height: 180px; object-fit: cover; display: block; }
+.detail-body { display: flex; gap: 18px; padding: 18px; }
+.detail-left { flex: 1; }
+.detail-right { width: 300px; display:flex; flex-direction:column; gap:12px; align-items:center; }
+.detail-left h3 { margin: 0 0 6px 0; font-size: 18px; }
+.label-sub { color:#666; margin-bottom:10px; }
+.detail-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom: 1px solid #eee; }
+.detail-label { color:#666; }
+.detail-value { font-weight:600; color:#222; }
+.name-box { background:#f2f2f2; padding:8px; margin:8px 0; border-radius:4px; }
+.muted { color:#777; font-size:13px; }
+.price { float:right; }
+.detail-actions { margin-top:12px; display:flex; gap:8px; }
+.btn-back { background:#fff; border:1px solid #ccc; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.btn-download { background:#000; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.ticket-badge { background:#9adf6a; color:#fff; padding:6px 10px; border-radius:6px; font-weight:700; }
+.qr-card { background:#fff; border-radius:8px; padding:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); width:220px; display:flex; flex-direction:column; align-items:center; }
+.qr-box { width:160px; height:160px; background:#eaf2ff; display:flex; align-items:center; justify-content:center; border-radius:8px; font-weight:700; color:#1d4ed8; }
+.qr-caption { font-size:13px; color:#333; margin-top:10px; text-align:center; }
+.btn-download-qr { background:#000; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
+.btn-transfer { background:#fff; border:1px solid #ddd; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
+
+@media (max-width: 900px) {
+  .detail-body { flex-direction: column; }
+  .detail-right { width:100%; align-items:stretch; }
+}
+

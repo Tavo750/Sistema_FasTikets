@@ -13,6 +13,7 @@ import { PerfilPersonalComponent } from './components/perfil-personal/perfil-per
 import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.component';
 import { BeneficiosComponent } from './components/beneficios/beneficios.component';
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
+import { HistorialDetalleComponent } from './components/historial-detalle/historial-detalle.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 
@@ -42,7 +43,8 @@ import { AsuntoSoporteComponent } from './components/ayuda-soporte/asunto-soport
     CoreModule,
     PrimeNgModule,
     ProgressBarModule,
-    ConfiguracionComponent
+    ConfiguracionComponent,
+    HistorialDetalleComponent
   ],
   providers: [
     MessageService,

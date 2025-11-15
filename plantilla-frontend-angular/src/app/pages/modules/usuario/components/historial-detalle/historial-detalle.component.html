@@ -1,0 +1,95 @@
+<div class="detail-wrapper">
+  <h2 class="page-title">Detalles de Compra</h2>
+
+  <div class="detail-card">
+    <div class="detail-top">
+      <img [src]="purchase.image" alt="{{purchase.title}}" />
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-left" [ngClass]="{'transfer-active': purchase.estado === 'Transferido' || purchase.estado === 'Rechazado'}">
+        <div class="header-row">
+          <div>
+            <div class="small-muted">Detalles de la compra : <span class="muted">{{ purchase.purchaseNumber }}</span></div>
+            <div class="title-sub">{{ purchase.title }}</div>
+          </div>
+          <div class="badge-container">
+            <span class="status-badge" [ngClass]="{'approved': purchase.estado == 'Aprobado', 'rejected': purchase.estado == 'Rechazado', 'transferred': purchase.estado == 'Transferido'}">{{ purchase.estado === 'Rechazado' ? 'Entrada Rechazada' : purchase.estado }}</span>
+          </div>
+        </div>
+
+        <div class="detail-row"><div class="detail-label">Fecha de compra:</div><div class="detail-value">{{ purchase.dateFull }}</div></div>
+        <!-- Show full details only when not Rechazado -->
+        <ng-container *ngIf="purchase.estado !== 'Rechazado'">
+          <div class="detail-row"><div class="detail-label">Entradas:</div><div class="detail-value">{{ purchase.items?.[0]?.qty }} x {{ purchase.items?.[0]?.desc }} <span class="price">S/ {{ purchase.items?.[0]?.price | number:'1.2-2' }}</span></div></div>
+
+          <div class="spacer"></div>
+          <div class="detail-row"><div class="detail-label">Puntos Canjeados:</div><div class="detail-value">{{ purchase.puntosCanjeados }} pts.</div></div>
+          <div class="detail-row"><div class="detail-label">Descuento</div><div class="detail-value">- S/ {{ purchase.descuento | number:'1.2-2' }}</div></div>
+          <div class="detail-row"><div class="detail-label">Total pagado :</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
+
+          <div class="detail-label">Nombres y apellidos :</div>
+          <div class="name-box">{{ purchase.nombres }}</div>
+          <div class="muted">DNI: {{ purchase.dni }}</div>
+
+          <div class="detail-row"><div class="detail-label">Puntos Obtenidos por su compra:</div><div class="detail-value">{{ purchase.puntosObtenidos }} pts.</div></div>
+        </ng-container>
+
+        <!-- Full details for non-rejected purchases -->
+        <ng-container *ngIf="purchase.estado !== 'Rechazado'">
+          <div class="detail-row"><div class="detail-label">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
+          <div class="detail-row"><div class="detail-label">Medio de pago:</div><div class="detail-value">{{ purchase.medioPago }}</div></div>
+
+          <div class="detail-row"><div class="detail-label">Monto</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
+          <div class="detail-row"><div class="detail-label">Tarjeta</div><div class="detail-value">{{ purchase.tarjetaMasked }}</div></div>
+
+          <div class="footer-rows">
+            <div class="detail-row small"><div class="detail-label">Estado</div><div class="detail-value">{{ purchase.estado }}</div></div>
+            <div class="detail-row small"><div class="detail-label">Fecha</div><div class="detail-value">{{ purchase.fechaCompra }}</div></div>
+          </div>
+
+          <!-- Transferido: mostrar persona transferida -->
+          <div *ngIf="purchase.estado === 'Transferido'" class="transfer-section">
+            <div class="detail-label">Persona transferida :</div>
+            <div class="transfer-box">
+              <div class="transfer-name">{{ purchase.personaTransferida?.nombre || purchase.transferencia?.nombre }}</div>
+              <div class="transfer-dni">DNI: {{ purchase.personaTransferida?.dni || purchase.transferencia?.dni }}</div>
+            </div>
+          </div>
+
+          <div class="detail-actions">
+            <button class="btn-back" (click)="back()">Volver</button>
+            <button class="btn-download" (click)="downloadQr()">Descargar</button>
+          </div>
+        </ng-container>
+
+        <!-- Rechazado: show only required fields in a compact panel -->
+        <ng-container *ngIf="purchase.estado === 'Rechazado'">
+          <div class="rejected-panel">
+            <div class="panel-title">Detalle de pago</div>
+            <div class="detail-row"><div class="detail-label">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
+            <div class="detail-row"><div class="detail-label">Monto</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
+            <div class="detail-row"><div class="detail-label">Estado</div><div class="detail-value">{{ purchase.estado }}</div></div>
+            <div class="detail-row"><div class="detail-label">Fecha</div><div class="detail-value">{{ purchase.fechaCompra }}</div></div>
+
+            <div class="detail-actions" style="justify-content:flex-end; margin-top:12px;">
+              <button class="btn-back" (click)="back()">Volver</button>
+              <button class="btn-download" (click)="downloadQr()">Descargar</button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Ocultar columna derecha cuando la entrada fue transferida o rechazada -->
+      <div *ngIf="purchase.estado !== 'Transferido' && purchase.estado !== 'Rechazado'" class="detail-right">
+        <div class="qr-title">QR Único</div>
+        <div class="qr-card">
+          <div class="qr-box">QR</div>
+          <div class="qr-caption">{{ purchase.title }}</div>
+        </div>
+        <button class="btn-download-qr" (click)="downloadQr()">Descargar QR</button>
+        <button class="btn-transfer">Transferir entrada a otra persona</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { PerfilPersonalComponent } from './components/perfil-personal/perfil-personal.component';
 import { BeneficiosComponent } from './components/beneficios/beneficios.component';
 import { HistorialComprasComponent } from './components/historial-compras/historial-compras.component';
+import { HistorialDetalleComponent } from './components/historial-detalle/historial-detalle.component';
 import { MisEntradasComponent } from './components/mis-entradas/mis-entradas.component';
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'perfilPersonal', component: PerfilPersonalComponent },
   { path: 'beneficios', component: BeneficiosComponent },
   { path: 'historialCompras', component: HistorialComprasComponent },
+  { path: 'historialCompras/detalle/:id', component: HistorialDetalleComponent },
   { path: 'misEntradas', component: MisEntradasComponent },
   { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },

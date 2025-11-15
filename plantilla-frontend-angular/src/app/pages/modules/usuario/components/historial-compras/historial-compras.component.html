@@ -1,1 +1,54 @@
-<p>historial-compras works!</p>
+<div class="historial-container">
+	<div class="historial-header">
+		<h2>Historial de Compras</h2>
+
+		<div class="filters">
+			<div class="filter-item">
+				<label>Por Categoría:</label>
+				<select [(ngModel)]="filterCategory">
+					<option value="">Seleccionar</option>
+					<option value="conciertos">Conciertos</option>
+					<option value="festivales">Festivales</option>
+					<option value="deporte">Deporte</option>
+				</select>
+			</div>
+
+			<div class="filter-item">
+				<label>Por Estados:</label>
+				<select [(ngModel)]="filterStatus">
+					<option value="">Seleccionar</option>
+					<option value="Aprobado">Aprobado</option>
+					<option value="Rechazado">Rechazado</option>
+					<option value="Transferido">Transferido</option>
+				</select>
+			</div>
+
+			<div class="filter-item">
+				<label>Por Fechas:</label>
+				<input type="date" [(ngModel)]="filterDate" />
+			</div>
+		</div>
+	</div>
+
+	<div class="historial-grid">
+		<div class="purchase-card" *ngFor="let p of purchases">
+			<div class="card-image">
+				<img [src]="p.image" alt="{{p.title}}" />
+			</div>
+			<div class="card-content">
+				<div class="card-body">
+					<div class="card-title">Evento: <span class="title-strong">{{ p.title }}</span></div>
+					<div class="card-meta">
+						<div>Fecha de Compra: <span class="meta-value">{{ p.date }}</span></div>
+						<div>Número de Tickets: <span class="meta-value">{{ p.tickets }}</span></div>
+						<div>Total Pagado: <span class="meta-value">S/ {{ p.total | number:'1.2-2' }}</span></div>
+						<div>Estado: <span class="status-text" [ngClass]="p.statusClass">{{ p.estado }}</span></div>
+					</div>
+					<div class="card-actions">
+						<button class="btn-detail" (click)="viewDetail(p)">Ver Detalle</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
