@@ -1,24 +1,69 @@
-.configuracion-container {
-  max-width: 800px;
-  padding: 2rem;
+.container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.titulo-principal {
-  font-size: 2rem;
-  font-weight: 600;
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
-  color: #2c3e50;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #1c224d;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.title i {
+  font-size: 2rem;
+  color: #1976d2;
+}
+
+.config-content {
+  margin-top: 2rem;
+}
+
+.config-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  border: none;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #dc3545, #dc3545);
+  color: white;
+  padding: 1.5rem;
+  margin: -1rem -1rem 0 -1rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
+
+.card-header i {
+  font-size: 1.25rem;
 }
 
 .notificaciones-section {
-  margin-bottom: 3rem;
-}
-
-.subtitulo {
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  color: #34495e;
+  padding: 1.5rem 0;
 }
 
 .notificacion-item {
@@ -26,6 +71,16 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   align-items: flex-start;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #dc3545;
+  transition: all 0.3s ease;
+}
+
+.notificacion-item:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateX(4px);
 }
 
 .notificacion-content {
@@ -34,8 +89,8 @@
 
 .notificacion-titulo {
   font-size: 1rem;
-  font-weight: 500;
-  color: #2c3e50;
+  font-weight: 600;
+  color: #212529;
   display: block;
   margin-bottom: 0.25rem;
   cursor: pointer;
@@ -43,19 +98,18 @@
 
 .notificacion-descripcion {
   font-size: 0.9rem;
-  color: #7f8c8d;
+  color: #6c757d;
   margin: 0;
+  line-height: 1.5;
 }
 
-.acciones-section {
+.card-actions {
   display: flex;
-  flex-direction: column;
   gap: 1rem;
-  margin-top: 2rem;
-}
-
-.acciones-section p-button {
-  width: fit-content;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 2px solid #e9ecef;
 }
 
 /* Dialog styles */
@@ -95,15 +149,72 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .configuracion-container {
+  .container {
     padding: 1rem;
   }
 
-  .titulo-principal {
-    font-size: 1.5rem;
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .acciones-section p-button {
-    width: 100%;
+  .title {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .card-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .card-header {
+    padding: 1rem;
+  }
+
+  .card-header h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Estilos para PrimeNG */
+:host ::ng-deep {
+  .p-card {
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  }
+
+  .p-card .p-card-content {
+    padding: 1.5rem;
+    background: white;
+  }
+
+  .p-card .p-card-footer {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+  }
+
+  .p-button {
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .p-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .p-checkbox {
+    margin-top: 0.25rem;
   }
 }

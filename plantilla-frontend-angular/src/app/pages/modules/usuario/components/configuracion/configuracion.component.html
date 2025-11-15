@@ -1,8 +1,24 @@
-<div class="configuracion-container">
-  <h1 class="titulo-principal">Configuración de la Cuenta</h1>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-cog"></i>
+      Configuración de la Cuenta
+    </h1>
+  </div>
 
-  <div class="notificaciones-section">
-    <h2 class="subtitulo">Notificaciones:</h2>
+  <div class="config-content">
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header">
+          <h3>
+            <i class="pi pi-bell"></i>
+            Notificaciones
+          </h3>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="notificaciones-section">
 
     <div class="notificacion-item">
       <p-checkbox 
@@ -51,23 +67,27 @@
         </p>
       </div>
     </div>
-  </div>
+        </div>
+      </ng-template>
 
-  <div class="acciones-section">
-    <p-button 
-      label="Cambiar mi contraseña" 
-      [outlined]="true" 
-      severity="secondary"
-      icon="pi pi-key"
-      (onClick)="irACambiarContrasena()">
-    </p-button>
+      <ng-template pTemplate="footer">
+        <div class="card-actions">
+          <p-button 
+            label="Cambiar mi contraseña" 
+            icon="pi pi-key"
+            severity="secondary"
+            (onClick)="irACambiarContrasena()">
+          </p-button>
 
-    <p-button 
-      label="Eliminar mi cuenta" 
-      severity="danger"
-      icon="pi pi-trash"
-      (onClick)="mostrarDialogoEliminar()">
-    </p-button>
+          <p-button 
+            label="Eliminar mi cuenta" 
+            severity="danger"
+            icon="pi pi-trash"
+            (onClick)="mostrarDialogoEliminar()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-card>
   </div>
 </div>
 

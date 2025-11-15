@@ -1,95 +1,157 @@
-<div class="support-container">
-  <h1>Ayuda y Soporte</h1>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-headphones"></i>
+      Ayuda y Soporte
+    </h1>
+  </div>
 
-  <p class="intro">
-    ¡Hola! Estamos aquí para ayudarte a que tu experiencia en FasTicket sea perfecta.
-  </p>
-
-  <p>
-    Si tienes alguna duda sobre la compra de entradas, el uso de nuestra plataforma
-    o necesitas ayuda con tu cuenta, te invitamos a consultar nuestra sección de
-    Preguntas Frecuentes (FAQ). Ahí encontrarás respuestas a los temas más comunes.
-  </p>
-
-  <p>
-    Si no encuentras lo que buscas, por favor, contáctanos a través del formulario a continuación.
-  </p>
-
-  <h2>¿Necesitas ayuda con algo específico?</h2>
-
-  <ul class="help-list">
-    <li>
-      Para consultas sobre un evento o ticket: incluye el nombre del evento y el ID de tu ticket.
-    </li>
-    <li>
-      Para problemas con tu cuenta: explica brevemente la situación y tu nombre de usuario.
-    </li>
-  </ul>
-
-  <form #supportForm="ngForm" class="support-form" (ngSubmit)="enviarCorreo(supportForm)">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
-      <button pButton type="button" label="Ver solicitudes" class="p-button-secondary p-button-rounded" (click)="abrirListado()"></button>
-    </div>
-    <div class="field">
-      <label for="asunto">Asunto:</label>
-      <input
-        id="asunto"
-        type="text"
-        pInputText
-        [(ngModel)]="asunto"
-        name="asunto"
-        placeholder="Escribir..."
-        required
-        minlength="3"
-      />
-      <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['asunto']?.touched">
-        <div class="error" *ngIf="supportForm.controls['asunto']?.errors?.['required']">El asunto es obligatorio.</div>
-        <div class="error" *ngIf="supportForm.controls['asunto']?.errors?.['minlength']">El asunto debe tener al menos 3 caracteres.</div>
+  <p-card class="support-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-comment"></i>
+          Formulario de Contacto
+        </h3>
       </div>
-    </div>
+    </ng-template>
 
-    <div class="field">
-      <label for="mensaje">Tu Mensaje:</label>
-      <textarea
-        id="mensaje"
-        rows="7"
-        pTextarea
-        [(ngModel)]="mensaje"
-        name="mensaje"
-        placeholder="Escribir..."
-        required
-        minlength="5">
-      </textarea>
-      <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['mensaje']?.touched">
-        <div class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['required']">El mensaje es obligatorio.</div>
-        <div class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['minlength']">El mensaje es muy corto.</div>
+    <ng-template pTemplate="content">
+      <div class="intro-section">
+        <p class="intro">
+          ¡Hola! Estamos aquí para ayudarte a que tu experiencia en FasTicket sea perfecta.
+        </p>
+
+        <p>
+          Si tienes alguna duda sobre la compra de entradas, el uso de nuestra plataforma
+          o necesitas ayuda con tu cuenta, te invitamos a consultar nuestra sección de
+          Preguntas Frecuentes (FAQ). Ahí encontrarás respuestas a los temas más comunes.
+        </p>
+
+        <p>
+          Si no encuentras lo que buscas, por favor, contáctanos a través del formulario a continuación.
+        </p>
       </div>
-    </div>
 
-    <div class="field">
-      <label for="prioridad">Prioridad:</label>
-      <select id="prioridad" name="prioridad" [(ngModel)]="prioridad" class="p-inputtext" style="width:180px;">
-        <option value="BAJA">Baja</option>
-        <option value="MEDIA">Media</option>
-        <option value="ALTA">Alta</option>
-      </select>
-    </div>
+      <div class="help-section">
+        <h4 class="section-subtitle">
+          <i class="pi pi-info-circle"></i>
+          ¿Necesitas ayuda con algo específico?
+        </h4>
 
-    <div class="field">
-      <label for="ipOrigen">IP Origen (detectada):</label>
-      <input id="ipOrigen" type="text" pInputText [(ngModel)]="ipOrigen" name="ipOrigen" readonly placeholder="Detectando IP..." />
-    </div>
+        <ul class="help-list">
+          <li>
+            <i class="pi pi-ticket"></i>
+            <strong>Consultas sobre eventos o tickets:</strong> incluye el nombre del evento y el ID de tu ticket.
+          </li>
+          <li>
+            <i class="pi pi-user"></i>
+            <strong>Problemas con tu cuenta:</strong> explica brevemente la situación y tu nombre de usuario.
+          </li>
+        </ul>
+      </div>
 
-    <div class="actions">
-      <button
-        pButton
-        type="submit"
-        label="Enviar Correo"
-        class="p-button-success p-button-rounded enviar-btn"
-        [disabled]="isLoading">
-      </button>
-    </div>
-  </form>
+      <div class="form-header">
+        <h4 class="section-subtitle">
+          <i class="pi pi-envelope"></i>
+          Enviar Solicitud
+        </h4>
+        <p-button 
+          label="Ver solicitudes" 
+          icon="pi pi-list"
+          severity="secondary"
+          (onClick)="abrirListado()">
+        </p-button>
+      </div>
+
+      <form #supportForm="ngForm" class="support-form" (ngSubmit)="enviarCorreo(supportForm)">
+        <div class="form-field">
+          <label for="asunto" class="field-label">
+            <i class="pi pi-tag"></i>
+            Asunto *
+          </label>
+          <input
+            id="asunto"
+            type="text"
+            pInputText
+            [(ngModel)]="asunto"
+            name="asunto"
+            class="form-input"
+            placeholder="Escribir..."
+            required
+            minlength="3"
+          />
+          <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['asunto']?.touched">
+            <small class="error" *ngIf="supportForm.controls['asunto']?.errors?.['required']">
+              <i class="pi pi-exclamation-circle"></i> El asunto es obligatorio.
+            </small>
+            <small class="error" *ngIf="supportForm.controls['asunto']?.errors?.['minlength']">
+              <i class="pi pi-exclamation-circle"></i> El asunto debe tener al menos 3 caracteres.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="mensaje" class="field-label">
+            <i class="pi pi-align-left"></i>
+            Tu Mensaje *
+          </label>
+          <textarea
+            id="mensaje"
+            rows="7"
+            pTextarea
+            [(ngModel)]="mensaje"
+            name="mensaje"
+            class="form-input"
+            placeholder="Escribir..."
+            required
+            minlength="5">
+          </textarea>
+          <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['mensaje']?.touched">
+            <small class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['required']">
+              <i class="pi pi-exclamation-circle"></i> El mensaje es obligatorio.
+            </small>
+            <small class="error" *ngIf="supportForm.controls['mensaje']?.errors?.['minlength']">
+              <i class="pi pi-exclamation-circle"></i> El mensaje es muy corto.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="prioridad" class="field-label">
+              <i class="pi pi-exclamation-triangle"></i>
+              Prioridad *
+            </label>
+            <select id="prioridad" name="prioridad" [(ngModel)]="prioridad" class="form-input">
+              <option value="BAJA">Baja</option>
+              <option value="MEDIA">Media</option>
+              <option value="ALTA">Alta</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="ipOrigen" class="field-label">
+              <i class="pi pi-globe"></i>
+              IP Origen (detectada)
+            </label>
+            <input id="ipOrigen" type="text" pInputText [(ngModel)]="ipOrigen" name="ipOrigen" readonly placeholder="Detectando IP..." class="form-input" />
+          </div>
+        </div>
+      </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="card-actions">
+        <p-button
+          label="Enviar Solicitud"
+          icon="pi pi-send"
+          [disabled]="isLoading"
+          (onClick)="enviarCorreo(supportForm)">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
 
   <p-dialog header="Solicitud enviada" [(visible)]="mostrarDialogExito" [modal]="true" [closable]="true" [style]="{width: '420px'}">
     <div *ngIf="ticketData">

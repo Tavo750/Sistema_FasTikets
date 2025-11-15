@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AyudaSoporteService } from '../../../services/ayuda-soporte.service';
 import { SessionService } from '../../../../../../shared/services/session.service';
@@ -15,6 +15,8 @@ import { AyudaSoporteListItem } from '../../../interfaces/ayuda-soporte/ayuda-so
   // No providers here: use the root/shared MessageService so p-toast (en app.component) lo reciba
 })
 export class AsuntoSoporteComponent {
+  @ViewChild('supportForm') supportForm!: NgForm;
+  
   asunto: string = '';
   mensaje: string = '';
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | string = 'MEDIA';

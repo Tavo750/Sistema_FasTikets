@@ -1,9 +1,23 @@
 
-<div class="faq-container p-card">
-  <header class="faq-header">
-    <h1>Preguntas Frecuentes</h1>
-    <p class="lead">Resuelve dudas comunes sobre cuentas, compras y eventos.</p>
-  </header>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-question-circle"></i>
+      Preguntas Frecuentes
+    </h1>
+  </div>
+
+  <p-card class="faq-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-info-circle"></i>
+          Resuelve dudas comunes sobre cuentas, compras y eventos
+        </h3>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
 
   <section class="faq-section">
     <h2>Cuentas y Registro</h2>
@@ -77,15 +91,16 @@
       </li>
     </ul>
   </section>
+    </ng-template>
 
-  <div class="faq-actions">
-    <button
-      pButton
-      type="button"
-      label="Siguiente"
-      class="p-button-success p-button-rounded siguiente-btn"
-      (click)="irASiguiente()">
-      Preguntas sobre Soporte
-    </button>
-  </div>
+    <ng-template pTemplate="footer">
+      <div class="card-actions">
+        <p-button
+          label="Preguntas sobre Soporte"
+          icon="pi pi-arrow-right"
+          (onClick)="irASiguiente()">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
 </div>
