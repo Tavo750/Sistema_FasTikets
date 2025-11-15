@@ -7,6 +7,7 @@ import { baseUrl } from '../../../../global';
 import { AyudaSoporteRequest, AyudaSoporteResponse } from '../interfaces/ayuda-soporte/ayuda-soporte.interface';
 import { AyudaSoporteListResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 import { AyudaSoporteAdmiModificarRequest, AyudaSoporteAdmiModificarResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
+import { AyudaSoporteAdmiObtenerIdResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -42,13 +43,26 @@ export class AyudaSoporteService {
   }
 
   /**
-   * Modifica el estado y observaciones de una solicitud (admin)
-   * PATCH /soporte/{id}/estado
+   * Obtiene una solicitud de soporte por id (admin)
+   * GET /soporte/{id}
+   */
+  obtenerPorId(idSolicitud: number): Observable<AyudaSoporteAdmiObtenerIdResponse> {
+    const url = `${baseUrl}/soporte/${idSolicitud}`;
+    console.log('AyudaSoporteService.obtenerPorId url:', url);
+    return this.http.get<AyudaSoporteAdmiObtenerIdResponse>(url).pipe(
+      catchError((error) => this.httpUtils.handleError(error))
+    );
+  }
+
+  /**
+   * Actualiza una solicitud de soporte (admin)
+   * PUT /soporte/{id}
+   * El body puede contener asunto, mensaje, prioridad, canalOrigen, ipOrigen, metadataAdicional y observaciones.
    */
   modificarEstadoSolicitud(idSolicitud: number, body: AyudaSoporteAdmiModificarRequest): Observable<AyudaSoporteAdmiModificarResponse> {
-    const url = `${baseUrl}/soporte/${idSolicitud}/estado`;
-    console.log('AyudaSoporteService.modificarEstadoSolicitud url:', url, 'body:', body);
-    return this.http.patch<AyudaSoporteAdmiModificarResponse>(url, body).pipe(
+    const url = `${baseUrl}/soporte/${idSolicitud}`;
+    console.log('AyudaSoporteService.modificarEstadoSolicitud (PUT) url:', url, 'body:', body);
+    return this.http.put<AyudaSoporteAdmiModificarResponse>(url, body).pipe(
       catchError((error) => this.httpUtils.handleError(error))
     );
   }

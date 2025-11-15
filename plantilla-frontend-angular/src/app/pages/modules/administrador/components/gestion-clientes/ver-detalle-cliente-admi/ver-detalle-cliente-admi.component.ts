@@ -80,6 +80,11 @@ activeTab: number = 0;
   loadingSolicitudes: boolean = false;
   mostrarDialogSolicitud: boolean = false;
   solicitudSeleccionada: AyudaSoporteListItem | null = null;
+  // Editar observación
+  mostrarDialogModificar: boolean = false;
+  solicitudParaEditar: AyudaSoporteListItem | null = null;
+  editarObservacion: string = '';
+  loadingModificar: boolean = false;
   // Filtros para Ayuda y soporte (barra superior)
   filterAsunto: string = '';
   filterEstado: string | null = null;
@@ -381,6 +386,94 @@ activeTab: number = 0;
     verSolicitud(solicitud: AyudaSoporteListItem): void {
       this.solicitudSeleccionada = solicitud;
       this.mostrarDialogSolicitud = true;
+    }
+
+    abrirModificarObservacion(solicitud: AyudaSoporteListItem): void {
+      if (!solicitud || !solicitud.idSolicitud) {
+        this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Solicitud inválida' });
+        return;
+      }
+      this.loadingModificar = true; // usar como indicador temporal mientras cargamos el detalle
+      this.ayudaSoporteService.obtenerPorId(Number(solicitud.idSolicitud)).subscribe({
+        next: (res) => {
+          this.loadingModificar = false;
+          if (res && res.ok && res.data) {
+            // cargar el ticket completo en solicitudParaEditar, y permitir sólo editar la observación
+            this.solicitudParaEditar = res.data;
+            this.editarObservacion = res.data.observaciones || '';
+            this.mostrarDialogModificar = true;
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo obtener el detalle de la solicitud' });
+          }
+        },
+        error: (err) => {
+          this.loadingModificar = false;
+          console.error('Error al obtener detalle de solicitud:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo obtener el detalle de la solicitud' });
+        }
+      });
+    }
+
+    guardarObservacion(): void {
+      if (!this.solicitudParaEditar) return;
+      const id = Number(this.solicitudParaEditar.idSolicitud);
+
+      // Construir payload respetando los valores actuales del ticket y cambiando sólo observaciones y estado
+      // Forzar estado RESUELTO en el objeto local antes de enviar
+      this.solicitudParaEditar.estado = 'RESUELTO';
+
+      const payload = {
+        asunto: this.solicitudParaEditar.asunto,
+        mensaje: this.solicitudParaEditar.mensaje,
+        prioridad: this.solicitudParaEditar.prioridad,
+        canalOrigen: this.solicitudParaEditar.canalOrigen,
+        ipOrigen: this.solicitudParaEditar.ipOrigen,
+        metadataAdicional: this.solicitudParaEditar.metadataAdicional || null,
+        observaciones: this.editarObservacion || null,
+        estado: 'RESUELTO'
+      };
+
+      this.loadingModificar = true;
+      this.ayudaSoporteService.modificarEstadoSolicitud(id, payload).subscribe({
+        next: (res) => {
+          this.loadingModificar = false;
+          if (res && res.ok && res.data) {
+            // actualizar la lista localmente con el objeto devuelto por el servidor
+            this.solicitudes = this.solicitudes.map(s => s.idSolicitud === res.data.idSolicitud ? res.data : s);
+            // si el detalle abierto corresponde a este ticket, actualizarlo también
+            if (this.solicitudSeleccionada && this.solicitudSeleccionada.idSolicitud === res.data.idSolicitud) {
+              this.solicitudSeleccionada = res.data;
+            }
+
+            // Asegurarnos de sincronizar con el servidor: re-obtener el ticket actualizado
+            this.ayudaSoporteService.obtenerPorId(id).subscribe({
+              next: (fresh) => {
+                if (fresh && fresh.ok && fresh.data) {
+                  this.solicitudes = this.solicitudes.map(s => s.idSolicitud === fresh.data.idSolicitud ? fresh.data : s);
+                  if (this.solicitudSeleccionada && this.solicitudSeleccionada.idSolicitud === fresh.data.idSolicitud) {
+                    this.solicitudSeleccionada = fresh.data;
+                  }
+                }
+              },
+              error: (e) => {
+                console.warn('No se pudo re-obtener el ticket tras actualización:', e);
+              }
+            });
+
+            this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: res.mensaje || 'Solicitud actualizada' });
+            this.mostrarDialogModificar = false;
+            this.solicitudParaEditar = null;
+            this.editarObservacion = '';
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: res?.mensaje || 'No se pudo actualizar la solicitud' });
+          }
+        },
+        error: (err) => {
+          this.loadingModificar = false;
+          console.error('Error al modificar observación:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar la observación' });
+        }
+      });
     }
 
     // Retorna las solicitudes ya filtradas por los controles de la barra

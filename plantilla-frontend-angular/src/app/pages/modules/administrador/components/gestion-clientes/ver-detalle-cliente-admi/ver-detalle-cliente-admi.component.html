@@ -473,6 +473,7 @@
             <td class="actions-cell">
               <div class="action-buttons">
                 <p-button icon="pi pi-eye" [text]="true" [rounded]="true" severity="info" size="small" (onClick)="verSolicitud(s)"></p-button>
+                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" size="small" styleClass="p-ml-1" (onClick)="abrirModificarObservacion(s)" pTooltip="Modificar observación" tooltipPosition="top"></p-button>
               </div>
             </td>
           </tr>
@@ -562,6 +563,41 @@
       (onClick)="mostrarDialogCompra = false" 
       severity="secondary">
     </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Modificar Observación -->
+<p-dialog
+  [(visible)]="mostrarDialogModificar"
+  header="Modificar observación"
+  [modal]="true"
+  [style]="{'width':'600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+
+  <div class="detalle-dialog">
+    <div *ngIf="solicitudParaEditar">
+      <div class="detalle-row">
+        <span class="label">ID:</span>
+        <span class="value">{{ solicitudParaEditar.idSolicitud }}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label">Asunto:</span>
+        <span class="value">{{ solicitudParaEditar.asunto }}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label">Observación nueva:</span>
+        <div class="value" style="width:100%">
+          <textarea pInputTextarea rows="4" style="width:100%" [(ngModel)]="editarObservacion"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" icon="pi pi-times" (onClick)="mostrarDialogModificar = false" class="p-button-text"></p-button>
+    <p-button label="Guardar" icon="pi pi-save" (onClick)="guardarObservacion()" [loading]="loadingModificar" [disabled]="loadingModificar" severity="success"></p-button>
   </ng-template>
 </p-dialog>
 
