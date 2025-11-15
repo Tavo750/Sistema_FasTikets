@@ -1924,11 +1924,12 @@ export class EditarEventoComponent implements OnInit{
         return;
       }
 
-      // Si estamos en modo edición, actualizar la categoría existente (no requiere idEvento)
+      // Si estamos en modo edición, actualizar la categoría existente
       if (modoEdicion && idCategoriaEditando && indexCategoriaEditando !== null) {
         const datosActualizacion = {
           nombre: this.nuevaCategoria.nombre.trim(),
-          aforoMax: this.nuevaCategoria.aforoMaximo!
+          aforoMax: this.nuevaCategoria.aforoMaximo!,
+          idEvento: this.idEvento!
         };
 
         this.messageService.info('Actualizando categoría...', 'Procesando');

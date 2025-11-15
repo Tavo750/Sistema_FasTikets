@@ -56,7 +56,7 @@ export class EventoService {
    * @param body Datos actualizados de la zona
    * @returns Observable con la respuesta del servidor
    */
-  putActualizarZona(id: number, body: { nombre: string; aforoMax: number }): Observable<ZonaCategoriaResponse> {
+  putActualizarZona(id: number, body: { nombre: string; aforoMax: number; idEvento: number }): Observable<ZonaCategoriaResponse> {
     const url = `${baseUrl}/zonas/${id}`;
     return this.http.put<ZonaCategoriaResponse>(url, body)
       .pipe(
