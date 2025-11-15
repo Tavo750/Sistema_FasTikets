@@ -1,7 +1,7 @@
 # Configuración de Netlify para Angular
 [build]
-  # Comando para construir la aplicación
-  command = "npm run build --configuration production"
+  # Comando para construir la aplicación (SIN --configuration production al final)
+  command = "npm run build"
 
   # Directorio donde se encuentran los archivos estáticos generados
   publish = "dist/plantilla/browser"
@@ -14,7 +14,6 @@
   NODE_VERSION = "18"
 
 # Redirecciones para SPA (Single Page Application)
-# Esto es crucial para que Angular Router funcione correctamente
 [[redirects]]
   from = "/*"
   to = "/index.html"
