@@ -61,7 +61,10 @@ export class EditarEventoComponent implements OnInit{
       estadoEvento: 'PUBLICADO',
       imagenUrl: null as any, // Se llenará con el archivo del banner
       aforoDisponible: 1000,
-      idLocal: 1
+      idLocal: 1,
+      restricciones: '',
+      politicasDevolucion: '',
+      menoresDeEdadPermitidos: false
     };
 
     // Campos auxiliares para el formulario (solo los necesarios)
@@ -262,7 +265,10 @@ export class EditarEventoComponent implements OnInit{
                 estadoEvento: eventoData.estadoEvento || 'PUBLICADO',
                 imagenUrl: eventoData.imagenUrl || '',
                 aforoDisponible: eventoData.aforoDisponible || 1000,
-                idLocal: eventoData.idLocal || 1
+                idLocal: eventoData.idLocal || 1,
+                restricciones: eventoData.restricciones || '',
+                politicasDevolucion: eventoData.politicasDevolucion || '',
+                menoresDeEdadPermitidos: eventoData.menoresDeEdadPermitidos || false
               };
 
               // Guardar las URLs originales de las imágenes
@@ -1198,7 +1204,10 @@ export class EditarEventoComponent implements OnInit{
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
         aforoDisponible: this.evento.aforoDisponible || 1000,
-        idLocal: parseInt(this.formulario.localString)
+        idLocal: parseInt(this.formulario.localString),
+        restricciones: this.evento.restricciones?.trim() || '',
+        politicasDevolucion: this.evento.politicasDevolucion?.trim() || '',
+        menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
       };
 
       // Manejo de imagen banner
@@ -1243,7 +1252,10 @@ export class EditarEventoComponent implements OnInit{
         imagenUrl: null as any,
         estadoEvento: 'PUBLICADO',
         aforoDisponible: 1000,
-        idLocal: 1
+        idLocal: 1,
+        restricciones: '',
+        politicasDevolucion: '',
+        menoresDeEdadPermitidos: false
       };
 
       // Resetear datos del formulario (UI) - solo campos necesarios

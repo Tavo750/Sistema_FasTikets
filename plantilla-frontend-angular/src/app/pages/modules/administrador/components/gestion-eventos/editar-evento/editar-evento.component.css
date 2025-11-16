@@ -1027,3 +1027,24 @@
     align-self: flex-end;
   }
 }
+
+/* Estilos para el checkbox de menores de edad */
+.menores-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.menores-checkbox:hover {
+  background: #e9ecef;
+}
+
+.menores-checkbox label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin: 0;
+}
