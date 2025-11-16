@@ -7,12 +7,21 @@
       Gestión de Códigos Promocionales
     </h1>
 
-    <p-button
-      label="Agregar Código"
-      icon="pi pi-plus"
-      [routerLink]="['/administrador/codigosPromocionales/registro']"
-      >
-    </p-button>
+    <div class="header-buttons">
+      <p-button
+        label="Reglas de Puntos"
+        icon="pi pi-star"
+        severity="info"
+        (onClick)="abrirDialogReglas()"
+        class="mr-2">
+      </p-button>
+      <p-button
+        label="Agregar Código"
+        icon="pi pi-plus"
+        [routerLink]="['/administrador/codigosPromocionales/registro']"
+        >
+      </p-button>
+    </div>
   </div>
 
   <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
@@ -216,3 +225,277 @@
     </div>
   </div>
 </div>
+
+<!-- Dialog Reglas de Puntos -->
+<p-dialog
+  [(visible)]="mostrarDialogReglas"
+  header="Gestión de Reglas de Puntos"
+  [modal]="true"
+  [style]="{'width': '80vw', 'max-width': '1200px'}"
+  [draggable]="false"
+  [resizable]="true"
+  styleClass="custom-dialog">
+
+  <div class="dialog-content">
+    <!-- Barra de búsqueda -->
+    <div class="search-section">
+      <div class="field">
+        <label for="busquedaReglas">Buscar regla:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busquedaReglas"
+            type="text"
+            pInputText
+            placeholder="Filtrar por ID, tipo o estado"
+            [(ngModel)]="searchReglas"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+
+    <!-- Tabla de Reglas -->
+    <div class="table-section">
+      <p-table
+        [value]="reglasPuntos"
+        [rows]="10"
+        [paginator]="true"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [loading]="loadingReglas"
+        [globalFilterFields]="['idRegla', 'tipoRegla', 'estado']"
+        [globalFilter]="searchReglas"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} reglas"
+        [tableStyle]="{ 'min-width': '100%' }"
+        styleClass="reglas-table">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idRegla">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID Regla
+                <p-sortIcon field="idRegla"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="solesPorPunto">
+              <div class="header-content">
+                <i class="pi pi-dollar"></i>
+                Soles por Punto
+                <p-sortIcon field="solesPorPunto"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="tipoRegla">
+              <div class="header-content">
+                <i class="pi pi-tag"></i>
+                Tipo de Regla
+                <p-sortIcon field="tipoRegla"></p-sortIcon>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Activo
+              </div>
+            </th>
+            <th pSortableColumn="estado">
+              <div class="header-content">
+                <i class="pi pi-info-circle"></i>
+                Estado
+                <p-sortIcon field="estado"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-regla>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{ regla.idRegla }}</span>
+            </td>
+            <td class="soles-cell">
+              <span class="soles-content">S/ {{ regla.solesPorPunto | number:'1.2-2' }}</span>
+            </td>
+            <td class="tipo-cell">
+              <p-tag 
+                [value]="regla.tipoRegla" 
+                [severity]="getTipoReglaSeverity(regla.tipoRegla)">
+              </p-tag>
+            </td>
+            <td class="activo-cell">
+              <p-tag 
+                [value]="regla.activo ? 'Activo' : 'Inactivo'"
+                [severity]="getActivoSeverity(regla.activo)">
+              </p-tag>
+            </td>
+            <td class="estado-cell">
+              {{ regla.estado }}
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="editarRegla(regla)"
+                  pTooltip="Editar regla"
+                  tooltipPosition="top">
+                </p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="confirmarEliminarRegla(regla)"
+                  pTooltip="Eliminar regla"
+                  tooltipPosition="top">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron reglas de puntos</h3>
+                <p>No hay reglas disponibles en el sistema.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="6">
+              <div class="no-results">
+                <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+                <p>Cargando reglas de puntos...</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer-buttons">
+      <p-button
+        label="Nueva Regla"
+        icon="pi pi-plus"
+        (onClick)="crearNuevaRegla()"
+        severity="success"
+        class="mr-2">
+      </p-button>
+      <p-button
+        label="Cerrar"
+        icon="pi pi-times"
+        (onClick)="mostrarDialogReglas = false"
+        severity="secondary">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Formulario Regla de Puntos -->
+<p-dialog
+  [(visible)]="mostrarDialogFormRegla"
+  [header]="modoEdicion ? 'Editar Regla de Puntos' : 'Nueva Regla de Puntos'"
+  [modal]="true"
+  [style]="{'width': '500px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="form-dialog">
+
+  <div class="form-content">
+    <div class="field-grid">
+      <!-- Soles por Punto -->
+      <div class="field">
+        <label for="solesPorPunto" class="required">Soles por Punto:</label>
+        <p-inputNumber
+          id="solesPorPunto"
+          [(ngModel)]="formularioRegla.solesPorPunto"
+          [min]="0.01"
+          [step]="0.01"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          placeholder="Ingrese el valor"
+          class="w-full"
+          [disabled]="guardandoRegla">
+        </p-inputNumber>
+      </div>
+
+      <!-- Tipo de Regla -->
+      <div class="field">
+        <label for="tipoRegla" class="required">Tipo de Regla:</label>
+        <p-dropdown
+          id="tipoRegla"
+          [(ngModel)]="formularioRegla.tipoRegla"
+          [options]="[{label: 'Compra', value: 'COMPRA'}, {label: 'Canje', value: 'CANJE'}]"
+          placeholder="Seleccione el tipo"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          [disabled]="guardandoRegla">
+        </p-dropdown>
+      </div>
+
+      <!-- Estado -->
+      <div class="field">
+        <label for="estado" class="required">Estado:</label>
+        <input
+          id="estado"
+          type="text"
+          pInputText
+          [(ngModel)]="formularioRegla.estado"
+          placeholder="Ingrese el estado"
+          class="w-full"
+          [disabled]="guardandoRegla"/>
+      </div>
+
+      <!-- Activo -->
+      <div class="field checkbox-field">
+        <p-checkbox
+          id="activo"
+          [(ngModel)]="formularioRegla.activo"
+          [binary]="true"
+          [disabled]="guardandoRegla">
+        </p-checkbox>
+        <label for="activo" class="checkbox-label">Regla activa</label>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="form-footer-buttons">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        (onClick)="cerrarDialogFormRegla()"
+        severity="secondary"
+        [disabled]="guardandoRegla"
+        class="mr-2">
+      </p-button>
+      <p-button
+        [label]="modoEdicion ? 'Actualizar' : 'Crear'"
+        [icon]="guardandoRegla ? 'pi pi-spin pi-spinner' : (modoEdicion ? 'pi pi-check' : 'pi pi-plus')"
+        (onClick)="guardarRegla()"
+        [severity]="modoEdicion ? 'info' : 'success'"
+        [disabled]="guardandoRegla">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

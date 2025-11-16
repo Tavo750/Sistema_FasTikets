@@ -30,6 +30,13 @@
   color: #1e88e5;
 }
 
+/* Header Buttons Section */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 /* Add Button */
 .add-button {
   background: #10b981 !important;
@@ -45,6 +52,23 @@
   border-color: #059669 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Reglas Button */
+.reglas-button {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.reglas-button:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 /* Search Panel */
@@ -400,5 +424,361 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .add-button,
+  .reglas-button {
+    width: 100%;
+  }
+}
+
+/* ===== ESTILOS DIÁLOGO REGLAS DE PUNTOS ===== */
+
+/* Custom Dialog */
+::ng-deep .custom-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #1e88e5 0%, #1976d2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+::ng-deep .custom-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+::ng-deep .custom-dialog .p-dialog-content {
+  padding: 0;
+  border-radius: 0 0 12px 12px;
+}
+
+::ng-deep .custom-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Dialog Content */
+.dialog-content {
+  padding: 1.5rem;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.search-section .field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.search-section .p-input-icon-left > input {
+  padding-left: 2.5rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.search-section .p-input-icon-left > input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Table Section */
+.table-section {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Table Styles */
+::ng-deep .reglas-table .p-datatable-header {
+  background: #f1f5f9;
+  border: none;
+  padding: 1rem;
+}
+
+::ng-deep .reglas-table .p-datatable-thead > tr > th {
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+::ng-deep .reglas-table .p-datatable-tbody > tr > td {
+  border: none;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+::ng-deep .reglas-table .p-datatable-tbody > tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Header Content */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.header-content i {
+  font-size: 1rem;
+}
+
+/* Table Cell Styles */
+.table-row {
+  transition: all 0.3s ease;
+}
+
+.id-cell .id-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: #e0f2fe;
+  color: #0277bd;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.soles-cell .soles-content {
+  font-weight: 600;
+  color: #059669;
+  font-size: 1rem;
+}
+
+.tipo-cell p-tag {
+  width: 100%;
+}
+
+.activo-cell p-tag {
+  width: 100%;
+}
+
+.estado-cell {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.no-results h3 {
+  color: #6b7280;
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.no-results p {
+  color: #9ca3af;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+/* Custom Spinner */
+::ng-deep .custom-spinner .p-progress-spinner-circle {
+  stroke: #3b82f6;
+}
+
+/* Responsive Reglas Dialog */
+@media (max-width: 768px) {
+  ::ng-deep .custom-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  .dialog-content {
+    padding: 1rem;
+  }
+
+  .search-section {
+    padding: 0.75rem;
+  }
+
+  ::ng-deep .reglas-table .p-datatable-thead > tr > th,
+  ::ng-deep .reglas-table .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .id-badge {
+    font-size: 0.75rem !important;
+    padding: 0.125rem 0.5rem !important;
+  }
+
+  .soles-content {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* ===== ESTILOS DIÁLOGO FORMULARIO REGLAS ===== */
+
+/* Dialog Footer Buttons */
+.dialog-footer-buttons,
+.form-footer-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Form Dialog */
+::ng-deep .form-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+::ng-deep .form-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+::ng-deep .form-dialog .p-dialog-content {
+  padding: 0;
+  border-radius: 0 0 12px 12px;
+}
+
+::ng-deep .form-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Form Content */
+.form-content {
+  padding: 1.5rem;
+}
+
+.field-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.field label.required::after {
+  content: ' *';
+  color: #ef4444;
+}
+
+/* Checkbox Field */
+.checkbox-field {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.75rem !important;
+}
+
+.checkbox-label {
+  margin: 0 !important;
+  font-weight: 500 !important;
+  color: #4b5563 !important;
+  cursor: pointer;
+}
+
+/* Input Styles */
+::ng-deep .form-dialog .p-inputtext,
+::ng-deep .form-dialog .p-dropdown,
+::ng-deep .form-dialog .p-inputnumber {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .form-dialog .p-inputtext:focus,
+::ng-deep .form-dialog .p-dropdown:not(.p-disabled):hover,
+::ng-deep .form-dialog .p-inputnumber:not(.p-disabled):hover {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+::ng-deep .form-dialog .p-dropdown-panel {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .form-dialog .p-checkbox .p-checkbox-box {
+  border-radius: 4px;
+  border: 2px solid #d1d5db;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .form-dialog .p-checkbox .p-checkbox-box.p-highlight {
+  background: #059669;
+  border-color: #059669;
+}
+
+::ng-deep .form-dialog .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box:hover {
+  border-color: #059669;
+}
+
+/* Responsive Form */
+@media (max-width: 768px) {
+  ::ng-deep .form-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  .form-content {
+    padding: 1rem;
+  }
+
+  .field-grid {
+    gap: 0.75rem;
+  }
+
+  .form-footer-buttons,
+  .dialog-footer-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-footer-buttons p-button,
+  .dialog-footer-buttons p-button {
+    width: 100%;
   }
 }

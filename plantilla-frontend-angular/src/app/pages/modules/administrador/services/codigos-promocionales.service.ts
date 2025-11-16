@@ -6,6 +6,14 @@ import { HttpUtilsService } from '../../../../shared/services/http-utils.service
 import { BodyCodigosPromocionales, CodigosPromocionalesResponse } from '../interfaces/codigos-promocionales/codigos-promocionales.interface';
 import { CodigosPromocionalesListResponse } from '../interfaces/codigos-promocionales/codigos-promocionales-list.interface';
 import { EliminaCodigoPromocionalResponse } from '../interfaces/codigos-promocionales/elimina-codigo-promocional.interface';
+import { 
+  ReglasPuntosListResponse, 
+  CreateReglaPuntosRequest, 
+  CreateReglaPuntosResponse,
+  UpdateReglaPuntosRequest,
+  UpdateReglaPuntosResponse,
+  DeleteReglaPuntosResponse
+} from '../interfaces/reglas-puntos/reglas-puntos.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -75,6 +83,54 @@ export class CodigosPromocionalesService {
       .pipe(
         catchError(this.httpUtils.handleError)
       );
+  }
+
+  /**
+   * Obtiene la lista de reglas de puntos
+   * @returns Observable con la respuesta que contiene las reglas de puntos
+   */
+  getReglasPuntos(): Observable<ReglasPuntosListResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/reglas-puntos`;
+    return this.http.get<ReglasPuntosListResponse>(url).pipe(
+      catchError(this.httpUtils.handleError)
+    );
+  }
+
+  /**
+   * Crea una nueva regla de puntos
+   * @param body Datos de la regla de puntos a crear
+   * @returns Observable con la respuesta que contiene la regla creada
+   */
+  createReglaPuntos(body: CreateReglaPuntosRequest): Observable<CreateReglaPuntosResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/reglas-puntos`;
+    return this.http.post<CreateReglaPuntosResponse>(url, body).pipe(
+      catchError(this.httpUtils.handleError)
+    );
+  }
+
+  /**
+   * Actualiza una regla de puntos por su ID
+   * @param id ID de la regla de puntos a actualizar
+   * @param body Datos de la regla de puntos a actualizar
+   * @returns Observable con la respuesta que contiene la regla actualizada
+   */
+  updateReglaPuntos(id: number, body: UpdateReglaPuntosRequest): Observable<UpdateReglaPuntosResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/reglas-puntos/${id}`;
+    return this.http.put<UpdateReglaPuntosResponse>(url, body).pipe(
+      catchError(this.httpUtils.handleError)
+    );
+  }
+
+  /**
+   * Elimina una regla de puntos por su ID
+   * @param id ID de la regla de puntos a eliminar
+   * @returns Observable con la respuesta de eliminación
+   */
+  deleteReglaPuntos(id: number): Observable<DeleteReglaPuntosResponse> {
+    const url = `${baseUrl}/admin/fidelizacion/reglas-puntos/${id}`;
+    return this.http.delete<DeleteReglaPuntosResponse>(url).pipe(
+      catchError(this.httpUtils.handleError)
+    );
   }
 
 }
