@@ -16,6 +16,10 @@ export interface CartItem {
   eventVenue?: string;
   // id asignado por el servidor al persistir el item del carrito (opcional)
   serverId?: number;
+  // id del tipo de ticket proporcionado por el backend en `/carrito/cliente/{idCliente}`
+  idTipoTicket?: number;
+  // alias opcional para compatibilidad con diferentes shapes de respuesta
+  name?: string;
 }
 
 export interface TicketForCart {

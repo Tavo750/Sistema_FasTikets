@@ -80,4 +80,23 @@ export class CarritoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Obtiene el carrito completo del cliente con estructura: { idCarro, items: [...] }
+   * Endpoint: GET /carrito/cliente/{idCliente}
+   */
+  getCartByCliente(idCliente: number): Observable<any> {
+    const url = `${baseUrl}/carrito/cliente/${idCliente}`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('CarritoService.getCartByCliente -> GET', url); } catch(e) {}
+
+    return this.http.get<any>(url, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.getCartByCliente response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
 }

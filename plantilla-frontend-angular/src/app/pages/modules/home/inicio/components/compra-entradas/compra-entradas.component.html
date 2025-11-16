@@ -77,31 +77,76 @@
               <!-- Mostrar resumen de tickets seleccionados -->
               <div class="tickets-summary" *ngIf="purchaseData">
                 <h4><i class="pi pi-ticket"></i> Entradas Seleccionadas</h4>
-                <div class="ticket-summary-item" *ngFor="let ticket of purchaseData.tickets">
+                <div class="ticket-summary-item" *ngFor="let ticket of purchaseData.tickets; let ti = index">
                   <div class="ticket-summary-info">
                     <span class="ticket-name">{{ ticket.name }}</span>
                     <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
                     <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
                     <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
+                    <span class="ticket-id" *ngIf="ticketIds && ticketIds.length">ID TipoTicket: {{ ticketIds[ti] || '-' }}</span>
                   </div>
+                </div>
+                <!-- Mostrar los ids de tipo de ticket según items del carrito -->
+                <div class="cart-items-ids" *ngIf="cartItems && cartItems.length">
+                  <h5>IDs de Tipo de Ticket (carrito)</h5>
+                  <ul>
+                    <li *ngFor="let ci of cartItems">
+                      <strong>{{ ci.category || ci.ticketType || ci.title }}</strong>
+                      — cantidad: {{ ci.quantity }}
+                      — <em>idTipoTicket</em>: {{ ci.idTipoTicket || ci.serverId || ci.id }}
+                    </li>
+                  </ul>
                 </div>
               </div>
 
-              <!-- Información básica de entradas (legacy) -->
-              <div class="ticket-item" *ngFor="let p of participants; let i = index">
-                <div class="detail-item">
-                  <label class="detail-label">
-                    <i class="pi pi-tag"></i>
-                    Entrada {{ i + 1 }}:
-                  </label>
-                  <span class="detail-value">{{ p.ticketType }}</span>
-                </div>
-                <div class="detail-item">
-                  <label class="detail-label">
-                    <i class="pi pi-dollar"></i>
-                    Precio:
-                  </label>
-                  <span class="detail-value price-value">S/ {{ price | number:'1.2-2' }}</span>
+              <!-- Formulario de participantes (uno por cada entrada) -->
+              <div class="participants-list">
+                <div class="participant-card" *ngFor="let p of participants; let i = index">
+                  <div class="participant-header">
+                    <div class="ticket-type">
+                      <strong>Tipo de entrada</strong>
+                      <div class="ticket-type-name">{{ p.ticketType }}</div>
+                      <div class="ticket-type-id" *ngIf="p.idTipoTicket">
+                        <small>ID TipoTicket: {{ p.idTipoTicket }}</small>
+                      </div>
+                    </div>
+                    <div class="participant-actions">
+                      <label class="complete-label">
+                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" />
+                        Completar con mis datos
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="participant-body">
+                    <div class="form-row">
+                      <div class="form-group half">
+                        <label>Tipo de Documento: *</label>
+                        <select [(ngModel)]="p.docType" name="docType-{{i}}">
+                          <option *ngFor="let d of docTypes" [value]="d">{{ d }}</option>
+                        </select>
+                      </div>
+                      <div class="form-group half">
+                        <label>Número de Documento: *</label>
+                        <input type="text" [(ngModel)]="p.docNumber" name="docNumber-{{i}}" placeholder="Complete aquí" />
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="form-group half">
+                        <label>Nombre: *</label>
+                        <input type="text" [(ngModel)]="p.firstName" name="firstName-{{i}}" placeholder="Complete aquí" />
+                      </div>
+                      <div class="form-group half">
+                        <label>Apellidos: *</label>
+                        <input type="text" [(ngModel)]="p.lastName" name="lastName-{{i}}" placeholder="Complete aquí" />
+                      </div>
+                    </div>
+
+                    <div class="participant-note">
+                      <small class="text-muted">⚠ Los campos con * son obligatorios.</small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -278,36 +323,61 @@
         <p>S/ {{ totalAmount | number:'1.2-2' }}</p>
       </div>
       <p class="subtitle">Recuerda activar las compras por internet con tu banco</p>
-      <form class="payment-form">
+      <form class="payment-form" #paymentForm="ngForm" (ngSubmit)="onPagar(paymentForm)">
         <div class="form-group">
           <label><i class="pi pi-credit-card"></i> Número de tarjeta *</label>
-          <input type="text" placeholder="Número de tarjeta" />
+          <input name="cardNumber" type="text" inputmode="numeric" placeholder="Número de tarjeta" [(ngModel)]="cardNumber" #cardNumberModel="ngModel" required minlength="13" maxlength="19" pattern="[0-9 ]+" />
+          <div class="form-error" *ngIf="cardNumberModel.invalid && (cardNumberModel.dirty || cardNumberModel.touched)">
+            <small *ngIf="cardNumberModel.errors?.['required']">Número de tarjeta es obligatorio</small>
+            <small *ngIf="cardNumberModel.errors?.['minlength']">Número demasiado corto</small>
+            <small *ngIf="cardNumberModel.errors?.['maxlength']">Número demasiado largo</small>
+            <small *ngIf="cardNumberError">{{ cardNumberError }}</small>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label><i class="pi pi-calendar"></i> Fecha de caducidad *</label>
-            <input type="text" placeholder="MM/AA" />
+            <input name="expiry" type="text" placeholder="MM/AA" [(ngModel)]="expiry" #expiryModel="ngModel" required pattern="^(0[1-9]|1[0-2])/[0-9]{2}$" />
+            <div class="form-error" *ngIf="expiryModel.invalid && (expiryModel.dirty || expiryModel.touched)">
+              <small *ngIf="expiryModel.errors?.['required']">Fecha obligatoria</small>
+              <small *ngIf="expiryModel.errors?.['pattern']">Formato MM/AA</small>
+              <small *ngIf="expiryError">{{ expiryError }}</small>
+            </div>
           </div>
           <div class="form-group">
             <label><i class="pi pi-key"></i> CVV *</label>
-            <input type="text" placeholder="CVV" />
+            <input name="cvv" type="text" inputmode="numeric" placeholder="CVV" [(ngModel)]="cvv" #cvvModel="ngModel" required minlength="3" maxlength="3" pattern="[0-9]{3}" />
+            <div class="form-error" *ngIf="cvvModel.invalid && (cvvModel.dirty || cvvModel.touched)">
+              <small *ngIf="cvvModel.errors?.['required']">CVV obligatorio</small>
+              <small *ngIf="cvvModel.errors?.['pattern']">CVV inválido</small>
+              <small *ngIf="cvvError">{{ cvvError }}</small>
+            </div>
           </div>
         </div>
         <div class="form-group">
           <label><i class="pi pi-user"></i> Nombre del titular de la tarjeta *</label>
-          <input type="text" placeholder="Nombre del titular de la tarjeta" />
+          <input name="cardHolder" type="text" placeholder="Nombre del titular de la tarjeta" [(ngModel)]="cardHolder" #cardHolderModel="ngModel" required />
+          <div class="form-error" *ngIf="cardHolderModel.invalid && (cardHolderModel.dirty || cardHolderModel.touched)">
+            <small>Nombre obligatorio</small>
+          </div>
         </div>
         <div class="form-group">
           <label><i class="pi pi-envelope"></i> Correo electrónico *</label>
-          <input type="email" placeholder="Correo electrónico" />
+          <input name="email" type="email" placeholder="Correo electrónico" [(ngModel)]="email" #emailModel="ngModel" required email />
+          <div class="form-error" *ngIf="emailModel.invalid && (emailModel.dirty || emailModel.touched)">
+            <small *ngIf="emailModel.errors?.['required']">Email obligatorio</small>
+            <small *ngIf="emailModel.errors?.['email']">Email inválido</small>
+          </div>
         </div>
         <div class="form-group">
           <label>Cuotas *</label>
-          <select>
+          <select name="installments" [(ngModel)]="installments">
             <option>Sin cuotas</option>
+            <option>3 cuotas</option>
+            <option>6 cuotas</option>
           </select>
         </div>
-        <button pButton type="button" label="PAGAR" class="p-button-lg p-button-block p-button-success" (click)="onPagar()"></button>
+        <button pButton type="submit" label="PAGAR" class="p-button-lg p-button-block p-button-success" [disabled]="isProcessingPayment"></button>
       </form>
     </div>
   </p-dialog>
