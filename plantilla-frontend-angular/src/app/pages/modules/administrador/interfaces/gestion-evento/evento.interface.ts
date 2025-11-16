@@ -16,6 +16,9 @@ export interface CrearEventoRequest {
     estadoEvento: string;
     aforoDisponible: number;
     idLocal: number;
+    restricciones?: string;
+    politicasDevolucion?: string;
+    menoresDeEdadPermitidos?: boolean;
 }
 
 export interface Data {

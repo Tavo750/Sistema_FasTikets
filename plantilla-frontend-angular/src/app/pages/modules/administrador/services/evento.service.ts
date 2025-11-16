@@ -110,6 +110,11 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
+    
+    // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
+    formData.append('restricciones', body.restricciones || '');
+    formData.append('politicasDevolucion', body.politicasDevolucion || '');
+    formData.append('menoresDeEdadPermitidos', (body.menoresDeEdadPermitidos || false).toString());
 
     return this.http.post<CrearEventoResponse>(url, formData)
       .pipe(
@@ -172,6 +177,11 @@ export class EventoService {
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
+    
+    // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
+    formData.append('restricciones', body.restricciones || '');
+    formData.append('politicasDevolucion', body.politicasDevolucion || '');
+    formData.append('menoresDeEdadPermitidos', (body.menoresDeEdadPermitidos || false).toString());
 
     // Solo agregar imagenUrl si existe en body y es un File
     // Si no se envía este campo, el backend DEBE mantener la imagen banner existente
