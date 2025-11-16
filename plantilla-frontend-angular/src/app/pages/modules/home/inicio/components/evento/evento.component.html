@@ -243,6 +243,13 @@
             id="evento-mapa"
             class="evento-mapa"
             #eventoMapa>
+            <!-- Indicador de carga del mapa -->
+            <div class="map-loading" *ngIf="mapLoading">
+              <div class="loading-spinner">
+                <p-progressSpinner strokeWidth="4" fill="#1976d2"></p-progressSpinner>
+              </div>
+              <p>Cargando mapa...</p>
+            </div>
           </div>
         </div>
       </div>
