@@ -552,6 +552,20 @@
   margin-bottom: 0.25rem !important;
 }
 
+::ng-deep .dropdown-up {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-bottom: 0.25rem !important;
+  transform-origin: bottom center !important;
+}
+
+::ng-deep .p-dropdown-panel.dropdown-up {
+  top: auto !important;
+  bottom: 100% !important;
+  margin-bottom: 0.25rem !important;
+  transform-origin: bottom center !important;
+}
+
 
 ::ng-deep .p-dropdown .p-dropdown-label,
 ::ng-deep .p-inputtext,
