@@ -27,15 +27,20 @@
       {{ loginMessage }}
     </div>
 
+    <!-- Mensaje de bloqueo -->
+    <div *ngIf="bloqueado" class="info-message" style="background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+      🔒 Cuenta bloqueada temporalmente. Espera {{ tiempoRestante }} segundos.
+    </div>
+
     <form (ngSubmit)="onSubmit()">
-      <input type="email" placeholder="Correo Electrónico" [(ngModel)]="username" name="username" required>
-      <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required>
+      <input type="email" placeholder="Correo Electrónico" [(ngModel)]="username" name="username" required [disabled]="bloqueado">
+      <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required [disabled]="bloqueado">
 
       <div class="forgot-wrap">
         <a (click)="router.navigate(['/cambiar_contra'])" class="forgot-link" style="cursor: pointer;">¿Olvidaste tu contraseña?</a>
       </div>
 
-      <button type="submit" class="btn-login">Iniciar Sesión</button>
+      <button type="submit" class="btn-login" [disabled]="bloqueado">{{ bloqueado ? 'Bloqueado (' + tiempoRestante + 's)' : 'Iniciar Sesión' }}</button>
 
       <div class="register-wrap">
         <span>¿No tienes cuenta?</span>
