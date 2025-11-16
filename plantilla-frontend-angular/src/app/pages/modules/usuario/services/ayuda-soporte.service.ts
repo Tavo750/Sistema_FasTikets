@@ -8,6 +8,7 @@ import { AyudaSoporteRequest, AyudaSoporteResponse } from '../interfaces/ayuda-s
 import { AyudaSoporteListResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 import { AyudaSoporteAdmiModificarRequest, AyudaSoporteAdmiModificarResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
 import { AyudaSoporteAdmiObtenerIdResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
+import { AyudaSoporteEstadoAdmiRequest, AyudaSoporteEstadoAdmiResponse } from '../interfaces/ayuda-soporte/ayuda-soporte-estado-admi.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +64,19 @@ export class AyudaSoporteService {
     const url = `${baseUrl}/soporte/${idSolicitud}`;
     console.log('AyudaSoporteService.modificarEstadoSolicitud (PUT) url:', url, 'body:', body);
     return this.http.put<AyudaSoporteAdmiModificarResponse>(url, body).pipe(
+      catchError((error) => this.httpUtils.handleError(error))
+    );
+  }
+
+  /**
+   * Modifica solo el estado y observaciones de una solicitud (admin)
+   * PUT /soporte/{id}/estado
+   * Endpoint específico para cambio de estado según Postman
+   */
+  modificarEstadoSolicitudAdmin(idSolicitud: number, body: AyudaSoporteEstadoAdmiRequest): Observable<AyudaSoporteEstadoAdmiResponse> {
+    const url = `${baseUrl}/soporte/${idSolicitud}/estado`;
+    console.log('AyudaSoporteService.modificarEstadoSolicitudAdmin (PUT /estado) url:', url, 'body:', body);
+    return this.http.put<AyudaSoporteEstadoAdmiResponse>(url, body).pipe(
       catchError((error) => this.httpUtils.handleError(error))
     );
   }

@@ -401,23 +401,14 @@ activeTab: number = 0;
       if (!this.solicitudParaEditar) return;
       const id = Number(this.solicitudParaEditar.idSolicitud);
 
-      // Construir payload respetando los valores actuales del ticket y cambiando sólo observaciones y estado
-      // Forzar estado RESUELTO en el objeto local antes de enviar
-      this.solicitudParaEditar.estado = 'RESUELTO';
-
+      // Usar el nuevo endpoint específico para modificar solo estado y observaciones
       const payload = {
-        asunto: this.solicitudParaEditar.asunto,
-        mensaje: this.solicitudParaEditar.mensaje,
-        prioridad: this.solicitudParaEditar.prioridad,
-        canalOrigen: this.solicitudParaEditar.canalOrigen,
-        ipOrigen: this.solicitudParaEditar.ipOrigen,
-        metadataAdicional: this.solicitudParaEditar.metadataAdicional || null,
-        observaciones: this.editarObservacion || null,
-        estado: 'RESUELTO'
+        estado: 'RESUELTO',
+        observaciones: this.editarObservacion || null
       };
 
       this.loadingModificar = true;
-      this.ayudaSoporteService.modificarEstadoSolicitud(id, payload).subscribe({
+      this.ayudaSoporteService.modificarEstadoSolicitudAdmin(id, payload).subscribe({
         next: (res) => {
           this.loadingModificar = false;
           if (res && res.ok && res.data) {
