@@ -19,6 +19,7 @@ import { EditarLocalComponent } from './components/gestion-locales/editar-local/
 import { CambiarContrasenaAdminComponent } from './components/perfil-administrador/cambiar-contrasena-admin/cambiar-contrasena-admin.component';
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
 import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
+import { GestionAdministadoresComponent } from './components/gestion-administadores/gestion-administadores.component';
 const routes: Routes = [
   { path: '', redirectTo: 'perfilAdministrador', pathMatch: 'full' },
   { path: 'perfilAdministrador', component: PerfilAdministradorComponent },
@@ -39,6 +40,7 @@ const routes: Routes = [
   { path: 'logErrores', component: LogErroresComponent },
   { path: 'logErrores/registrar', component: RegistrarErrorComponent },
   { path: 'auditoria', component: AuditoriaComponent },
+  { path: 'gestionAdministradores', component: GestionAdministadoresComponent },
 ];
 
 @NgModule({

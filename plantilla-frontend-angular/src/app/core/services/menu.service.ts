@@ -92,6 +92,13 @@ export class MenuService {
       iconRef: 'iconSubopcion1',
       routerLink: ['/administrador/auditoria'],
     },
+    {
+      label: 'Gestion de Administradores',
+      icon: 'pi pi-users',
+      iconRef: 'iconSubopcion1',
+      routerLink: ['/administrador/gestionAdministradores'],
+    },
+
   ];
 
   // Por compatibilidad - devuelve todos los items

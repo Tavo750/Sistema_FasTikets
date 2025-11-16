@@ -28,6 +28,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   returnUrl: string = '/home/inicio';
   loginMessage: string = '';
 
+  // Control de intentos fallidos
+  intentosFallidos: number = 0;
+  bloqueado: boolean = false;
+  tiempoRestante: number = 0;
+  private intervaloTemporizador: any;
+
   ref: DynamicDialogRef | undefined;
 
   isFullscreen: boolean = false;
@@ -54,11 +60,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.isFullscreen = state;
       this.buttonLabel = state ? 'Salir de pantalla completa' : 'Pantalla completa';
     });
+
+    // Restaurar estado de bloqueo desde localStorage
+    this.restaurarEstadoBloqueo();
   }
 
   ngOnDestroy(): void {
     if (this.fullscreenSubscription) {
       this.fullscreenSubscription.unsubscribe();
+    }
+    if (this.intervaloTemporizador) {
+      clearInterval(this.intervaloTemporizador);
     }
   }
 
@@ -71,6 +83,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    // Verificar si está bloqueado
+    if (this.bloqueado) {
+      this.error(`Cuenta bloqueada temporalmente. Intenta en ${this.tiempoRestante} segundos.`);
+      return;
+    }
+
     if (this.username === '' || this.password === '') {
       this.error('¡Usuario o Contraseña incompletos!');
       return;
@@ -113,6 +131,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginService.getLogin(this.username, this.password).subscribe({
       next: (resp) => {
         if (resp.ok === true) {
+          // Login exitoso - resetear intentos fallidos y limpiar localStorage
+          this.intentosFallidos = 0;
+          localStorage.removeItem('loginIntentosFallidos');
+          localStorage.removeItem('loginBloqueadoHasta');
+          
           // Guardar la información del usuario directamente desde la respuesta
           this.sessionService.setUser(resp.data);
           this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito' });
@@ -120,6 +143,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           // Redirigir a la URL de retorno o a home por defecto
           this.router.navigate([this.returnUrl]);
         } else {
+          // Login fallido - incrementar contador
+          this.manejarIntentaFallido();
           this.messageService.add({ severity: 'error', summary: 'Error', detail: `${resp.mensaje}` });
           this.hayError = true;
         }
@@ -127,6 +152,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.loadingService.hide();
+        // Login fallido por error - incrementar contador
+        this.manejarIntentaFallido();
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -135,6 +162,121 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.hayError = true;
       }
     })
+  }
+
+  /**
+   * Maneja los intentos fallidos de login y bloquea si es necesario
+   */
+  private manejarIntentaFallido(): void {
+    this.intentosFallidos++;
+    
+    // Guardar intentos en localStorage
+    localStorage.setItem('loginIntentosFallidos', this.intentosFallidos.toString());
+    
+    if (this.intentosFallidos >= 3) {
+      this.bloquearLogin();
+    } else {
+      const intentosRestantes = 3 - this.intentosFallidos;
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: `Intento ${this.intentosFallidos} de 3. Te quedan ${intentosRestantes} intento(s).`
+      });
+    }
+  }
+
+  /**
+   * Bloquea el formulario de login por 60 segundos
+   */
+  private bloquearLogin(): void {
+    this.bloqueado = true;
+    this.tiempoRestante = 60;
+    
+    // Guardar estado de bloqueo en localStorage con timestamp
+    const tiempoDesbloqueo = Date.now() + (60 * 1000); // 60 segundos desde ahora
+    localStorage.setItem('loginBloqueadoHasta', tiempoDesbloqueo.toString());
+    
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Cuenta Bloqueada',
+      detail: 'Has superado el límite de intentos. Cuenta bloqueada por 1 minuto.',
+      life: 5000
+    });
+
+    // Iniciar temporizador
+    this.intervaloTemporizador = setInterval(() => {
+      this.tiempoRestante--;
+      
+      if (this.tiempoRestante <= 0) {
+        this.desbloquearLogin();
+      }
+    }, 1000);
+  }
+
+  /**
+   * Desbloquea el formulario de login
+   */
+  private desbloquearLogin(): void {
+    if (this.intervaloTemporizador) {
+      clearInterval(this.intervaloTemporizador);
+    }
+    
+    this.bloqueado = false;
+    this.intentosFallidos = 0;
+    this.tiempoRestante = 0;
+    this.password = ''; // Limpiar contraseña por seguridad
+    
+    // Limpiar localStorage
+    localStorage.removeItem('loginBloqueadoHasta');
+    localStorage.removeItem('loginIntentosFallidos');
+    
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Cuenta Desbloqueada',
+      detail: 'Ya puedes intentar iniciar sesión nuevamente.'
+    });
+  }
+
+  /**
+   * Restaura el estado de bloqueo desde localStorage al iniciar el componente
+   */
+  private restaurarEstadoBloqueo(): void {
+    const bloqueadoHasta = localStorage.getItem('loginBloqueadoHasta');
+    const intentosFallidos = localStorage.getItem('loginIntentosFallidos');
+    
+    if (bloqueadoHasta) {
+      const tiempoDesbloqueo = parseInt(bloqueadoHasta, 10);
+      const tiempoActual = Date.now();
+      
+      if (tiempoActual < tiempoDesbloqueo) {
+        // Todavía está bloqueado
+        this.bloqueado = true;
+        this.tiempoRestante = Math.ceil((tiempoDesbloqueo - tiempoActual) / 1000);
+        
+        // Iniciar temporizador desde el tiempo restante
+        this.intervaloTemporizador = setInterval(() => {
+          this.tiempoRestante--;
+          
+          if (this.tiempoRestante <= 0) {
+            this.desbloquearLogin();
+          }
+        }, 1000);
+        
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Cuenta Bloqueada',
+          detail: `Tu cuenta sigue bloqueada. Espera ${this.tiempoRestante} segundos.`,
+          life: 4000
+        });
+      } else {
+        // El tiempo de bloqueo ya pasó
+        localStorage.removeItem('loginBloqueadoHasta');
+        localStorage.removeItem('loginIntentosFallidos');
+      }
+    } else if (intentosFallidos) {
+      // Restaurar intentos fallidos si no está bloqueado
+      this.intentosFallidos = parseInt(intentosFallidos, 10);
+    }
   }
 
   /**

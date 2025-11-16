@@ -66,7 +66,10 @@ export class CrearEventoComponent implements OnInit{
     estadoEvento: 'PUBLICADO',
     imagenUrl: null as any, // Se llenará con el archivo del banner
     aforoDisponible: 1000,
-    idLocal: 1
+    idLocal: 1,
+    restricciones: '',
+    politicasDevolucion: '',
+    menoresDeEdadPermitidos: false
   };
 
   // Campos auxiliares para el formulario (solo los necesarios)
@@ -835,7 +838,10 @@ export class CrearEventoComponent implements OnInit{
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: this.evento.aforoDisponible,
-      idLocal: parseInt(this.formulario.localString)
+      idLocal: parseInt(this.formulario.localString),
+      restricciones: this.evento.restricciones?.trim() || '',
+      politicasDevolucion: this.evento.politicasDevolucion?.trim() || '',
+      menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
     };
 
     // Solo agregar imagenUrl si hay un archivo File
@@ -936,7 +942,10 @@ export class CrearEventoComponent implements OnInit{
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: this.evento.aforoDisponible,
-      idLocal: parseInt(this.formulario.localString)
+      idLocal: parseInt(this.formulario.localString),
+      restricciones: this.evento.restricciones?.trim() || '',
+      politicasDevolucion: this.evento.politicasDevolucion?.trim() || '',
+      menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
     };
 
     // Solo agregar imagenUrl si hay un archivo File
@@ -967,7 +976,10 @@ export class CrearEventoComponent implements OnInit{
       imagenUrl: null as any,
       estadoEvento: 'PUBLICADO',
       aforoDisponible: 0,
-      idLocal: 1
+      idLocal: 1,
+      restricciones: '',
+      politicasDevolucion: '',
+      menoresDeEdadPermitidos: false
     };
 
     // Resetear datos del formulario (UI) - solo campos necesarios

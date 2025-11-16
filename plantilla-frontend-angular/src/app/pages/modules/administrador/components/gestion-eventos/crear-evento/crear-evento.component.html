@@ -72,6 +72,51 @@
             ></textarea>
           </div>
 
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-exclamation-triangle"></i>
+              Restricciones
+            </label>
+            <textarea
+              rows="3"
+              pInputTextarea
+              [(ngModel)]="evento.restricciones"
+              placeholder="Ej. No se permite el ingreso de alimentos..."
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-sync"></i>
+              Políticas de Devolución
+            </label>
+            <textarea
+              rows="3"
+              pInputTextarea
+              [(ngModel)]="evento.politicasDevolucion"
+              placeholder="Ej. Reembolso hasta 48 horas antes del evento..."
+              class="form-input"
+            ></textarea>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">
+              <i class="pi pi-users"></i>
+              Menores de Edad Permitidos
+            </label>
+            <div class="menores-checkbox">
+              <p-checkbox
+                [(ngModel)]="evento.menoresDeEdadPermitidos"
+                [binary]="true"
+                inputId="menoresPermitidos"
+              ></p-checkbox>
+              <label for="menoresPermitidos" style="margin-left: 10px; cursor: pointer;">
+                Permitir ingreso de menores de edad
+              </label>
+            </div>
+          </div>
+
           <div class="form-row three-columns">
             <div class="form-field">
               <label class="field-label">
@@ -232,7 +277,7 @@
               optionValue="value"
               placeholder="Seleccionar local para el evento..."
               styleClass="form-input"
-              panelStyleClass="calendar-up"
+              panelStyleClass="dropdown-up"
               [loading]="cargandoLocales"
               [disabled]="cargandoLocales"
               (onChange)="onLocalSeleccionado($event)"

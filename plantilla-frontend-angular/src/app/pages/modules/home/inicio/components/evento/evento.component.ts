@@ -1,6 +1,5 @@
 import { Component, Input, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import * as L from 'leaflet';
 import { CartService } from '../../../../../../shared/services/cart.service';
 import { CarritoService } from '../../../../../../shared/services/carrito.service';
 import { SessionService } from '../../../../../../shared/services/session.service';
@@ -12,6 +11,16 @@ import { Data as EventoData } from '../../../../administrador/interfaces/gestion
 import { Data as LocalData } from '../../../../administrador/interfaces/gestion-locales/local.interface';
 import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-evento/zona-categoria.interface';
 import { Data as EntradaData } from '../../../../administrador/interfaces/gestion-evento/entrada.interface';
+import { GOOGLE_MAPS_CONFIG } from '../../../../../../config/google-maps.config';
+
+// Declarar Google Maps para TypeScript
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
+declare var google: any;
 
 interface TicketType {
   id?: number;
@@ -73,11 +82,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
   organizer: string = '';
   showSeatingChart: boolean = true;
 
-  // Coordenadas para el mapa (Los Olivos, Lima)
-  @Input() latitude: number = -11.9746;
-  @Input() longitude: number = -77.0669;
-
-  private map: L.Map | undefined;
+  private map: any;
+  private marker: any;
+  private geocoder: any;
+  mapLoading = true;
 
     // Tickets dinámicos que se cargarán del backend
     tickets: TicketType[] = [];
@@ -574,7 +582,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
     }
 
     ngAfterViewInit() {
-      // El mapa se inicializará después de cargar los datos del local
+      // El mapa se inicializará después de cargar los datos del local en actualizarDatosLocal()
       // Solo inicializar si no hay ID de evento (modo estático)
       if (!this.eventoId) {
         setTimeout(() => {
@@ -583,50 +591,127 @@ export class EventoComponent implements AfterViewInit, OnInit {
       }
     }
 
-    private initializeMap() {
-      if (this.mapaElement) {
-        // Inicializar el mapa
-        this.map = L.map(this.mapaElement.nativeElement).setView(
-          [this.latitude, this.longitude],
-          16
-        );
+    private initializeMap(): void {
+      // Verificar si Google Maps está disponible
+      if (typeof google === 'undefined' || !google.maps) {
+        console.error('Google Maps no está disponible');
+        this.mapLoading = false;
+        return;
+      }
 
-        // Agregar capa de tiles (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 18
-        }).addTo(this.map);
+      if (!this.mapaElement) {
+        console.error('Elemento del mapa no encontrado');
+        this.mapLoading = false;
+        return;
+      }
 
-        // Configurar el ícono por defecto de Leaflet
-        const DefaultIcon = L.icon({
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowSize: [41, 41]
+      if (!this.address || this.address.trim() === '') {
+        console.error('No hay dirección disponible para mostrar en el mapa');
+        this.mapLoading = false;
+        return;
+      }
+
+      try {
+        const mapElement = this.mapaElement.nativeElement;
+
+        // Inicializar el geocoder
+        this.geocoder = new google.maps.Geocoder();
+
+        // Construir dirección completa para buscar
+        const direccionCompleta = `${this.address}, Perú`;
+
+        // Usar Geocoding para convertir la dirección en coordenadas
+        this.geocoder.geocode({ address: direccionCompleta }, (results: any, status: any) => {
+          if (status === 'OK' && results[0]) {
+            const location = results[0].geometry.location;
+
+            // Configuración del mapa (solo lectura, sin controles de edición)
+            const mapOptions = {
+              center: location,
+              zoom: 16,
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: true,
+              fullscreenControl: true,
+              draggable: true, // Permitir arrastrar para ver alrededor
+              scrollwheel: true, // Permitir zoom con scroll
+              disableDoubleClickZoom: false,
+              gestureHandling: 'cooperative' // Requiere Ctrl+scroll para zoom
+            };
+
+            // Crear el mapa
+            this.map = new google.maps.Map(mapElement, mapOptions);
+
+            // Crear marcador en la ubicación del local (NO arrastreable)
+            this.marker = new google.maps.Marker({
+              position: location,
+              map: this.map,
+              draggable: false, // NO permitir arrastrar el marcador
+              title: this.venue || 'Ubicación del evento',
+              icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new google.maps.Size(40, 40)
+              }
+            });
+
+            // Crear InfoWindow con información del local y evento
+            const infoWindowContent = `
+              <div style="padding: 10px; max-width: 250px;">
+                <h4 style="margin: 0 0 8px 0; color: #1976d2; font-size: 16px;">
+                  📍 ${this.venue}
+                </h4>
+                <p style="margin: 4px 0; color: #555; font-size: 13px;">
+                  <strong>Dirección:</strong><br>
+                  ${this.address}
+                </p>
+                <p style="margin: 4px 0; color: #555; font-size: 13px;">
+                  <strong>Evento:</strong><br>
+                  ${this.title}
+                </p>
+                <p style="margin: 8px 0 0 0; color: #888; font-size: 11px;">
+                  <i>📅 ${this.date} - ${this.time}</i>
+                </p>
+              </div>
+            `;
+
+            const infoWindow = new google.maps.InfoWindow({
+              content: infoWindowContent
+            });
+
+            // Mostrar InfoWindow automáticamente
+            infoWindow.open(this.map, this.marker);
+
+            // Al hacer clic en el marcador, mostrar el InfoWindow
+            this.marker.addListener('click', () => {
+              infoWindow.open(this.map, this.marker);
+            });
+
+            // Ocultar indicador de carga
+            setTimeout(() => {
+              this.mapLoading = false;
+            }, 500);
+
+            console.log('Mapa de Google Maps inicializado correctamente con dirección:', direccionCompleta);
+
+          } else {
+            console.error('Geocoding falló:', status);
+            this.mapLoading = false;
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Ubicación no encontrada',
+              detail: 'No se pudo localizar la dirección en el mapa'
+            });
+          }
         });
 
-        L.Marker.prototype.options.icon = DefaultIcon;
-
-        // Agregar marcador del evento
-        L.marker([this.latitude, this.longitude])
-          .addTo(this.map)
-          .bindPopup(`
-            <div style="text-align: center;">
-              <strong>${this.localData ? this.localData.nombre : this.venue}</strong><br>
-              ${this.localData ? this.localData.direccion : this.address}<br>
-              <small>${this.eventoData ? this.eventoData.nombre : this.title}</small>
-            </div>
-          `)
-          .openPopup();
-
-        // Forzar redibujado del mapa
-        setTimeout(() => {
-          if (this.map) {
-            this.map.invalidateSize();
-          }
-        }, 100);
+      } catch (error) {
+        console.error('Error al inicializar el mapa:', error);
+        this.mapLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo cargar el mapa del local'
+        });
       }
     }
 }
