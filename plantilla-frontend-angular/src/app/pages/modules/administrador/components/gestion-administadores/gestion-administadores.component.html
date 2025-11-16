@@ -1,1 +1,307 @@
-<p>gestion-administadores works!</p>
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-users"></i>
+      Gestión de Administradores
+    </h1>
+  </div>
+
+  <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
+    <div class="search-container">
+      <div class="field">
+        <label for="busqueda">Buscar administrador:</label>
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            id="busqueda"
+            type="text"
+            pInputText
+            placeholder="Filtrar por nombre, email, cargo o estado"
+            [(ngModel)]="globalFilterValue"
+            (input)="applyGlobalFilter($event)"
+            class="w-full"/>
+        </span>
+      </div>
+    </div>
+  </p-panel>
+
+  <div class="results-section">
+    <div class="results-header">
+      <h3>
+        <i class="pi pi-list"></i>
+        Administradores encontrados ({{filteredAdministradores.length}})
+      </h3>
+    </div>
+
+    <div class="table-container">
+      <p-table
+        [value]="filteredAdministradores"
+        [rows]="rows"
+        [paginator]="true"
+        [first]="first"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+        [tableStyle]="{ 'min-width': '70rem' }"
+        styleClass="custom-table"
+        [loading]="isLoading">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idAdministrador" class="id-column">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="idAdministrador"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombres">
+              <div class="header-content">
+                <i class="pi pi-user"></i>
+                Nombre
+                <p-sortIcon field="nombres"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="email">
+              <div class="header-content">
+                <i class="pi pi-envelope"></i>
+                Email
+                <p-sortIcon field="email"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="docIdentidad">
+              <div class="header-content">
+                <i class="pi pi-id-card"></i>
+                DNI
+                <p-sortIcon field="docIdentidad"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="cargo">
+              <div class="header-content">
+                <i class="pi pi-briefcase"></i>
+                Cargo
+                <p-sortIcon field="cargo"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="ultimoAccesoFormateado">
+              <div class="header-content">
+                <i class="pi pi-clock"></i>
+                Último Acceso
+                <p-sortIcon field="ultimoAccesoFormateado"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="activo">
+              <div class="header-content">
+                <i class="pi pi-check-circle"></i>
+                Estado
+                <p-sortIcon field="activo"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-admin>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{admin.idAdministrador}}</span>
+            </td>
+            <td class="name-cell">
+              <div class="name-content">
+                <i class="pi pi-user name-icon"></i>
+                <span class="name-text">{{admin.nombres}} {{admin.apellidos}}</span>
+              </div>
+            </td>
+            <td class="email-cell">{{admin.email}}</td>
+            <td class="dni-cell">{{admin.docIdentidad}}</td>
+            <td class="cargo-cell">
+              <span class="cargo-badge">{{admin.cargo}}</span>
+            </td>
+            <td class="acceso-cell">
+              <div class="acceso-content">
+                <i class="pi pi-clock acceso-icon"></i>
+                <span class="acceso-text">{{formatearUltimoAcceso(admin.ultimoAccesoFormateado)}}</span>
+              </div>
+            </td>
+            <td class="status-cell">
+              <p-tag
+                [value]="getEstadoAdministrador(admin.activo)"
+                [severity]="admin.activo ? 'success' : 'danger'"
+                class="status-tag">
+              </p-tag>
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Ver perfil"
+                  tooltipPosition="top"
+                  (onClick)="verPerfil(admin)">
+                </p-button>
+                <p-button
+                  *ngIf="admin.activo"
+                  icon="pi pi-times"
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Desactivar administrador permanentemente"
+                  tooltipPosition="top"
+                  (onClick)="confirmarDesactivacion(admin, $event)">
+                </p-button>
+                <p-button
+                  *ngIf="!admin.activo"
+                  icon="pi pi-ban"
+                  severity="secondary"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  [disabled]="true"
+                  pTooltip="Administrador desactivado permanentemente"
+                  tooltipPosition="top">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron administradores</h3>
+                <p>Intenta ajustar los filtros de búsqueda.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="8">
+              <div class="no-results">
+                <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+                <p>Cargando administradores...</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- Confirmación de desactivación -->
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- Toast para mensajes -->
+  
+</div>
+
+<!-- Dialog Ver Perfil del Administrador -->
+<p-dialog
+  [(visible)]="mostrarDialogPerfil"
+  header="Perfil del Administrador"
+  [modal]="true"
+  [style]="{'width': '700px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+
+  <div class="dialog-content" *ngIf="administradorSeleccionado">
+    <div class="perfil-header">
+      <div class="perfil-avatar">
+        <i class="pi pi-user"></i>
+      </div>
+      <div class="perfil-info">
+        <h3>{{administradorSeleccionado.nombres}} {{administradorSeleccionado.apellidos}}</h3>
+        <p class="perfil-cargo">{{administradorSeleccionado.cargo}}</p>
+        <p-tag 
+          [value]="getEstadoAdministrador(administradorSeleccionado.activo)"
+          [severity]="administradorSeleccionado.activo ? 'success' : 'danger'">
+        </p-tag>
+      </div>
+    </div>
+
+    <div class="perfil-detalles">
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-hashtag"></i> ID:</span>
+        <span class="value">{{administradorSeleccionado.idAdministrador}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-id-card"></i> Documento:</span>
+        <span class="value">{{administradorSeleccionado.tipoDocumento}}: {{administradorSeleccionado.docIdentidad}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-envelope"></i> Email:</span>
+        <span class="value">{{administradorSeleccionado.email}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-phone"></i> Teléfono:</span>
+        <span class="value">{{administradorSeleccionado.telefono}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-calendar"></i> Fecha Nacimiento:</span>
+        <span class="value">{{administradorSeleccionado.fechaNacimiento | date:'dd/MM/yyyy'}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-user-plus"></i> Edad:</span>
+        <span class="value">{{administradorSeleccionado.edad}} años</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-map-marker"></i> Dirección:</span>
+        <span class="value">{{administradorSeleccionado.direccion}}</span>
+      </div>
+      <div class="detalle-row">
+        <span class="label"><i class="pi pi-clock"></i> Último Acceso:</span>
+        <span class="value">{{formatearUltimoAcceso(administradorSeleccionado.ultimoAccesoFormateado)}}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      (onClick)="cerrarDialogPerfil()"
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Acceso Denegado -->
+<p-dialog
+  [(visible)]="mostrarDialogAcceso"
+  header="Acceso Restringido"
+  [modal]="true"
+  [style]="{'width': '450px'}"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false">
+
+  <div style="text-align: center; padding: 20px;">
+    <i class="pi pi-exclamation-triangle" style="font-size: 3rem; color: #ff9800; margin-bottom: 15px;"></i>
+    <p style="font-size: 1.1rem; margin-bottom: 20px;">{{mensajeAcceso}}</p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Entendido"
+      icon="pi pi-check"
+      (onClick)="cerrarDialogAcceso()"
+      severity="primary"
+      [style]="{'width': '100%'}">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+
