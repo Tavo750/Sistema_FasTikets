@@ -1,7 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { DialogEnvioComponent } from './dialog-envio/dialog-envio.component';
 import { MessageService } from '../../../core/services/message.service';
 import { CambiarContraService } from '../../../core/services/cambiar-contra.service';
 
@@ -227,19 +226,32 @@ enviarCorreo(event: Event): void {
 
 
   mostrarReenvio(event: Event): void {
-      event.preventDefault();
-      this.dialogRef = this.dialogService.open(DialogEnvioComponent, {
-        width: '20%',
-        contentStyle: { 'max-height': '500px', 'overflow-y': 'auto' },
-        baseZIndex: 10000
-      });
+    event.preventDefault();
 
-      this.dialogRef.onClose.subscribe((acepto: boolean) => {
-        if (acepto) {
-          console.log('Términos aceptados');
+    // Llamar al servicio para reenviar el código
+    this.cambiarContraService.putOlvidoContrasena(this.correoIngresado).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.success(
+            response.mensaje || 'Hemos reenviado el código de verificación a su correo',
+            'Código reenviado'
+          );
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo reenviar el código',
+            'Error'
+          );
         }
-      });
-    }
+      },
+      error: (error) => {
+        console.error('Error al reenviar código:', error);
+        this.messageService.error(
+          'No se pudo reenviar el código. Por favor intente nuevamente.',
+          'Error'
+        );
+      }
+    });
+  }
 
     // Método para cambiar la contraseña
   cambiarContrasena(event: Event): void {
