@@ -7,6 +7,15 @@
     <p-tag [value]="cartItems.length + ' artículo(s)'" severity="info" icon="pi pi-shopping-bag"></p-tag>
   </div>
 
+  <!-- Temporizador de reserva visible cuando hay items -->
+  <div class="cart-timer" *ngIf="showTimer">
+    <div class="timer-content">
+      <i class="pi pi-clock"></i>
+      <span class="timer-label">Tiempo restante para finalizar la compra:</span>
+      <strong class="timer-value">{{ timerDisplay }}</strong>
+    </div>
+  </div>
+
   <div class="cart-content" *ngIf="cartItems.length > 0">
     <div class="cart-items">
       <p-panel header="Artículos del Carrito" [toggleable]="false">

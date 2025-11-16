@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { OrdenesService } from '../../../../../shared/services/ordenes.service';
+import { SessionService } from '../../../../../shared/services/session.service';
 
 @Component({
   selector: 'app-historial-compras',
@@ -7,114 +9,70 @@ import { Router } from '@angular/router';
   templateUrl: './historial-compras.component.html',
   styleUrls: ['./historial-compras.component.css']
 })
-export class HistorialComprasComponent {
+export class HistorialComprasComponent implements OnInit {
 
-  // Datos de ejemplo; reemplazar con llamada al backend cuando esté listo
-  purchases = [
-    {
-      id: 1,
-      purchaseNumber: '#61601087',
-      title: 'Electronic Festival',
-      date: '18/07/2025',
-      dateFull: '18 de julio de 2025 - 20:00',
-      tickets: 2,
-      items: [{ desc: 'Entrada General', qty: 2, price: 75 }],
-      total: 150.0,
-      puntosCanjeados: 40,
-      descuento: 20.0,
-      nombres: 'Luis Enrique Rios Sosa',
-      dni: '72894616',
-      puntosObtenidos: 18,
-      detallePago: '#29311205',
-      medioPago: 'VISA',
-      monto: 390.0,
-      tarjetaMasked: '455788XXXXXX1589',
-      estado: 'Rechazado',
-      statusClass: 'status-rejected',
-      fechaCompra: '24/08/2025',
-      image: '/assets/img/banners/electronic-festival.jpg',
-      qrData: 'QR_DATA_1'
-    },
-    {
-      id: 2,
-      purchaseNumber: '#61601088',
-      title: 'Electronic Festival',
-      date: '18/07/2025',
-      dateFull: '18 de julio de 2025 - 20:00',
-      tickets: 2,
-      items: [{ desc: 'Entrada VIP', qty: 2, price: 75 }],
-      total: 150.0,
-      puntosCanjeados: 0,
-      descuento: 0,
-      nombres: 'Ana María López',
-      dni: '71234567',
-      puntosObtenidos: 12,
-      detallePago: '#29311206',
-      medioPago: 'VISA',
-      monto: 150.0,
-      tarjetaMasked: '455788XXXXXX1589',
-      estado: 'Aprobado',
-      statusClass: 'status-approved',
-      fechaCompra: '24/08/2025',
-      image: '/assets/img/banners/electronic-festival.jpg',
-      qrData: 'QR_DATA_2'
-    },
-    {
-      id: 3,
-      purchaseNumber: '#61601089',
-      title: 'Electronic Festival',
-      date: '18/07/2025',
-      dateFull: '18 de julio de 2025 - 20:00',
-      tickets: 2,
-      items: [{ desc: 'Entrada General', qty: 2, price: 75 }],
-      total: 150.0,
-      puntosCanjeados: 0,
-      descuento: 0,
-      nombres: 'Carlos Rivera',
-      dni: '70123456',
-      puntosObtenidos: 18,
-      detallePago: '#29311207',
-      medioPago: 'VISA',
-      monto: 150.0,
-      tarjetaMasked: '455788XXXXXX1589',
-      estado: 'Transferido',
-      statusClass: 'status-transfer',
-      fechaCompra: '24/08/2025',
-      image: '/assets/img/banners/electronic-festival.jpg',
-      qrData: 'QR_DATA_3'
-    },
-    {
-      id: 4,
-      purchaseNumber: '#61601090',
-      title: 'UB40 Ft. Alli Campbell',
-      date: '09/09/2025',
-      dateFull: '09 de septiembre de 2025 - 19:30',
-      tickets: 1,
-      items: [{ desc: 'Entrada V.I.P', qty: 1, price: 410 }],
-      total: 410.0,
-      puntosCanjeados: 0,
-      descuento: 20.0,
-      nombres: 'Luis Enrique Rios Sosa',
-      dni: '72894616',
-      puntosObtenidos: 18,
-      detallePago: '#29311205',
-      medioPago: 'VISA',
-      monto: 390.0,
-      tarjetaMasked: '455788XXXXXX1589',
-      estado: 'Aprobado',
-      statusClass: 'status-approved',
-      fechaCompra: '24/08/2025',
-      image: '/assets/img/banners/ub40.jpg',
-      qrData: 'QR_DATA_4'
-    }
-  ];
+  purchases: any[] = [];
+  lastResp: any = null; // para debugging si es necesario
 
   // Filtros (no funcionales todavía)
   filterCategory = '';
   filterStatus = '';
   filterDate = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private ordenesService: OrdenesService,
+    private sessionService: SessionService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadHistorial();
+  }
+
+  private loadHistorial(): void {
+    // El endpoint ya determina el cliente a partir del token, por eso no pasamos id
+    this.ordenesService.getHistorialCompras().subscribe({
+      next: (resp: any) => {
+        try { console.debug('Historial response raw:', resp); } catch(e) {}
+        this.lastResp = resp;
+        if (!resp) return;
+        // Intentar localizar el array de órdenes de forma robusta
+        let data: any = null;
+        if (Array.isArray(resp)) data = resp;
+        else if (Array.isArray(resp.data)) data = resp.data;
+        else if (resp.data && Array.isArray(resp.data.data)) data = resp.data.data;
+        else {
+          // buscar la primera propiedad que sea array
+          for (const k of Object.keys(resp)) {
+            if (Array.isArray((resp as any)[k])) { data = (resp as any)[k]; break; }
+          }
+        }
+        if (!data) data = [];
+
+        this.purchases = (data || []).map((o: any) => {
+          // obtener nombre del evento: preferir tickets[0].evento.nombre o tipoTicket.evento.nombre
+          const firstItem = (o.items && o.items.length) ? o.items[0] : null;
+          const eventName = firstItem?.tickets?.[0]?.evento?.nombre || firstItem?.tipoTicket?.evento?.nombre || 'Evento';
+          const ticketsCount = (o.items || []).reduce((s: number, it: any) => s + (it.cantidad || (it.tickets ? it.tickets.length : 0) || 0), 0);
+          const image = firstItem?.tickets?.[0]?.evento?.imagenUrl || firstItem?.tipoTicket?.evento?.imagenUrl || '/assets/img/banners/default.jpg';
+          const estado = (o.estado || '').toString().toUpperCase();
+          const statusClass = estado === 'APROBADO' ? 'status-approved' : (estado === 'RECHAZADO' ? 'status-rejected' : (estado === 'TRANSFERIDO' ? 'status-transfer' : 'status-pending'));
+          return {
+            id: o.idOrdenCompra,
+            title: eventName,
+            date: o.fechaOrden,
+            tickets: ticketsCount,
+            total: o.total,
+            estado: estado,
+            statusClass: statusClass,
+            image: image,
+            raw: o
+          };
+        });
+      },
+      error: (err: any) => { console.error('Error cargando historial', err); }
+    });
+  }
 
   viewDetail(p: any) {
     // Navigate to detail page and pass purchase in navigation state

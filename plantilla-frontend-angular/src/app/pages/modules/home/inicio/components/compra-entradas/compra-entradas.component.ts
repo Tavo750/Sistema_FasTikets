@@ -6,7 +6,9 @@ import { CartService, CartItem } from '../../../../../../shared/services/cart.se
 import { CarritoService } from '../../../../../../shared/services/carrito.service';
 import { SessionService } from '../../../../../../shared/services/session.service';
 import { OrdenesService } from '../../../../../../shared/services/ordenes.service';
+import { PerfilPersonalService } from '../../../../usuario/services/perfil-personal.service';
 import { Subscription } from 'rxjs';
+import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 
 @Component({
 	selector: 'app-compra-entradas',
@@ -67,6 +69,10 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	showPagoDialog: boolean = false;
 	showConfirmExitDialog: boolean = false;
 	showSuccessDialog: boolean = false;
+ 
+	 showTimer: boolean = false;
+	 timerDisplay: string = '';
+	 private timerSubscriptions: Subscription[] = [];
 
 	constructor(
 		private router: Router,
@@ -75,7 +81,48 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		private carritoService: CarritoService,
 		private sessionService: SessionService,
 		private ordenesService: OrdenesService
+			, private cartTimerService: CartTimerService,
+			private perfilService: PerfilPersonalService
 	) {}
+
+		// Nivel del usuario (ej. ORO, PLATA, BRONCE)
+		userLevel: string | null = null;
+		// Puntos acumulados por el usuario (desde perfil)
+		userPoints: number = 0;
+
+		// Descuento asociado al nivel (por ejemplo 0.10 = 10%)
+		userLevelDiscountPercent: number = 0;
+		levelDiscountAmount: number = 0;
+
+		// Canje mediante código de texto
+		redeemCodeInput: string = '';
+		codeDiscountPercent: number = 0; // e.g. 0.10 for 10%
+		codeDiscountAmount: number = 0;
+		redeemMessage: string | null = null;
+
+		// UI: canjear puntos mediante checkbox (si true se ocultan otros bloques y total -> 0)
+		usePointsRedeem: boolean = false;
+
+		getLevelClass(level: string | null): string {
+			if (!level) return '';
+			const l = level.toString().toLowerCase();
+			if (l.includes('oro') || l.includes('gold')) return 'level-gold';
+			if (l.includes('plata') || l.includes('silver')) return 'level-silver';
+			if (l.includes('bronce') || l.includes('bronze')) return 'level-bronze';
+			return 'level-default';
+		}
+
+		/**
+		 * Retorna el porcentaje de descuento según el nivel (valor decimal: 0.03 = 3%)
+		 */
+		getDiscountForLevel(level: string | null): number {
+			if (!level) return 0;
+			const l = level.toString().toLowerCase();
+			if (l.includes('bronce') || l.includes('bronze')) return 0.03; // 3%
+			if (l.includes('plata') || l.includes('silver')) return 0.05; // 5%
+			if (l.includes('oro') || l.includes('gold')) return 0.10; // 10%
+			return 0;
+		}
 
 	// Payment form model
 	cardNumber: string = '';
@@ -90,6 +137,15 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	expiryError: string | null = null;
 	cvvError: string | null = null;
 	ngOnInit(): void {
+		// Suscribirse al temporizador compartido para mostrarlo mientras navegamos
+		try {
+			this.timerSubscriptions.push(this.cartTimerService.display$.subscribe(d => this.timerDisplay = d));
+			this.timerSubscriptions.push(this.cartTimerService.running$.subscribe(r => this.showTimer = r));
+			this.timerSubscriptions.push(this.cartTimerService.expired$.subscribe(() => {
+				// cuando expira en otra vista podemos mostrar alerta o redirigir
+				console.warn('Temporizador de carrito expiró');
+			}));
+		} catch (e) { console.warn('No se pudo suscribir a CartTimerService', e); }
 		// Suscribirse a los datos de compra
 		this.purchaseSubscription = this.purchaseService.purchaseData$.subscribe(
 			(data: PurchaseData | null) => {
@@ -101,6 +157,26 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					// Obtener items del carrito desde el servidor para mostrar idTipoTicket
 					const currentUser = this.sessionService.getCurrentUser();
 					if (currentUser && currentUser.idUsuario) {
+						// Obtener nivel del usuario desde perfil
+						try {
+							this.perfilService.getobtenerPerfilPorId(currentUser.idUsuario).subscribe({
+								next: (resp: any) => {
+									const nivel = resp?.data?.nivel ?? resp?.nivel ?? null;
+									this.userLevel = nivel;
+									// puntos acumulados reales desde el endpoint
+									const puntos = resp?.data?.puntosAcumulados ?? resp?.puntosAcumulados ?? resp?.data?.puntos ?? 0;
+									this.userPoints = Number(puntos) || 0;
+									// Inicializar remainingPoints y recalcular totales
+									this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
+									// determinar descuento por nivel
+									this.userLevelDiscountPercent = this.getDiscountForLevel(this.userLevel);
+									this.calculateTotals();
+								},
+								error: (err: any) => {
+									console.warn('No se pudo obtener perfil del cliente', err);
+								}
+							});
+						} catch (e) { console.warn('Error solicitando perfil', e); }
 						this.carritoService.getCartByCliente(currentUser.idUsuario).subscribe({
 							next: (resp: any) => {
 								// Manejar la forma { ok, mensaje, data: { items: [...] } } o { items: [...] }
@@ -120,12 +196,15 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 								} as unknown as CartItem));
 								this.assignParticipantTicketIds();
 								this.buildTicketIdsIfReady();
+								// Iniciar temporizador si hay items en carrito
+								try { if (this.cartItems && this.cartItems.length > 0) this.cartTimerService.startIfNotStarted(currentUser.idUsuario); } catch (e) {}
 							},
 							error: (err: any) => {
 								console.warn('No se pudo cargar carrito por cliente, usando items locales', err);
 								this.cartItems = this.cartService.getCartItems();
 								this.assignParticipantTicketIds();
 								this.buildTicketIdsIfReady();
+								try { if (this.cartItems && this.cartItems.length > 0) this.cartTimerService.startIfNotStarted(this.sessionService.getCurrentUser()?.idUsuario); } catch (e) {}
 							}
 						});
 					} else {
@@ -147,6 +226,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		// Limpiar suscripciones
 		this.purchaseSubscription.unsubscribe();
+		try { this.timerSubscriptions.forEach(s => s.unsubscribe()); } catch (e) {}
 	}
 
 	private updateEventData(data: PurchaseData): void {
@@ -239,8 +319,14 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		}
 	}
 	increasePoints(): void {
-		this.pointsToUse++;
-		this.calculateTotals();
+		// No permitir usar más puntos de los que tiene el usuario
+		if (this.pointsToUse < this.userPoints) {
+			this.pointsToUse++;
+			this.calculateTotals();
+		} else {
+			// opcional: mostrar aviso al usuario
+			try { console.warn('No tienes suficientes puntos para aumentar el canje'); } catch (e) {}
+		}
 	}
 	onContinuar(): void {
 		// Validate participants first
@@ -311,15 +397,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 			next: (resp) => {
 				const idOrden = resp?.data?.idOrden ?? resp?.idOrden ?? null;
 				this.createdOrderId = idOrden;
-				console.debug('Orden creada (raw response):', resp);
-				console.debug('Orden creada (idOrden extracted):', idOrden);
+				console.debug('Orden creada (idOrden):', idOrden, resp);
 				// Informar al usuario que la orden fue creada
-				if (idOrden !== null && idOrden !== undefined) {
+				if (idOrden) {
 					alert('Orden creada correctamente. idOrden: ' + idOrden);
 				} else {
-					alert('Orden creada, pero no se recibió idOrden en la respuesta. No se registrará el pago.');
-					this.isProcessingPayment = false;
-					return;
+					alert('Orden creada, pero no se recibió idOrden en la respuesta.');
 				}
 
 				// Intentamos validar el formulario de pago, pero incluso si hay errores
@@ -370,14 +453,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					idUsuario: this.sessionService.getCurrentUser()?.idUsuario
 				};
 
-				console.debug('Llamando a registerPayment con payload (idOrden):', paymentPayload.idOrden, paymentPayload);
-				// Asegurarse de que idOrden no es nulo antes de llamar al endpoint
-				if (paymentPayload.idOrden === null || paymentPayload.idOrden === undefined) {
-					this.isProcessingPayment = false;
-					alert('No se puede registrar el pago: idOrden inválido.');
-					return;
-				}
-
+				console.debug('Llamando a registerPayment con payload:', paymentPayload);
 				this.ordenesService.registerPayment(paymentPayload).subscribe({
 					next: (resp2) => {
 						console.debug('Pago registrado', resp2);
@@ -437,7 +513,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 	onSuccessOk(): void {
 		this.showSuccessDialog = false;
-		// Aquí podrías redirigir a home o limpiar el formulario
+		// Redirigir a la página principal (home)
+		try {
+			this.router.navigate(['/home']);
+		} catch (e) {
+			console.warn('No se pudo navegar a /home', e);
+		}
 	}
 
 	onViewDetail(): void {
@@ -463,10 +544,54 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	private calculateTotals(): void {
 		if (!this.purchaseData) return;
 
-		// El subtotal ya viene calculado desde purchaseData
-		// Ejemplo sencillo: cada punto = S/1
-		this.remainingPoints = 100 - this.pointsToUse;
-		this.totalAmount = this.subtotal - this.pointsToUse;
+		// Si el usuario decide canjear puntos (modo exclusivo), el total se vuelve 0
+		if (this.usePointsRedeem) {
+			this.totalAmount = 0;
+			return;
+		}
+
+		// Asegurar que pointsToUse no supere los puntos disponibles
+		if (this.pointsToUse > this.userPoints) {
+			this.pointsToUse = this.userPoints;
+		}
+
+		// Restantes = puntos acumulados - puntos utilizados
+		this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
+
+		// Aplicar descuento por código si existe
+		this.codeDiscountAmount = (this.subtotal || 0) * (this.codeDiscountPercent || 0);
+
+		// Aplicar descuento por nivel de usuario
+		this.levelDiscountAmount = (this.subtotal || 0) * (this.userLevelDiscountPercent || 0);
+
+		// Cada punto se considera S/1 por simplicidad (ajustar si la regla cambia)
+		this.totalAmount = Math.max(0, this.subtotal - this.pointsToUse - this.codeDiscountAmount - this.levelDiscountAmount);
+	}
+
+	onToggleRedeemPoints(): void {
+		// Llamado cuando el checkbox cambia; recalcular totales y ocultar/desocultar bloques
+		this.redeemMessage = null;
+		// Si activamos canje por puntos, opcionalmente podemos limpiar descuentos por código o nivel visualmente
+		this.calculateTotals();
+	}
+
+	redeemCode(): void {
+		this.redeemMessage = null;
+		const code = (this.redeemCodeInput || '').toString().trim();
+		if (!code) { this.redeemMessage = 'Ingrese un código válido'; return; }
+		// Demo logic: aplicar descuento del 10% para códigos no vacíos.
+		// Reemplazar por llamada al backend si está disponible.
+		this.codeDiscountPercent = 0.10;
+		this.redeemMessage = `Código "${code}" aplicado — ${(this.codeDiscountPercent * 100).toFixed(0)}% descuento`;
+		this.calculateTotals();
+	}
+
+	clearCode(): void {
+		this.redeemCodeInput = '';
+		this.codeDiscountPercent = 0;
+		this.codeDiscountAmount = 0;
+		this.redeemMessage = null;
+		this.calculateTotals();
 	}
 
 	navigateToHome(): void {

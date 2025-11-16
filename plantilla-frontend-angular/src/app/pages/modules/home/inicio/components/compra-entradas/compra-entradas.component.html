@@ -1,5 +1,15 @@
 <div class="compra-container">
-  <div class="container">
+  <!-- Temporizador compartido visible cuando corre (fila completa) -->
+  <div class="cart-timer" *ngIf="showTimer">
+    <div class="timer-content">
+      <i class="pi pi-clock"></i>
+      <span class="timer-label">Tiempo restante para finalizar la compra:</span>
+      <strong class="timer-value">{{ timerDisplay }}</strong>
+    </div>
+  </div>
+
+  <div class="columns-row">
+    <div class="container">
     <div class="header-section">
       <h1 class="title">
         <i class="pi pi-shopping-cart"></i>
@@ -224,51 +234,49 @@
   <!-- Sección de control de puntos y acciones -->
   <div class="actions-section">
     <!-- Control de puntos compacto -->
-    <div class="points-control-card">
+    <!-- Mostrar el nivel del usuario en un cuadro estilizado arriba del control de puntos -->
+    <div *ngIf="userLevel && !usePointsRedeem" class="user-level-box" [ngClass]="getLevelClass(userLevel)">
+      <span class="user-level-text">
+        {{ userLevel | uppercase }}
+        <span *ngIf="userLevelDiscountPercent && userLevelDiscountPercent > 0"> - {{ (userLevelDiscountPercent * 100) | number:'1.0-0' }}% de desc.</span>
+      </span>
+    </div>
+
+    <div *ngIf="!usePointsRedeem" class="points-control-card">
       <div class="card-header-compact">
         <h4>
-          <i class="pi pi-star"></i>
-          Control de Puntos
+          <i class="pi pi-ticket"></i>
+          Canjear Código
         </h4>
       </div>
 
-      <div class="points-toggle-compact">
-        <span class="switch-label-small">Canje de Puntos</span>
-        <p-toggleButton
-          [(ngModel)]="usePoints"
-          onLabel="ON"
-          offLabel="OFF"
-          class="compact-toggle">
-        </p-toggleButton>
+      <div class="redeem-box">
+        <input type="text" class="redeem-input" placeholder="Ingrese código de canje" [(ngModel)]="redeemCodeInput" />
+        <button pButton type="button" class="p-button-plain redeem-btn" (click)="redeemCode()">Canjear</button>
       </div>
 
-      <div class="points-control-compact" *ngIf="usePoints">
-        <div class="points-selector-compact">
-          <p-button
-            icon="pi pi-minus"
-            [rounded]="true"
-            severity="secondary"
-            size="small"
-            (click)="decreasePoints()"
-            [disabled]="pointsToUse <= 0">
-          </p-button>
+      <div class="redeem-info" *ngIf="codeDiscountPercent > 0">
+        <div class="applied-code">Código: <strong>{{ redeemCodeInput }}</strong></div>
+        <div class="discount-tag">{{ (codeDiscountPercent * 100) | number:'1.0-0' }}% de descuento</div>
+        <button pButton type="button" icon="pi pi-times" class="clear-code-btn" (click)="clearCode()"></button>
+      </div>
 
-          <div class="points-display-compact">
-            <span class="points-value-small">{{ pointsToUse }}</span>
-            <span class="points-label-small">pts</span>
-          </div>
+      <div class="points-availability">
+        <small>Beneficio: <strong> %20 Descuento </strong></small>
+      </div>
+      <div class="redeem-message" *ngIf="redeemMessage">{{ redeemMessage }}</div>
+    </div>
 
-          <p-button
-            icon="pi pi-plus"
-            [rounded]="true"
-            severity="secondary"
-            size="small"
-            (click)="increasePoints()">
-          </p-button>
-        </div>
-
-        <div class="points-info-compact">
-          <small><i class="pi pi-wallet"></i> Restantes: {{ remainingPoints }} pts</small>
+    <!-- Bloque separado: Canje de Puntos (UI sólo) -->
+    <div *ngIf="userPoints && subtotal && userPoints === subtotal" class="points-redeem-card">
+      <div class="points-redeem-block">
+        <label class="points-redeem-label">
+          <input type="checkbox" class="points-redeem-check" [(ngModel)]="usePointsRedeem" (change)="onToggleRedeemPoints()" />
+          <span class="points-redeem-text">Canjear puntos</span>
+        </label>
+        <div class="points-redeem-right">
+          <div class="points-available">Disponibles: <strong>{{ userPoints }} pts</strong></div>
+          <button pButton type="button" class="points-redeem-btn">Canjear</button>
         </div>
       </div>
     </div>
@@ -302,6 +310,7 @@
       </p-button>
     </div>
   </div>
+  </div> <!-- .columns-row -->
 
   <!-- Modal de pago con PrimeNG -->
   <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">
@@ -400,7 +409,7 @@
   <div class="success-modal">
     <h2>¡Compra realizada con éxito!</h2>
     <i class="pi pi-check-circle success-icon"></i>
-    <p>Su comprobante de pago ha sido enviado a su correo electrónico proporcionado previamente.<br><em>Gracias por su compra</em></p>
+    <p>Su compra se ha realizado de fomra existosa.<br><em>Gracias por su compra</em></p>
     <div class="success-buttons">
       <button pButton type="button" label="Ok, continuar" class="p-button-secondary" (click)="onSuccessOk()"></button>
       <button pButton type="button" label="Ver detalle" class="p-button-success" (click)="onViewDetail()"></button>

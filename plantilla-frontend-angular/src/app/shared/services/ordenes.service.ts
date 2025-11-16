@@ -57,4 +57,22 @@ export class OrdenesService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Obtener historial de compras de un cliente
+   */
+  getHistorialCompras(): Observable<any> {
+    const url = `${baseUrl}/clientes/historial-compras`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('OrdenesService.getHistorialCompras -> GET', url); } catch(e) {}
+
+    return this.http.get<any>(url, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('OrdenesService.getHistorialCompras response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
 }
