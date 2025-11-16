@@ -2,7 +2,8 @@ import { Component, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DialogEnvioComponent } from './dialog-envio/dialog-envio.component';
-import { MessageService } from 'primeng/api';
+import { MessageService } from '../../../core/services/message.service';
+import { CambiarContraService } from '../../../core/services/cambiar-contra.service';
 
 @Component({
   selector: 'app-cambiar-contra',
@@ -27,7 +28,8 @@ export class CambiarContraComponent implements AfterViewInit {
   constructor(
     public router: Router,
     public dialogService: DialogService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cambiarContraService: CambiarContraService
   ) { }
 
   ngAfterViewInit(): void {
@@ -71,12 +73,7 @@ enviarCorreo(event: Event): void {
 
   // Validación 1: Campo vacío
   if (!correo || correo.trim() === '') {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Campo requerido',
-      detail: 'Por favor ingrese su correo electrónico',
-      life: 3000
-    });
+    this.messageService.warn('Por favor ingrese su correo electrónico', 'Campo requerido');
     return;
   }
 
@@ -85,117 +82,92 @@ enviarCorreo(event: Event): void {
 
   // Validación 3: Longitud mínima
   if (correoLimpio.length < 5) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo electrónico es demasiado corto',
-      life: 3000
-    });
+    this.messageService.error('El correo electrónico es demasiado corto', 'Correo inválido');
     return;
   }
 
   // Validación 4: Longitud máxima
   if (correoLimpio.length > 100) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo electrónico es demasiado largo',
-      life: 3000
-    });
+    this.messageService.error('El correo electrónico es demasiado largo', 'Correo inválido');
     return;
   }
 
   // Validación 5: Caracteres especiales no permitidos al inicio o final
   if (correoLimpio.startsWith('.') || correoLimpio.endsWith('.') ||
       correoLimpio.startsWith('@') || correoLimpio.endsWith('@')) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo no puede comenzar o terminar con . o @',
-      life: 3000
-    });
+    this.messageService.error('El correo no puede comenzar o terminar con . o @', 'Correo inválido');
     return;
   }
 
   // Validación 6: Formato de email válido (regex más estricto)
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
   if (!emailRegex.test(correoLimpio)) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'Por favor ingrese un correo electrónico válido (ejemplo@correo.com)',
-      life: 3000
-    });
+    this.messageService.error('Por favor ingrese un correo electrónico válido (ejemplo@correo.com)', 'Correo inválido');
     return;
   }
 
   // Validación 7: Verificar que tenga un solo @
   const atSymbolCount = (correoLimpio.match(/@/g) || []).length;
   if (atSymbolCount !== 1) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo debe contener solo un símbolo @',
-      life: 3000
-    });
+    this.messageService.error('El correo debe contener solo un símbolo @', 'Correo inválido');
     return;
   }
 
   // Validación 8: Verificar que no tenga puntos consecutivos
   if (correoLimpio.includes('..')) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo no puede contener puntos consecutivos',
-      life: 3000
-    });
+    this.messageService.error('El correo no puede contener puntos consecutivos', 'Correo inválido');
     return;
   }
 
   // Validación 9: Verificar dominio válido
   const dominio = correoLimpio.split('@')[1];
   if (!dominio || !dominio.includes('.')) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El dominio del correo no es válido',
-      life: 3000
-    });
+    this.messageService.error('El dominio del correo no es válido', 'Correo inválido');
     return;
   }
 
   // Validación 10: Caracteres especiales raros no permitidos
   const caracteresRaros = /[<>()[\]\\,;:\s"]/;
   if (caracteresRaros.test(correoLimpio)) {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Correo inválido',
-      detail: 'El correo contiene caracteres no permitidos',
-      life: 3000
-    });
+    this.messageService.error('El correo contiene caracteres no permitidos', 'Correo inválido');
     return;
   }
 
   // Si pasa todas las validaciones, guardar y continuar
   this.correoIngresado = correoLimpio;
 
-    // Aquí enviarías el correo al backend
-    // Simulamos el envío exitoso
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Correo enviado',
-      detail: 'Hemos enviado un código de verificación a su correo',
-      life: 3000
+    // Llamar al servicio para enviar el correo
+    this.cambiarContraService.putOlvidoContrasena(correoLimpio).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.success(
+            response.mensaje || 'Hemos enviado un código de verificación a su correo',
+            'Correo enviado'
+          );
+
+          // Cambiar a la vista de verificación de código
+          this.mostrarIngresarCorreo = false;
+          this.mostrarVerificarCodigo = true;
+
+          // Configurar los inputs después de que se rendericen
+          setTimeout(() => {
+            this.setupCodeInputs();
+          }, 100);
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo enviar el correo',
+            'Error'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al enviar correo:', error);
+        this.messageService.error(
+          'No se pudo enviar el correo. Por favor intente nuevamente.',
+          'Error'
+        );
+      }
     });
-
-    // Cambiar a la vista de verificación de código
-    this.mostrarIngresarCorreo = false;
-    this.mostrarVerificarCodigo = true;
-
-    // Configurar los inputs después de que se rendericen
-    setTimeout(() => {
-      this.setupCodeInputs();
-    }, 100);
   }
 
 
@@ -217,38 +189,39 @@ enviarCorreo(event: Event): void {
     const codigoIngresado = this.obtenerCodigoIngresado();
 
     if (codigoIngresado.length !== 6) {
-      //alert('Por favor ingrese el código completo de 6 dígitos');
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Por favor ingrese el código completo de 6 dígitos',
-        life: 3000
-      });
+      this.messageService.error('Por favor ingrese el código completo de 6 dígitos', 'Error');
       return;
     }
 
-    if (codigoIngresado === this.codigoCorrecto) {
-      // Ocultar vista de verificación
-      this.mostrarVerificarCodigo = false;  // ← AGREGA ESTA LÍNEA
-      // Mostrar vista de cambio de contraseña
-      this.mostrarCambioContrasena = true;
+    // Llamar al servicio para validar el código
+    this.cambiarContraService.postValidaCodigo(this.correoIngresado, codigoIngresado).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          // Ocultar vista de verificación
+          this.mostrarVerificarCodigo = false;
+          // Mostrar vista de cambio de contraseña
+          this.mostrarCambioContrasena = true;
 
-      // Toast de éxito
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Código verificado',
-        detail: 'Ahora puede cambiar su contraseña',
-        life: 3000
-      });
-    } else {
-      // Toast de error
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Código incorrecto. Por favor intente nuevamente.',
-        life: 3000
-      });
-    }
+          // Toast de éxito
+          this.messageService.success(
+            response.mensaje || 'Ahora puede cambiar su contraseña',
+            'Código verificado'
+          );
+        } else {
+          this.messageService.error(
+            response.mensaje || 'Código incorrecto',
+            'Error'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al validar código:', error);
+        this.messageService.error(
+          'No se pudo validar el código. Por favor intente nuevamente.',
+          'Error'
+        );
+      }
+    });
   }
 
 
@@ -276,49 +249,48 @@ enviarCorreo(event: Event): void {
     const repetirContrasena = (document.getElementById('repetirContrasena') as HTMLInputElement)?.value;
 
     if (!nuevaContrasena || !repetirContrasena) {
-      //alert('Por favor complete todos los campos');
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'Por favor complete todos los campos',
-        life: 3000
-      });
+      this.messageService.warn('Por favor complete todos los campos', 'Advertencia');
       return;
     }
 
     if (nuevaContrasena !== repetirContrasena) {
-      //alert('Las contraseñas no coinciden');
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Las contraseñas no coinciden',
-        life: 3000
-      });
+      this.messageService.error('Las contraseñas no coinciden', 'Error');
       return;
     }
 
     if (nuevaContrasena.length < 6) {
-      //alert('La contraseña debe tener al menos 6 caracteres');
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Advertencia',
-        detail: 'La contraseña debe tener al menos 6 caracteres',
-        life: 3000
-      });
+      this.messageService.warn('La contraseña debe tener al menos 6 caracteres', 'Advertencia');
       return;
     }
 
-    // Aquí enviarías la nueva contraseña al backend
-    console.log('Contraseña cambiada exitosamente');
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Contraseña cambiada exitosamente',
-      life: 3000
-    });
+    // Llamar al servicio para cambiar la contraseña
+    this.cambiarContraService.putReset(this.correoIngresado, nuevaContrasena, repetirContrasena).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.success(
+            response.mensaje || 'Contraseña cambiada exitosamente',
+            'Éxito'
+          );
 
-    // Redirigir al login
-    this.router.navigate(['/login']);
+          // Redirigir al login después de un breve momento
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
+        } else {
+          this.messageService.error(
+            response.mensaje || 'No se pudo cambiar la contraseña',
+            'Error'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al cambiar contraseña:', error);
+        this.messageService.error(
+          'No se pudo cambiar la contraseña. Por favor intente nuevamente.',
+          'Error'
+        );
+      }
+    });
   }
 
   cancelar(): void {
@@ -332,12 +304,7 @@ enviarCorreo(event: Event): void {
     });
 
     // Opcional: mostrar mensaje
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Cancelado',
-      detail: 'Operación cancelada',
-      life: 2000
-    });
+    this.messageService.info('Operación cancelada', 'Cancelado', 2000);
 
     // Redirigir al login después de un breve momento
     setTimeout(() => {

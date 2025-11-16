@@ -21,6 +21,9 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/login',
       '/auth/registro',
       '/auth/recuperar-password',
+      '/auth/olvido-contrasena',
+      '/api/v1/auth/olvido-contrasena',
+      'localhost:8081/api/v1/auth/olvido-contrasena',
       '/public',
       '/carrito/items',
       '/api/v1/auth/login', // Login específico
