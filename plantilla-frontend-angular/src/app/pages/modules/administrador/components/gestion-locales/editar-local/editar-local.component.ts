@@ -2,24 +2,22 @@ import { Component, AfterViewInit, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import * as L from 'leaflet';
 import { LocalService } from '../../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 import { ListarLocalesResponse, Data } from '../../../interfaces/gestion-locales/local.interface';
 import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
 import { Departamento, Distrito, Provincia } from '../../../../../../core/interfaces/ubigeo.interface';
+import { GOOGLE_MAPS_CONFIG } from '../../../../../../config/google-maps.config';
 
-const iconDefault = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  tooltipAnchor: [16, -28],
-  shadowSize: [41, 41]
-});
+// Declarar Google Maps para TypeScript
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
+declare var google: any;
 
 @Component({
   selector: 'app-editar-local',
@@ -29,15 +27,17 @@ const iconDefault = L.icon({
 })
 export class EditarLocalComponent implements AfterViewInit, OnInit, OnDestroy {
 localForm: FormGroup;
-  map!: L.Map;
-  private marker!: L.Marker;
+  map!: any;
+  private marker!: any;
+  private geocoder!: any;
+  private autocompleteService!: any;
   mapLoading = true;
   localId!: number; // ID del local a editar
   isLoading = false; // Para mostrar estado de carga
 
   // Coordenadas por defecto (Lima, Perú)
-  private defaultLat = -12.0464;
-  private defaultLng = -77.0428;
+  private defaultLat = GOOGLE_MAPS_CONFIG.defaultCenter.lat;
+  private defaultLng = GOOGLE_MAPS_CONFIG.defaultCenter.lng;
 
   selectedCoordinates = {
     lat: this.defaultLat,
@@ -236,17 +236,35 @@ localForm: FormGroup;
   }
 
   ngAfterViewInit(): void {
-    // Verificar si Leaflet está disponible
-    if (typeof L === 'undefined') {
-      console.error('Leaflet no está disponible');
-      this.showMapError();
-      return;
-    }
+    // Esperar a que Google Maps se cargue
+    this.waitForGoogleMaps();
+  }
 
-    // Usar setTimeout para asegurar que el DOM esté completamente renderizado
-    setTimeout(() => {
-      this.initMap();
-    }, 100);
+  private waitForGoogleMaps(): void {
+    let attempts = 0;
+    const maxAttempts = 50; // 5 segundos máximo
+
+    const checkGoogleMaps = () => {
+      attempts++;
+      
+      if (typeof google !== 'undefined' && google.maps) {
+        console.log('Google Maps cargado correctamente');
+        setTimeout(() => {
+          this.initMap();
+        }, 100);
+      } else if (attempts < maxAttempts) {
+        setTimeout(checkGoogleMaps, 100);
+      } else {
+        console.error('Google Maps no se pudo cargar después de 5 segundos');
+        this.showMapError();
+        this.customMessageService.error(
+          'No se pudo cargar Google Maps. Verifica la conexión a internet y la configuración de la API Key.',
+          'Error de Google Maps'
+        );
+      }
+    };
+
+    checkGoogleMaps();
   }
 
   private showMapError(): void {
@@ -254,10 +272,22 @@ localForm: FormGroup;
     const mapElement = document.getElementById('map');
     if (mapElement) {
       mapElement.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #dc3545;">
-          <i class="pi pi-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-          <p>Error al cargar el mapa</p>
-          <small>Por favor, recarga la página</small>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #dc3545; padding: 20px; text-align: center;">
+          <i class="pi pi-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+          <h4 style="margin-bottom: 10px;">Google Maps no disponible</h4>
+          <p style="margin-bottom: 15px;">Necesitas configurar una API Key válida de Google Maps</p>
+          <small style="color: #666;">
+            <strong>Pasos:</strong><br>
+            1. Ve a <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a><br>
+            2. Habilita Maps JavaScript API, Places API, Geocoding API<br>
+            3. Crea una API Key<br>
+            4. Actualiza el archivo src/index.html con tu API Key
+          </small>
+          <div style="margin-top: 15px;">
+            <button onclick="window.location.reload()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              🔄 Recargar página
+            </button>
+          </div>
         </div>
       `;
     }
@@ -272,58 +302,57 @@ localForm: FormGroup;
         return;
       }
 
-      // Configurar iconos por defecto de Leaflet antes de crear el mapa
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
-      });
+      // Inicializar servicios de Google Maps
+      this.geocoder = new google.maps.Geocoder();
+      this.autocompleteService = new google.maps.places.AutocompleteService();
 
       // Crear el mapa
-      this.map = L.map('map', {
-        center: [this.defaultLat, this.defaultLng],
+      this.map = new google.maps.Map(mapElement, {
+        center: { lat: this.defaultLat, lng: this.defaultLng },
         zoom: 13,
         zoomControl: true,
-        attributionControl: true
+        mapTypeControl: true,
+        streetViewControl: true,
+        fullscreenControl: true
       });
 
-      // Agregar capa de OpenStreetMap
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-        minZoom: 5
-      }).addTo(this.map);
-
-      // Crear marker inicial con icono explícito
-      this.marker = L.marker([this.defaultLat, this.defaultLng], {
+      // Crear marker inicial
+      this.marker = new google.maps.Marker({
+        position: { lat: this.defaultLat, lng: this.defaultLng },
+        map: this.map,
         draggable: true,
-        icon: iconDefault
-      }).addTo(this.map);
+        title: 'Ubicación del local'
+      });
 
-      // Agregar un popup informativo al marker
-      this.marker.bindPopup('📍 Ubicación del local<br><small>Arrastra para ajustar la posición</small>').openPopup();
+      // Crear InfoWindow para mostrar información
+      const infoWindow = new google.maps.InfoWindow({
+        content: '📍 Ubicación del local<br><small>Arrastra para ajustar la posición</small>'
+      });
+      
+      // Mostrar InfoWindow inicial
+      infoWindow.open(this.map, this.marker);
 
       // Evento cuando se hace clic en el mapa
-      this.map.on('click', (e: L.LeafletMouseEvent) => {
-        this.updateMarkerPosition(e.latlng.lat, e.latlng.lng);
+      this.map.addListener('click', (e: any) => {
+        if (e.latLng) {
+          this.updateMarkerPosition(e.latLng.lat(), e.latLng.lng());
+        }
       });
 
       // Evento cuando se arrastra el marker
-      this.marker.on('dragend', (e: L.DragEndEvent) => {
-        const position = (e.target as L.Marker).getLatLng();
-        this.updateMarkerPosition(position.lat, position.lng);
+      this.marker.addListener('dragend', () => {
+        const position = this.marker.getPosition();
+        if (position) {
+          this.updateMarkerPosition(position.lat(), position.lng());
+        }
       });
 
-      // Invalidar el tamaño del mapa después de un momento para asegurar el renderizado correcto
+      // Ocultar indicador de carga
       setTimeout(() => {
-        if (this.map) {
-          this.map.invalidateSize();
-          this.mapLoading = false; // Ocultar indicador de carga
-        }
+        this.mapLoading = false;
       }, 500);
 
-      console.log('Mapa inicializado correctamente');
+      console.log('Mapa de Google Maps inicializado correctamente');
 
     } catch (error) {
       console.error('Error al inicializar el mapa:', error);
@@ -339,10 +368,15 @@ localForm: FormGroup;
 
   private updateMarkerPosition(lat: number, lng: number): void {
     // Actualizar posición del marker
-    this.marker.setLatLng([lat, lng]);
+    this.marker.setPosition({ lat, lng });
 
-    // Actualizar el contenido del popup
-    this.marker.setPopupContent(`📍 Ubicación del local<br><small>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</small>`);
+    // Crear nueva InfoWindow con coordenadas actualizadas
+    const infoWindow = new google.maps.InfoWindow({
+      content: `📍 Ubicación del local<br><small>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</small>`
+    });
+    
+    // Mostrar InfoWindow actualizada
+    infoWindow.open(this.map, this.marker);
 
     // Actualizar coordenadas seleccionadas
     this.selectedCoordinates = { lat, lng };
@@ -450,25 +484,108 @@ localForm: FormGroup;
   centerMapOnDistrict(): void {
     const distritoId = this.localForm.get('idDistrito')?.value;
 
-    // Coordenadas aproximadas de algunos distritos de Lima
-    const distritosCoords: { [key: number]: [number, number] } = {
-      1: [-12.1267, -76.9956], // Santiago de Surco
-      2: [-12.1586, -76.9733], // San Juan de Miraflores
-      3: [-12.0722, -77.0461]  // Jesús María
-    };
-
-    if (distritoId && distritosCoords[distritoId]) {
-      const coords = distritosCoords[distritoId];
-      if (this.map) {
-        this.map.setView(coords, 15);
-        this.updateMarkerPosition(coords[0], coords[1]);
-      }
+    if (!distritoId) {
+      this.customMessageService.warn(
+        'Por favor seleccione un distrito',
+        'Distrito no seleccionado'
+      );
+      return;
     }
+
+    // Buscar el distrito seleccionado en la lista para obtener su nombre
+    const distritoSeleccionado = this.distritos.find(d => d.idDistrito === distritoId);
+
+    if (!distritoSeleccionado) {
+      console.warn('Distrito no encontrado en la lista:', distritoId);
+      return;
+    }
+
+    // Usar Geocoding de Google Maps para buscar el distrito
+    const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
+    const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
+    
+    const direccionBusqueda = `${distritoSeleccionado.nombre}, ${provinciaSeleccionada?.nombre}, ${departamentoSeleccionado?.nombre}, Perú`;
+
+    this.geocoder.geocode({ address: direccionBusqueda }, (results: any, status: any) => {
+      if (status === 'OK' && results[0]) {
+        const location = results[0].geometry.location;
+        const lat = location.lat();
+        const lng = location.lng();
+
+        // Centrar el mapa en las coordenadas encontradas
+        this.map.setCenter({ lat, lng });
+        this.map.setZoom(15);
+        this.updateMarkerPosition(lat, lng);
+
+        this.customMessageService.success(
+          `Mapa centrado en ${distritoSeleccionado.nombre}`,
+          'Ubicación encontrada'
+        );
+      } else {
+        console.warn('Geocoding falló para:', direccionBusqueda, status);
+        this.customMessageService.warn(
+          `No se pudo encontrar la ubicación exacta de ${distritoSeleccionado.nombre}. Ajusta la ubicación manualmente.`,
+          'Ubicación no encontrada'
+        );
+      }
+    });
+  }
+
+  // Método para buscar dirección automáticamente
+  buscarDireccion(): void {
+    const direccion = this.localForm.get('direccion')?.value;
+    
+    if (!direccion || direccion.length < 5) {
+      this.customMessageService.warn(
+        'Ingresa una dirección más específica para buscar',
+        'Dirección muy corta'
+      );
+      return;
+    }
+
+    // Construir dirección completa con ubigeo si está disponible
+    let direccionCompleta = direccion;
+    
+    const distritoSeleccionado = this.distritos.find(d => d.idDistrito === this.localForm.get('idDistrito')?.value);
+    const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
+    const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
+    
+    if (distritoSeleccionado && provinciaSeleccionada && departamentoSeleccionado) {
+      direccionCompleta = `${direccion}, ${distritoSeleccionado.nombre}, ${provinciaSeleccionada.nombre}, ${departamentoSeleccionado.nombre}, Perú`;
+    } else {
+      direccionCompleta = `${direccion}, Perú`;
+    }
+
+    this.geocoder.geocode({ address: direccionCompleta }, (results: any, status: any) => {
+      if (status === 'OK' && results[0]) {
+        const location = results[0].geometry.location;
+        const lat = location.lat();
+        const lng = location.lng();
+
+        // Centrar el mapa en la dirección encontrada
+        this.map.setCenter({ lat, lng });
+        this.map.setZoom(17); // Zoom más cercano para direcciones específicas
+        this.updateMarkerPosition(lat, lng);
+
+        this.customMessageService.success(
+          `Dirección encontrada: ${results[0].formatted_address}`,
+          'Ubicación encontrada'
+        );
+      } else {
+        console.warn('Geocoding falló para:', direccionCompleta, status);
+        this.customMessageService.warn(
+          `No se pudo encontrar la dirección "${direccion}". Verifica que esté correcta o ajusta la ubicación manualmente.`,
+          'Dirección no encontrada'
+        );
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    // Google Maps se limpia automáticamente cuando el componente se destruye
     if (this.map) {
-      this.map.remove();
+      // Limpiar listeners si es necesario
+      google.maps.event.clearInstanceListeners(this.map);
     }
   }
 
