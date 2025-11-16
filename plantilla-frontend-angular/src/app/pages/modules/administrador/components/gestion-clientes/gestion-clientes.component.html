@@ -4,6 +4,16 @@
       <i class="pi pi-users"></i>
       Gestión de Clientes
     </h1>
+    <div class="header-actions">
+      <p-button
+        label="Ayuda y Soporte"
+        icon="pi pi-ticket"
+        severity="info"
+        (onClick)="abrirAyudaGlobal()"
+        pTooltip="Ver todas las solicitudes de ayuda y soporte"
+        tooltipPosition="left">
+      </p-button>
+    </div>
   </div>
 
   <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
@@ -244,6 +254,340 @@
       icon="pi pi-times" 
       (onClick)="mostrarDialogDetalle = false" 
       severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Ayuda y Soporte Global -->
+<p-dialog
+  [(visible)]="mostrarDialogAyudaGlobal"
+  header="Ayuda y Soporte - Todas las Solicitudes"
+  [modal]="true"
+  [style]="{'width': '90vw', 'max-width': '1200px'}"
+  [draggable]="false"
+  [resizable]="true"
+  styleClass="global-support-dialog">
+
+  <div class="dialog-content">
+    <!-- Barra de filtros -->
+    <div class="filters-section">
+      <div class="filters-row">
+        <div class="filter-field">
+          <label for="searchGlobal">Buscar:</label>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input
+              id="searchGlobal"
+              type="text"
+              pInputText
+              placeholder="Filtrar por asunto, mensaje, cliente o email"
+              [(ngModel)]="searchSolicitudesGlobales"
+              class="w-full"/>
+          </span>
+        </div>
+        <div class="filter-field">
+          <label for="estadoGlobal">Estado:</label>
+          <p-dropdown
+            id="estadoGlobal"
+            [(ngModel)]="filterEstadoGlobal"
+            [options]="estadoFilterOptionsGlobal"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Todos los estados"
+            class="w-full">
+          </p-dropdown>
+        </div>
+        <div class="filter-actions">
+          <p-button
+            label="Limpiar"
+            icon="pi pi-times"
+            severity="secondary"
+            [text]="true"
+            (onClick)="limpiarFiltrosGlobales()">
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de solicitudes -->
+    <div class="table-section">
+      <p-table
+        [value]="filteredSolicitudesGlobales"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        [loading]="loadingSolicitudesGlobales"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} solicitudes"
+        styleClass="custom-table"
+        [tableStyle]="{'min-width': '100%'}">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idSolicitud">
+              <div class="header-content">
+                <i class="pi pi-hashtag"></i>
+                ID
+                <p-sortIcon field="idSolicitud"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="nombreUsuario">
+              <div class="header-content">
+                <i class="pi pi-user"></i>
+                Cliente
+                <p-sortIcon field="nombreUsuario"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="asunto">
+              <div class="header-content">
+                <i class="pi pi-file-edit"></i>
+                Asunto
+                <p-sortIcon field="asunto"></p-sortIcon>
+              </div>
+            </th>
+            <th>
+              <div class="header-content">
+                <i class="pi pi-align-left"></i>
+                Mensaje
+              </div>
+            </th>
+            <th pSortableColumn="estado">
+              <div class="header-content">
+                <i class="pi pi-info-circle"></i>
+                Estado
+                <p-sortIcon field="estado"></p-sortIcon>
+              </div>
+            </th>
+            <th pSortableColumn="fechaCreacion">
+              <div class="header-content">
+                <i class="pi pi-calendar"></i>
+                Fecha
+                <p-sortIcon field="fechaCreacion"></p-sortIcon>
+              </div>
+            </th>
+            <th class="actions-column">
+              <div class="header-content">
+                <i class="pi pi-cog"></i>
+                Acciones
+              </div>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-solicitud>
+          <tr class="table-row">
+            <td class="id-cell">
+              <span class="id-badge">{{ solicitud.idSolicitud }}</span>
+            </td>
+            <td class="cliente-cell">
+              <div class="cliente-content">
+                <i class="pi pi-user cliente-icon"></i>
+                <div class="cliente-info">
+                  <span class="cliente-nombre">{{ solicitud.nombreUsuario || 'N/A' }}</span>
+                  <span class="cliente-id">ID: {{ solicitud.idUsuario }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="asunto-cell">
+              <span class="asunto-text">{{ solicitud.asunto }}</span>
+            </td>
+            <td class="mensaje-cell">
+              <span class="mensaje-text">{{ solicitud.mensaje | slice:0:50 }}{{ solicitud.mensaje?.length > 50 ? '...' : '' }}</span>
+            </td>
+            <td class="estado-cell">
+              <p-tag 
+                [value]="solicitud.estado"
+                [severity]="solicitud.estado === 'ABIERTO' ? 'info' : solicitud.estado === 'RESUELTO' ? 'success' : 'secondary'">
+              </p-tag>
+            </td>
+            <td class="fecha-cell">
+              {{ solicitud.fechaCreacion ? (solicitud.fechaCreacion | date:'dd/MM/yyyy HH:mm') : '-' }}
+            </td>
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <p-button
+                  icon="pi pi-eye"
+                  severity="info"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="verSolicitudGlobal(solicitud)"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="top">
+                </p-button>
+                <p-button
+                  icon="pi pi-pencil"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="abrirModificarObservacionGlobal(solicitud)"
+                  pTooltip="Editar observación"
+                  tooltipPosition="top">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">
+              <div class="no-results">
+                <i class="pi pi-search" style="font-size: 3rem; color: #ccc;"></i>
+                <h3>No se encontraron solicitudes</h3>
+                <p>No hay solicitudes de soporte disponibles.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="7">
+              <div class="no-results">
+                <p-progressSpinner styleClass="custom-spinner"></p-progressSpinner>
+                <p>Cargando solicitudes...</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      (onClick)="mostrarDialogAyudaGlobal = false"
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Ver Solicitud Global -->
+<p-dialog
+  [(visible)]="mostrarDialogSolicitudGlobal"
+  header="Detalle de Solicitud"
+  [modal]="true"
+  [style]="{'width': '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+
+  <div class="detalle-dialog" *ngIf="solicitudGlobalSeleccionada">
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-hashtag"></i> ID Solicitud:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.idSolicitud }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-user"></i> Cliente:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.nombreUsuario || 'N/A' }} (ID: {{ solicitudGlobalSeleccionada.idUsuario }})</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-envelope"></i> Email Cliente:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.emailUsuario || '-' }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-file-edit"></i> Asunto:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.asunto }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-align-left"></i> Mensaje:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.mensaje }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-info-circle"></i> Estado:</span>
+      <span class="value">
+        <p-tag 
+          [value]="solicitudGlobalSeleccionada.estado"
+          [severity]="solicitudGlobalSeleccionada.estado === 'ABIERTO' ? 'info' : solicitudGlobalSeleccionada.estado === 'RESUELTO' ? 'success' : 'secondary'">
+        </p-tag>
+      </span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-comment"></i> Observaciones:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.observaciones || '-' }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label"><i class="pi pi-globe"></i> IP Origen:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.ipOrigen || '-' }}</span>
+    </div>
+    <div class="detalle-row destacado">
+      <span class="label"><i class="pi pi-calendar"></i> Fecha creación:</span>
+      <span class="value">{{ solicitudGlobalSeleccionada.fechaCreacion ? (solicitudGlobalSeleccionada.fechaCreacion | date:'dd/MM/yyyy HH:mm') : '-' }}</span>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      (onClick)="mostrarDialogSolicitudGlobal = false"
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Dialog Modificar Observación Global -->
+<p-dialog
+  [(visible)]="mostrarDialogModificarGlobal"
+  header="Modificar Observación"
+  [modal]="true"
+  [style]="{'width': '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="custom-dialog">
+
+  <div class="detalle-dialog" *ngIf="solicitudGlobalParaEditar">
+    <div class="detalle-row">
+      <span class="label">ID:</span>
+      <span class="value">{{ solicitudGlobalParaEditar.idSolicitud }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Asunto:</span>
+      <span class="value">{{ solicitudGlobalParaEditar.asunto }}</span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Estado actual:</span>
+      <span class="value">
+        <p-tag 
+          [value]="solicitudGlobalParaEditar.estado"
+          [severity]="solicitudGlobalParaEditar.estado === 'ABIERTO' ? 'info' : solicitudGlobalParaEditar.estado === 'RESUELTO' ? 'success' : 'secondary'">
+        </p-tag>
+      </span>
+    </div>
+    <div class="detalle-row">
+      <span class="label">Nueva observación:</span>
+      <div class="value" style="width: 100%;">
+        <textarea
+          pInputTextarea
+          [(ngModel)]="editarObservacionGlobal"
+          placeholder="Ingrese la observación para resolver la solicitud"
+          rows="4"
+          style="width: 100%;"
+          [disabled]="loadingModificarGlobal">
+        </textarea>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      (onClick)="mostrarDialogModificarGlobal = false"
+      severity="secondary"
+      [disabled]="loadingModificarGlobal">
+    </p-button>
+    <p-button
+      label="Guardar"
+      icon="pi pi-save"
+      (onClick)="guardarObservacionGlobal()"
+      severity="success"
+      [loading]="loadingModificarGlobal"
+      [disabled]="loadingModificarGlobal">
     </p-button>
   </ng-template>
 </p-dialog>

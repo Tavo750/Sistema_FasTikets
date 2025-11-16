@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { GestionClientesService } from '../../services/gestion-clientes.service';
+import { AyudaSoporteService } from '../../../usuario/services/ayuda-soporte.service';
+import { AyudaSoporteListItem, AyudaSoporteListResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
+import { AyudaSoporteAdmiObtenerIdResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
+import { AyudaSoporteAdmiModificarResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
 
 interface Cliente {
   idCliente: number;
@@ -38,11 +42,31 @@ export class GestionClientesComponent implements OnInit {
   loading: boolean = false;
   totalRecords: number = 0;
 
+  // Ayuda y soporte global
+  mostrarDialogAyudaGlobal: boolean = false;
+  solicitudesGlobales: AyudaSoporteListItem[] = [];
+  loadingSolicitudesGlobales: boolean = false;
+  mostrarDialogSolicitudGlobal: boolean = false;
+  solicitudGlobalSeleccionada: AyudaSoporteListItem | null = null;
+  mostrarDialogModificarGlobal: boolean = false;
+  solicitudGlobalParaEditar: AyudaSoporteListItem | null = null;
+  editarObservacionGlobal: string = '';
+  loadingModificarGlobal: boolean = false;
+  searchSolicitudesGlobales: string = '';
+  filterEstadoGlobal: string | null = null;
+  estadoFilterOptionsGlobal = [
+    { label: 'Todos', value: null },
+    { label: 'ABIERTO', value: 'ABIERTO' },
+    { label: 'RESUELTO', value: 'RESUELTO' },
+    { label: 'CERRADO', value: 'CERRADO' }
+  ];
+
   constructor(
     private router: Router,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private gestionClientesService: GestionClientesService
+    private gestionClientesService: GestionClientesService,
+    private ayudaSoporteService: AyudaSoporteService
   ) {}
 
   ngOnInit(): void {
@@ -203,5 +227,167 @@ export class GestionClientesComponent implements OnInit {
     //     });
     //   }
     // });
+  }
+
+  // ===== MÉTODOS AYUDA Y SOPORTE GLOBAL =====
+
+  abrirAyudaGlobal(): void {
+    this.mostrarDialogAyudaGlobal = true;
+    this.cargarSolicitudesGlobales();
+  }
+
+  cargarSolicitudesGlobales(): void {
+    this.loadingSolicitudesGlobales = true;
+    this.ayudaSoporteService.listarSolicitudes().subscribe({
+      next: (response: AyudaSoporteListResponse) => {
+        this.loadingSolicitudesGlobales = false;
+        if (response && response.ok && Array.isArray(response.data)) {
+          this.solicitudesGlobales = response.data;
+          console.log('Solicitudes globales cargadas:', this.solicitudesGlobales.length);
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudieron cargar las solicitudes de soporte'
+          });
+        }
+      },
+      error: (error: any) => {
+        this.loadingSolicitudesGlobales = false;
+        console.error('Error al cargar solicitudes globales:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar las solicitudes de soporte'
+        });
+      }
+    });
+  }
+
+  verSolicitudGlobal(solicitud: AyudaSoporteListItem): void {
+    this.solicitudGlobalSeleccionada = solicitud;
+    this.mostrarDialogSolicitudGlobal = true;
+  }
+
+  abrirModificarObservacionGlobal(solicitud: AyudaSoporteListItem): void {
+    if (!solicitud || !solicitud.idSolicitud) {
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Advertencia', 
+        detail: 'Solicitud inválida' 
+      });
+      return;
+    }
+    
+    this.loadingModificarGlobal = true;
+    this.ayudaSoporteService.obtenerPorId(Number(solicitud.idSolicitud)).subscribe({
+      next: (response: AyudaSoporteAdmiObtenerIdResponse) => {
+        this.loadingModificarGlobal = false;
+        if (response && response.ok && response.data) {
+          this.solicitudGlobalParaEditar = response.data;
+          this.editarObservacionGlobal = response.data.observaciones || '';
+          this.mostrarDialogModificarGlobal = true;
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'No se pudo obtener el detalle de la solicitud' 
+          });
+        }
+      },
+      error: (error: any) => {
+        this.loadingModificarGlobal = false;
+        console.error('Error al obtener detalle de solicitud:', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'No se pudo obtener el detalle de la solicitud' 
+        });
+      }
+    });
+  }
+
+  guardarObservacionGlobal(): void {
+    if (!this.solicitudGlobalParaEditar) return;
+    
+    const id = Number(this.solicitudGlobalParaEditar.idSolicitud);
+    const payload = {
+      estado: 'RESUELTO',
+      observaciones: this.editarObservacionGlobal || null
+    };
+
+    this.loadingModificarGlobal = true;
+    this.ayudaSoporteService.modificarEstadoSolicitudAdmin(id, payload).subscribe({
+      next: (response: AyudaSoporteAdmiModificarResponse) => {
+        this.loadingModificarGlobal = false;
+        if (response && response.ok && response.data) {
+          // Actualizar la solicitud en la lista
+          const index = this.solicitudesGlobales.findIndex(s => 
+            Number(s.idSolicitud) === id
+          );
+          if (index !== -1) {
+            this.solicitudesGlobales[index] = {
+              ...this.solicitudesGlobales[index],
+              estado: response.data.estado,
+              observaciones: response.data.observaciones
+            };
+          }
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Observación actualizada correctamente'
+          });
+          
+          this.mostrarDialogModificarGlobal = false;
+          this.editarObservacionGlobal = '';
+          this.solicitudGlobalParaEditar = null;
+        } else {
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: response?.mensaje || 'No se pudo actualizar la observación' 
+          });
+        }
+      },
+      error: (error: any) => {
+        this.loadingModificarGlobal = false;
+        console.error('Error al modificar observación global:', error);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Error al actualizar la observación' 
+        });
+      }
+    });
+  }
+
+  get filteredSolicitudesGlobales(): AyudaSoporteListItem[] {
+    const searchTerm = (this.searchSolicitudesGlobales || '').toString().trim().toLowerCase();
+    return this.solicitudesGlobales.filter(s => {
+      // Filtrar por término de búsqueda
+      if (searchTerm) {
+        const asunto = (s.asunto || '').toLowerCase();
+        const mensaje = (s.mensaje || '').toLowerCase();
+        const nombreUsuario = (s.nombreUsuario || '').toLowerCase();
+        const emailUsuario = (s.emailUsuario || '').toLowerCase();
+        if (!asunto.includes(searchTerm) && !mensaje.includes(searchTerm) && 
+            !nombreUsuario.includes(searchTerm) && !emailUsuario.includes(searchTerm)) {
+          return false;
+        }
+      }
+      
+      // Filtrar por estado
+      if (this.filterEstadoGlobal && s.estado !== this.filterEstadoGlobal) {
+        return false;
+      }
+      
+      return true;
+    });
+  }
+
+  limpiarFiltrosGlobales(): void {
+    this.searchSolicitudesGlobales = '';
+    this.filterEstadoGlobal = null;
   }
 }

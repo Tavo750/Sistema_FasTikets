@@ -15,6 +15,12 @@
   border-bottom: 1px solid #e9ecef;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .title {
   font-size: 2.5rem;
   font-weight: 700;
@@ -311,4 +317,230 @@
   padding: 4rem 2rem;
   color: #6c757d;
   text-align: center;
+}
+
+/* ===== ESTILOS AYUDA Y SOPORTE GLOBAL ===== */
+
+/* Global Support Dialog */
+::ng-deep .global-support-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+}
+
+::ng-deep .global-support-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+::ng-deep .global-support-dialog .p-dialog-content {
+  padding: 0;
+  border-radius: 0 0 12px 12px;
+}
+
+::ng-deep .global-support-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Dialog Content */
+.dialog-content {
+  padding: 1.5rem;
+}
+
+/* Filters Section */
+.filters-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 1fr 200px auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-field label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: end;
+}
+
+/* Input Styles */
+::ng-deep .global-support-dialog .p-inputtext,
+::ng-deep .global-support-dialog .p-dropdown {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .global-support-dialog .p-inputtext:focus,
+::ng-deep .global-support-dialog .p-dropdown:not(.p-disabled):hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Table Section */
+.table-section {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Table Cell Styles */
+.cliente-cell {
+  min-width: 200px;
+}
+
+.cliente-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cliente-icon {
+  color: #3b82f6;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.cliente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cliente-nombre {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.cliente-id {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.asunto-cell .asunto-text {
+  font-weight: 600;
+  color: #374151;
+}
+
+.mensaje-cell .mensaje-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.fecha-cell {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Detalle Dialog Styles */
+.detalle-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detalle-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.detalle-row:last-child {
+  border-bottom: none;
+}
+
+.detalle-row.destacado {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-top: 0.5rem;
+}
+
+.detalle-row .label {
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detalle-row .label i {
+  color: #3b82f6;
+  font-size: 1rem;
+}
+
+.detalle-row .value {
+  color: #6b7280;
+  word-break: break-word;
+  line-height: 1.5;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    justify-content: center;
+  }
+
+  ::ng-deep .global-support-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  .dialog-content {
+    padding: 1rem;
+  }
+
+  .filters-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .filters-row .filter-actions {
+    justify-content: stretch;
+  }
+
+  .detalle-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .detalle-row .label {
+    font-weight: 700;
+  }
 }
