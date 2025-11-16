@@ -50,13 +50,27 @@
                 <i class="pi pi-map"></i>
                 Dirección completa
               </label>
-              <input
-                type="text"
-                pInputText
-                formControlName="direccion"
-                placeholder="Ej. Av. Principal 123..."
-                class="form-input"
-              />
+              <div class="direccion-container" style="display: flex; gap: 8px;">
+                <input
+                  type="text"
+                  pInputText
+                  formControlName="direccion"
+                  placeholder="Ej. Av. Principal 123..."
+                  class="form-input"
+                  style="flex: 1;"
+                />
+                <p-button
+                  icon="pi pi-search"
+                  (onClick)="buscarDireccion()"
+                  [disabled]="!localForm.get('direccion')?.value || localForm.get('direccion')?.value.length < 5"
+                  class="direccion-btn"
+                  size="small"
+                  severity="info"
+                  outlined="true"
+                  pTooltip="Buscar dirección en el mapa"
+                  tooltipPosition="top">
+                </p-button>
+              </div>
             </div>
 
             <div class="form-row">
@@ -194,7 +208,7 @@
 
                 <div class="map-instructions">
                   <i class="pi pi-info-circle"></i>
-                  Haz clic en el mapa o arrastra el marcador para actualizar la ubicación
+                  💡 Ingresa la dirección y haz clic en buscar, o haz clic en el mapa para actualizar la ubicación del local
                 </div>
 
                 <div class="map-actions">
