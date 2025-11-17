@@ -21,6 +21,7 @@ interface Cliente {
   fechaNacimiento: string;
   nivel: string;
   puntosAcumulados: number;
+  verificado: boolean;
   departamento?: string;
   distrito?: string;
   rol?: string;
