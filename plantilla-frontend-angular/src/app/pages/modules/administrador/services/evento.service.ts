@@ -230,7 +230,7 @@ export class EventoService {
    * @param body  Datos de la entrada a crear
    * @returns
    */
-  postCrearEntrada(body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number }): Observable<EntradaResponse> {
+  postCrearEntrada(body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number; fechaInicioVenta: string; fechaFinVenta: string }): Observable<EntradaResponse> {
     const url = `${baseUrl}/tipos-ticket`;
     return this.http.post<EntradaResponse>(url, body)
       .pipe(
@@ -252,7 +252,7 @@ export class EventoService {
    * @param body Datos actualizados de la entrada
    * @returns Observable con la respuesta del servidor
    */
-  putActualizarEntrada(id: number, body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number }): Observable<EntradaResponse> {
+  putActualizarEntrada(id: number, body: { nombre: string; descripcion: string; precio: number; stock: number; activo: boolean; idZona: number; limitePorPersona: number; fechaInicioVenta: string; fechaFinVenta: string }): Observable<EntradaResponse> {
     const url = `${baseUrl}/tipos-ticket/${id}`;
     return this.http.put<EntradaResponse>(url, body)
       .pipe(

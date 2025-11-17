@@ -20,4 +20,6 @@ export interface Data {
   idZona:           number;
   nombreZona:       string;
   limitePorPersona: number;
+  fechaInicioVenta: string;
+  fechaFinVenta:    string;
 }
