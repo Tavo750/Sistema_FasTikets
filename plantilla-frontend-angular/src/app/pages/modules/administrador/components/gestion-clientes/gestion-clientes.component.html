@@ -155,6 +155,17 @@
                   (onClick)="editarCliente(cliente)">
                 </p-button>
                 <p-button
+                  icon="pi pi-verified"
+                  [severity]="cliente.verificado ? 'success' : 'help'"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  [pTooltip]="cliente.verificado ? 'Cliente verificado' : 'Verificar cliente'"
+                  tooltipPosition="top"
+                  [disabled]="cliente.verificado"
+                  (onClick)="confirmarVerificacion(cliente)">
+                </p-button>
+                <p-button
                   icon="pi pi-trash"
                   severity="danger"
                   size="small"

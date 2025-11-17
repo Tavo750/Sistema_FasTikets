@@ -10,6 +10,7 @@ import { EliminarClienteResponse } from '../interfaces/gestion-clientes/eliminar
 import { HistorialComprasResponse } from '../interfaces/gestion-clientes/historial-compras.interface';
 import { HistorialPuntosResponse } from '../interfaces/gestion-clientes/historial-puntos.interface';
 import { EliminarPuntosResponse } from '../interfaces/gestion-clientes/eliminar-puntos-cliente.interace';
+import { VerificarClienteResponse } from '../interfaces/gestion-clientes/verificar-cliente.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -122,6 +123,29 @@ export class GestionClientesService {
     return this.http.get<HistorialPuntosResponse>(url).pipe(
       catchError((error) => {
         console.error('Error obteniendo historial de puntos:', error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
+  /**
+   * Marca un cliente como verificado por el administrador
+   * @param id ID del cliente a verificar
+   * @returns Observable con la respuesta que contiene los datos actualizados del cliente
+   */
+  verificarCliente(id: number): Observable<VerificarClienteResponse> {
+    const url = `${baseUrl}/clientes/${id}/verificar`;
+    console.log('URL verificar cliente:', url);
+    
+    return this.http.put<VerificarClienteResponse>(url, {}, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error al verificar cliente:', error);
+        console.error('Estado de la respuesta:', error.status);
+        console.error('Mensaje de error:', error.error);
         return this.httpUtils.handleError(error);
       })
     );

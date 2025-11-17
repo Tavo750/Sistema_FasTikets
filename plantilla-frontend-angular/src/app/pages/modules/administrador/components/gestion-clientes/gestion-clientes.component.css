@@ -308,6 +308,27 @@
   background: #fee2e2;
 }
 
+::ng-deep .action-buttons .p-button.p-button-success {
+  color: #10b981;
+}
+
+::ng-deep .action-buttons .p-button.p-button-success:hover {
+  background: #d1fae5;
+}
+
+::ng-deep .action-buttons .p-button.p-button-help {
+  color: #f59e0b;
+}
+
+::ng-deep .action-buttons .p-button.p-button-help:hover {
+  background: #fef3c7;
+}
+
+::ng-deep .action-buttons .p-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* No Results */
 .no-results {
   display: flex;

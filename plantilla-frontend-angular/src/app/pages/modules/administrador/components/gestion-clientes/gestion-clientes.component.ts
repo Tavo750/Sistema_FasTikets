@@ -230,6 +230,70 @@ export class GestionClientesComponent implements OnInit {
     // });
   }
 
+  confirmarVerificacion(cliente: Cliente): void {
+    if (cliente.verificado) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Cliente ya verificado',
+        detail: `${cliente.nombres} ${cliente.apellidos} ya está verificado`
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: `¿Está seguro de verificar al cliente ${cliente.nombres} ${cliente.apellidos}?`,
+      header: 'Confirmar Verificación',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Sí, verificar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => {
+        this.verificarCliente(cliente);
+      }
+    });
+  }
+
+  verificarCliente(cliente: Cliente): void {
+    this.loading = true;
+    
+    this.gestionClientesService.verificarCliente(cliente.idCliente).subscribe({
+      next: (response) => {
+        this.loading = false;
+        if (response && response.ok) {
+          // Actualizar el cliente en la lista local
+          const index = this.clientes.findIndex(c => c.idCliente === cliente.idCliente);
+          if (index !== -1) {
+            this.clientes[index] = {
+              ...this.clientes[index],
+              verificado: response.data.verificado
+            };
+          }
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cliente Verificado',
+            detail: response.mensaje || `${cliente.nombres} ${cliente.apellidos} ha sido verificado correctamente`
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudo verificar el cliente'
+          });
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error al verificar cliente:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.mensaje || 'Error al verificar el cliente'
+        });
+      }
+    });
+  }
+
   // ===== MÉTODOS AYUDA Y SOPORTE GLOBAL =====
 
   abrirAyudaGlobal(): void {
