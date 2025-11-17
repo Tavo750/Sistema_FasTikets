@@ -18,7 +18,7 @@
       <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
     </button>
 
-    <button class="action-btn" >
+    <button class="action-btn" (click)="abrirFavoritos()">
       <i class="pi pi-heart"></i>
       <span class="action-label">Favoritos</span>
     </button>
@@ -51,3 +51,99 @@
     </ng-container>
   </div>
 </div>
+
+<!-- Diálogo de Favoritos -->
+<p-dialog 
+  [(visible)]="mostrarDialogoFavoritos" 
+  [modal]="true" 
+  [style]="{width: '90vw', maxWidth: '1200px'}"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="favoritos-dialog">
+  
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <i class="pi pi-heart" style="color: #e74c3c; margin-right: 0.5rem;"></i>
+      <span>Mis Eventos Favoritos</span>
+    </div>
+  </ng-template>
+
+  <div class="favoritos-contenedor">
+    <!-- Loader mientras carga -->
+    <div *ngIf="cargandoFavoritos" class="favoritos-loading">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <p>Cargando favoritos...</p>
+    </div>
+
+    <!-- Lista de favoritos -->
+    <div *ngIf="!cargandoFavoritos && eventosFavoritos.length > 0" class="favoritos-grid">
+      <div class="favorito-card" *ngFor="let evento of eventosFavoritos">
+        <div class="favorito-imagen">
+          <img [src]="evento.imagenUrl || 'img/logo/concierto.jpg'" [alt]="evento.nombre" />
+          <button 
+            class="btn-eliminar-favorito" 
+            (click)="eliminarDeFavoritos(evento.idEvento)"
+            pButton
+            icon="pi pi-times"
+            [rounded]="true"
+            severity="danger"
+            [text]="true"
+            pTooltip="Eliminar de favoritos"
+            tooltipPosition="left">
+          </button>
+        </div>
+        
+        <div class="favorito-contenido">
+          <h3 class="favorito-titulo">{{ evento.nombre }}</h3>
+          
+          <div class="favorito-detalles">
+            <div class="detalle-item">
+              <i class="pi pi-calendar"></i>
+              <span>{{ formatearFecha(evento.fechaEvento) }}</span>
+            </div>
+            
+            <div class="detalle-item">
+              <i class="pi pi-clock"></i>
+              <span>{{ evento.horaInicio }}</span>
+            </div>
+            
+            <div class="detalle-item">
+              <i class="pi pi-map-marker"></i>
+              <span>{{ evento.nombreLocal }}</span>
+            </div>
+
+            <div class="detalle-item">
+              <i class="pi pi-tag"></i>
+              <span>{{ evento.tipoEvento }}</span>
+            </div>
+          </div>
+
+          <p class="favorito-descripcion">{{ evento.descripcion }}</p>
+
+          <div class="favorito-acciones">
+            <p-button 
+              label="Ver Detalles" 
+              icon="pi pi-eye"
+              (onClick)="verDetalleEvento(evento.idEvento)"
+              styleClass="p-button-sm">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay favoritos -->
+    <div *ngIf="!cargandoFavoritos && eventosFavoritos.length === 0" class="favoritos-vacio">
+      <i class="pi pi-heart-fill" style="font-size: 4rem; color: #ccc;"></i>
+      <h3>No tienes eventos favoritos</h3>
+      <p>Explora eventos y agrega tus favoritos haciendo clic en el ícono de corazón</p>
+      <p-button 
+        label="Explorar Eventos" 
+        icon="pi pi-compass"
+        (onClick)="navegarA('/home/inicio'); mostrarDialogoFavoritos = false"
+        severity="secondary">
+      </p-button>
+    </div>
+  </div>
+</p-dialog>
+

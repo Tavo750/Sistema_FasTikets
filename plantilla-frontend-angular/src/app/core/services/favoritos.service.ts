@@ -13,15 +13,15 @@ export class FavoritosService {
   constructor(private http: HttpClient) { }
 
   GetListarEventoFavorito(): Observable<FavoritosResponse> {
-    return this.http.get<FavoritosResponse>(`${baseUrl}`);
+    return this.http.get<FavoritosResponse>(`${baseUrl}/clientes/favoritos`);
   }
 
   PostAgregaEventoFavorito(id: number): Observable<AgregaFavoritoResponse> {
-    return this.http.post<AgregaFavoritoResponse>(`${baseUrl}/${id}`, {});
+    return this.http.post<AgregaFavoritoResponse>(`${baseUrl}/clientes/favoritos/${id}`, {});
   }
   
   DeleteEliminaEventoFavorito(id: number): Observable<QuitaFavoritoResponse> {
-    return this.http.delete<QuitaFavoritoResponse>(`${baseUrl}/${id}`);
+    return this.http.delete<QuitaFavoritoResponse>(`${baseUrl}/clientes/favoritos/${id}`);
   }
   
 }

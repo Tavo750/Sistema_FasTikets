@@ -2,11 +2,13 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Data } from '../../interfaces/login.interface';
 import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
 import { CartService } from '../../../shared/services/cart.service';
+import { FavoritosService } from '../../services/favoritos.service';
+import { Datum } from '../../interfaces/favoritos.interface';
 
 @Component({
   selector: 'app-header',
@@ -25,6 +27,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   notificationCount: number = 5; // Ejemplo
   cartItemCount: number = 0; // Contador de items del carrito
   @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
+  
+  // Variables para favoritos
+  mostrarDialogoFavoritos: boolean = false;
+  eventosFavoritos: Datum[] = [];
+  cargandoFavoritos: boolean = false;
 
   /**
    * Getter que retorna los items del menú según el rol del usuario
@@ -45,7 +52,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private menuService: MenuService,
     private sessionService: SessionService,
     private loginService: LoginService,
-    private cartService: CartService
+    private cartService: CartService,
+    private favoritosService: FavoritosService,
+    private messageService: MessageService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -222,6 +231,99 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.loginService.logout(); // Este ya llama a sessionService.clearUser()
     this.usuario = null; // Limpiar el usuario del componente
     this.router.navigate(['/login']);
+  }
+
+  /**
+   * Abre el diálogo de favoritos y carga la lista
+   */
+  abrirFavoritos(): void {
+    if (!this.usuario) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Debes iniciar sesión para ver tus favoritos',
+        life: 3000
+      });
+      return;
+    }
+
+    this.mostrarDialogoFavoritos = true;
+    this.cargarFavoritos();
+  }
+
+  /**
+   * Carga la lista de eventos favoritos
+   */
+  cargarFavoritos(): void {
+    this.cargandoFavoritos = true;
+    this.favoritosService.GetListarEventoFavorito().subscribe({
+      next: (response) => {
+        this.cargandoFavoritos = false;
+        if (response.ok && response.data) {
+          this.eventosFavoritos = response.data;
+        }
+      },
+      error: (error) => {
+        this.cargandoFavoritos = false;
+        console.error('Error al cargar favoritos:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los favoritos',
+          life: 3000
+        });
+      }
+    });
+  }
+
+  /**
+   * Elimina un evento de favoritos
+   */
+  eliminarDeFavoritos(eventoId: number): void {
+    this.favoritosService.DeleteEliminaEventoFavorito(eventoId).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Evento eliminado de favoritos',
+            life: 3000
+          });
+          // Recargar la lista de favoritos
+          this.cargarFavoritos();
+        }
+      },
+      error: (error) => {
+        console.error('Error al eliminar de favoritos:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.mensaje || 'No se pudo eliminar el evento de favoritos',
+          life: 3000
+        });
+      }
+    });
+  }
+
+  /**
+   * Navega al detalle del evento
+   */
+  verDetalleEvento(eventoId: number): void {
+    this.mostrarDialogoFavoritos = false;
+    this.router.navigate(['/home/evento', eventoId]);
+  }
+
+  /**
+   * Formatea la fecha del evento
+   */
+  formatearFecha(fecha: Date): string {
+    const fechaObj = new Date(fecha);
+    const opciones: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    };
+    return fechaObj.toLocaleDateString('es-ES', opciones);
   }
 
 }
