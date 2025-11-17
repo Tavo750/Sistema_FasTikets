@@ -244,11 +244,7 @@ export class InicioComponent implements OnInit {
     }
   }
 
-  comprarEvento(evento: Evento): void {
-    // Navegar a la página de compra con el ID del evento real
-    console.log('Comprando evento:', evento.nombre, 'ID:', evento.id);
-    this.router.navigate(['/home/evento', evento.id]);
-  }
+
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada = null;
