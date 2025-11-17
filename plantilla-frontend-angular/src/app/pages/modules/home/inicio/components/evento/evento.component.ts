@@ -81,6 +81,9 @@ export class EventoComponent implements AfterViewInit, OnInit {
   address: string = '';
   organizer: string = '';
   showSeatingChart: boolean = true;
+  menoresDeEdadPermitidos: boolean = false;
+  restricciones: string = '';
+  politicasDevolucion: string = '';
 
   private map: any;
   private marker: any;
@@ -175,6 +178,19 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.date = this.formatearFecha(this.eventoData.fechaEvento);
       this.time = this.formatearHora(this.eventoData.horaInicio);
       this.imageUrl = this.eventoData.imagenUrl || '';
+      
+      // Manejar menoresDeEdadPermitidos (null se trata como false)
+      this.menoresDeEdadPermitidos = this.eventoData.menoresDeEdadPermitidos === true;
+      
+      // Manejar restricciones y políticas (null se convierte en string vacío)
+      this.restricciones = this.eventoData.restricciones || '';
+      this.politicasDevolucion = this.eventoData.politicasDevolucion || '';
+      
+      console.log('Datos del evento cargados:', {
+        menoresDeEdadPermitidos: this.menoresDeEdadPermitidos,
+        restricciones: this.restricciones,
+        politicasDevolucion: this.politicasDevolucion
+      });
     }
 
     private formatearHora(hora: string): string {

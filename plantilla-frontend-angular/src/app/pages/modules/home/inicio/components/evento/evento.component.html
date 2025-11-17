@@ -252,6 +252,59 @@
             </div>
           </div>
         </div>
+
+        <!-- Información importante del evento (debajo del mapa) -->
+        <div class="evento-informacion-importante">
+          <!-- Restricción de edad -->
+          <div class="info-importante-item">
+            <div class="info-icono" [ngClass]="menoresDeEdadPermitidos ? 'edad-permitida' : 'edad-restringida'">
+              <i [class]="menoresDeEdadPermitidos ? 'pi pi-users' : 'pi pi-shield'"></i>
+            </div>
+            <div class="info-contenido">
+              <h5 class="info-titulo">Restricción de Edad</h5>
+              <p class="info-texto">
+                <span *ngIf="menoresDeEdadPermitidos" class="texto-permitido">
+                  <i class="pi pi-check-circle"></i> Evento apto para menores de edad
+                </span>
+                <span *ngIf="!menoresDeEdadPermitidos" class="texto-restringido">
+                  <i class="pi pi-times-circle"></i> Evento solo para mayores de 18 años
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Restricciones -->
+          <div class="info-importante-item">
+            <div class="info-icono restricciones-icono">
+              <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            <div class="info-contenido">
+              <h5 class="info-titulo">Restricciones del Evento</h5>
+              <p class="info-texto" *ngIf="restricciones && restricciones.trim() !== ''">
+                {{ restricciones }}
+              </p>
+              <p class="info-texto texto-sin-datos" *ngIf="!restricciones || restricciones.trim() === ''">
+                <i class="pi pi-info-circle"></i> No se han especificado restricciones para este evento
+              </p>
+            </div>
+          </div>
+
+          <!-- Políticas de devolución -->
+          <div class="info-importante-item">
+            <div class="info-icono politicas-icono">
+              <i class="pi pi-refresh"></i>
+            </div>
+            <div class="info-contenido">
+              <h5 class="info-titulo">Políticas de Devolución</h5>
+              <p class="info-texto" *ngIf="politicasDevolucion && politicasDevolucion.trim() !== ''">
+                {{ politicasDevolucion }}
+              </p>
+              <p class="info-texto texto-sin-datos" *ngIf="!politicasDevolucion || politicasDevolucion.trim() === ''">
+                <i class="pi pi-info-circle"></i> No se han especificado políticas de devolución para este evento
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
