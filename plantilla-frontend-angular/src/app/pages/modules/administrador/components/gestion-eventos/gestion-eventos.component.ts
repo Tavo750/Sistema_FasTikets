@@ -19,6 +19,15 @@ interface Evento {
   descripcion: string;
   horaInicio: string;
   horaFin: string;
+  // Campos adicionales para detalles completos
+  imagenUrl?: string;
+  imagenZonasUrl?: string;
+  restricciones?: string;
+  politicasDevolucion?: string;
+  menoresDeEdadPermitidos?: boolean;
+  idLocal?: number;
+  fechaCreacion?: Date;
+  fechaActualizacion?: Date;
 }
 
 @Component({
@@ -34,6 +43,11 @@ export class GestionEventosComponent implements OnInit {
   terminoBusqueda: string = '';
   tipoSeleccionado: TipoConcierto | null = null;
   cargando: boolean = false;
+  
+  // Variables para el modal de detalles
+  mostrarModalDetalles: boolean = false;
+  eventoSeleccionado: Evento | null = null;
+  cargandoDetalles: boolean = false;
 
   constructor(
     private router: Router,
@@ -150,11 +164,85 @@ export class GestionEventosComponent implements OnInit {
   }
 
   generarReporte(evento: Evento) {
-    console.log('Generando reporte para:', evento.nombre);
+    console.log('Descargando reporte de ventas para:', evento.nombre);
+    
+    this.eventoService.descargarReporteVentasPDF(evento.idEvento)
+      .subscribe({
+        next: (blob: Blob) => {
+          // Crear URL temporal para el blob
+          const url = window.URL.createObjectURL(blob);
+          
+          // Crear elemento 'a' para forzar la descarga
+          const link = document.createElement('a');
+          link.href = url;
+          
+          // Generar nombre del archivo con fecha actual
+          const fechaActual = new Date().toISOString().split('T')[0];
+          const nombreArchivo = `reporte-ventas-${evento.nombre.replace(/\s+/g, '-')}-${fechaActual}.pdf`;
+          link.download = nombreArchivo;
+          
+          // Simular click para descargar
+          document.body.appendChild(link);
+          link.click();
+          
+          // Limpiar
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          
+          console.log('✅ Reporte descargado exitosamente:', nombreArchivo);
+        },
+        error: (error) => {
+          console.error('❌ Error al descargar reporte:', error);
+          // Aquí podrías agregar un toast o mensaje de error para el usuario
+          alert('Error al descargar el reporte. Por favor, inténtelo de nuevo.');
+        }
+      });
   }
 
   verDetalles(evento: Evento) {
-    console.log('Viendo detalles de:', evento.nombre);
+    console.log('Cargando detalles completos para:', evento.nombre);
+    this.cargandoDetalles = true;
+    this.mostrarModalDetalles = true;
+    
+    // Cargar detalles completos del evento
+    this.eventoService.getEventoPorId(evento.idEvento).subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          // Mapear los datos completos del evento
+          this.eventoSeleccionado = {
+            idEvento: response.data.idEvento,
+            nombre: response.data.nombre,
+            descripcion: response.data.descripcion,
+            tipoEvento: response.data.tipoEvento,
+            fechaEvento: new Date(response.data.fechaEvento),
+            horaInicio: response.data.horaInicio,
+            horaFin: response.data.horaFin,
+            estadoEvento: response.data.estadoEvento,
+            aforoDisponible: response.data.aforoDisponible,
+            nombreLocal: response.data.nombreLocal,
+            imagenUrl: response.data.imagenUrl,
+            imagenZonasUrl: response.data.imagenZonasUrl,
+            // Campos que pueden no existir en el backend - usar valores por defecto
+            restricciones: (response.data as any).restricciones || 'No especificadas',
+            politicasDevolucion: (response.data as any).politicasDevolucion || 'No especificadas',
+            menoresDeEdadPermitidos: (response.data as any).menoresDeEdadPermitidos || false,
+            idLocal: response.data.idLocal,
+            fechaCreacion: response.data.fechaCreacion ? new Date(response.data.fechaCreacion) : undefined,
+            fechaActualizacion: (response.data as any).fechaActualizacion ? new Date((response.data as any).fechaActualizacion) : undefined
+          };
+          
+          console.log('✅ Detalles del evento cargados:', this.eventoSeleccionado);
+        }
+        this.cargandoDetalles = false;
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar detalles del evento:', error);
+        this.cargandoDetalles = false;
+        this.mostrarModalDetalles = false;
+        // Mostrar mensaje de error al usuario
+        alert('Error al cargar los detalles del evento. Por favor, inténtelo de nuevo.');
+      }
+    });
   }
 
   agregarEvento() {
@@ -171,5 +259,64 @@ export class GestionEventosComponent implements OnInit {
 
   crearEvento(idEvento: number){
     this.router.navigate(['/administrador/gestionEventos/crear', idEvento]);
+  }
+
+  // Métodos para el modal de detalles
+  cerrarModalDetalles() {
+    this.mostrarModalDetalles = false;
+    this.eventoSeleccionado = null;
+    this.cargandoDetalles = false;
+  }
+
+  obtenerUrlImagen(imagenUrl: string | undefined): string {
+    if (!imagenUrl) {
+      return 'assets/img/evento-placeholder.jpg';
+    }
+    
+    // Si ya es una URL completa, devolverla tal como está
+    if (imagenUrl.startsWith('http')) {
+      return imagenUrl;
+    }
+    
+    // Si es una ruta relativa, construir la URL completa
+    return `http://localhost:8081${imagenUrl}`;
+  }
+
+  formatearFecha(fecha: Date | undefined): string {
+    if (!fecha) return 'No disponible';
+    
+    return new Intl.DateTimeFormat('es-PE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long'
+    }).format(fecha);
+  }
+
+  formatearFechaCorta(fecha: Date | undefined): string {
+    if (!fecha) return 'No disponible';
+    
+    return new Intl.DateTimeFormat('es-PE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(fecha);
+  }
+
+  // Métodos para manejo de errores de imagen
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/img/evento-placeholder.jpg';
+    }
+  }
+
+  onImageZonasError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.style.display = 'none';
+    }
   }
 }

@@ -139,8 +139,7 @@
             <td class="severity-cell">
               <p-tag 
                 [value]="error.severidad" 
-                [severity]="getSeveridadSeverity(error.severidad)"
-                class="severity-tag">
+                [ngClass]="'severity-tag ' + getSeveridadClass(error.severidad)">
               </p-tag>
             </td>
             <td class="module-cell">
