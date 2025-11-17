@@ -563,6 +563,32 @@
 
           <div class="entrada-field">
             <label class="field-label">
+              <i class="pi pi-calendar"></i>
+              Fecha inicio venta
+            </label>
+            <p-datepicker
+              [(ngModel)]="entradaFechaInicioVenta"
+              dateFormat="dd/mm/yy"
+              styleClass="form-input"
+              placeholder="Seleccionar fecha"
+            ></p-datepicker>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
+              <i class="pi pi-calendar"></i>
+              Fecha fin venta
+            </label>
+            <p-datepicker
+              [(ngModel)]="entradaFechaFinVenta"
+              dateFormat="dd/mm/yy"
+              styleClass="form-input"
+              placeholder="Seleccionar fecha"
+            ></p-datepicker>
+          </div>
+
+          <div class="entrada-field">
+            <label class="field-label">
               <i class="pi pi-check"></i>
               Válido para
             </label>
@@ -633,6 +659,14 @@
                     <span class="entrada-disponible-estado"
                           [ngClass]="{'activo': entrada.activo, 'inactivo': !entrada.activo}">
                       {{ entrada.activo ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+                  <div class="entrada-disponible-fechas" *ngIf="entrada.fechaInicioVenta || entrada.fechaFinVenta">
+                    <span class="entrada-disponible-fecha-inicio" *ngIf="entrada.fechaInicioVenta">
+                      <i class="pi pi-calendar"></i> Inicio venta: {{ entrada.fechaInicioVenta | date:'dd/MM/yyyy' }}
+                    </span>
+                    <span class="entrada-disponible-fecha-fin" *ngIf="entrada.fechaFinVenta">
+                      <i class="pi pi-calendar"></i> Fin venta: {{ entrada.fechaFinVenta | date:'dd/MM/yyyy' }}
                     </span>
                   </div>
                 </div>

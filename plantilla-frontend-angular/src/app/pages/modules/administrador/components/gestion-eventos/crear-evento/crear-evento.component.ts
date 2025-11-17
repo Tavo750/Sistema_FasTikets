@@ -154,6 +154,9 @@ export class CrearEventoComponent implements OnInit{
   entradaDescripcion: string = '';
   entradaPrecio: number | null = null;
   entradaStock: number | null = null;
+  entradaLimitePorPersona: number | null = 10;
+  entradaFechaInicioVenta: Date | undefined;
+  entradaFechaFinVenta: Date | undefined;
   validoPara: string = '';
 
   // Array para almacenar las entradas agregadas
@@ -1226,6 +1229,23 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
+    // Validar fechas de venta
+    if (!this.entradaFechaInicioVenta) {
+      this.messageService.error('Por favor selecciona la fecha de inicio de venta', 'Campo Requerido');
+      return;
+    }
+
+    if (!this.entradaFechaFinVenta) {
+      this.messageService.error('Por favor selecciona la fecha de fin de venta', 'Campo Requerido');
+      return;
+    }
+
+    // Validar que la fecha de fin sea posterior a la fecha de inicio
+    if (this.entradaFechaFinVenta <= this.entradaFechaInicioVenta) {
+      this.messageService.error('La fecha de fin de venta debe ser posterior a la fecha de inicio', 'Fechas Inválidas');
+      return;
+    }
+
     // Preparar datos para la API
     const datosEntrada = {
       nombre: this.entradaNombre.trim(),
@@ -1234,7 +1254,9 @@ export class CrearEventoComponent implements OnInit{
       stock: this.entradaStock, // Stock ingresado por el usuario
       activo: true,
       idZona: zonaSeleccionada.idZona,
-      limitePorPersona: this.limiteCompra.tipo === 'conMaximo' ? this.limiteCompra.maximo : 10
+      limitePorPersona: this.entradaLimitePorPersona || 10,
+      fechaInicioVenta: this.entradaFechaInicioVenta.toISOString().split('T')[0],
+      fechaFinVenta: this.entradaFechaFinVenta.toISOString().split('T')[0]
     };
 
     // Mostrar mensaje de procesamiento
@@ -1294,6 +1316,9 @@ export class CrearEventoComponent implements OnInit{
     this.entradaDescripcion = '';
     this.entradaPrecio = null;
     this.entradaStock = null;
+    this.entradaLimitePorPersona = 10;
+    this.entradaFechaInicioVenta = undefined;
+    this.entradaFechaFinVenta = undefined;
     this.validoPara = '';
   }
 

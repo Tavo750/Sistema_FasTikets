@@ -184,9 +184,8 @@
               styleClass="evento-btn-detalle">
             </p-button>
             <p-button
-              label="Comprar"
-              icon="pi pi-shopping-cart"
-              (onClick)="comprarEvento(evento)"
+              icon="pi pi-heart"
+              (onClick)="agregarAFavoritos(evento.id)"
               styleClass="evento-btn-comprar"
               severity="danger">
             </p-button>

@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { Evento } from './interfaces/inicio/evento.interface';
 import { EventoService } from '../../administrador/services/evento.service';
 import { Data } from '../../administrador/interfaces/gestion-evento/evento.interface';
+import { FavoritosService } from '../../../../core/services/favoritos.service';
+import { MessageService } from 'primeng/api';
 
 interface DropdownOption {
   label: string;
@@ -48,7 +50,9 @@ export class InicioComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private eventoService: EventoService
+    private eventoService: EventoService,
+    private favoritosService: FavoritosService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -244,11 +248,7 @@ export class InicioComponent implements OnInit {
     }
   }
 
-  comprarEvento(evento: Evento): void {
-    // Navegar a la página de compra con el ID del evento real
-    console.log('Comprando evento:', evento.nombre, 'ID:', evento.id);
-    this.router.navigate(['/home/evento', evento.id]);
-  }
+
 
   limpiarFiltros(): void {
     this.categoriaSeleccionada = null;
@@ -267,5 +267,29 @@ export class InicioComponent implements OnInit {
   onImageError(evento: Evento): void {
     console.error('Error al cargar imagen para evento:', evento.nombre, 'URL:', evento.imagen);
     evento.imagen = this.imagenPorDefecto;
+  }
+
+  agregarAFavoritos(eventoId: number): void {
+    this.favoritosService.PostAgregaEventoFavorito(eventoId).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Evento agregado a favoritos',
+            life: 3000
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al agregar a favoritos:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.mensaje || 'No se pudo agregar el evento a favoritos',
+          life: 3000
+        });
+      }
+    });
   }
 }
