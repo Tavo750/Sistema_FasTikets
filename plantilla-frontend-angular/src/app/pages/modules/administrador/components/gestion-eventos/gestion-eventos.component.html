@@ -196,3 +196,203 @@
         </ng-template>
     </div>
 </div>
+
+<!-- Modal de Detalles del Evento -->
+<p-dialog 
+    header="Detalles Completos del Evento"
+    [(visible)]="mostrarModalDetalles" 
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{width: '90vw', maxWidth: '1200px'}"
+    styleClass="evento-details-modal"
+    (onHide)="cerrarModalDetalles()">
+    
+    <div class="modal-content" *ngIf="eventoSeleccionado && !cargandoDetalles">
+        <!-- Header del evento con imagen -->
+        <div class="evento-header-modal">
+            <div class="imagen-container">
+                <img 
+                    [src]="obtenerUrlImagen(eventoSeleccionado.imagenUrl)"
+                    [alt]="eventoSeleccionado.nombre"
+                    class="imagen-evento"
+                    (error)="onImageError($event)">
+                <div class="overlay-info">
+                    <h2 class="titulo-evento">{{eventoSeleccionado.nombre}}</h2>
+                    <p-tag 
+                        [value]="eventoSeleccionado.estadoEvento"
+                        [severity]="getEstadoSeverity(eventoSeleccionado.estadoEvento)"
+                        class="estado-tag">
+                    </p-tag>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de información detallada -->
+        <div class="detalles-grid">
+            <!-- Información Básica -->
+            <div class="seccion-detalles">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-info-circle"></i>
+                    Información Básica
+                </h3>
+                <div class="campos-grid">
+                    <div class="campo-detalle">
+                        <label>ID del Evento:</label>
+                        <span>{{eventoSeleccionado.idEvento}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Tipo de Evento:</label>
+                        <span>{{eventoSeleccionado.tipoEvento}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Estado:</label>
+                        <span>{{eventoSeleccionado.estadoEvento}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Aforo Disponible:</label>
+                        <span class="aforo-valor">{{formatearNumero(eventoSeleccionado.aforoDisponible)}} personas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Fecha y Hora -->
+            <div class="seccion-detalles">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-calendar"></i>
+                    Fecha y Horario
+                </h3>
+                <div class="campos-grid">
+                    <div class="campo-detalle fecha-destacada">
+                        <label>Fecha del Evento:</label>
+                        <span class="fecha-principal">{{formatearFecha(eventoSeleccionado.fechaEvento)}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Hora de Inicio:</label>
+                        <span class="hora-valor">{{eventoSeleccionado.horaInicio}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Hora de Finalización:</label>
+                        <span class="hora-valor">{{eventoSeleccionado.horaFin}}</span>
+                    </div>
+                    <div class="campo-detalle">
+                        <label>Duración Estimada:</label>
+                        <span class="duracion-valor">
+                            <!-- Aquí podrías calcular la duración si quieres -->
+                            {{eventoSeleccionado.horaInicio}} a {{eventoSeleccionado.horaFin}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="seccion-detalles">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-map-marker"></i>
+                    Ubicación
+                </h3>
+                <div class="campos-grid">
+                    <div class="campo-detalle ubicacion-destacada">
+                        <label>Local del Evento:</label>
+                        <span class="local-nombre">{{eventoSeleccionado.nombreLocal}}</span>
+                    </div>
+                    <div class="campo-detalle" *ngIf="eventoSeleccionado.idLocal">
+                        <label>ID del Local:</label>
+                        <span>{{eventoSeleccionado.idLocal}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descripción -->
+            <div class="seccion-detalles descripcion-seccion" *ngIf="eventoSeleccionado.descripcion">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-align-left"></i>
+                    Descripción del Evento
+                </h3>
+                <div class="descripcion-contenido">
+                    <p>{{eventoSeleccionado.descripcion}}</p>
+                </div>
+            </div>
+
+            <!-- Políticas y Restricciones -->
+            <div class="seccion-detalles" *ngIf="eventoSeleccionado.restricciones || eventoSeleccionado.politicasDevolucion">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-shield"></i>
+                    Políticas y Restricciones
+                </h3>
+                <div class="politicas-grid">
+                    <div class="politica-item" *ngIf="eventoSeleccionado.restricciones">
+                        <h4>Restricciones:</h4>
+                        <p>{{eventoSeleccionado.restricciones}}</p>
+                    </div>
+                    <div class="politica-item" *ngIf="eventoSeleccionado.politicasDevolucion">
+                        <h4>Políticas de Devolución:</h4>
+                        <p>{{eventoSeleccionado.politicasDevolucion}}</p>
+                    </div>
+                    <div class="politica-item">
+                        <h4>Menores de Edad:</h4>
+                        <p-tag 
+                            [value]="eventoSeleccionado.menoresDeEdadPermitidos ? 'Permitidos' : 'No Permitidos'"
+                            [severity]="eventoSeleccionado.menoresDeEdadPermitidos ? 'success' : 'warn'">
+                        </p-tag>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Imagen de Zonas (si existe) -->
+            <div class="seccion-detalles imagen-zonas-seccion" *ngIf="eventoSeleccionado.imagenZonasUrl">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-image"></i>
+                    Mapa de Zonas
+                </h3>
+                <div class="imagen-zonas-container">
+                    <img 
+                        [src]="obtenerUrlImagen(eventoSeleccionado.imagenZonasUrl)"
+                        alt="Mapa de zonas del evento"
+                        class="imagen-zonas"
+                        (error)="onImageZonasError($event)">
+                </div>
+            </div>
+
+            <!-- Información de Sistema -->
+            <div class="seccion-detalles sistema-info" *ngIf="eventoSeleccionado.fechaCreacion || eventoSeleccionado.fechaActualizacion">
+                <h3 class="seccion-titulo">
+                    <i class="pi pi-cog"></i>
+                    Información del Sistema
+                </h3>
+                <div class="campos-grid">
+                    <div class="campo-detalle" *ngIf="eventoSeleccionado.fechaCreacion">
+                        <label>Fecha de Creación:</label>
+                        <span class="fecha-sistema">{{formatearFechaCorta(eventoSeleccionado.fechaCreacion)}}</span>
+                    </div>
+                    <div class="campo-detalle" *ngIf="eventoSeleccionado.fechaActualizacion">
+                        <label>Última Actualización:</label>
+                        <span class="fecha-sistema">{{formatearFechaCorta(eventoSeleccionado.fechaActualizacion)}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-modal" *ngIf="cargandoDetalles">
+        <p-progressSpinner styleClass="spinner-large"></p-progressSpinner>
+        <p>Cargando detalles del evento...</p>
+    </div>
+
+    <!-- Footer con acciones -->
+    <ng-template pTemplate="footer">
+        <div class="modal-footer">
+            
+            
+            <p-button 
+                label="Cerrar" 
+                icon="pi pi-times" 
+                severity="secondary" 
+                [text]="true"
+                (click)="cerrarModalDetalles()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

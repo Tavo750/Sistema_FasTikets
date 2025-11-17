@@ -74,6 +74,8 @@ export class LogErroresComponent implements OnInit, OnDestroy {
         // Verificar si la respuesta es exitosa y tiene datos
         if (response && response.ok && response.data) {
           this.errores = this.transformarDatosErrores(response.data);
+          // Ordenar por fecha descendente (más recientes primero)
+          this.errores.sort((a, b) => b.fechaHora.getTime() - a.fechaHora.getTime());
           this.filteredErrores = [...this.errores];
           this.totalRecords = this.errores.length;
 
@@ -120,18 +122,21 @@ export class LogErroresComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Formatea una fecha al formato local español
+   * Formatea una fecha al formato local español con zona horaria local del sistema
    */
   private formatearFecha(fechaISO: string): string {
+    // Crear la fecha y obtener los componentes en hora local
     const fecha = new Date(fechaISO);
-    return fecha.toLocaleString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
+    
+    // Formatear usando métodos que respetan la zona horaria local
+    const dia = fecha.getDate().toString().padStart(2, '0');
+    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const anio = fecha.getFullYear();
+    const horas = fecha.getHours().toString().padStart(2, '0');
+    const minutos = fecha.getMinutes().toString().padStart(2, '0');
+    const segundos = fecha.getSeconds().toString().padStart(2, '0');
+    
+    return `${dia}/${mes}/${anio}, ${horas}:${minutos}:${segundos}`;
   }
 
   filtrar(): void {
@@ -168,6 +173,9 @@ export class LogErroresComponent implements OnInit, OnDestroy {
       return matches;
     });
     
+    // Ordenar resultados filtrados por fecha descendente (más recientes primero)
+    this.filteredErrores.sort((a, b) => b.fechaHora.getTime() - a.fechaHora.getTime());
+    
     // Actualizar el total de registros para la paginación
     this.totalRecords = this.filteredErrores.length;
   }
@@ -178,6 +186,8 @@ export class LogErroresComponent implements OnInit, OnDestroy {
     this.fechaHastaSecond = null;
     this.filtroSeveridad = null;
     this.filteredErrores = [...this.errores];
+    // Ordenar por fecha descendente (más recientes primero)
+    this.filteredErrores.sort((a, b) => b.fechaHora.getTime() - a.fechaHora.getTime());
     this.totalRecords = this.errores.length;
   }
 
@@ -187,17 +197,15 @@ export class LogErroresComponent implements OnInit, OnDestroy {
 
   getSeveridadClass(severidad: string): string {
     const severidadClasses: { [key: string]: string } = {
+      'CRITICA': 'severity-critica',
       'ERROR': 'severity-error',
       'WARN': 'severity-warn'
     };
     return severidadClasses[severidad] || '';
   }
 
-  getSeveridadSeverity(severidad: string): 'success' | 'info' | 'warning' | 'danger' {
-    const severidadMap: { [key: string]: 'success' | 'info' | 'warning' | 'danger' } = {
-      'WARN': 'warning',
-      'ERROR': 'danger'
-    };
-    return severidadMap[severidad] || 'info';
+  getSeveridadSeverity(severidad: string): 'success' | 'info' | 'warning' | 'danger' | null {
+    // No usar severity de PrimeNG, usar solo clases personalizadas
+    return null;
   }
 }

@@ -93,6 +93,67 @@
     font-weight: 600;
 }
 
+/* Estilos personalizados para severidades - sobrescribir completamente PrimeNG */
+:host ::ng-deep .p-tag.severity-critica {
+    background-color: #dc3545 !important; /* Rojo */
+    color: white !important;
+    font-weight: 600 !important;
+    border: 1px solid #dc3545 !important;
+}
+
+:host ::ng-deep .p-tag.severity-error {
+    background-color: #e83e8c !important; /* Rosado */
+    color: white !important;
+    font-weight: 600 !important;
+    border: 1px solid #e83e8c !important;
+}
+
+:host ::ng-deep .p-tag.severity-warn {
+    background-color: #ffc107 !important; /* Amarillo brillante */
+    color: #000000 !important; /* Texto negro para mejor contraste */
+    font-weight: 600 !important;
+    border: 1px solid #ffca2c !important;
+}
+
+/* Remover cualquier estilo por defecto de PrimeNG en estos tags */
+:host ::ng-deep .p-tag.severity-critica,
+:host ::ng-deep .p-tag.severity-error,
+:host ::ng-deep .p-tag.severity-warn {
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sobrescribir estilos de PrimeNG para tags */
+:host ::ng-deep .p-tag.p-tag-warning {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    border: 1px solid #ffca2c !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-info {
+    background-color: #0dcaf0 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-success {
+    background-color: #198754 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
 /* Contenedor de tabla */
 .table-container {
     background: white;

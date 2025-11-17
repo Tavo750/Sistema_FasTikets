@@ -260,5 +260,30 @@ export class EventoService {
       );
   }
 
+  // ========================= reportes ======================
+  
+  /**
+   * Descarga el reporte PDF de ventas de un evento específico
+   * @param idEvento ID del evento para el cual se generará el reporte
+   * @returns Observable con el Blob del PDF
+   */
+  descargarReporteVentasPDF(idEvento: number): Observable<Blob> {
+    const url = `${baseUrl}/eventos/${idEvento}/reporte/ventas/pdf`;
+    console.log('📝 Descargando reporte de ventas para evento ID:', idEvento);
+    
+    return this.http.get(url, { 
+      responseType: 'blob',
+      headers: {
+        'Accept': 'application/pdf'
+      }
+    })
+    .pipe(
+      catchError((error) => {
+        console.error('❌ Error al descargar reporte de ventas:', error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
 }
 

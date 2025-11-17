@@ -1,3 +1,30 @@
+
+/* Sobrescribir estilos de PrimeNG para tags */
+:host ::ng-deep .p-tag.p-tag-warning {
+    background-color: #ffc107 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+    border: 1px solid #ffca2c !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-info {
+    background-color: #0dcaf0 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+:host ::ng-deep .p-tag.p-tag-success {
+    background-color: #198754 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
 .container {
     padding: 1.5rem;
     max-width: 1400px;
@@ -185,7 +212,7 @@
 }
 
 .accion-cell {
-    text-align: center;
+    text-align: left;
 }
 
 .accion-tag {
