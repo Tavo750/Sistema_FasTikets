@@ -533,3 +533,402 @@
     color: #666;
     margin: 0;
 }
+
+/* ========================================
+   ESTILOS PARA MODAL DE DETALLES
+======================================== */
+
+/* Override para el modal */
+:host ::ng-deep .evento-details-modal {
+    .p-dialog {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    .p-dialog-header {
+        background: linear-gradient(135deg, #1976d2, #1565c0);
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px 16px 0 0;
+        font-weight: 700;
+        font-size: 1.25rem;
+        text-align: center;
+    }
+    
+    .p-dialog-content {
+        padding: 0;
+        background: #f8f9fa;
+    }
+    
+    .p-dialog-footer {
+        background: white;
+        border-top: 2px solid #e9ecef;
+        padding: 1.5rem 2rem;
+        border-radius: 0 0 16px 16px;
+    }
+}
+
+/* Contenido del modal */
+.modal-content {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Header del evento con imagen */
+.evento-header-modal {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+}
+
+.imagen-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.imagen-evento {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease;
+}
+
+.overlay-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.titulo-evento {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    flex: 1;
+    min-width: 300px;
+}
+
+.estado-tag {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 25px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Grid de detalles */
+.detalles-grid {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    background: white;
+}
+
+/* Secciones */
+.seccion-detalles {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid #1976d2;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.seccion-detalles:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.seccion-titulo {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1976d2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 2px solid #e3f2fd;
+    padding-bottom: 0.75rem;
+}
+
+.seccion-titulo i {
+    font-size: 1.1rem;
+    color: #1976d2;
+}
+
+/* Grid de campos */
+.campos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.campo-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    transition: border-color 0.2s ease;
+}
+
+.campo-detalle:hover {
+    border-color: #1976d2;
+}
+
+.campo-detalle label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.campo-detalle span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #212529;
+    line-height: 1.4;
+}
+
+/* Estilos especiales para valores destacados */
+.fecha-destacada {
+    grid-column: 1 / -1;
+}
+
+.fecha-principal {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: #1976d2 !important;
+}
+
+.ubicacion-destacada {
+    grid-column: 1 / -1;
+}
+
+.local-nombre {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #198754 !important;
+}
+
+.aforo-valor {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #fd7e14 !important;
+}
+
+.hora-valor {
+    font-weight: 700 !important;
+    color: #0d6efd !important;
+    font-family: 'Courier New', monospace;
+}
+
+.duracion-valor {
+    font-weight: 600 !important;
+    color: #6f42c1 !important;
+}
+
+.fecha-sistema {
+    font-size: 0.9rem !important;
+    color: #6c757d !important;
+    font-family: 'Courier New', monospace;
+}
+
+/* Sección de descripción */
+.descripcion-seccion {
+    grid-column: 1 / -1;
+}
+
+.descripcion-contenido {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    line-height: 1.6;
+}
+
+.descripcion-contenido p {
+    margin: 0;
+    color: #495057;
+    font-size: 1rem;
+    text-align: justify;
+}
+
+/* Sección de políticas */
+.politicas-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.politica-item {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.politica-item h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.politica-item p {
+    margin: 0;
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* Sección de imagen de zonas */
+.imagen-zonas-seccion {
+    grid-column: 1 / -1;
+}
+
+.imagen-zonas-container {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.imagen-zonas {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.imagen-zonas:hover {
+    transform: scale(1.02);
+}
+
+/* Información del sistema */
+.sistema-info {
+    border-left-color: #6c757d;
+    background: #f1f3f4;
+}
+
+.sistema-info .seccion-titulo {
+    color: #6c757d;
+}
+
+.sistema-info .seccion-titulo i {
+    color: #6c757d;
+}
+
+/* Estado de carga en modal */
+.loading-modal {
+    padding: 3rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: #6c757d;
+}
+
+.loading-modal p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* Footer del modal */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Responsive para modal */
+@media (max-width: 768px) {
+    :host ::ng-deep .evento-details-modal {
+        .p-dialog {
+            width: 95vw !important;
+            max-width: none !important;
+            margin: 1rem;
+        }
+        
+        .p-dialog-header {
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .p-dialog-footer {
+            padding: 1rem 1.5rem;
+        }
+    }
+    
+    .titulo-evento {
+        font-size: 1.5rem;
+        min-width: auto;
+    }
+    
+    .detalles-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .campos-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .fecha-destacada,
+    .ubicacion-destacada,
+    .descripcion-seccion,
+    .imagen-zonas-seccion {
+        grid-column: 1;
+    }
+    
+    .modal-footer {
+        justify-content: center;
+    }
+    
+    .overlay-info {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+    }
+}
+
+/* Animaciones para el modal */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+:host ::ng-deep .evento-details-modal .p-dialog {
+    animation: modalSlideIn 0.3s ease-out;
+}
