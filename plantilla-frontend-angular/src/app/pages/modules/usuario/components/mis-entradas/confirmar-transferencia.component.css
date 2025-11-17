@@ -1,12 +1,26 @@
-.confirm-page {
-  padding: 1.5rem;
+.confirm-page { padding: 1.5rem; }
+
+/* Outer grey area that contains the centered transfer card (matches mockup) */
+.transfer-card {
+  background: #f3f3f5;
+  padding: 24px;
+  border-radius: 6px;
+  max-width: 980px;
+  margin: 1rem auto;
 }
-.title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
-.subtitle { color: #666; margin-bottom: 1rem; }
-.card { background: #fff; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); max-width: 680px; margin: 0 auto; }
+
+.card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.75rem;
+  box-shadow: 0 8px 30px rgba(15,23,42,0.06);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
 .details { width: 100%; margin-bottom: 1rem; }
-.details td { padding: 0.5rem 0; }
-.info { background:#eaf6ff; border-radius:6px; padding:0.75rem; margin-bottom:1rem; color:#0a4d7a }
+.details td { padding: 0.6rem 0; }
+.info { background:#f7f7f8; border-radius:6px; padding:0.75rem; margin-bottom:1rem; color:#444 }
 .actions { display:flex; gap:1rem; justify-content:center; }
 
 @media (max-width:768px) {
@@ -15,17 +29,17 @@
 
 /* Success card styles */
 .success-wrap { display:flex; justify-content:center; padding:2rem 1rem; }
-.success-card { width: 420px; background: #fff; border-radius: 8px; padding: 2rem 1.5rem; box-shadow: 0 6px 30px rgba(0,0,0,0.12); text-align:center; }
-.check-circle { width:68px; height:68px; border-radius:50%; background:#e6f7ec; color:#2e7d32; display:inline-flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 0.75rem; }
-.success-title { font-size:1.1rem; font-weight:800; margin:0.25rem 0; }
+.success-card { width: 420px; background: #fff; border-radius: 8px; padding: 2rem 1.5rem; box-shadow: 0 10px 40px rgba(2,6,23,0.08); text-align:center; }
+.check-circle { width:78px; height:78px; border-radius:50%; background:#e6f7ec; color:#1f8a3a; display:inline-flex; align-items:center; justify-content:center; font-size:36px; margin:0 auto 1rem; }
+.success-title { font-size:1.25rem; font-weight:900; margin:0.25rem 0; }
 .success-sub { color:#666; margin-bottom:1rem; }
-.summary { background:#fafafa; border-radius:6px; padding:0.75rem; margin:0.75rem 0 1rem; text-align:left; }
-.summary .row { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid #eee; }
+.summary { background:#fafafa; border-radius:6px; padding:0.9rem; margin:1rem 0 1rem; text-align:left; }
+.summary .row { display:flex; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid #eee; }
 .summary .row:last-child { border-bottom: none; }
-.summary .label { color:#777; }
-.summary .value { font-weight:600; }
-.view-btn { background:#000; color:#fff; border:none; }
-.view-btn:hover { background:#222; }
+.summary .label { color:#777; font-size:13px }
+.summary .value { font-weight:700; }
+.view-btn { background:#000; color:#fff; border:none; padding:10px 22px; border-radius:26px; box-shadow:0 8px 20px rgba(0,0,0,0.08); }
+.view-btn:hover { background:#111; }
 
 .confirm-dialog-body { text-align:center; padding: 0.75rem 1rem; color:#333; }
 .confirm-dialog-body p { margin:0; line-height:1.4; }
@@ -56,8 +70,16 @@
   margin: 0 auto !important;
 }
 
+/* Friendly error card inside dialog */
+.error-card { display:flex; flex-direction:column; align-items:center; gap:10px; padding:12px 6px; }
+.error-icon { width:64px; height:64px; border-radius:50%; background:#feeaea; color:#b91c1c; display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow: 0 6px 18px rgba(185,28,28,0.06); }
+.error-title { margin:0; font-size:18px; font-weight:800; color:#111827; }
+.error-desc { margin:0; color:#555; font-size:13px; max-width:360px; text-align:center; }
+.error-detail { margin-top:8px; background:#fff6f6; border:1px solid #ffe5e5; color:#7a1f1f; padding:8px 10px; border-radius:6px; max-width:420px; font-size:13px; text-align:left; }
+.p-button-text { background:transparent; border-radius:6px; padding:8px 16px; border:1px solid #e5e7eb; }
+.p-button-text:hover { background:#f3f4f6; }
+
 /* Reusar estilos de mis-entradas para mantener consistencia visual */
-.transfer-card { max-width: 760px; margin: 1.25rem auto; }
 .greet-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
 .greet-row .title-xl { margin:0; font-size:1.9rem; font-weight:800; }
 .lead { color:#666; margin-top:0.25rem; }
@@ -66,5 +88,5 @@
 
 /* Personalizaciones del progressBar: color y separación - forzar override de PrimeNG */
 :host ::ng-deep .p-progressbar { margin-top: 0.6rem; height: 12px; }
-:host ::ng-deep .p-progressbar .p-progressbar-value { background: #dc2626 !important; box-shadow: none !important; }
+:host ::ng-deep .p-progressbar .p-progressbar-value { background: #16a34a !important; box-shadow: none !important; }
 :host ::ng-deep .p-progressbar .p-progressbar-label { color: #fff; font-weight: 600; }

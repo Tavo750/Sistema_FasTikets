@@ -56,7 +56,7 @@
           <div class="summary">
             <div class="row"><span class="label">Transferido a:</span><span class="value">{{ data.nombre || data.email || 'Usuario' }}</span></div>
             <div class="row"><span class="label">Fecha de transferencia:</span><span class="value">{{ fechaTransferencia || (data.transferDate || (data.eventDate || '—')) }}</span></div>
-            <div class="row"><span class="label">Transferencias restantes:</span><span class="value">{{ data.remainingTransfers ?? 1 }}</span></div>
+            <div class="row"><span class="label">Transferencias restantes:</span><span class="value">{{ remainingAfterTransfer !== null ? remainingAfterTransfer : (data.remainingTransfers ?? 1) }}</span></div>
           </div>
 
           <div class="actions">
@@ -82,6 +82,31 @@
       <div class="dialog-footer-buttons" style="display:flex;justify-content:center;gap:1rem;padding:0.5rem 0;">
         <button pButton type="button" label="Cancelar" class="p-button-danger" (click)="rejectCancel()"></button>
         <button pButton type="button" label="Confirmar" class="p-button-success" (click)="confirmCancel()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Dialog to show API error details -->
+  <p-dialog header="No se pudo realizar la solicitud de transferencia"
+            [(visible)]="showErrorDialog"
+            [modal]="true"
+            [closable]="true"
+            [draggable]="false"
+            [resizable]="false"
+            [style]="{width: '560px'}">
+    <div class="confirm-dialog-body">
+      <div class="error-card">
+        <div class="error-icon">✖</div>
+        <h3 class="error-title">No se pudo realizar la solicitud</h3>
+        <p class="error-desc">Hubo un problema al procesar tu solicitud. Por favor intenta nuevamente.
+        </p>
+
+        <div *ngIf="errorMessage" class="error-detail">{{ errorMessage }}</div>
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer-buttons" style="display:flex;justify-content:center;gap:1rem;padding:0.75rem 0;">
+        <button pButton type="button" class="p-button-text" (click)="closeErrorDialog()">Cerrar</button>
       </div>
     </ng-template>
   </p-dialog>

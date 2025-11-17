@@ -17,11 +17,12 @@
 	<div class="entries-card">
 		<p-card>
 			<h3 class="entries-title">Mis Entradas</h3>
+			
 			<p-table [value]="myEntries" responsiveLayout="scroll">
 				<ng-template pTemplate="header">
 					<tr>
 						<th>ID</th>
-						<th>Asiento</th>
+						<th>Zona</th>
 						<th>Transferencias</th>
 						<th>Precio</th>
 						<th>Evento</th>
@@ -36,64 +37,16 @@
 						<td>{{ entry.price | currency:'PEN':'symbol':'1.2-2' }}</td>
 						<td>{{ entry.eventName }}</td>
 						<td>
-							<button pButton type="button" class="p-button-sm" label="Seleccionar" (click)="onSelectEntry(entry)"></button>
-						</td>
+									<!-- Redirige a la página de transferencia pasando la entrada seleccionada -->
+									<button pButton type="button" class="p-button-sm" label="Transferir" (click)="goToTransfer(entry)"></button>
+								</td>
 					</tr>
 				</ng-template>
 			</p-table>
-			<div class="selected-summary" *ngIf="selectedEntry">
-				<div><strong>Entrada seleccionada:</strong> {{ selectedEntry.eventName }} — Asiento {{ selectedEntry.seat }}</div>
-				<div class="summary-actions">
-					<button pButton type="button" label="Seleccionar para transferencia" class="p-button-rounded p-button-success" (click)="selectForTransfer()"></button>
-				</div>
-			</div>
+			<!-- Selección y acciones de transferencia removidas -->
 		</p-card>
 	</div>
 
-	<!-- Área de transferencia en tarjeta separada (formulario) -->
-	<div class="transfer-card">
-		<p-progressBar [value]="progressValue" styleClass="mb-3"></p-progressBar>
-
-		<p-card *ngIf="showForm">
-			<form [formGroup]="transferForm" (ngSubmit)="verifyDestinatario()">
-				<div class="form-row">
-					<label>Email del destinatario *</label>
-					<input pInputText formControlName="email" placeholder="ejemplo@correo.com" />
-					<small class="error" *ngIf="f['email'].touched && f['email'].invalid">Email inválido</small>
-				</div>
-
-				<div class="form-row">
-					<label>Teléfono del destinatario *</label>
-					<input pInputText formControlName="telefono" placeholder="+51 999 999 999" />
-					<small class="error" *ngIf="f['telefono'].touched && f['telefono'].invalid">Teléfono requerido</small>
-				</div>
-
-				<div class="form-row">
-					<label>Nombre completo *</label>
-					<input pInputText formControlName="nombre" placeholder="Nombre del destinatario" />
-					<small class="error" *ngIf="f['nombre'].touched && f['nombre'].invalid">Nombre requerido</small>
-				</div>
-
-				<div class="form-row">
-					<label>Número de documento *</label>
-					<input pInputText formControlName="documento" placeholder="Número de documento" />
-					<small class="error" *ngIf="f['documento'].touched && f['documento'].invalid">Documento requerido</small>
-				</div>
-
-				<div class="actions">
-					<button pButton type="button" label="Verificar Destinatario" class="p-button-rounded p-button-secondary" (click)="verifyDestinatario()"></button>
-					<p-progressSpinner *ngIf="verifying"></p-progressSpinner>
-				</div>
-			</form>
-
-			<div class="verified-note" *ngIf="verified">
-				<p-tag value="Destinatario verificado" severity="success"></p-tag>
-			</div>
-
-					<div class="transfer-actions mt-3">
-						<button pButton type="button" label="Transferir" class="p-button-success" (click)="proceedToTransfer()" [disabled]="!verified">Transferir</button>
-					</div>
-		</p-card>
-	</div>
+	<!-- Interfaz de transferencia eliminada del componente -->
 
 </div>
