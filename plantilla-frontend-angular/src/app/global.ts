@@ -5,7 +5,7 @@ export var titulo: string = `Plantilla`;
 export var tituloVersion: string = `v(1.0.0)`;
 
 // URL de producción para AWS
-export var baseUrl = 'http://fasticket-alb-157500411.us-east-1.elb.amazonaws.com/api/v1';
+export var baseUrl = 'https://8d8f0c0cc106.ngrok-free.app/api/v1';
 
 export var anio: number = 2025;
 
