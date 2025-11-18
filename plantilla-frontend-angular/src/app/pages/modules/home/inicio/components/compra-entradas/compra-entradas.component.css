@@ -263,7 +263,7 @@
   border-radius: 6px;
   font-weight: 700;
 }
-.clear-code-btn >>> .p-button {
+.clear-code-btn ::ng-deep .p-button {
   background: transparent;
 }
 .points-availability {
