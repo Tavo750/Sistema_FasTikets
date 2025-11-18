@@ -27,11 +27,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   notificationCount: number = 5; // Ejemplo
   cartItemCount: number = 0; // Contador de items del carrito
   @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
-  
+
   // Variables para favoritos
   mostrarDialogoFavoritos: boolean = false;
   eventosFavoritos: Datum[] = [];
   cargandoFavoritos: boolean = false;
+
+  // Variable para menú móvil
+  mobileMenuOpen: boolean = false;
 
   /**
    * Getter que retorna los items del menú según el rol del usuario
@@ -66,6 +69,48 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);
+    this.closeMobileMenu();
+  }
+
+  /**
+   * Alterna el estado del menú móvil
+   */
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    this.toggleBodyScroll();
+  }
+
+  /**
+   * Cierra el menú móvil
+   */
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('mobile-menu-open');
+    }
+  }
+
+  /**
+   * Controla el scroll del body cuando el menú móvil está abierto
+   */
+  private toggleBodyScroll(): void {
+    if (typeof document !== 'undefined') {
+      if (this.mobileMenuOpen) {
+        document.body.classList.add('mobile-menu-open');
+      } else {
+        document.body.classList.remove('mobile-menu-open');
+      }
+    }
+  }
+
+  /**
+   * Maneja el click en el menú para cerrar el overlay
+   */
+  onMenuClick(event: MouseEvent): void {
+    // Si se hace click en el overlay (fuera del contenido), cerrar el menú
+    if ((event.target as HTMLElement).classList.contains('header-actions')) {
+      this.closeMobileMenu();
+    }
   }
 
   /**
@@ -151,6 +196,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe((event: NavigationEnd) => {
         const newUrl = event.urlAfterRedirects;
         this.findLabelForUrl(newUrl);
+        this.closeMobileMenu(); // Cerrar menú móvil al cambiar de ruta
         console.log('hola')
       });
 
@@ -249,6 +295,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.mostrarDialogoFavoritos = true;
     this.cargarFavoritos();
+    this.closeMobileMenu();
   }
 
   /**

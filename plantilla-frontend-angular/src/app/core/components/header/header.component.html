@@ -1,8 +1,24 @@
 <div class="header-container">
-  <!-- Iconos de navegación y avatar -->
-  <div class="header-actions">
-    <!-- Buscador pegado al botón eventos -->
-    <div class="search-wrapper">
+  <!-- Botón hamburguesa (solo móvil) -->
+  <button class="hamburger-btn" (click)="toggleMobileMenu()" [class.active]="mobileMenuOpen">
+    <i class="pi" [ngClass]="mobileMenuOpen ? 'pi-times' : 'pi-bars'"></i>
+  </button>
+
+  <!-- Buscador (desktop y tablet) -->
+  <div class="search-wrapper desktop-search">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Buscador..."
+      [(ngModel)]="searchTerm"
+    />
+    <i class="pi pi-search search-icon"></i>
+  </div>
+
+  <!-- Acciones principales -->
+  <div class="header-actions" [class.mobile-open]="mobileMenuOpen" (click)="onMenuClick($event)">
+    <!-- Buscador móvil -->
+    <div class="search-wrapper mobile-search">
       <input
         type="text"
         class="search-input"
@@ -27,6 +43,7 @@
     <ng-container *ngIf="usuario">
       <button class="action-btn notification-btn">
         <i class="pi pi-bell"></i>
+        <span class="action-label desktop-only">Notificaciones</span>
         <span class="notification-badge" *ngIf="notificationCount > 0">
           {{ notificationCount }}
         </span>
@@ -46,21 +63,28 @@
 
     <!-- Opciones para usuario no autenticado -->
     <ng-container *ngIf="!usuario">
-      <button class="btn-header-login" (click)="navegarA('/login')">Iniciar Sesion</button>
-      <button class="btn-header" (click)="navegarA('/crear_usuario')">Registrarse</button>
+      <button class="btn-header-login" (click)="navegarA('/login')">
+        <span class="desktop-text">Iniciar Sesión</span>
+        <span class="mobile-text">Login</span>
+      </button>
+      <button class="btn-header" (click)="navegarA('/crear_usuario')">
+        <span class="desktop-text">Registrarse</span>
+        <span class="mobile-text">Registro</span>
+      </button>
     </ng-container>
   </div>
 </div>
 
 <!-- Diálogo de Favoritos -->
-<p-dialog 
-  [(visible)]="mostrarDialogoFavoritos" 
-  [modal]="true" 
+<p-dialog
+  [(visible)]="mostrarDialogoFavoritos"
+  [modal]="true"
   [style]="{width: '90vw', maxWidth: '1200px'}"
   [draggable]="false"
   [resizable]="false"
+  [breakpoints]="{'960px': '95vw', '640px': '100vw'}"
   styleClass="favoritos-dialog">
-  
+
   <ng-template pTemplate="header">
     <div class="dialog-header">
       <i class="pi pi-heart" style="color: #e74c3c; margin-right: 0.5rem;"></i>
@@ -80,8 +104,8 @@
       <div class="favorito-card" *ngFor="let evento of eventosFavoritos">
         <div class="favorito-imagen">
           <img [src]="evento.imagenUrl || 'img/logo/concierto.jpg'" [alt]="evento.nombre" />
-          <button 
-            class="btn-eliminar-favorito" 
+          <button
+            class="btn-eliminar-favorito"
             (click)="eliminarDeFavoritos(evento.idEvento)"
             pButton
             icon="pi pi-times"
@@ -92,21 +116,21 @@
             tooltipPosition="left">
           </button>
         </div>
-        
+
         <div class="favorito-contenido">
           <h3 class="favorito-titulo">{{ evento.nombre }}</h3>
-          
+
           <div class="favorito-detalles">
             <div class="detalle-item">
               <i class="pi pi-calendar"></i>
               <span>{{ formatearFecha(evento.fechaEvento) }}</span>
             </div>
-            
+
             <div class="detalle-item">
               <i class="pi pi-clock"></i>
               <span>{{ evento.horaInicio }}</span>
             </div>
-            
+
             <div class="detalle-item">
               <i class="pi pi-map-marker"></i>
               <span>{{ evento.nombreLocal }}</span>
@@ -121,8 +145,8 @@
           <p class="favorito-descripcion">{{ evento.descripcion }}</p>
 
           <div class="favorito-acciones">
-            <p-button 
-              label="Ver Detalles" 
+            <p-button
+              label="Ver Detalles"
               icon="pi pi-eye"
               (onClick)="verDetalleEvento(evento.idEvento)"
               styleClass="p-button-sm">
@@ -137,8 +161,8 @@
       <i class="pi pi-heart-fill" style="font-size: 4rem; color: #ccc;"></i>
       <h3>No tienes eventos favoritos</h3>
       <p>Explora eventos y agrega tus favoritos haciendo clic en el ícono de corazón</p>
-      <p-button 
-        label="Explorar Eventos" 
+      <p-button
+        label="Explorar Eventos"
         icon="pi pi-compass"
         (onClick)="navegarA('/home/inicio'); mostrarDialogoFavoritos = false"
         severity="secondary">
