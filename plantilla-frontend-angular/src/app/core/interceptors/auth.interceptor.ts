@@ -83,8 +83,13 @@ export class AuthInterceptor implements HttpInterceptor {
     const isStrictlyProtected = protectedEndpoints.some(endpoint => req.url.includes(endpoint));
 
     if (isPublicEndpoint || isPublicEventEndpoint) {
-      // Para endpoints públicos, enviar la petición sin modificar
-      return next.handle(req);
+      // Para endpoints públicos, agregar header de ngrok
+      const publicReq = req.clone({
+        setHeaders: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+      return next.handle(publicReq);
     }
 
     // Verificar si requiere autenticación (protegido o protectedEventEndpoint)
@@ -101,7 +106,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
         // Preparar headers base
         const headers: { [key: string]: string } = {
-          'Authorization': `Bearer ${currentUser.token}`
+          'Authorization': `Bearer ${currentUser.token}`,
+          'ngrok-skip-browser-warning': 'true'
         };
 
         // Solo agregar Content-Type si NO es FormData
