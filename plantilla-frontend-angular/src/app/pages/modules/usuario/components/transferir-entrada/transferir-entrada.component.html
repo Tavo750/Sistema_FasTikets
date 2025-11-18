@@ -1,0 +1,54 @@
+<div class="transfer-wrapper">
+  <div class="title-row">
+    <h1 class="page-title">Transferir Entrada -</h1>
+    <div class="event-name" *ngIf="eventName">{{ eventName }}</div>
+  </div>
+
+  <div class="transfer-outer">
+    <div class="transfer-inner">
+      <p class="helper">Ingresa los datos de la persona a quien deseas transferir tu entrada</p>
+
+      <div class="progress-row">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="form-body">
+        <div class="form-row">
+          <label>Email del destinatario *</label>
+          <input type="email" [(ngModel)]="email" (ngModelChange)="showMissingFieldsWarning=false" placeholder="ejemplo@correo.com" />
+        </div>
+
+        <div class="form-row">
+          <label>Teléfono del destinatario *</label>
+          <input type="text" [(ngModel)]="telefono" (ngModelChange)="showMissingFieldsWarning=false" placeholder="+51 999 999 999" />
+        </div>
+
+        <div class="form-row">
+          <label>Nombre completo *</label>
+          <input type="text" [(ngModel)]="nombre" (ngModelChange)="showMissingFieldsWarning=false" placeholder="Nombre del destinatario" />
+        </div>
+
+        <div class="form-row">
+          <label>Número de documento *</label>
+          <input type="text" [(ngModel)]="documento" (ngModelChange)="showMissingFieldsWarning=false" placeholder="Número de documento" />
+        </div>
+
+        <div class="note" *ngIf="showMissingFieldsWarning"><span class="warning">⚠</span> Debe completar los datos requeridos.</div>
+
+        <div class="actions-row">
+          <button class="btn-verify" (click)="verifyDestinatario()">Verificar Destinatario</button>
+          
+          <div class="spinner" *ngIf="verifying">Verificando...</div>
+        </div>
+
+        <!-- Limpiar la advertencia si el usuario edita cualquier campo -->
+        <ng-container *ngIf="false">
+          <!-- placeholder to keep template structure during patch -->
+        </ng-container>
+
+      </div>
+    </div>
+  </div>
+</div>

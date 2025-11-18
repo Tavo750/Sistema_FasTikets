@@ -1,19 +1,31 @@
 /* Contenedor principal */
 .compra-container {
   display: flex;
-  gap: 2rem;
+  flex-direction: column; /* temporizador arriba, luego fila de columnas */
+  gap: 1.5rem;
   padding: 16px;
   background-color: #e5e5e5;
   min-height: 100vh;
   box-sizing: border-box;
+  align-items: stretch;
 }
 
 /* ===== ESTILOS INSPIRADOS EN GESTION-EVENTOS ===== */
 .container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  flex: 1;
+  flex: 0 0 70%;
+  max-width: 70%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Row container that holds the left (container) and right (actions-section) columns */
+.columns-row {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  align-items: flex-start;
 }
 
 .header-section {
@@ -23,6 +35,32 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+/* Temporizador compartido (mismo look que en carrito) */
+.cart-timer {
+  margin-top: 1rem;
+  background: linear-gradient(90deg, #ffecd2 0%, #fcb69f 100%);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.timer-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #6b2e0a;
+  font-weight: 600;
+}
+.timer-value {
+  background: white;
+  color: #d35400;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-family: monospace;
 }
 
 .title {
@@ -181,6 +219,153 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   border: 1px solid #e9ecef;
 }
+
+/* Nuevo cuadro de canje por código */
+.redeem-box {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0 0.75rem 0;
+}
+.redeem-input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.redeem-btn {
+  background: linear-gradient(90deg,#1976d2,#1565c0);
+  color: white;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 6px 12px rgba(21, 101, 192, 0.12);
+}
+.redeem-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem;
+  background: linear-gradient(90deg,#fff8e1,#fff3cd);
+  border-radius: 8px;
+  border: 1px solid #ffe8a1;
+}
+.applied-code {
+  font-weight: 700;
+  color: #6b3e00;
+}
+.discount-tag {
+  background: #ffefc7;
+  color: #9a5d00;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.clear-code-btn >>> .p-button {
+  background: transparent;
+}
+.points-availability {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #495057;
+}
+.redeem-message {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+/* Bloque de canje de puntos (UI sólo) */
+.points-redeem-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: linear-gradient(90deg,#ffffff,#fbfbfd);
+  border: 1px solid #e6e6e9;
+  box-shadow: 0 6px 14px rgba(2,6,23,0.04);
+}
+
+.points-redeem-card {
+  margin-top: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  padding: 0.6rem;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.points-redeem-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+.points-redeem-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+}
+.points-redeem-text {
+  font-weight: 700;
+  color: #333333;
+}
+.points-redeem-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.points-available {
+  font-size: 0.9rem;
+  color: #555;
+}
+.points-redeem-btn {
+  background: linear-gradient(90deg,#1976d2,#1565c0) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 0.45rem 0.9rem !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 520px) {
+  .points-redeem-block {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .points-redeem-right {
+    justify-content: space-between;
+  }
+}
+
+/* Cuadro que muestra el nivel del usuario, encima del control de puntos */
+.user-level-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 10px;
+  min-width: 120px;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.user-level-text {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+/* Color variants */
+.level-gold { background: linear-gradient(90deg,#f6d365 0%,#fda085 100%); color: #3b2f00; }
+.level-silver { background: linear-gradient(90deg,#e0eaf6 0%,#cfd8e3 100%); color: #1f2b3a; }
+.level-bronze { background: linear-gradient(90deg,#f0c27b 0%,#e8a87c 100%); color: #3b2212; }
+.level-default { background: linear-gradient(90deg,#8ec5fc 0%,#e0c3fc 100%); color: #13294b; }
 
 .card-header-compact {
   margin-bottom: 0.75rem;

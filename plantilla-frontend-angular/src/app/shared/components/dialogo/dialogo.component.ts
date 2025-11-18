@@ -12,6 +12,7 @@ export class DialogoComponent implements OnInit, OnDestroy {
   mensaje: string = '';
   severidad: string = 'info'; // default severity
   icono: string = 'pi-info-circle'; // default icon
+  buttonLabel: string = 'Cerrar';
 
   private audioError = new Audio(); // Crear una instancia de Audio
 
@@ -25,6 +26,7 @@ export class DialogoComponent implements OnInit, OnDestroy {
     if (this.config.data) {
       this.mensaje = this.config.data.mensaje || 'Mensaje por defecto';
       this.severidad = this.config.data.severidad || 'info';
+      this.buttonLabel = this.config.data.buttonLabel || this.buttonLabel;
 
       switch(this.severidad) {
         case 'error':

@@ -7,6 +7,8 @@ import { PurchaseService } from '../../../../../../shared/services/purchase.serv
 import { MessageService } from 'primeng/api';
 import { EventoService } from '../../../../administrador/services/evento.service';
 import { LocalService } from '../../../../administrador/services/local.service';
+import { DialogService } from 'primeng/dynamicdialog';
+import { DialogoComponent } from '../../../../../../shared/components/dialogo/dialogo.component';
 import { Data as EventoData } from '../../../../administrador/interfaces/gestion-evento/evento.interface';
 import { Data as LocalData } from '../../../../administrador/interfaces/gestion-locales/local.interface';
 import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-evento/zona-categoria.interface';
@@ -55,7 +57,8 @@ export class EventoComponent implements AfterViewInit, OnInit {
     private eventoService: EventoService,
     private localService: LocalService,
     private carritoService: CarritoService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private dialogService: DialogService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -458,6 +461,26 @@ export class EventoComponent implements AfterViewInit, OnInit {
         return;
       }
 
+      // Si no está autenticado, mostrar modal y redirigir al login solo después de aceptar
+      const currentUser = this.sessionService.getCurrentUser();
+      if (!currentUser || !currentUser.idUsuario) {
+        const ref = this.dialogService.open(DialogoComponent, {
+          header: 'Sesión requerida',
+          data: {
+            mensaje: 'No has iniciado sesión. Debes registrarte o iniciar sesión para añadir al carrito.',
+            severidad: 'info',
+            buttonLabel: 'Aceptar'
+          },
+          width: '420px'
+        });
+
+        ref.onClose.subscribe(() => {
+          this.router.navigate(['/login']);
+        });
+
+        return;
+      }
+
       // Preparar información del evento
       const eventInfo = {
         title: this.eventoData ? this.eventoData.nombre : this.title,
@@ -471,7 +494,6 @@ export class EventoComponent implements AfterViewInit, OnInit {
       const localIds = this.cartService.addEventTicketsToCart(selectedTickets, eventInfo);
 
       // Si el usuario está autenticado, persistir cada item en la BD mediante el endpoint
-      const currentUser = this.sessionService.getCurrentUser();
       if (currentUser && currentUser.idUsuario) {
         const idCliente = currentUser.idUsuario;
 
@@ -565,6 +587,26 @@ export class EventoComponent implements AfterViewInit, OnInit {
           summary: 'Advertencia',
           detail: 'Selecciona al menos una entrada para comprar'
         });
+        return;
+      }
+
+      // Si no está autenticado, mostrar modal y redirigir al login solo después de aceptar
+      const currentUser = this.sessionService.getCurrentUser();
+      if (!currentUser || !currentUser.idUsuario) {
+        const ref = this.dialogService.open(DialogoComponent, {
+          header: 'Sesión requerida',
+          data: {
+            mensaje: 'No has iniciado sesión. Debes registrarte o iniciar sesión para comprar ahora.',
+            severidad: 'info',
+            buttonLabel: 'Aceptar'
+          },
+          width: '420px'
+        });
+
+        ref.onClose.subscribe(() => {
+          this.router.navigate(['/login']);
+        });
+
         return;
       }
 

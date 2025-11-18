@@ -11,6 +11,7 @@ import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.
 import { ConfiguracionComponent } from './components/configuracion/configuracion.component';
 import { CambiarMiContrasenaClienteComponent } from './components/configuracion/cambiar-mi-contrasena-cliente/cambiar-mi-contrasena-cliente.component';
 import { AsuntoSoporteComponent } from './components/ayuda-soporte/asunto-soporte/asunto-soporte.component';
+import { TransferirEntradaComponent } from './components/transferir-entrada/transferir-entrada.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'perfilPersonal', pathMatch: 'full' },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'historialCompras', component: HistorialComprasComponent },
   { path: 'historialCompras/detalle/:id', component: HistorialDetalleComponent },
   { path: 'misEntradas', component: MisEntradasComponent },
+  { path: 'transferir-entrada', component: TransferirEntradaComponent },
   { path: 'confirmarTransferencia', component: ConfirmarTransferenciaComponent },
   { path: 'perfilPersonal/cambiarContra', component: CambiarContrasenaUsuarioComponent },
   { path: 'ayudaSoporte', component: AyudaSoporteComponent },

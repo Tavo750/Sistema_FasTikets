@@ -84,7 +84,12 @@
       <div *ngIf="purchase.estado !== 'Transferido' && purchase.estado !== 'Rechazado'" class="detail-right">
         <div class="qr-title">QR Único</div>
         <div class="qr-card">
-          <div class="qr-box">QR</div>
+          <div class="qr-box">
+            <img *ngIf="qrImageUrl; else noQr" [src]="qrImageUrl" alt="QR" class="qr-image" />
+            <ng-template #noQr>
+              <div class="qr-placeholder">No QR disponible</div>
+            </ng-template>
+          </div>
           <div class="qr-caption">{{ purchase.title }}</div>
         </div>
         <button class="btn-download-qr" (click)="downloadQr()">Descargar QR</button>

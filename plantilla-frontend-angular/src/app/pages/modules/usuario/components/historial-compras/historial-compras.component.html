@@ -30,25 +30,32 @@
 		</div>
 	</div>
 
+	<div *ngIf="(!purchases || purchases.length === 0) && lastResp" class="no-results">
+		<p>No se encontraron órdenes para mostrar. Respuesta del servidor (debug):</p>
+		<pre style="max-height:200px;overflow:auto;background:#f8f9fa;padding:8px;border-radius:6px;">{{ lastResp | json }}</pre>
+	</div>
+
 	<div class="historial-grid">
-		<div class="purchase-card" *ngFor="let p of purchases">
-			<div class="card-image">
-				<img [src]="p.image" alt="{{p.title}}" />
-			</div>
-			<div class="card-content">
-				<div class="card-body">
-					<div class="card-title">Evento: <span class="title-strong">{{ p.title }}</span></div>
-					<div class="card-meta">
-						<div>Fecha de Compra: <span class="meta-value">{{ p.date }}</span></div>
-						<div>Número de Tickets: <span class="meta-value">{{ p.tickets }}</span></div>
-						<div>Total Pagado: <span class="meta-value">S/ {{ p.total | number:'1.2-2' }}</span></div>
-						<div>Estado: <span class="status-text" [ngClass]="p.statusClass">{{ p.estado }}</span></div>
-					</div>
-					<div class="card-actions">
-						<button class="btn-detail" (click)="viewDetail(p)">Ver Detalle</button>
+		<ng-container *ngFor="let p of purchases">
+			<div class="purchase-card" *ngIf="!(p.estado && p.estado.toLowerCase() === 'pendiente')">
+				<div class="card-image">
+					<img [src]="p.image" alt="{{p.title}}" />
+				</div>
+				<div class="card-content">
+					<div class="card-body">
+						<div class="card-title">Evento: <span class="title-strong">{{ p.title }}</span></div>
+						<div class="card-meta">
+							<div>Fecha de Compra: <span class="meta-value">{{ p.date }}</span></div>
+							<div>Número de Tickets: <span class="meta-value">{{ p.tickets }}</span></div>
+							<div>Total Pagado: <span class="meta-value">S/ {{ p.total | number:'1.2-2' }}</span></div>
+							<div>Estado: <span class="status-text" [ngClass]="p.statusClass">{{ p.estado }}</span></div>
+						</div>
+						<div class="card-actions">
+							<button class="btn-detail" (click)="viewDetail(p)">Ver Detalle</button>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</ng-container>
 	</div>
 </div>

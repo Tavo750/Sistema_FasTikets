@@ -16,6 +16,7 @@ import { HistorialComprasComponent } from './components/historial-compras/histor
 import { HistorialDetalleComponent } from './components/historial-detalle/historial-detalle.component';
 import { CambiarContrasenaUsuarioComponent } from './components/perfil-personal/cambiar-contrasena-usuario/cambiar-contrasena-usuario.component';
 import { ConfirmarTransferenciaComponent } from './components/mis-entradas/confirmar-transferencia.component';
+import { TransferirEntradaComponent } from './components/transferir-entrada/transferir-entrada.component';
 
 import { ProgressBarModule } from 'primeng/progressbar';
 import { AyudaSoporteComponent } from './components/ayuda-soporte/ayuda-soporte.component';
@@ -25,6 +26,7 @@ import { AsuntoSoporteComponent } from './components/ayuda-soporte/asunto-soport
 
 @NgModule({
   declarations: [
+    TransferirEntradaComponent,
     MisEntradasComponent,
     BeneficiosComponent,
     PerfilPersonalComponent,

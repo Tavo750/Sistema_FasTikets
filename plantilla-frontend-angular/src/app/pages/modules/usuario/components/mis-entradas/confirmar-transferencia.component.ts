@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-confirmar-transferencia',
@@ -16,18 +17,71 @@ export class ConfirmarTransferenciaComponent {
   fechaTransferencia: string | null = null;
   // controlar diálogo de confirmación al cancelar
   showCancelDialog = false;
+  // transferencias restantes después de confirmar (cálculo): remainingTransfers - 1
+  remainingAfterTransfer: number | null = null;
+  // diálogo de error al solicitar la transferencia
+  showErrorDialog = false;
+  errorMessage: string | null = null;
 
-  constructor(private router: Router, private messageService: MessageService) {
+  // indicar que se está procesando la petición
+  isSubmitting = false;
+
+  constructor(private router: Router, private messageService: MessageService, private http: HttpClient) {
     // Leer datos enviados por navigation state (desde MisEntradas)
     this.data = history.state?.transferData || {};
   }
 
   confirmar() {
-    // Aquí se llamaría al endpoint para confirmar la transferencia.
-    // Para mostrar la pantalla de 'Transferencia exitosa' cambiamos el estado local
-    this.transferCompleted = true;
-    this.fechaTransferencia = new Date().toLocaleDateString();
-    this.messageService.add({ severity: 'success', summary: 'Transferencia', detail: 'Transferencia confirmada' });
+    if (this.isSubmitting) return;
+
+    // Construir body requerido por la API
+    const body = {
+      idTicket: Number(this.data?.idTick ?? this.data?.idTick ?? 0),
+      emailReceptor: this.data?.email ?? this.data?.emailReceptor ?? '',
+      nombreCompletoReceptor: this.data?.nombre ?? this.data?.nombreCompletoReceptor ?? '',
+      numeroDocumentoReceptor: this.data?.documento ?? this.data?.numeroDocumentoReceptor ?? '',
+      telefonoReceptor: this.data?.telefono ?? this.data?.telefonoReceptor ?? '',
+      mensaje: this.data?.mensaje ?? ''
+    };
+
+    const url = 'http://localhost:8081/api/v1/transferencias/solicitudes';
+    this.isSubmitting = true;
+
+    this.http.post(url, body).subscribe({
+      next: (resp) => {
+        // Mostrar la pantalla de éxito solo si la API responde correctamente
+        this.transferCompleted = true;
+        this.fechaTransferencia = new Date().toLocaleDateString();
+        const current = Number(this.data?.remainingTransfers ?? 1);
+        this.remainingAfterTransfer = Math.max(0, current - 1);
+        this.messageService.add({ severity: 'success', summary: 'Transferencia', detail: 'Transferencia confirmada' });
+        this.isSubmitting = false;
+      },
+      error: (err) => {
+        console.error('Error al solicitar transferencia', err);
+        this.isSubmitting = false;
+        // Mostrar diálogo con el detalle del error si está disponible
+        try {
+          // Preferir la propiedad 'mensaje' que devuelve el backend en español
+          const detail = err?.error?.mensaje || err?.error?.message || err?.message || JSON.stringify(err);
+          this.errorMessage = String(detail);
+        } catch (e) {
+          this.errorMessage = 'Ocurrió un error desconocido al solicitar la transferencia.';
+        }
+        this.showErrorDialog = true;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo solicitar la transferencia. Revisa el detalle.' });
+      }
+    });
+  }
+
+  closeErrorDialog() {
+    this.showErrorDialog = false;
+    this.errorMessage = null;
+    try {
+      this.router.navigate(['/usuario/misEntradas']);
+    } catch (e) {
+      console.warn('No se pudo navegar a Mis Entradas después de cerrar el diálogo de error', e);
+    }
   }
 
   cancelar() {
@@ -49,6 +103,11 @@ export class ConfirmarTransferenciaComponent {
   // En la pantalla de éxito, este botón NO debe redirigir a ninguna parte.
   // Mostrar un mensaje informativo en su lugar.
   viewMyEntries() {
-    this.messageService.add({ severity: 'info', summary: 'Ver Mis Entradas', detail: 'Puedes volver a Mis Entradas desde el menú lateral.' });
+    // Navegar a Mis Entradas pasando el id y el nuevo valor de transferencias restantes
+    const update = {
+      idTick: this.data?.idTick,
+      remainingAfterTransfer: this.remainingAfterTransfer
+    };
+    this.router.navigate(['/usuario/misEntradas'], { state: { updatedEntry: update } });
   }
 }
