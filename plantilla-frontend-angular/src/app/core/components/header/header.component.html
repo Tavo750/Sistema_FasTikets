@@ -9,8 +9,10 @@
     <input
       type="text"
       class="search-input"
-      placeholder="Buscador..."
+      placeholder="Buscar eventos..."
       [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+      (keyup.enter)="onSearchEnter()"
     />
     <i class="pi pi-search search-icon"></i>
   </div>
@@ -22,8 +24,10 @@
       <input
         type="text"
         class="search-input"
-        placeholder="Buscador..."
+        placeholder="Buscar eventos..."
         [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        (keyup.enter)="onSearchEnter()"
       />
       <i class="pi pi-search search-icon"></i>
     </div>

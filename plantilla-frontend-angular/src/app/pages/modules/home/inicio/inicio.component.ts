@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Evento } from './interfaces/inicio/evento.interface';
 import { EventoService } from '../../administrador/services/evento.service';
 import { Data } from '../../administrador/interfaces/gestion-evento/evento.interface';
 import { FavoritosService } from '../../../../core/services/favoritos.service';
 import { MessageService } from 'primeng/api';
+import { SearchService } from '../../../../shared/services/search.service';
+import { Subscription } from 'rxjs';
 
 interface DropdownOption {
   label: string;
@@ -18,7 +20,7 @@ interface DropdownOption {
   styleUrls: ['./inicio.component.css'],
 })
 
-export class InicioComponent implements OnInit {
+export class InicioComponent implements OnInit, OnDestroy {
   eventos: Evento[] = [];
   eventosFiltrados: Evento[] = [];
   categorias: string[] = [];
@@ -28,6 +30,8 @@ export class InicioComponent implements OnInit {
   cargandoEventos: boolean = false;
   currentYear: number = new Date().getFullYear();
   imagenPorDefecto: string = 'img/logo/concierto.jpg';
+  searchTerm: string = '';
+  private searchSubscription!: Subscription;
 
   // Nuevas propiedades para PrimeNG
   categoriasDropdown: DropdownOption[] = [];
@@ -52,11 +56,24 @@ export class InicioComponent implements OnInit {
     private router: Router,
     private eventoService: EventoService,
     private favoritosService: FavoritosService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {}
 
   ngOnInit(): void {
     this.cargarEventos();
+
+    // Suscribirse a los cambios de búsqueda
+    this.searchSubscription = this.searchService.searchTerm$.subscribe(term => {
+      this.searchTerm = term;
+      this.aplicarFiltros();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
 
   inicializarDropdowns(): void {
@@ -177,8 +194,14 @@ export class InicioComponent implements OnInit {
     this.eventosFiltrados = this.eventos.filter(evento => {
       const cumpleCategoria = !this.categoriaSeleccionada || evento.categoria === this.categoriaSeleccionada;
       const cumpleUbicacion = !this.ubicacionSeleccionada || evento.lugar === this.ubicacionSeleccionada;
-      // Aquí se podría agregar filtro por fecha si es necesario
-      return cumpleCategoria && cumpleUbicacion;
+
+      // Filtro de búsqueda por nombre
+      const cumpleBusqueda = !this.searchTerm ||
+        evento.nombre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        evento.categoria.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        evento.lugar.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      return cumpleCategoria && cumpleUbicacion && cumpleBusqueda;
     });
 
     this.aplicarOrden();

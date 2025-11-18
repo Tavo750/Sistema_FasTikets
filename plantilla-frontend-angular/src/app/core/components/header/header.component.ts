@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { MenuService } from '../../services/menu.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { filter, Subscription, debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Data } from '../../interfaces/login.interface';
 import { SessionService } from '../../../shared/services/session.service';
@@ -9,6 +9,7 @@ import { LoginService } from '../../services/login.service';
 import { CartService } from '../../../shared/services/cart.service';
 import { FavoritosService } from '../../services/favoritos.service';
 import { Datum } from '../../interfaces/favoritos.interface';
+import { SearchService } from '../../../shared/services/search.service';
 
 @Component({
   selector: 'app-header',
@@ -36,6 +37,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Variable para menú móvil
   mobileMenuOpen: boolean = false;
 
+  // Subject para búsqueda con debounce
+  private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
+
   /**
    * Getter que retorna los items del menú según el rol del usuario
    */
@@ -57,7 +62,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private loginService: LoginService,
     private cartService: CartService,
     private favoritosService: FavoritosService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private searchService: SearchService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -212,6 +218,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cartSubscription = this.cartService.getCartItems$().subscribe(items => {
       this.cartItemCount = this.cartService.getTotalItems();
     });
+
+    // Configurar búsqueda con debounce
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(searchTerm => {
+        this.searchService.setSearchTerm(searchTerm);
+        // Si no está en la página de inicio, navegar allí
+        if (!this.router.url.includes('/home/inicio')) {
+          this.router.navigate(['/home/inicio']);
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -221,6 +241,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     if (this.cartSubscription) {
       this.cartSubscription.unsubscribe();
+    }
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
     }
   }
 
@@ -371,6 +394,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
       year: 'numeric'
     };
     return fechaObj.toLocaleDateString('es-ES', opciones);
+  }
+
+  /**
+   * Maneja el cambio en el término de búsqueda
+   */
+  onSearchChange(): void {
+    this.searchSubject.next(this.searchTerm);
+  }
+
+  /**
+   * Maneja el evento de presionar Enter en el buscador
+   */
+  onSearchEnter(): void {
+    this.searchService.setSearchTerm(this.searchTerm);
+    // Si no está en la página de inicio, navegar allí
+    if (!this.router.url.includes('/home/inicio')) {
+      this.router.navigate(['/home/inicio']);
+    }
   }
 
 }
