@@ -107,12 +107,8 @@ export class InicioComponent implements OnInit, OnDestroy {
             eventosData = [response.data];
           }
 
-          // Filtrar eventos publicados o activos (algunos backends usan 'ACTIVO' en lugar de 'PUBLICADO')
-          const eventosPublicados = eventosData.filter(evento =>
-            evento.estadoEvento === 'PUBLICADO' ||
-            evento.estadoEvento === 'ACTIVO' ||
-            (!!(evento as any).activo) // también aceptar si viene la bandera activo: true
-          );
+          // Filtrar solo eventos cuyo estadoEvento sea 'PUBLICADO'
+          const eventosPublicados = eventosData.filter(evento => evento.estadoEvento === 'PUBLICADO');
 
           this.eventos = eventosPublicados.map(evento => this.mapearEventoData(evento));
           this.eventosFiltrados = [...this.eventos];
