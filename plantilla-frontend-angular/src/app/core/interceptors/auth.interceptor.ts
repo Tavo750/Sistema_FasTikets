@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { SessionService } from '../../shared/services/session.service';
 import { MessageService } from '../services/message.service';
+import { baseUrl } from '../../global';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -23,30 +24,30 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/recuperar-password',
       '/auth/olvido-contrasena',
       '/api/v1/auth/olvido-contrasena',
-      'localhost:8081/api/v1/auth/olvido-contrasena',
+      `${baseUrl}/auth/olvido-contrasena`,
       '/public',
       '/carrito/items',
       '/api/v1/auth/login', // Login específico
       '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
-      'localhost:8081/api/v1/auth/login' // Login con dominio completo
+      `${baseUrl}/auth/login` // Login con dominio completo
     ];
 
     // Endpoints públicos de eventos y locales (solo lectura - GET)
     const publicEventEndpoints = [
       '/api/v1/eventos',
-      'localhost:8081/api/v1/eventos',
+      `${baseUrl}/eventos`,
       '/api/v1/locales',
-      'localhost:8081/api/v1/locales',
+      `${baseUrl}/locales`,
       '/api/v1/zonas',
-      'localhost:8081/api/v1/zonas',
+      `${baseUrl}/zonas`,
       '/api/v1/tipos-ticket',
-      'localhost:8081/api/v1/tipos-ticket'
+      `${baseUrl}/tipos-ticket`
     ];
 
     // Endpoints de eventos que REQUIEREN autenticación (reportes, administración)
     const protectedEventEndpoints = [
       '/api/v1/eventos/',
-      'localhost:8081/api/v1/eventos/'
+      `${baseUrl}/eventos/`
     ];
 
     // Endpoints con multipart/form-data que necesitan manejo especial

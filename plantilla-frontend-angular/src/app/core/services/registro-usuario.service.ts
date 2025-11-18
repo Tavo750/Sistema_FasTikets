@@ -17,7 +17,7 @@ export class RegistroUsuarioService {
   ) { }
 
   postRegistro(usuario: RegistroUsuario): Observable<any> {
-    const url = `http://localhost:8081/api/v1/auth/registro`;
+    const url = `${baseUrl}/auth/registro`;
     return this.http.post<any>(url, usuario);
   }
 

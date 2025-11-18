@@ -58,7 +58,7 @@ export class LoginService {
       "contrasena": contrasena,
     };
 
-    return this.http.post<LoginResponse>(`http://localhost:8081/api/v1/auth/login`, filtro)  //${this.url}auth/v1/session
+    return this.http.post<LoginResponse>(`${global.baseUrl}/auth/login`, filtro)  //${this.url}auth/v1/session
       .pipe(
         tap(login => {
           // Guardar token y rol

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventoService } from '../../services/evento.service';
 import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
+import { baseUrl } from '../../../../../global';
 
 interface TipoConcierto {
   label: string;
@@ -279,7 +280,7 @@ export class GestionEventosComponent implements OnInit {
     }
     
     // Si es una ruta relativa, construir la URL completa
-    return `http://localhost:8081${imagenUrl}`;
+    return `${baseUrl.replace('/api/v1', '')}${imagenUrl}`;
   }
 
   formatearFecha(fecha: Date | undefined): string {
