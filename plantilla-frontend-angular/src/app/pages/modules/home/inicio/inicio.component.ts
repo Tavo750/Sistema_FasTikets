@@ -111,7 +111,7 @@ export class InicioComponent implements OnInit, OnDestroy {
           const eventosPublicados = eventosData.filter(evento => evento.estadoEvento === 'PUBLICADO');
 
           this.eventos = eventosPublicados.map(evento => this.mapearEventoData(evento));
-          this.eventosFiltrados = [...this.eventos];
+          this.aplicarFiltros();
           this.inicializarDropdowns();
           this.aplicarOrden();
         } else {
