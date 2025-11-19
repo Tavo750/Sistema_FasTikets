@@ -13,8 +13,46 @@
       [(ngModel)]="searchTerm"
       (input)="onSearchChange()"
       (keyup.enter)="onSearchEnter()"
+      (blur)="cerrarDropdown()"
     />
     <i class="pi pi-search search-icon"></i>
+
+    <!-- Dropdown de resultados -->
+    <div class="search-dropdown" *ngIf="showSearchDropdown">
+      <div class="search-loading" *ngIf="cargandoEventos">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Buscando...</span>
+      </div>
+
+      <div class="search-results" *ngIf="!cargandoEventos && eventosFiltrados.length > 0">
+        <div
+          class="search-result-item"
+          *ngFor="let evento of eventosFiltrados"
+          (mousedown)="seleccionarEvento(evento)">
+          <div class="result-image">
+            <img [src]="evento.imagenUrl || 'img/logo/concierto.jpg'" [alt]="evento.nombre" />
+          </div>
+          <div class="result-content">
+            <h4 class="result-title" [innerHTML]="resaltarTexto(evento.nombre)"></h4>
+            <div class="result-details">
+              <span class="result-date">
+                <i class="pi pi-calendar"></i>
+                {{ formatearFechaCorta(evento.fechaEvento) }}
+              </span>
+              <span class="result-location">
+                <i class="pi pi-map-marker"></i>
+                {{ evento.nombreLocal }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-no-results" *ngIf="!cargandoEventos && eventosFiltrados.length === 0 && searchTerm.length > 0">
+        <i class="pi pi-search"></i>
+        <span>No se encontraron eventos</span>
+      </div>
+    </div>
   </div>
 
   <!-- Acciones principales -->
@@ -28,8 +66,46 @@
         [(ngModel)]="searchTerm"
         (input)="onSearchChange()"
         (keyup.enter)="onSearchEnter()"
+        (blur)="cerrarDropdown()"
       />
       <i class="pi pi-search search-icon"></i>
+
+      <!-- Dropdown de resultados móvil -->
+      <div class="search-dropdown" *ngIf="showSearchDropdown">
+        <div class="search-loading" *ngIf="cargandoEventos">
+          <i class="pi pi-spin pi-spinner"></i>
+          <span>Buscando...</span>
+        </div>
+
+        <div class="search-results" *ngIf="!cargandoEventos && eventosFiltrados.length > 0">
+          <div
+            class="search-result-item"
+            *ngFor="let evento of eventosFiltrados"
+            (mousedown)="seleccionarEvento(evento)">
+            <div class="result-image">
+              <img [src]="evento.imagenUrl || 'img/logo/concierto.jpg'" [alt]="evento.nombre" />
+            </div>
+            <div class="result-content">
+              <h4 class="result-title" [innerHTML]="resaltarTexto(evento.nombre)"></h4>
+              <div class="result-details">
+                <span class="result-date">
+                  <i class="pi pi-calendar"></i>
+                  {{ formatearFechaCorta(evento.fechaEvento) }}
+                </span>
+                <span class="result-location">
+                  <i class="pi pi-map-marker"></i>
+                  {{ evento.nombreLocal }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-no-results" *ngIf="!cargandoEventos && eventosFiltrados.length === 0 && searchTerm.length > 0">
+          <i class="pi pi-search"></i>
+          <span>No se encontraron eventos</span>
+        </div>
+      </div>
     </div>
 
     <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')">

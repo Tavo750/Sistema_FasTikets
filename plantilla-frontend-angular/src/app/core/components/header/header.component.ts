@@ -10,6 +10,8 @@ import { CartService } from '../../../shared/services/cart.service';
 import { FavoritosService } from '../../services/favoritos.service';
 import { Datum } from '../../interfaces/favoritos.interface';
 import { SearchService } from '../../../shared/services/search.service';
+import { EventoService } from '../../../pages/modules/administrador/services/evento.service';
+import { Data as EventoData } from '../../../pages/modules/administrador/interfaces/gestion-evento/evento.interface';
 
 @Component({
   selector: 'app-header',
@@ -41,6 +43,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
 
+  // Variables para el dropdown de búsqueda
+  showSearchDropdown: boolean = false;
+  eventosFiltrados: EventoData[] = [];
+  todosLosEventos: EventoData[] = [];
+  cargandoEventos: boolean = false;
+
   /**
    * Getter que retorna los items del menú según el rol del usuario
    */
@@ -63,7 +71,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private favoritosService: FavoritosService,
     private messageService: MessageService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private eventoService: EventoService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -226,12 +235,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         distinctUntilChanged()
       )
       .subscribe(searchTerm => {
+        this.filtrarEventos(searchTerm);
         this.searchService.setSearchTerm(searchTerm);
-        // Si no está en la página de inicio, navegar allí
-        if (!this.router.url.includes('/home/inicio')) {
-          this.router.navigate(['/home/inicio']);
-        }
       });
+
+    // Cargar todos los eventos al iniciar
+    this.cargarEventos();
   }
 
   ngOnDestroy() {
@@ -401,6 +410,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   onSearchChange(): void {
     this.searchSubject.next(this.searchTerm);
+    this.showSearchDropdown = this.searchTerm.length > 0;
   }
 
   /**
@@ -408,10 +418,94 @@ export class HeaderComponent implements OnInit, OnDestroy {
    */
   onSearchEnter(): void {
     this.searchService.setSearchTerm(this.searchTerm);
+    this.showSearchDropdown = false;
     // Si no está en la página de inicio, navegar allí
     if (!this.router.url.includes('/home/inicio')) {
       this.router.navigate(['/home/inicio']);
     }
+  }
+
+  /**
+   * Carga todos los eventos disponibles
+   */
+  cargarEventos(): void {
+    this.cargandoEventos = true;
+    this.eventoService.getListarEventos().subscribe({
+      next: (response) => {
+        this.cargandoEventos = false;
+        if (response.ok && response.data) {
+          // Si response.data es un array
+          if (Array.isArray(response.data)) {
+            this.todosLosEventos = response.data;
+          } else {
+            // Si response.data es un objeto único
+            this.todosLosEventos = [response.data];
+          }
+        }
+      },
+      error: (error) => {
+        this.cargandoEventos = false;
+        console.error('Error al cargar eventos:', error);
+      }
+    });
+  }
+
+  /**
+   * Filtra los eventos según el término de búsqueda
+   */
+  filtrarEventos(termino: string): void {
+    if (!termino || termino.trim() === '') {
+      this.eventosFiltrados = [];
+      return;
+    }
+
+    const terminoLower = termino.toLowerCase();
+    this.eventosFiltrados = this.todosLosEventos.filter(evento =>
+      evento.nombre.toLowerCase().includes(terminoLower) ||
+      evento.descripcion.toLowerCase().includes(terminoLower) ||
+      evento.tipoEvento.toLowerCase().includes(terminoLower) ||
+      evento.nombreLocal.toLowerCase().includes(terminoLower)
+    ).slice(0, 5); // Limitar a 5 resultados
+  }
+
+  /**
+   * Selecciona un evento del dropdown
+   */
+  seleccionarEvento(evento: EventoData): void {
+    this.showSearchDropdown = false;
+    this.searchTerm = '';
+    this.router.navigate(['/home/evento', evento.idEvento]);
+  }
+
+  /**
+   * Cierra el dropdown de búsqueda
+   */
+  cerrarDropdown(): void {
+    setTimeout(() => {
+      this.showSearchDropdown = false;
+    }, 200);
+  }
+
+  /**
+   * Formatea la fecha para mostrar en el dropdown
+   */
+  formatearFechaCorta(fecha: Date): string {
+    const fechaObj = new Date(fecha);
+    const opciones: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    };
+    return fechaObj.toLocaleDateString('es-ES', opciones);
+  }
+
+  /**
+   * Resalta el texto de búsqueda en el resultado
+   */
+  resaltarTexto(texto: string): string {
+    if (!this.searchTerm) return texto;
+    const regex = new RegExp(`(${this.searchTerm})`, 'gi');
+    return texto.replace(regex, '<strong>$1</strong>');
   }
 
 }
