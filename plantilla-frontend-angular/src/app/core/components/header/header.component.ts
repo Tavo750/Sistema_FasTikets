@@ -9,7 +9,6 @@ import { LoginService } from '../../services/login.service';
 import { CartService } from '../../../shared/services/cart.service';
 import { FavoritosService } from '../../services/favoritos.service';
 import { Datum } from '../../interfaces/favoritos.interface';
-import { SearchService } from '../../../shared/services/search.service';
 import { EventoService } from '../../../pages/modules/administrador/services/evento.service';
 import { Data as EventoData } from '../../../pages/modules/administrador/interfaces/gestion-evento/evento.interface';
 
@@ -71,7 +70,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private favoritosService: FavoritosService,
     private messageService: MessageService,
-    private searchService: SearchService,
     private eventoService: EventoService
   ) {
     // Inicializar los items del menú
@@ -228,19 +226,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.cartItemCount = this.cartService.getTotalItems();
     });
 
-    // Configurar búsqueda con debounce
-    this.searchSubscription = this.searchSubject
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(searchTerm => {
-        this.filtrarEventos(searchTerm);
-        this.searchService.setSearchTerm(searchTerm);
-      });
-
-    // Cargar todos los eventos al iniciar
-    this.cargarEventos();
+    // Búsqueda desactivada
   }
 
   ngOnDestroy() {
@@ -417,16 +403,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * Maneja el evento de presionar Enter en el buscador
    */
   onSearchEnter(): void {
-    this.searchService.setSearchTerm(this.searchTerm);
     this.showSearchDropdown = false;
-    // Si no está en la página de inicio, navegar allí
-    if (!this.router.url.includes('/home/inicio')) {
-      this.router.navigate(['/home/inicio']);
+    if (this.eventosFiltrados.length > 0) {
+      // Navegar al primer evento encontrado
+      this.seleccionarEvento(this.eventosFiltrados[0]);
     }
   }
 
   /**
-   * Carga todos los eventos disponibles
+   * Carga todos los eventos disponibles (solo publicados)
    */
   cargarEventos(): void {
     this.cargandoEventos = true;
@@ -436,10 +421,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (response.ok && response.data) {
           // Si response.data es un array
           if (Array.isArray(response.data)) {
-            this.todosLosEventos = response.data;
+            // Filtrar solo eventos publicados
+            this.todosLosEventos = response.data.filter(evento => 
+              evento.estadoEvento === 'PUBLICADO'
+            );
           } else {
-            // Si response.data es un objeto único
-            this.todosLosEventos = [response.data];
+            // Si response.data es un objeto único, verificar si está publicado
+            this.todosLosEventos = response.data.estadoEvento === 'PUBLICADO' ? [response.data] : [];
           }
         }
       },
@@ -451,7 +439,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Filtra los eventos según el término de búsqueda
+   * Filtra los eventos según el término de búsqueda (solo eventos publicados)
    */
   filtrarEventos(termino: string): void {
     if (!termino || termino.trim() === '') {
@@ -461,10 +449,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     const terminoLower = termino.toLowerCase();
     this.eventosFiltrados = this.todosLosEventos.filter(evento =>
-      evento.nombre.toLowerCase().includes(terminoLower) ||
-      evento.descripcion.toLowerCase().includes(terminoLower) ||
-      evento.tipoEvento.toLowerCase().includes(terminoLower) ||
-      evento.nombreLocal.toLowerCase().includes(terminoLower)
+      evento.estadoEvento === 'PUBLICADO' &&
+      (
+        evento.nombre.toLowerCase().includes(terminoLower) ||
+        evento.descripcion.toLowerCase().includes(terminoLower) ||
+        evento.tipoEvento.toLowerCase().includes(terminoLower) ||
+        evento.nombreLocal.toLowerCase().includes(terminoLower)
+      )
     ).slice(0, 5); // Limitar a 5 resultados
   }
 
