@@ -422,7 +422,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           // Si response.data es un array
           if (Array.isArray(response.data)) {
             // Filtrar solo eventos publicados
-            this.todosLosEventos = response.data.filter(evento => 
+            this.todosLosEventos = response.data.filter(evento =>
               evento.estadoEvento === 'PUBLICADO'
             );
           } else {

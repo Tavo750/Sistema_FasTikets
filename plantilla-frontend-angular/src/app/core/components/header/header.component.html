@@ -16,17 +16,17 @@
       (blur)="cerrarDropdown()"
     />
     <i class="pi pi-search search-icon"></i>
-    
+
     <!-- Dropdown de resultados -->
     <div class="search-dropdown" *ngIf="showSearchDropdown">
       <div class="search-loading" *ngIf="cargandoEventos">
         <i class="pi pi-spin pi-spinner"></i>
         <span>Buscando...</span>
       </div>
-      
+
       <div class="search-results" *ngIf="!cargandoEventos && eventosFiltrados.length > 0">
-        <div 
-          class="search-result-item" 
+        <div
+          class="search-result-item"
           *ngFor="let evento of eventosFiltrados"
           (mousedown)="seleccionarEvento(evento)">
           <div class="result-image">
@@ -47,7 +47,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="search-no-results" *ngIf="!cargandoEventos && eventosFiltrados.length === 0 && searchTerm.length > 0">
         <i class="pi pi-search"></i>
         <span>No se encontraron eventos</span>
@@ -69,17 +69,17 @@
         (blur)="cerrarDropdown()"
       />
       <i class="pi pi-search search-icon"></i>
-      
+
       <!-- Dropdown de resultados móvil -->
       <div class="search-dropdown" *ngIf="showSearchDropdown">
         <div class="search-loading" *ngIf="cargandoEventos">
           <i class="pi pi-spin pi-spinner"></i>
           <span>Buscando...</span>
         </div>
-        
+
         <div class="search-results" *ngIf="!cargandoEventos && eventosFiltrados.length > 0">
-          <div 
-            class="search-result-item" 
+          <div
+            class="search-result-item"
             *ngFor="let evento of eventosFiltrados"
             (mousedown)="seleccionarEvento(evento)">
             <div class="result-image">
@@ -100,7 +100,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="search-no-results" *ngIf="!cargandoEventos && eventosFiltrados.length === 0 && searchTerm.length > 0">
           <i class="pi pi-search"></i>
           <span>No se encontraron eventos</span>
