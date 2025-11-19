@@ -226,7 +226,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.cartItemCount = this.cartService.getTotalItems();
     });
 
-    // Búsqueda desactivada
+    // Configurar búsqueda con debounce
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(searchTerm => {
+        this.filtrarEventos(searchTerm);
+      });
+
+    // Cargar todos los eventos al iniciar
+    this.cargarEventos();
   }
 
   ngOnDestroy() {
