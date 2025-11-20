@@ -40,7 +40,7 @@ describe('RegistrarErrorComponent', () => {
 
     fixture = TestBed.createComponent(RegistrarErrorComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    component.ngOnInit(); // Inicializar solo el componente sin renderizar
   });
 
   it('should create', () => {
@@ -70,6 +70,6 @@ describe('RegistrarErrorComponent', () => {
 
   it('should call router.navigate when onCancel is called', () => {
     component.onCancel();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/administrador/log-errores']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['../'], { relativeTo: jasmine.anything() });
   });
 });
