@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { CambiarMiContrasenaClienteComponent } from './cambiar-mi-contrasena-cliente.component';
 
@@ -8,7 +11,9 @@ describe('CambiarMiContrasenaClienteComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CambiarMiContrasenaClienteComponent]
+      imports: [HttpClientTestingModule, ReactiveFormsModule],
+      declarations: [CambiarMiContrasenaClienteComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
     .compileComponents();
 

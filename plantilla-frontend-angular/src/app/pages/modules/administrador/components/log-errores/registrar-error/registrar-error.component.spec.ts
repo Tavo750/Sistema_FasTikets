@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 
 import { RegistrarErrorComponent } from './registrar-error.component';
 
@@ -18,12 +19,18 @@ describe('RegistrarErrorComponent', () => {
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockMessageService = jasmine.createSpyObj('MessageService', ['add']);
 
+    const mockActivatedRoute = {
+      params: of({}),
+      queryParams: of({})
+    };
+
     await TestBed.configureTestingModule({
       declarations: [RegistrarErrorComponent],
       imports: [ReactiveFormsModule],
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: MessageService, useValue: mockMessageService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
         provideHttpClient(),
         provideHttpClientTesting()
       ],
@@ -48,7 +55,7 @@ describe('RegistrarErrorComponent', () => {
 
   it('should validate required fields', () => {
     const form = component.errorForm;
-    
+
     // Set empty values
     form.patchValue({
       severidad: null,

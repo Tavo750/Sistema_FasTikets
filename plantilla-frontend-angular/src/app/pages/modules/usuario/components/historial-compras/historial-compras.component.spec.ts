@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { HistorialComprasComponent } from './historial-compras.component';
 
@@ -8,7 +11,9 @@ describe('HistorialComprasComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [HistorialComprasComponent]
+      imports: [HttpClientTestingModule, FormsModule],
+      declarations: [HistorialComprasComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
     .compileComponents();
 
