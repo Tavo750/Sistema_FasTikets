@@ -29,6 +29,46 @@ export class CrearUsuarioComponent implements OnInit {
   loadingProvincias = false;
   loadingDistritos = false;
 
+  // Dominios permitidos para el correo electrónico
+  private dominiosPermitidos = ['gmail.com', 'pucp.edu.pe', 'uni.pe', 'hotmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'unmsm.edu.pe'];
+
+  /**
+   * Validador personalizado para verificar que el dominio del email esté permitido
+   */
+  validadorDominioEmail = (control: any) => {
+    if (!control.value) {
+      return null;
+    }
+
+    const email = control.value.toLowerCase();
+    const dominio = email.split('@')[1];
+
+    if (!dominio || !this.dominiosPermitidos.includes(dominio)) {
+      return { dominioNoPermitido: true };
+    }
+
+    return null;
+  }
+
+  /**
+   * Validador personalizado para verificar que la fecha no sea futura
+   */
+  validadorFechaNoFutura = (control: any) => {
+    if (!control.value) {
+      return null;
+    }
+
+    const fechaSeleccionada = new Date(control.value);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo la fecha
+
+    if (fechaSeleccionada > hoy) {
+      return { fechaFutura: true };
+    }
+
+    return null;
+  }
+
   constructor(
     public router: Router,
     private fb: FormBuilder,
@@ -39,10 +79,10 @@ export class CrearUsuarioComponent implements OnInit {
     this.registroForm = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: ['', [Validators.required, Validators.email, this.validadorDominioEmail]],
       contrasena: ['', Validators.required],
       repitaContrasena: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required],
+      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura]],
       departamento: ['', Validators.required],
       provincia: ['', Validators.required],
       distrito: ['', Validators.required],
@@ -297,6 +337,9 @@ setupProvinciaListener(): void {
               case 'departamento':
                 errorMessage = 'Debe seleccionar un Departamento';
                 break;
+              case 'provincia':
+                errorMessage = 'Debe seleccionar una Provincia';
+                break;
               case 'distrito':
                 errorMessage = 'Debe seleccionar un Distrito';
                 break;
@@ -317,6 +360,10 @@ setupProvinciaListener(): void {
             }
           } else if (control.errors['email']) {
             errorMessage = 'El formato del correo electrónico no es válido';
+          } else if (control.errors['dominioNoPermitido']) {
+            errorMessage = 'El dominio del correo no está permitido. Use: gmail.com, pucp.edu.pe, uni.pe, hotmail.com, yahoo.com, outlook.com, icloud.com o unmsm.edu.pe';
+          } else if (control.errors['fechaFutura']) {
+            errorMessage = 'La fecha de nacimiento no puede ser una fecha futura';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
               errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';
