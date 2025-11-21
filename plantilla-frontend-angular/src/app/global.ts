@@ -5,7 +5,7 @@ export var titulo: string = `Plantilla`;
 export var tituloVersion: string = `v(1.0.0)`;
 
 // URL de producción para AWS
-export var baseUrl = 'http://fastickeb-back-env.eba-rnqgmepe.us-east-1.elasticbeanstalk.com/api/v1';
+export var baseUrl = 'http://fasticket-backend-spring-env.eba-pzm5ntbm.us-east-1.elasticbeanstalk.com';
 
 export var anio: number = 2025;
 
