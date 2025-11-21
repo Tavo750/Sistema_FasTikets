@@ -17,7 +17,6 @@ export class AuthInterceptor implements HttpInterceptor {
   ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // URLs que NO requieren token (endpoints públicos)
     const publicEndpoints = [
       '/auth/login',
       '/auth/registro',
@@ -27,12 +26,11 @@ export class AuthInterceptor implements HttpInterceptor {
       `${baseUrl}/auth/olvido-contrasena`,
       '/public',
       '/carrito/items',
-      '/api/v1/auth/login', // Login específico
-      '/api/v1/geografia', // Endpoints de geografía (departamentos, provincias, distritos)
-      `${baseUrl}/auth/login` // Login con dominio completo
+      '/api/v1/auth/login',
+      '/api/v1/geografia',
+      `${baseUrl}/auth/login`
     ];
 
-    // Endpoints públicos de eventos y locales (solo lectura - GET)
     const publicEventEndpoints = [
       '/api/v1/eventos',
       `${baseUrl}/eventos`,
@@ -44,89 +42,77 @@ export class AuthInterceptor implements HttpInterceptor {
       `${baseUrl}/tipos-ticket`
     ];
 
-    // Endpoints de eventos que REQUIEREN autenticación (reportes, administración)
     const protectedEventEndpoints = [
       '/api/v1/eventos/',
       `${baseUrl}/eventos/`
     ];
 
-    // Endpoints con multipart/form-data que necesitan manejo especial
     const multipartEndpoints = [
       '/eventos/con-imagen',
       '/api/v1/eventos/con-imagen'
     ];
 
-    // URLs que REQUIEREN autenticación estricta (redirigen al login si no hay token)
     const protectedEndpoints = [
       '/api/v1/usuario',
       '/api/v1/admin',
-      '/api/v1/administrador', // Agregamos específicamente el endpoint de administrador
+      '/api/v1/administrador',
       '/api/v1/compras',
       '/api/v1/facturacion'
     ];
 
-    // Verificar si es un endpoint público
     const isPublicEndpoint = publicEndpoints.some(endpoint => req.url.includes(endpoint));
-
-    // Verificar si es un endpoint público de eventos (solo GET y NO reportes)
     const isPublicEventEndpoint = publicEventEndpoints.some(endpoint => req.url.includes(endpoint)) && 
                                   req.method === 'GET' && 
                                   !req.url.includes('/reporte/') && 
                                   !req.url.includes('/admin/');
-
-    // Verificar si es un endpoint protegido de eventos
     const isProtectedEventEndpoint = protectedEventEndpoints.some(endpoint => 
       req.url.includes(endpoint) && (req.url.includes('/reporte/') || req.url.includes('/admin/'))
     );
-
-    // Verificar si es un endpoint estrictamente protegido
     const isStrictlyProtected = protectedEndpoints.some(endpoint => req.url.includes(endpoint));
 
     if (isPublicEndpoint || isPublicEventEndpoint) {
-      // Para endpoints públicos, agregar header de ngrok
-      const publicReq = req.clone({
-        setHeaders: {
-          'ngrok-skip-browser-warning': 'true'
-        }
-      });
-      return next.handle(publicReq);
+      return next.handle(req).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 0) {
+            this.messageService.error(
+              'Error de conexión. Verifique su conexión a internet o contacte al administrador.',
+              'Error de Conexión'
+            );
+          }
+          return throwError(() => error);
+        })
+      );
     }
 
-    // Verificar si requiere autenticación (protegido o protectedEventEndpoint)
     if (isProtectedEventEndpoint || isStrictlyProtected || 
         (!isPublicEndpoint && !isPublicEventEndpoint)) {
       
-      // Para otros endpoints, verificar autenticación
       const currentUser = this.sessionService.getCurrentUser();
 
       if (currentUser && currentUser.token) {
-        // Detectar si se está enviando FormData (para archivos)
         const isFormData = req.body instanceof FormData;
         const isMultipartEndpoint = multipartEndpoints.some(endpoint => req.url.includes(endpoint));
-
-        // Preparar headers base
         const headers: { [key: string]: string } = {
-          'Authorization': `Bearer ${currentUser.token}`,
-          'ngrok-skip-browser-warning': 'true'
+          'Authorization': `Bearer ${currentUser.token}`
         };
 
-        // Solo agregar Content-Type si NO es FormData
-        // El navegador establecerá automáticamente el Content-Type correcto para FormData
-        if (!isFormData) {
+        const hasBody = req.body !== null && req.body !== undefined;
+        const hasContentType = req.headers.has('Content-Type');
+        const needsContentType = !isFormData && hasBody && !hasContentType && 
+                                (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH');
+        
+        if (needsContentType) {
           headers['Content-Type'] = 'application/json';
         }
 
-        // Para endpoints multipart, clonar de forma especial
         let authReq: HttpRequest<any>;
         if (isMultipartEndpoint && isFormData) {
-          // Solo agregar header de autorización, sin tocar body ni content-type
           authReq = req.clone({
             setHeaders: {
               'Authorization': `Bearer ${currentUser.token}`
             }
           });
         } else {
-          // Clonar la petición normal
           authReq = req.clone({
             setHeaders: headers
           });
@@ -146,36 +132,33 @@ export class AuthInterceptor implements HttpInterceptor {
 
             // Log específico para error 403
             if (error.status === 403) {
-              console.error('🚫 ERROR 403 DETALLADO:', {
+              console.error('Error 403:', {
                 url: req.url,
                 userRole: currentUser.rol,
                 userId: currentUser.idUsuario,
-                tokenLength: currentUser.token?.length,
-                tokenStart: currentUser.token?.substring(0, 30) + '...',
-                requestMethod: req.method,
-                timestamp: new Date().toISOString()
+                method: req.method
               });
+            }
+
+            if (error.status === 0) {
+              console.error('Error de CORS:', req.url, req.method);
             }
 
             return this.handleAuthError(error);
           })
         );
       } else {
-        // No hay token para un endpoint que lo requiere
-        // En lugar de redirigir automáticamente, rechazar la petición
-        console.warn('⚠️ Petición requiere autenticación pero no hay token:', req.url);
+        console.warn('Petición requiere autenticación pero no hay token:', req.url);
         return throwError(() => new Error('Authentication required'));
       }
     }
 
-    // Si llegamos aquí, algo salió mal - enviar sin modificar
     return next.handle(req);
   }
 
   private handleAuthError(error: HttpErrorResponse): Observable<never> {
     switch (error.status) {
       case 401:
-        // Token inválido o expirado
         this.messageService.error(
           'Su sesión ha expirado o no tiene permisos. Por favor, inicie sesión nuevamente.',
           'No Autorizado'
@@ -185,7 +168,6 @@ export class AuthInterceptor implements HttpInterceptor {
         break;
 
       case 403:
-        // Sin permisos suficientes
         this.messageService.error(
           'No tiene permisos suficientes para realizar esta acción.',
           'Acceso Denegado'
@@ -193,12 +175,7 @@ export class AuthInterceptor implements HttpInterceptor {
         break;
 
       case 0:
-        // Error de conexión
         this.messageService.connectionError();
-        break;
-
-      default:
-        // Otros errores se manejan normalmente
         break;
     }
 
