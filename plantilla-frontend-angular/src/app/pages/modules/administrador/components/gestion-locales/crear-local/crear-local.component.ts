@@ -230,7 +230,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar departamentos:', error);
-        this.messageService.error('Error al cargar los departamentos', 'Error', 3000);
+        this.messageService.error('Error al cargar los departamentos', 'Error', 1000);
       }
     });
   }
@@ -260,7 +260,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar provincias:', error);
-        this.messageService.error('Error al cargar las provincias', 'Error', 3000);
+        this.messageService.error('Error al cargar las provincias', 'Error', 1000);
       }
     });
   }
@@ -288,7 +288,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error al cargar distritos:', error);
-        this.messageService.error('Error al cargar los distritos', 'Error', 3000);
+        this.messageService.error('Error al cargar los distritos', 'Error', 1000);
       }
     });
   }
@@ -308,7 +308,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.messageService.warn(
         'Por favor seleccione un distrito',
         'Distrito no seleccionado',
-        3000
+        1000
       );
       return;
     }
@@ -341,7 +341,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
         this.messageService.success(
           `Mapa centrado en ${distritoSeleccionado.nombre}`,
           'Ubicación encontrada',
-          3000
+          1000
         );
       } else {
         console.warn('Geocoding falló para:', direccionBusqueda, status);
@@ -362,7 +362,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.messageService.warn(
         'Ingresa una dirección más específica para buscar',
         'Dirección muy corta',
-        3000
+        1000
       );
       return;
     }
@@ -420,7 +420,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       this.messageService.warn(
         'Por favor complete todos los campos correctamente antes de continuar',
         'Campos incompletos',
-        3000
+        1000
       );
       this.localForm.markAllAsTouched();
       return;

@@ -58,7 +58,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'error',
         summary: 'Error de sesión',
         detail: 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
-        life: 3000
+        life: 1000
       });
       this.router.navigate(['/login']);
       return;
@@ -86,7 +86,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'warn',
             summary: 'Datos no encontrados',
             detail: response.mensaje || 'No se pudieron cargar los datos del perfil',
-            life: 3000
+            life: 1000
           });
         }
       },
@@ -96,7 +96,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error al cargar datos',
           detail: 'Ocurrió un error al cargar los datos del perfil. Intente nuevamente.',
-          life: 3000
+          life: 1000
         });
       }
     });
@@ -144,7 +144,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'warn',
         summary: 'Campos incompletos',
         detail: 'Por favor complete todos los campos correctamente antes de continuar',
-        life: 3000
+        life: 1000
       });
       this.editForm.markAllAsTouched();
       return;
@@ -157,7 +157,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'error',
         summary: 'Error de sesión',
         detail: 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
-        life: 3000
+        life: 1000
       });
       return;
     }
@@ -187,7 +187,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Perfil actualizado',
             detail: 'Los datos del perfil se han actualizado exitosamente',
-            life: 3000
+            life: 1000
           });
 
           this.isEditing = false;
@@ -196,7 +196,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'warn',
             summary: 'Error al actualizar',
             detail: response.mensaje || 'No se pudieron actualizar los datos del perfil',
-            life: 3000
+            life: 1000
           });
         }
       },
@@ -206,7 +206,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error al actualizar',
           detail: 'Ocurrió un error al actualizar los datos del perfil. Intente nuevamente.',
-          life: 3000
+          life: 1000
         });
       }
     });

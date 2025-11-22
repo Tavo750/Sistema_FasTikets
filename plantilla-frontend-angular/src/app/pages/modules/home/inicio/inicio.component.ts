@@ -296,7 +296,7 @@ export class InicioComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Éxito',
             detail: 'Evento agregado a favoritos',
-            life: 3000
+            life: 1000
           });
         }
       },
@@ -306,7 +306,7 @@ export class InicioComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error?.mensaje || 'No se pudo agregar el evento a favoritos',
-          life: 3000
+          life: 1000
         });
       }
     });

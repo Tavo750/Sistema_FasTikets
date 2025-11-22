@@ -22,7 +22,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de éxito
    */
-  success(message: string, summary: string = 'Éxito', life: number = 4000): void {
+  success(message: string, summary: string = 'Éxito', life: number = 1000): void {
     this.add({
       severity: 'success',
       summary,
@@ -34,7 +34,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de información
    */
-  info(message: string, summary: string = 'Información', life: number = 4000): void {
+  info(message: string, summary: string = 'Información', life: number = 1000): void {
     this.add({
       severity: 'info',
       summary,
@@ -46,7 +46,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de advertencia
    */
-  warn(message: string, summary: string = 'Advertencia', life: number = 4000): void {
+  warn(message: string, summary: string = 'Advertencia', life: number = 1000): void {
     this.add({
       severity: 'warn',
       summary,
@@ -58,7 +58,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de error
    */
-  error(message: string, summary: string = 'Error', life: number = 5000): void {
+  error(message: string, summary: string = 'Error', life: number = 1000): void {
     this.add({
       severity: 'error',
       summary,
@@ -72,35 +72,35 @@ export class MessageService {
   /**
    * Muestra mensaje de búsqueda exitosa
    */
-  searchSuccess(message: string, life: number = 4000): void {
+  searchSuccess(message: string, life: number = 1000): void {
     this.success(message, 'Éxito', life);
   }
 
   /**
    * Muestra mensaje de búsqueda sin resultados
    */
-  searchNoResults(message: string, life: number = 6000): void {
+  searchNoResults(message: string, life: number = 1000): void {
     this.warn(message, 'Búsqueda', life);
   }
 
   /**
    * Muestra mensaje de aviso del backend
    */
-  backendInfo(message: string, life: number = 4000): void {
+  backendInfo(message: string, life: number = 1000): void {
     this.info(message, 'Información', life);
   }
 
   /**
    * Muestra mensaje de error del backend
    */
-  backendError(message: string, life: number = 6000): void {
+  backendError(message: string, life: number = 1000): void {
     this.error(message, 'Error', life);
   }
 
   /**
    * Muestra mensaje de error de conexión
    */
-  connectionError(life: number = 6000): void {
+  connectionError(life: number = 1000): void {
     this.error('No se pudo conectar con el servidor', 'Error de Conexión', life);
   }
 
@@ -109,14 +109,14 @@ export class MessageService {
   /**
    * Muestra mensaje de actualización exitosa
    */
-  updateSuccess(message: string, summary: string, life: number = 8000): void {
+  updateSuccess(message: string, summary: string, life: number = 1000): void {
     this.success(message, summary, life);
   }
 
   /**
    * Muestra mensaje de actualización con advertencia
    */
-  updateWarning(message: string, summary: string, life: number = 8000): void {
+  updateWarning(message: string, summary: string, life: number = 1000): void {
     this.warn(message, summary, life);
   }
 

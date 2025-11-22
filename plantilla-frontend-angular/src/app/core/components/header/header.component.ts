@@ -317,7 +317,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         severity: 'warn',
         summary: 'Atención',
         detail: 'Debes iniciar sesión para ver tus favoritos',
-        life: 3000
+        life: 1000
       });
       return;
     }
@@ -346,7 +346,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: 'No se pudieron cargar los favoritos',
-          life: 3000
+          life: 1000
         });
       }
     });
@@ -363,7 +363,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Éxito',
             detail: 'Evento eliminado de favoritos',
-            life: 3000
+            life: 1000
           });
           // Recargar la lista de favoritos
           this.cargarFavoritos();
@@ -375,7 +375,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error?.mensaje || 'No se pudo eliminar el evento de favoritos',
-          life: 3000
+          life: 1000
         });
       }
     });

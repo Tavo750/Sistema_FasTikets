@@ -63,7 +63,7 @@ export class GestionAdministadoresComponent implements OnInit {
       
       setTimeout(() => {
         this.router.navigate(['/login']);
-      }, 3000);
+      }, 1000);
       
       return;
     }
@@ -92,7 +92,7 @@ export class GestionAdministadoresComponent implements OnInit {
           
           setTimeout(() => {
             this.router.navigate(['/administrador']);
-          }, 3000);
+          }, 1000);
         }
       },
       error: (error) => {
@@ -105,7 +105,7 @@ export class GestionAdministadoresComponent implements OnInit {
         
         setTimeout(() => {
           this.router.navigate(['/administrador']);
-        }, 3000);
+        }, 1000);
       }
     });
   }
