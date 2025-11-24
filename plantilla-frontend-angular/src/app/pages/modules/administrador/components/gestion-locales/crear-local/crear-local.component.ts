@@ -138,7 +138,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       const infoWindow = new google.maps.InfoWindow({
         content: '📍 Ubicación del local<br><small>Arrastra para ajustar la posición</small>'
       });
-      
+
       // Mostrar InfoWindow inicial
       infoWindow.open(this.map, this.marker);
 
@@ -185,7 +185,7 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
     const infoWindow = new google.maps.InfoWindow({
       content: `📍 Ubicación del local<br><small>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</small>`
     });
-    
+
     // Mostrar InfoWindow actualizada
     infoWindow.open(this.map, this.marker);
 
@@ -292,72 +292,10 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
-  onDistritoChange(event: any): void {
-    const distritoId = event.value;
-    if (distritoId) {
-      // Centrar el mapa automáticamente cuando se selecciona un distrito
-      this.centerMapOnDistrict();
-    }
-  }
-
-  centerMapOnDistrict(): void {
-    const distritoId = this.localForm.get('idDistrito')?.value;
-
-    if (!distritoId) {
-      this.messageService.warn(
-        'Por favor seleccione un distrito',
-        'Distrito no seleccionado',
-        1000
-      );
-      return;
-    }
-
-    // Buscar el distrito seleccionado en la lista para obtener su nombre
-    const distritoSeleccionado = this.distritos.find(d => d.idDistrito === distritoId);
-
-    if (!distritoSeleccionado) {
-      console.warn('Distrito no encontrado en la lista:', distritoId);
-      return;
-    }
-
-    // Usar Geocoding de Google Maps para buscar el distrito
-    const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
-    const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
-    
-    const direccionBusqueda = `${distritoSeleccionado.nombre}, ${provinciaSeleccionada?.nombre}, ${departamentoSeleccionado?.nombre}, Perú`;
-
-    this.geocoder.geocode({ address: direccionBusqueda }, (results: any, status: any) => {
-      if (status === 'OK' && results[0]) {
-        const location = results[0].geometry.location;
-        const lat = location.lat();
-        const lng = location.lng();
-
-        // Centrar el mapa en las coordenadas encontradas
-        this.map.setCenter({ lat, lng });
-        this.map.setZoom(15);
-        this.updateMarkerPosition(lat, lng);
-
-        this.messageService.success(
-          `Mapa centrado en ${distritoSeleccionado.nombre}`,
-          'Ubicación encontrada',
-          1000
-        );
-      } else {
-        console.warn('Geocoding falló para:', direccionBusqueda, status);
-        this.messageService.warn(
-          `No se pudo encontrar la ubicación exacta de ${distritoSeleccionado.nombre}. Ajusta la ubicación manualmente.`,
-          'Ubicación no encontrada',
-          4000
-        );
-      }
-    });
-  }
-
   // Método para buscar dirección automáticamente
   buscarDireccion(): void {
     const direccion = this.localForm.get('direccion')?.value;
-    
+
     if (!direccion || direccion.length < 5) {
       this.messageService.warn(
         'Ingresa una dirección más específica para buscar',
@@ -369,11 +307,11 @@ export class CrearLocalComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Construir dirección completa con ubigeo si está disponible
     let direccionCompleta = direccion;
-    
+
     const distritoSeleccionado = this.distritos.find(d => d.idDistrito === this.localForm.get('idDistrito')?.value);
     const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
     const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
-    
+
     if (distritoSeleccionado && provinciaSeleccionada && departamentoSeleccionado) {
       direccionCompleta = `${direccion}, ${distritoSeleccionado.nombre}, ${provinciaSeleccionada.nombre}, ${departamentoSeleccionado.nombre}, Perú`;
     } else {
