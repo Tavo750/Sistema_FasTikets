@@ -1133,20 +1133,32 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar los datos del evento solo con la imagen de zonas
-    // NO incluir imagenUrl para que el backend mantenga el banner existente
+    // Verificar si existe la imagen del banner
+    if (!this.formulario.banner && !this.evento.imagenUrl) {
+      this.messageService.error('No se puede actualizar el mapa sin una imagen de banner previamente cargada', 'Error');
+      return;
+    }
+
+    // Preparar los datos del evento con AMBAS imágenes: banner y zonas
+    // El endpoint requiere ambas imágenes para actualizar correctamente
     const datosEvento: CrearEventoRequest = {
       nombre: this.evento.nombre,
       descripcion: this.evento.descripcion,
       fechaEvento: this.evento.fechaEvento,
       horaInicio: this.evento.horaInicio,
       horaFin: this.evento.horaFin,
-      // imagenUrl: NO enviamos este campo para mantener el banner existente
-      imagenZonasUrl: file, // Solo actualizar la imagen de zonas
+      // Incluir el banner: usar el File si existe, o mantener el del evento
+      imagenUrl: this.formulario.banner || this.evento.imagenUrl,
+      // Incluir la nueva imagen de zonas
+      imagenZonasUrl: file,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: this.evento.aforoDisponible,
-      idLocal: this.evento.idLocal
+      idLocal: this.evento.idLocal,
+      // IMPORTANTE: Incluir TODOS los campos opcionales para mantener los datos existentes
+      restricciones: this.evento.restricciones || '',
+      politicasDevolucion: this.evento.politicasDevolucion || '',
+      menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
     };
 
     // Mostrar mensaje de carga
