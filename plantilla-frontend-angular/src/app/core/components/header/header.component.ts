@@ -11,6 +11,8 @@ import { FavoritosService } from '../../services/favoritos.service';
 import { Datum } from '../../interfaces/favoritos.interface';
 import { EventoService } from '../../../pages/modules/administrador/services/evento.service';
 import { Data as EventoData } from '../../../pages/modules/administrador/interfaces/gestion-evento/evento.interface';
+import { NotificacionesService } from '../../services/notificaciones.service';
+import { Content, NotificacionesResponse } from '../../interfaces/notificaciones.interface';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
   itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
-  notificationCount: number = 5; // Ejemplo
+  notificationCount: number = 0; // Contador de notificaciones
   cartItemCount: number = 0; // Contador de items del carrito
   @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
@@ -34,6 +36,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mostrarDialogoFavoritos: boolean = false;
   eventosFavoritos: Datum[] = [];
   cargandoFavoritos: boolean = false;
+
+  // Variables para notificaciones
+  mostrarDialogoNotificaciones: boolean = false;
+  notificaciones: Content[] = [];
+  cargandoNotificaciones: boolean = false;
+  notificacionesNoLeidas: number = 0;
 
   // Variable para menú móvil
   mobileMenuOpen: boolean = false;
@@ -70,7 +78,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private favoritosService: FavoritosService,
     private messageService: MessageService,
-    private eventoService: EventoService
+    private eventoService: EventoService,
+    private notificacionesService: NotificacionesService
   ) {
     // Inicializar los items del menú
     this.actualizarMenuItems();
@@ -238,6 +247,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Cargar todos los eventos al iniciar
     this.cargarEventos();
+
+    // Cargar notificaciones si hay usuario autenticado
+    if (this.usuario) {
+      this.cargarNotificaciones();
+    }
   }
 
   ngOnDestroy() {
@@ -508,6 +522,108 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.searchTerm) return texto;
     const regex = new RegExp(`(${this.searchTerm})`, 'gi');
     return texto.replace(regex, '<strong>$1</strong>');
+  }
+
+  /**
+   * Abre el diálogo de notificaciones y carga la lista
+   */
+  abrirNotificaciones(): void {
+    if (!this.usuario) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Debes iniciar sesión para ver tus notificaciones',
+        life: 3000
+      });
+      return;
+    }
+
+    this.mostrarDialogoNotificaciones = true;
+    this.cargarNotificaciones();
+    this.closeMobileMenu();
+  }
+
+  /**
+   * Carga la lista de notificaciones del usuario
+   */
+  cargarNotificaciones(): void {
+    this.cargandoNotificaciones = true;
+    this.notificacionesService.GetListaNotificaciones().subscribe({
+      next: (response: NotificacionesResponse) => {
+        if (response.ok && response.data) {
+          this.notificaciones = response.data.content;
+          this.notificacionesNoLeidas = this.notificaciones.filter(n => !n.leida).length;
+          this.notificationCount = this.notificacionesNoLeidas;
+        }
+        this.cargandoNotificaciones = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar notificaciones:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar las notificaciones',
+          life: 3000
+        });
+        this.cargandoNotificaciones = false;
+      }
+    });
+  }
+
+  /**
+   * Formatea la fecha de la notificación para mostrarla de forma relativa
+   */
+  formatearFechaNotificacion(fecha: Date): string {
+    const ahora = new Date();
+    const fechaNotif = new Date(fecha);
+    const diff = ahora.getTime() - fechaNotif.getTime();
+
+    const minutos = Math.floor(diff / 60000);
+    const horas = Math.floor(diff / 3600000);
+    const dias = Math.floor(diff / 86400000);
+
+    if (minutos < 1) return 'Hace un momento';
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? 's' : ''}`;
+    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
+    if (dias < 7) return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
+
+    return fechaNotif.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: fechaNotif.getFullYear() !== ahora.getFullYear() ? 'numeric' : undefined
+    });
+  }
+
+  /**
+   * Obtiene el ícono según el tipo de notificación
+   */
+  obtenerIconoNotificacion(tipo: string): string {
+    const iconos: { [key: string]: string } = {
+      'INFO': 'pi-info-circle',
+      'EXITO': 'pi-check-circle',
+      'ADVERTENCIA': 'pi-exclamation-triangle',
+      'ERROR': 'pi-times-circle',
+      'PROMOCION': 'pi-tag',
+      'EVENTO': 'pi-calendar',
+      'SISTEMA': 'pi-cog'
+    };
+    return iconos[tipo] || 'pi-bell';
+  }
+
+  /**
+   * Obtiene la severidad según el tipo de notificación
+   */
+  obtenerSeveridadNotificacion(tipo: string): string {
+    const severidades: { [key: string]: string } = {
+      'INFO': 'info',
+      'EXITO': 'success',
+      'ADVERTENCIA': 'warn',
+      'ERROR': 'danger',
+      'PROMOCION': 'secondary',
+      'EVENTO': 'info',
+      'SISTEMA': 'contrast'
+    };
+    return severidades[tipo] || 'info';
   }
 
 }
