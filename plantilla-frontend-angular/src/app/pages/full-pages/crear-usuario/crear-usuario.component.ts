@@ -10,6 +10,7 @@ import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/regi
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 import { MessageService } from '../../../core/services/message.service';
 import { Departamento, Distrito, Provincia } from '../../../core/interfaces/ubigeo.interface';
+import { CambiarContraService } from '../../../core/services/cambiar-contra.service';
 
 
 @Component({
@@ -28,6 +29,15 @@ export class CrearUsuarioComponent implements OnInit {
 
   loadingProvincias = false;
   loadingDistritos = false;
+
+  // Variables para la verificación de correo
+  mostrarModalVerificacion = false;
+  codigoVerificacion = '';
+  codigoDigitos: string[] = ['', '', '', '', '', ''];
+  correoAVerificar = '';
+  codigoEnviado = false;
+  enviandoCodigo = false;
+  verificandoCodigo = false;
 
   // Dominios permitidos para el correo electrónico
   private dominiosPermitidos = ['gmail.com', 'pucp.edu.pe', 'uni.pe', 'hotmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'unmsm.edu.pe'];
@@ -74,7 +84,8 @@ export class CrearUsuarioComponent implements OnInit {
     private fb: FormBuilder,
     private dialogService: DialogService,
     private registroUsuarioService: RegistroUsuarioService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cambiarContraService: CambiarContraService
   ) {
     this.registroForm = this.fb.group({
       nombres: ['', Validators.required],
@@ -242,72 +253,12 @@ setupProvinciaListener(): void {
         return;
       }
 
-      // Formatear la fecha de nacimiento a ISO string si es un objeto Date
-      const fechaNacimiento = this.registroForm.get('fechaNacimiento')?.value;
-      const fechaFormateada = fechaNacimiento instanceof Date ?
-        fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
-
+      // Obtener el correo y preparar para verificación
       const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
+      this.correoAVerificar = email;
 
-      const usuario: RegistroUsuario = {
-        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
-        docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
-        nombres: this.registroForm.get('nombres')?.value.trim(),
-        apellidos: this.registroForm.get('apellidos')?.value.trim(),
-        email: email,
-        contrasena: this.registroForm.get('contrasena')?.value,
-        telefono: this.registroForm.get('telefono')?.value.trim(),
-        fechaNacimiento: fechaFormateada,
-        direccion: this.registroForm.get('direccion')?.value.trim(),
-        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1   // aqui se debe cambiar por el id del distrito seleccionado
-      };
-
-      // Validar que todos los campos requeridos tengan valor
-      for (const [key, value] of Object.entries(usuario)) {
-        if (!value && value !== 0) {
-          this.messageService.error(`El campo ${key} es requerido`);
-          return;
-        }
-      }
-
-      this.registroUsuarioService.postRegistro(usuario).subscribe({
-        next: (response: any) => {
-          // Verificar si la respuesta tiene la estructura esperada
-          if (response && typeof response === 'object') {
-            if (response.ok && response.data && response.data.exito) {
-              this.messageService.success(response.data.mensaje || 'Usuario registrado exitosamente');
-              this.mostrarDialogExitoso();
-              this.registroForm.reset();
-            } else if (response.ok === false) {
-              this.messageService.error(response.data?.mensaje || response.mensaje || 'Error en el registro');
-            } else {
-              // Respuesta exitosa pero estructura diferente
-              this.messageService.success('Usuario registrado exitosamente');
-              this.mostrarDialogExitoso();
-              this.registroForm.reset();
-            }
-          } else {
-            // Respuesta exitosa sin estructura JSON (posible texto plano)
-            this.messageService.success('Usuario registrado exitosamente');
-            this.mostrarDialogExitoso();
-            this.registroForm.reset();
-          }
-        },
-        error: (error) => {
-          let mensajeError = 'Error en el registro';
-
-          // Si el error tiene estructura de respuesta HTTP
-          if (error?.error) {
-            mensajeError = error.error.mensaje || error.error.message || mensajeError;
-          } else if (error?.mensaje) {
-            mensajeError = error.mensaje;
-          } else if (error?.message) {
-            mensajeError = error.message;
-          }
-
-          this.messageService.error(mensajeError);
-        },
-      });
+      // Enviar código de verificación
+      this.enviarCodigoVerificacion();
     } else {
       // Marcar todos los campos como tocados para mostrar los errores
       Object.keys(this.registroForm.controls).forEach(key => {
@@ -376,6 +327,213 @@ setupProvinciaListener(): void {
         control?.markAsTouched();
       });
     }
+  }
+
+  /**
+   * Envía el código de verificación al correo del usuario
+   */
+  enviarCodigoVerificacion(): void {
+    this.enviandoCodigo = true;
+
+    this.cambiarContraService.putOlvidoContrasena(this.correoAVerificar).subscribe({
+      next: (response) => {
+        this.enviandoCodigo = false;
+        if (response.ok) {
+          this.codigoEnviado = true;
+          this.mostrarModalVerificacion = true;
+          this.messageService.success('Código de verificación enviado a su correo');
+        } else {
+          this.messageService.error(response.mensaje || 'Error al enviar el código de verificación');
+        }
+      },
+      error: (error) => {
+        this.enviandoCodigo = false;
+        this.messageService.error('Error al enviar el código de verificación');
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  /**
+   * Valida el código de verificación ingresado por el usuario
+   */
+  validarCodigo(): void {
+    const codigo = this.codigoDigitos.join('');
+    if (!codigo || codigo.length !== 6) {
+      this.messageService.error('Por favor ingrese el código completo de 6 dígitos');
+      return;
+    }
+
+    this.verificandoCodigo = true;
+
+    this.cambiarContraService.postValidaCodigo(this.correoAVerificar, codigo).subscribe({
+      next: (response) => {
+        this.verificandoCodigo = false;
+        if (response.ok) {
+          this.messageService.success('Código verificado correctamente');
+          this.mostrarModalVerificacion = false;
+          this.registrarUsuario();
+        } else {
+          this.messageService.error(response.mensaje || 'Código de verificación incorrecto');
+        }
+      },
+      error: (error) => {
+        this.verificandoCodigo = false;
+        this.messageService.error('Error al validar el código');
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  /**
+   * Cierra el modal de verificación
+   */
+  cerrarModalVerificacion(): void {
+    this.mostrarModalVerificacion = false;
+    this.codigoVerificacion = '';
+    this.codigoDigitos = ['', '', '', '', '', ''];
+  }
+
+  /**
+   * Reenvía el código de verificación
+   */
+  reenviarCodigo(): void {
+    this.codigoVerificacion = '';
+    this.codigoDigitos = ['', '', '', '', '', ''];
+    this.enviarCodigoVerificacion();
+  }
+
+  /**
+   * Maneja el input de un dígito del código
+   */
+  onCodigoInput(event: any, index: number): void {
+    const input = event.target;
+    const value = input.value;
+
+    // Solo permitir un dígito
+    if (value.length > 1) {
+      input.value = value.charAt(0);
+      this.codigoDigitos[index] = input.value;
+    } else {
+      this.codigoDigitos[index] = value;
+    }
+
+    // Auto-focus al siguiente input si se ingresó un valor
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`codigo-${index + 1}`);
+      if (nextInput) {
+        (nextInput as HTMLInputElement).focus();
+      }
+    }
+  }
+
+  /**
+   * Maneja el evento keydown para navegación con backspace
+   */
+  onCodigoKeydown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'Backspace' && !this.codigoDigitos[index] && index > 0) {
+      const prevInput = document.getElementById(`codigo-${index - 1}`);
+      if (prevInput) {
+        (prevInput as HTMLInputElement).focus();
+      }
+    }
+  }
+
+  /**
+   * Maneja el evento paste para distribuir el código en los 6 inputs
+   */
+  onCodigoPaste(event: ClipboardEvent, index: number): void {
+    event.preventDefault();
+    const pastedData = event.clipboardData?.getData('text') || '';
+    const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
+
+    digits.forEach((digit, i) => {
+      if (i < 6) {
+        this.codigoDigitos[i] = digit;
+        const input = document.getElementById(`codigo-${i}`);
+        if (input) {
+          (input as HTMLInputElement).value = digit;
+        }
+      }
+    });
+
+    // Enfocar el último input llenado o el siguiente vacío
+    const nextEmptyIndex = this.codigoDigitos.findIndex(d => !d);
+    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
+    const focusInput = document.getElementById(`codigo-${focusIndex}`);
+    if (focusInput) {
+      (focusInput as HTMLInputElement).focus();
+    }
+  }
+
+  /**
+   * Registra el usuario después de verificar el código
+   */
+  registrarUsuario(): void {
+    // Formatear la fecha de nacimiento a ISO string si es un objeto Date
+    const fechaNacimiento = this.registroForm.get('fechaNacimiento')?.value;
+    const fechaFormateada = fechaNacimiento instanceof Date ?
+      fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
+
+    const usuario: RegistroUsuario = {
+      tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
+      docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
+      nombres: this.registroForm.get('nombres')?.value.trim(),
+      apellidos: this.registroForm.get('apellidos')?.value.trim(),
+      email: this.correoAVerificar,
+      contrasena: this.registroForm.get('contrasena')?.value,
+      telefono: this.registroForm.get('telefono')?.value.trim(),
+      fechaNacimiento: fechaFormateada,
+      direccion: this.registroForm.get('direccion')?.value.trim(),
+      idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1
+    };
+
+    // Validar que todos los campos requeridos tengan valor
+    for (const [key, value] of Object.entries(usuario)) {
+      if (!value && value !== 0) {
+        this.messageService.error(`El campo ${key} es requerido`);
+        return;
+      }
+    }
+
+    this.registroUsuarioService.postRegistro(usuario).subscribe({
+      next: (response: any) => {
+        // Verificar si la respuesta tiene la estructura esperada
+        if (response && typeof response === 'object') {
+          if (response.ok && response.data && response.data.exito) {
+            this.messageService.success(response.data.mensaje || 'Usuario registrado exitosamente');
+            this.mostrarDialogExitoso();
+            this.registroForm.reset();
+          } else if (response.ok === false) {
+            this.messageService.error(response.data?.mensaje || response.mensaje || 'Error en el registro');
+          } else {
+            // Respuesta exitosa pero estructura diferente
+            this.messageService.success('Usuario registrado exitosamente');
+            this.mostrarDialogExitoso();
+            this.registroForm.reset();
+          }
+        } else {
+          // Respuesta exitosa sin estructura JSON (posible texto plano)
+          this.messageService.success('Usuario registrado exitosamente');
+          this.mostrarDialogExitoso();
+          this.registroForm.reset();
+        }
+      },
+      error: (error) => {
+        let mensajeError = 'Error en el registro';
+
+        // Si el error tiene estructura de respuesta HTTP
+        if (error?.error) {
+          mensajeError = error.error.mensaje || error.error.message || mensajeError;
+        } else if (error?.mensaje) {
+          mensajeError = error.mensaje;
+        } else if (error?.message) {
+          mensajeError = error.message;
+        }
+
+        this.messageService.error(mensajeError);
+      },
+    });
   }
 
   /**
