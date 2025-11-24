@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PerfilPersonalService } from '../../services/perfil-personal.service';
 import { SessionService } from '../../../../../shared/services/session.service';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 
 interface TipoDocumento {
@@ -31,7 +32,8 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private router: Router,
     private perfilPersonalService: PerfilPersonalService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private loadingService: LoadingService
   ) {
     this.tiposDocumento = [
       { nombre: 'Documento Nacional de Identidad (DNI)', valor: 'DNI' },
@@ -64,6 +66,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.loadingService.show();
     this.perfilPersonalService.getobtenerPerfilPorId(currentUser.idUsuario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -89,6 +92,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             life: 1000
           });
         }
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error al cargar el perfil:', error);
@@ -98,6 +102,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
           detail: 'Ocurrió un error al cargar los datos del perfil. Intente nuevamente.',
           life: 1000
         });
+        this.loadingService.hide();
       }
     });
   }

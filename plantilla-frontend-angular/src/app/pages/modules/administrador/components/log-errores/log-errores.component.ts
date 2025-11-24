@@ -5,6 +5,7 @@ import { LogErroresService } from '../../services/log-errores.service';
 import { LogErroresResponse, Datum } from '../../interfaces/log-errores/log-errores.interface';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
 import { Subscription } from 'rxjs';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 interface ErrorLog {
   idError: number;
@@ -49,7 +50,8 @@ export class LogErroresComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private messageService: MessageService,
     private logErroresService: LogErroresService,
-    private customMessageService: CustomMessageService
+    private customMessageService: CustomMessageService,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -64,6 +66,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
    * Carga los registros de errores desde el backend
    */
   cargarRegistrosErrores(): void {
+    this.loadingService.show();
     this.isLoading = true;
     this.customMessageService.info('Cargando log de errores...', 'Cargando');
 
@@ -92,6 +95,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
           this.customMessageService.info('No se encontraron registros de errores', 'Sin resultados');
         }
 
+        this.loadingService.hide();
         this.isLoading = false;
       },
       error: (error) => {
@@ -100,6 +104,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
           'Error al cargar los registros de errores. Por favor, inténtelo de nuevo.',
           'Error de conexión'
         );
+        this.loadingService.hide();
         this.isLoading = false;
       }
     });
@@ -127,7 +132,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
   private formatearFecha(fechaISO: string): string {
     // Crear la fecha y obtener los componentes en hora local
     const fecha = new Date(fechaISO);
-    
+
     // Formatear usando métodos que respetan la zona horaria local
     const dia = fecha.getDate().toString().padStart(2, '0');
     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
@@ -135,7 +140,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
     const horas = fecha.getHours().toString().padStart(2, '0');
     const minutos = fecha.getMinutes().toString().padStart(2, '0');
     const segundos = fecha.getSeconds().toString().padStart(2, '0');
-    
+
     return `${dia}/${mes}/${anio}, ${horas}:${minutos}:${segundos}`;
   }
 
@@ -152,7 +157,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
       if (this.fechaDesde) {
         const fechaDesdeInicio = new Date(this.fechaDesde);
         fechaDesdeInicio.setHours(0, 0, 0, 0); // Inicio del día (00:00:00)
-        
+
         const errorDate = error.fechaHora;
         if (errorDate < fechaDesdeInicio) {
           matches = false;
@@ -163,7 +168,7 @@ export class LogErroresComponent implements OnInit, OnDestroy {
       if (this.fechaHasta) {
         const fechaHastaFin = new Date(this.fechaHasta);
         fechaHastaFin.setHours(23, 59, 59, 999); // Fin del día (23:59:59.999)
-        
+
         const errorDate = error.fechaHora;
         if (errorDate > fechaHastaFin) {
           matches = false;
@@ -172,10 +177,10 @@ export class LogErroresComponent implements OnInit, OnDestroy {
 
       return matches;
     });
-    
+
     // Ordenar resultados filtrados por fecha descendente (más recientes primero)
     this.filteredErrores.sort((a, b) => b.fechaHora.getTime() - a.fechaHora.getTime());
-    
+
     // Actualizar el total de registros para la paginación
     this.totalRecords = this.filteredErrores.length;
   }

@@ -6,6 +6,7 @@ import { AyudaSoporteService } from '../../../usuario/services/ayuda-soporte.ser
 import { AyudaSoporteListItem, AyudaSoporteListResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 import { AyudaSoporteAdmiObtenerIdResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
 import { AyudaSoporteAdmiModificarResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 interface Cliente {
   idCliente: number;
@@ -35,7 +36,7 @@ interface Cliente {
   providers: [MessageService, ConfirmationService]
 })
 export class GestionClientesComponent implements OnInit {
-  
+
   clientes: Cliente[] = [];
   clienteSeleccionado: Cliente | null = null;
   mostrarDialogDetalle: boolean = false;
@@ -67,7 +68,8 @@ export class GestionClientesComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private gestionClientesService: GestionClientesService,
-    private ayudaSoporteService: AyudaSoporteService
+    private ayudaSoporteService: AyudaSoporteService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -75,6 +77,7 @@ export class GestionClientesComponent implements OnInit {
   }
 
   cargarClientes(): void {
+    this.loadingService.show();
     this.loading = true;
     this.clientes = [];
     this.totalRecords = 0;
@@ -82,7 +85,7 @@ export class GestionClientesComponent implements OnInit {
     this.gestionClientesService.getListarClientes().subscribe({
       next: (response) => {
         console.log('Respuesta del servicio:', response);
-        
+
         if (response && response.ok && response.data) {
           try {
             this.clientes = response.data.map(cliente => ({
@@ -91,10 +94,10 @@ export class GestionClientesComponent implements OnInit {
               distrito: this.obtenerDistrito(cliente.direccion || ''),
               rol: 'CLIENTE'
             }));
-            
+
             this.totalRecords = this.clientes.length;
             console.log('Clientes procesados:', this.clientes);
-            
+
             if (this.clientes.length > 0) {
               this.messageService.add({
                 severity: 'success',
@@ -134,10 +137,11 @@ export class GestionClientesComponent implements OnInit {
         });
       },
       complete: () => {
+        this.loadingService.hide();
         this.loading = false;
       }
     });
-    
+
     // TODO: Reemplazar con llamada real al servicio
     // this.clienteService.obtenerClientes().subscribe({
     //   next: (response) => {
@@ -202,14 +206,14 @@ export class GestionClientesComponent implements OnInit {
       this.clientes = this.clientes.filter(c => c.idCliente !== cliente.idCliente);
       this.totalRecords = this.clientes.length;
       this.loading = false;
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Cliente Eliminado',
         detail: `${cliente.nombres} ${cliente.apellidos} ha sido eliminado correctamente`
       });
     }, 500);
-    
+
     // TODO: Reemplazar con llamada real al servicio
     // this.clienteService.eliminarCliente(cliente.id).subscribe({
     //   next: () => {
@@ -255,7 +259,7 @@ export class GestionClientesComponent implements OnInit {
 
   verificarCliente(cliente: Cliente): void {
     this.loading = true;
-    
+
     this.gestionClientesService.verificarCliente(cliente.idCliente).subscribe({
       next: (response) => {
         this.loading = false;
@@ -268,7 +272,7 @@ export class GestionClientesComponent implements OnInit {
               verificado: response.data.verificado
             };
           }
-          
+
           this.messageService.add({
             severity: 'success',
             summary: 'Cliente Verificado',
@@ -336,14 +340,14 @@ export class GestionClientesComponent implements OnInit {
 
   abrirModificarObservacionGlobal(solicitud: AyudaSoporteListItem): void {
     if (!solicitud || !solicitud.idSolicitud) {
-      this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Advertencia', 
-        detail: 'Solicitud inválida' 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Solicitud inválida'
       });
       return;
     }
-    
+
     this.loadingModificarGlobal = true;
     this.ayudaSoporteService.obtenerPorId(Number(solicitud.idSolicitud)).subscribe({
       next: (response: AyudaSoporteAdmiObtenerIdResponse) => {
@@ -353,20 +357,20 @@ export class GestionClientesComponent implements OnInit {
           this.editarObservacionGlobal = response.data.observaciones || '';
           this.mostrarDialogModificarGlobal = true;
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'No se pudo obtener el detalle de la solicitud' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo obtener el detalle de la solicitud'
           });
         }
       },
       error: (error: any) => {
         this.loadingModificarGlobal = false;
         console.error('Error al obtener detalle de solicitud:', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'No se pudo obtener el detalle de la solicitud' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo obtener el detalle de la solicitud'
         });
       }
     });
@@ -374,7 +378,7 @@ export class GestionClientesComponent implements OnInit {
 
   guardarObservacionGlobal(): void {
     if (!this.solicitudGlobalParaEditar) return;
-    
+
     const id = Number(this.solicitudGlobalParaEditar.idSolicitud);
     const payload = {
       estado: 'RESUELTO',
@@ -387,7 +391,7 @@ export class GestionClientesComponent implements OnInit {
         this.loadingModificarGlobal = false;
         if (response && response.ok && response.data) {
           // Actualizar la solicitud en la lista
-          const index = this.solicitudesGlobales.findIndex(s => 
+          const index = this.solicitudesGlobales.findIndex(s =>
             Number(s.idSolicitud) === id
           );
           if (index !== -1) {
@@ -397,31 +401,31 @@ export class GestionClientesComponent implements OnInit {
               observaciones: response.data.observaciones
             };
           }
-          
+
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
             detail: 'Observación actualizada correctamente'
           });
-          
+
           this.mostrarDialogModificarGlobal = false;
           this.editarObservacionGlobal = '';
           this.solicitudGlobalParaEditar = null;
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: response?.mensaje || 'No se pudo actualizar la observación' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudo actualizar la observación'
           });
         }
       },
       error: (error: any) => {
         this.loadingModificarGlobal = false;
         console.error('Error al modificar observación global:', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'Error al actualizar la observación' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al actualizar la observación'
         });
       }
     });
@@ -436,17 +440,17 @@ export class GestionClientesComponent implements OnInit {
         const mensaje = (s.mensaje || '').toLowerCase();
         const nombreUsuario = (s.nombreUsuario || '').toLowerCase();
         const emailUsuario = (s.emailUsuario || '').toLowerCase();
-        if (!asunto.includes(searchTerm) && !mensaje.includes(searchTerm) && 
+        if (!asunto.includes(searchTerm) && !mensaje.includes(searchTerm) &&
             !nombreUsuario.includes(searchTerm) && !emailUsuario.includes(searchTerm)) {
           return false;
         }
       }
-      
+
       // Filtrar por estado
       if (this.filterEstadoGlobal && s.estado !== this.filterEstadoGlobal) {
         return false;
       }
-      
+
       return true;
     });
   }

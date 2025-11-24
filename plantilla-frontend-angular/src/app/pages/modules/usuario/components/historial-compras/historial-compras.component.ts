@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrdenesService } from '../../../../../shared/services/ordenes.service';
 import { SessionService } from '../../../../../shared/services/session.service';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-historial-compras',
@@ -22,7 +23,8 @@ export class HistorialComprasComponent implements OnInit {
   constructor(
     private router: Router,
     private ordenesService: OrdenesService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -30,6 +32,7 @@ export class HistorialComprasComponent implements OnInit {
   }
 
   private loadHistorial(): void {
+    this.loadingService.show();
     // El endpoint ya determina el cliente a partir del token, por eso no pasamos id
     this.ordenesService.getHistorialCompras().subscribe({
       next: (resp: any) => {
@@ -69,8 +72,12 @@ export class HistorialComprasComponent implements OnInit {
             raw: o
           };
         });
+        this.loadingService.hide();
       },
-      error: (err: any) => { console.error('Error cargando historial', err); }
+      error: (err: any) => {
+        console.error('Error cargando historial', err);
+        this.loadingService.hide();
+      }
     });
   }
 

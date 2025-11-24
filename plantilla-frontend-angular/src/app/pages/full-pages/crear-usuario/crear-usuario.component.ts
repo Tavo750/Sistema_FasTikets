@@ -11,6 +11,7 @@ import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 import { MessageService } from '../../../core/services/message.service';
 import { Departamento, Distrito, Provincia } from '../../../core/interfaces/ubigeo.interface';
 import { CambiarContraService } from '../../../core/services/cambiar-contra.service';
+import { LoadingService } from '../../../shared/services/loading.service';
 
 
 @Component({
@@ -85,7 +86,8 @@ export class CrearUsuarioComponent implements OnInit {
     private dialogService: DialogService,
     private registroUsuarioService: RegistroUsuarioService,
     private messageService: MessageService,
-    private cambiarContraService: CambiarContraService
+    private cambiarContraService: CambiarContraService,
+    private loadingService: LoadingService
   ) {
     this.registroForm = this.fb.group({
       nombres: ['', Validators.required],
@@ -333,10 +335,12 @@ setupProvinciaListener(): void {
    * Envía el código de verificación al correo del usuario
    */
   enviarCodigoVerificacion(): void {
+    this.loadingService.show();
     this.enviandoCodigo = true;
 
     this.cambiarContraService.putOlvidoContrasena(this.correoAVerificar).subscribe({
       next: (response) => {
+        this.loadingService.hide();
         this.enviandoCodigo = false;
         if (response.ok) {
           this.codigoEnviado = true;
@@ -347,6 +351,7 @@ setupProvinciaListener(): void {
         }
       },
       error: (error) => {
+        this.loadingService.hide();
         this.enviandoCodigo = false;
         this.messageService.error('Error al enviar el código de verificación');
         console.error('Error:', error);
@@ -364,10 +369,12 @@ setupProvinciaListener(): void {
       return;
     }
 
+    this.loadingService.show();
     this.verificandoCodigo = true;
 
     this.cambiarContraService.postValidaCodigo(this.correoAVerificar, codigo).subscribe({
       next: (response) => {
+        this.loadingService.hide();
         this.verificandoCodigo = false;
         if (response.ok) {
           this.messageService.success('Código verificado correctamente');
@@ -378,6 +385,7 @@ setupProvinciaListener(): void {
         }
       },
       error: (error) => {
+        this.loadingService.hide();
         this.verificandoCodigo = false;
         this.messageService.error('Error al validar el código');
         console.error('Error:', error);
@@ -496,8 +504,10 @@ setupProvinciaListener(): void {
       }
     }
 
+    this.loadingService.show();
     this.registroUsuarioService.postRegistro(usuario).subscribe({
       next: (response: any) => {
+        this.loadingService.hide();
         // Verificar si la respuesta tiene la estructura esperada
         if (response && typeof response === 'object') {
           if (response.ok && response.data && response.data.exito) {
@@ -520,6 +530,7 @@ setupProvinciaListener(): void {
         }
       },
       error: (error) => {
+        this.loadingService.hide();
         let mensajeError = 'Error en el registro';
 
         // Si el error tiene estructura de respuesta HTTP
