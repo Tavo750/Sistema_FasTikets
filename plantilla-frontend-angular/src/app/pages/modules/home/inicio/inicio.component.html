@@ -184,10 +184,12 @@
               styleClass="evento-btn-detalle">
             </p-button>
             <p-button
-              icon="pi pi-heart"
-              (onClick)="agregarAFavoritos(evento.id)"
+              [icon]="evento.esFavorito ? 'pi pi-heart-fill' : 'pi pi-heart'"
+              (onClick)="toggleFavorito(evento, $event)"
               styleClass="evento-btn-comprar"
-              severity="danger">
+              [severity]="evento.esFavorito ? 'danger' : 'secondary'"
+              [pTooltip]="evento.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+              tooltipPosition="top">
             </p-button>
           </div>
         </ng-template>

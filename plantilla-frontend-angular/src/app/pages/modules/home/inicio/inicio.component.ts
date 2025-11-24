@@ -32,6 +32,7 @@ export class InicioComponent implements OnInit, OnDestroy {
   imagenPorDefecto: string = 'img/logo/concierto.jpg';
   searchTerm: string = '';
   private searchSubscription!: Subscription;
+  eventosFavoritos: Set<number> = new Set();
 
   // Nuevas propiedades para PrimeNG
   categoriasDropdown: DropdownOption[] = [];
@@ -61,6 +62,7 @@ export class InicioComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.cargarFavoritos();
     this.cargarEventos();
 
     // Suscribirse a los cambios de búsqueda
@@ -144,7 +146,8 @@ export class InicioComponent implements OnInit, OnDestroy {
       lugar: eventoData.nombreLocal || 'Lugar no especificado',
       categoria: eventoData.tipoEvento,
       precio: this.obtenerPrecioDesde(eventoData.idEvento), // Precio dinámico o valor por defecto
-      imagen: imagenUrl
+      imagen: imagenUrl,
+      esFavorito: this.eventosFavoritos.has(eventoData.idEvento)
     };
   }
 
@@ -288,27 +291,88 @@ export class InicioComponent implements OnInit, OnDestroy {
     evento.imagen = this.imagenPorDefecto;
   }
 
-  agregarAFavoritos(eventoId: number): void {
-    this.favoritosService.PostAgregaEventoFavorito(eventoId).subscribe({
+  cargarFavoritos(): void {
+    this.favoritosService.GetListarEventoFavorito().subscribe({
       next: (response) => {
-        if (response.ok) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: 'Evento agregado a favoritos',
-            life: 1000
-          });
+        if (response.ok && response.data) {
+          this.eventosFavoritos = new Set(response.data.map(fav => fav.idEvento));
+          // Actualizar el estado de favoritos en los eventos ya cargados
+          this.actualizarEstadoFavoritos();
         }
       },
       error: (error) => {
-        console.error('Error al agregar a favoritos:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.mensaje || 'No se pudo agregar el evento a favoritos',
-          life: 1000
-        });
+        console.error('Error al cargar favoritos:', error);
       }
     });
+  }
+
+  actualizarEstadoFavoritos(): void {
+    this.eventos.forEach(evento => {
+      evento.esFavorito = this.eventosFavoritos.has(evento.id);
+    });
+    this.eventosFiltrados.forEach(evento => {
+      evento.esFavorito = this.eventosFavoritos.has(evento.id);
+    });
+  }
+
+  toggleFavorito(evento: Evento, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    const eventoId = evento.id;
+    const esFavorito = this.eventosFavoritos.has(eventoId);
+
+    if (esFavorito) {
+      // Quitar de favoritos
+      this.favoritosService.DeleteEliminaEventoFavorito(eventoId).subscribe({
+        next: (response) => {
+          if (response.ok) {
+            this.eventosFavoritos.delete(eventoId);
+            evento.esFavorito = false;
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Eliminado',
+              detail: 'Evento eliminado de favoritos',
+              life: 1000
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error al eliminar de favoritos:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error?.mensaje || 'No se pudo eliminar el evento de favoritos',
+            life: 1000
+          });
+        }
+      });
+    } else {
+      // Agregar a favoritos
+      this.favoritosService.PostAgregaEventoFavorito(eventoId).subscribe({
+        next: (response) => {
+          if (response.ok) {
+            this.eventosFavoritos.add(eventoId);
+            evento.esFavorito = true;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Evento agregado a favoritos',
+              life: 1000
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error al agregar a favoritos:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error?.mensaje || 'No se pudo agregar el evento a favoritos',
+            life: 1000
+          });
+        }
+      });
+    }
   }
 }
