@@ -25,6 +25,10 @@ import { PrimeNgModule } from '../../../prime-ng/prime-ng.module';
     CrearUsuarioRoutingModule,
     PrimeNgModule
   ],
-  providers: [DialogService]
+  providers: [DialogService],
+  exports: [
+    DialogTerminosComponent,
+    DialogPoliticaComponent
+  ]
 })
 export class CrearUsuarioModule { }

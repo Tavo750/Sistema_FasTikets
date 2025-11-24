@@ -7,6 +7,9 @@ import { FavoritosService } from '../../../../core/services/favoritos.service';
 import { MessageService } from 'primeng/api';
 import { SearchService } from '../../../../shared/services/search.service';
 import { Subscription } from 'rxjs';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogTerminosComponent } from '../../../full-pages/crear-usuario/dialog-terminos/dialog-terminos.component';
+import { DialogPoliticaComponent } from '../../../full-pages/crear-usuario/dialog-politica/dialog-politica.component';
 
 interface DropdownOption {
   label: string;
@@ -58,7 +61,8 @@ export class InicioComponent implements OnInit, OnDestroy {
     private eventoService: EventoService,
     private favoritosService: FavoritosService,
     private messageService: MessageService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {
@@ -374,5 +378,31 @@ export class InicioComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  abrirDialogTerminos(event: Event) {
+    event.preventDefault();
+    this.dialogService.open(DialogTerminosComponent, {
+      header: 'Términos y Condiciones',
+      width: '70%',
+      modal: true,
+      breakpoints: {
+        '960px': '90%',
+        '640px': '95%'
+      }
+    });
+  }
+
+  abrirDialogPolitica(event: Event) {
+    event.preventDefault();
+    this.dialogService.open(DialogPoliticaComponent, {
+      header: 'Política de Privacidad',
+      width: '70%',
+      modal: true,
+      breakpoints: {
+        '960px': '90%',
+        '640px': '95%'
+      }
+    });
   }
 }
