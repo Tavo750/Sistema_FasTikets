@@ -1,5 +1,6 @@
 package pe.edu.pucp.fasticket.model.compra;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "carrocompras") // Coincide con CREATE TABLE CarroCompras
+@Table(name = "CarroCompras") // Coincide con CREATE TABLE CarroCompras
 public class CarroCompras {
 
     @Id
@@ -20,13 +21,13 @@ public class CarroCompras {
     private Integer idCarroCompra;
 
     // Atributos de Auditoría y Control
-    @Column(name = "usuario_creacion")
+    @Column(name = "usuarioCreacion")
     private Integer usuarioCreacion;
-    @Column(name = "fecha_creacion")
+    @Column(name = "fechaCreacion")
     private LocalDateTime fechaCreacion;
-    @Column(name = "usuario_actualizacion")
+    @Column(name = "usuarioActualizacion")
     private Integer usuarioActualizacion;
-    @Column(name = "fecha_actualizacion")
+    @Column(name = "fechaActualizacion")
     private LocalDateTime fechaActualizacion;
     @Column(name = "activo")
     private Boolean activo;
@@ -38,13 +39,14 @@ public class CarroCompras {
     @Column(name = "total")
     private Double total;
 
-    // Relación OneToOne con Cliente (Inversa a la relación en Cliente)
-    // Asumimos que CarroCompras tiene una FK a Cliente, aunque no está explícita en tu script
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_persona") // Asumimos una FK a persona en esta tabla
+    @OneToOne
+    @JoinColumn(name="idCliente", nullable=false)
     private Cliente cliente;
 
-    // Relación OneToMany con ItemCarrito
-    @OneToMany(mappedBy = "carroCompra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "carroCompras", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private OrdenCompra ordenCompra;
+
+    @OneToMany(mappedBy = "carroCompras", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemCarrito> items;
+
 }
