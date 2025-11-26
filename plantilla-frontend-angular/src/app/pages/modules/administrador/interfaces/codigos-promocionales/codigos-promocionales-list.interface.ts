@@ -13,4 +13,5 @@ export interface Data {
     valor:               number;
     stock:               number;
     cantidadPorCliente:  number;
+    activo:              boolean;
 }

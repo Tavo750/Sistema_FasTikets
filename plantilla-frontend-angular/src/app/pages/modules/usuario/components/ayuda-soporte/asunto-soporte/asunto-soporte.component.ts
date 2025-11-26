@@ -76,24 +76,48 @@ export class AsuntoSoporteComponent {
 
   enviarCorreo(form?: NgForm): void {
     console.log('enviarCorreo called', { asunto: this.asunto, mensaje: this.mensaje });
-    // Debug rápido: mostrar toast informativo para confirmar que el handler se ejecutó
-    this.messageService.add({ severity: 'info', summary: 'Envío', detail: 'Procesando solicitud...' });
 
     // Si se pasa el formulario, validar su estado
     if (form && !form.valid) {
       // marcar controles como tocados para mostrar errores inline
       Object.values(form.controls).forEach(control => control.markAsTouched());
-      // Mostrar un toast general para campos obligatorios vacíos
-      this.messageService.add({ severity: 'warn', summary: 'Formulario incompleto', detail: 'Por favor completa los campos obligatorios.' });
+      
+      // Construir mensaje de campos faltantes
+      let camposFaltantes: string[] = [];
+      if (!this.asunto || this.asunto.trim().length < 3) {
+        camposFaltantes.push('Asunto (mínimo 3 caracteres)');
+      }
+      if (!this.mensaje || this.mensaje.trim().length < 5) {
+        camposFaltantes.push('Mensaje (mínimo 5 caracteres)');
+      }
+      
+      const mensajeDetallado = camposFaltantes.length > 0 
+        ? `Por favor completa los siguientes campos: ${camposFaltantes.join(', ')}`
+        : 'Por favor completa todos los campos obligatorios.';
+      
+      // Mostrar toast de advertencia en lugar de alert
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Campos incompletos', 
+        detail: mensajeDetallado,
+        life: 5000
+      });
       return;
     }
 
     // Validación extra por si se llama programáticamente
     if (!this.validarAsunto(this.asunto)) {
-      // Usar MessageService para mostrar el aviso en el p-toast global en lugar de alert()
-      this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'El asunto no es válido. Usa al menos 3 caracteres y evita símbolos raros.' });
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Asunto inválido', 
+        detail: 'El asunto debe tener al menos 3 caracteres y no contener símbolos especiales.',
+        life: 5000
+      });
       return;
     }
+    
+    // Mostrar toast informativo solo después de validar
+    this.messageService.add({ severity: 'info', summary: 'Envío', detail: 'Procesando solicitud...' });
 
     // Construir el body según la API observada en Postman
     const currentUser = this.sessionService.getCurrentUser();
