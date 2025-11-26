@@ -108,23 +108,24 @@
       </div>
     </div>
 
-    <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')">
+    <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')" data-testid="cart-btn">
       <i class="pi pi-shopping-cart"></i>
       <span class="action-label">Carrito</span>
-      <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+      <span id="cart-badge" class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
     </button>
 
-    <button class="action-btn" (click)="abrirFavoritos()">
+    <button class="action-btn" (click)="abrirFavoritos()" data-testid="favorites-btn">
       <i class="pi pi-heart"></i>
       <span class="action-label">Favoritos</span>
+      <span id="favorites-badge" class="favorites-badge" *ngIf="contadorFavoritos > 0">{{ contadorFavoritos }}</span>
     </button>
 
     <!-- Opciones para usuario autenticado -->
     <ng-container *ngIf="usuario">
-      <button class="action-btn notification-btn">
+      <button class="action-btn notification-btn" data-testid="notification-btn">
         <i class="pi pi-bell"></i>
         <span class="action-label desktop-only">Notificaciones</span>
-        <span class="notification-badge" *ngIf="notificationCount > 0">
+        <span id="notification-badge" class="notification-badge" *ngIf="notificationCount > 0">
           {{ notificationCount }}
         </span>
       </button>
@@ -137,7 +138,13 @@
           shape="circle"
           class="imagen"
         />
-        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+        <p-menu 
+          #menu 
+          [model]="menuItems" 
+          [popup]="true" 
+          appendTo="body"
+          [styleClass]="'custom-user-menu'"
+        />
       </div>
     </ng-container>
 

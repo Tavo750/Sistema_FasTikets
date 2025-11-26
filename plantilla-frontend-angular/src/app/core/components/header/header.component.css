@@ -278,6 +278,7 @@
   transition: background-color 0.2s ease;
   color: #1f2937;
   font-size: 0.95rem;
+  position: relative; /* Asegurar posicionamiento para badges */
 }
 
 .action-btn:hover {
@@ -338,6 +339,33 @@
   text-align: center;
 }
 
+/* Badge de favoritos */
+.favorites-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.35rem;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Asegurar que SOLO el botón de favoritos tenga el badge */
+.action-btn:not([data-testid="favorites-btn"]) .favorites-badge {
+  display: none !important;
+}
+
+/* Posicionamiento específico para el botón de favoritos */
+.action-btn[data-testid="favorites-btn"] {
+  position: relative;
+}
+
 /* Avatar */
 .perfil {
   display: flex;
@@ -345,6 +373,7 @@
   margin-left: 0.5rem;
   padding-left: 0.5rem;
   border-left: 1px solid #e5e7eb;
+  position: relative;
 }
 
 .imagen {
@@ -354,6 +383,115 @@
 
 .imagen:hover {
   opacity: 0.8;
+}
+
+/* Estilos para el menú de usuario */
+::ng-deep .custom-user-menu {
+  min-width: 200px;
+}
+
+::ng-deep .custom-user-menu .p-menu-list {
+  padding: 0.5rem 0;
+}
+
+::ng-deep .custom-user-menu .p-menuitem-link {
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .custom-user-menu .p-menuitem-link:hover {
+  background-color: #f3f4f6;
+}
+
+/* Eliminar cualquier badge o contador del menú de usuario */
+::ng-deep .custom-user-menu .p-badge,
+::ng-deep .custom-user-menu .p-menuitem-badge,
+::ng-deep .perfil .p-badge,
+::ng-deep .perfil .p-component-badge,
+::ng-deep .perfil .p-avatar-badge,
+::ng-deep .perfil .favorites-badge,
+::ng-deep .perfil .cart-badge,
+::ng-deep .perfil .notification-badge {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Asegurar que no haya badges en el avatar */
+::ng-deep .perfil p-avatar .p-badge,
+::ng-deep .perfil p-avatar::after,
+::ng-deep .perfil p-avatar::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Eliminar cualquier pseudo-elemento que pueda mostrar números */
+.perfil::after,
+.perfil::before,
+.perfil p-avatar::after,
+.perfil p-avatar::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Forzar que solo existan badges dentro de botones específicos */
+.favorites-badge,
+.cart-badge,
+.notification-badge {
+  display: none !important;
+}
+
+/* Solo mostrar badge de favoritos en el botón correcto */
+.action-btn[data-testid="favorites-btn"] .favorites-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #e74c3c !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Solo mostrar badge de carrito en el botón correcto */
+.action-btn[data-testid="cart-btn"] .cart-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #f59e0b !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Solo mostrar badge de notificaciones en el botón correcto */
+.action-btn[data-testid="notification-btn"] .notification-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #ef4444 !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
 }
 
 /* Responsive */

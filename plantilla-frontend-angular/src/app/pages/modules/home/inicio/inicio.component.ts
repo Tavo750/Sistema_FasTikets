@@ -6,6 +6,8 @@ import { Data } from '../../administrador/interfaces/gestion-evento/evento.inter
 import { FavoritosService } from '../../../../core/services/favoritos.service';
 import { MessageService } from 'primeng/api';
 import { SearchService } from '../../../../shared/services/search.service';
+import { SessionService } from '../../../../shared/services/session.service';
+import { FavoritosStateService } from '../../../../shared/services/favoritos-state.service';
 import { Subscription } from 'rxjs';
 
 interface DropdownOption {
@@ -51,13 +53,18 @@ export class InicioComponent implements OnInit, OnDestroy {
   ubicacionSeleccionada: string | null = null;
   fechaSeleccionada: Date | null = null;
   ordenSeleccionado: string = 'relevancia';
+  
+  // Variables para favoritos
+  cargandoFavoritos: boolean = false;
 
   constructor(
     private router: Router,
     private eventoService: EventoService,
     private favoritosService: FavoritosService,
+    private favoritosStateService: FavoritosStateService,
     private messageService: MessageService,
-    private searchService: SearchService
+    private searchService: SearchService,
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +75,9 @@ export class InicioComponent implements OnInit, OnDestroy {
       this.searchTerm = term;
       this.aplicarFiltros();
     });
+    
+    // Asegurar que el servicio de favoritos esté inicializado
+    // Esto se hace automáticamente por la inyección de dependencias
   }
 
   ngOnDestroy(): void {
@@ -288,27 +298,52 @@ export class InicioComponent implements OnInit, OnDestroy {
     evento.imagen = this.imagenPorDefecto;
   }
 
-  agregarAFavoritos(eventoId: number): void {
-    this.favoritosService.PostAgregaEventoFavorito(eventoId).subscribe({
-      next: (response) => {
-        if (response.ok) {
+  /**
+   * Verifica si un evento está en favoritos
+   */
+  esFavorito(eventoId: number): boolean {
+    return this.favoritosStateService.esFavorito(eventoId);
+  }
+
+  /**
+   * Alterna el estado de favorito de un evento
+   */
+  toggleFavorito(eventoId: number, event: Event): void {
+    event.stopPropagation(); // Evitar que se ejecute el click del card
+    
+    // Verificar si hay usuario autenticado
+    const usuario = this.sessionService.getCurrentUser();
+    if (!usuario) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Debes iniciar sesión para agregar favoritos',
+        life: 3000
+      });
+      return;
+    }
+
+    this.favoritosStateService.toggleFavorito(eventoId).subscribe({
+      next: ({ agregado, exito }) => {
+        if (exito) {
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
-            detail: 'Evento agregado a favoritos',
-            life: 3000
+            detail: agregado ? 'Evento agregado a favoritos' : 'Evento eliminado de favoritos',
+            life: 1000
           });
         }
       },
       error: (error) => {
-        console.error('Error al agregar a favoritos:', error);
+        console.error('Error al manejar favorito:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: error.error?.mensaje || 'No se pudo agregar el evento a favoritos',
+          detail: error.error?.mensaje || 'No se pudo procesar la acción',
           life: 3000
         });
       }
     });
   }
+
 }

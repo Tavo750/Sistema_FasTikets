@@ -22,7 +22,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de éxito
    */
-  success(message: string, summary: string = 'Éxito', life: number = 4000): void {
+  success(message: string, summary: string = 'Éxito', life: number = 1000): void {
     this.add({
       severity: 'success',
       summary,
@@ -34,7 +34,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de información
    */
-  info(message: string, summary: string = 'Información', life: number = 4000): void {
+  info(message: string, summary: string = 'Información', life: number = 1000): void {
     this.add({
       severity: 'info',
       summary,
@@ -46,7 +46,7 @@ export class MessageService {
   /**
    * Muestra un mensaje de advertencia
    */
-  warn(message: string, summary: string = 'Advertencia', life: number = 4000): void {
+  warn(message: string, summary: string = 'Advertencia', life: number = 1000): void {
     this.add({
       severity: 'warn',
       summary,

@@ -102,10 +102,10 @@
 }
 
 :host ::ng-deep .p-tag.severity-error {
-    background-color: #e83e8c !important; /* Rosado */
+    background-color: #dc3545 !important; /* Rojo */
     color: white !important;
     font-weight: 600 !important;
-    border: 1px solid #e83e8c !important;
+    border: 1px solid #dc3545 !important;
 }
 
 :host ::ng-deep .p-tag.severity-warn {
