@@ -102,6 +102,13 @@
                 <p-sortIcon field="verificado"></p-sortIcon>
               </div>
             </th>
+            <th pSortableColumn="activo">
+              <div class="header-content">
+                <i class="pi pi-power-off"></i>
+                Estado
+                <p-sortIcon field="activo"></p-sortIcon>
+              </div>
+            </th>
             <th class="actions-column">
               <div class="header-content">
                 <i class="pi pi-cog"></i>
@@ -130,6 +137,13 @@
                 [value]="cliente.verificado ? 'Verificado' : 'No Verificado'"
                 [severity]="cliente.verificado ? 'success' : 'warning'"
                 [icon]="cliente.verificado ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'">
+              </p-tag>
+            </td>
+            <td class="status-cell">
+              <p-tag 
+                [value]="cliente.activo ? 'Activo' : 'Inactivo'"
+                [severity]="cliente.activo ? 'success' : 'danger'"
+                [icon]="cliente.activo ? 'pi pi-check' : 'pi pi-times'">
               </p-tag>
             </td>
             <td class="actions-cell">
@@ -273,6 +287,14 @@
         [value]="clienteSeleccionado.verificado ? 'Verificado' : 'No Verificado'"
         [severity]="clienteSeleccionado.verificado ? 'success' : 'warning'"
         [icon]="clienteSeleccionado.verificado ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'">
+      </p-tag>
+    </div>
+    <div class="detalle-row">
+      <span class="detalle-label">Estado:</span>
+      <p-tag 
+        [value]="clienteSeleccionado.activo ? 'Activo' : 'Inactivo'"
+        [severity]="clienteSeleccionado.activo ? 'success' : 'danger'"
+        [icon]="clienteSeleccionado.activo ? 'pi pi-check' : 'pi pi-times'">
       </p-tag>
     </div>
     <div class="detalle-row">

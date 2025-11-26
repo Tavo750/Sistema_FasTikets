@@ -22,6 +22,7 @@ interface Cliente {
   nivel: string;
   puntosAcumulados: number;
   verificado: boolean;
+  activo: boolean;
   departamento?: string;
   distrito?: string;
   rol?: string;
