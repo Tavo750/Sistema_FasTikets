@@ -69,7 +69,6 @@ export class BeneficiosComponent implements OnInit {
   // Beneficios (mock)
   benefitsByTier: Record<Tier, string[]> = {
     BRONCE: [
-      'Descuento del 0% en compras',
       'Acceso a preventas seleccionadas',
       'Soporte estándar',
       'Acumulación de puntos'
