@@ -6,6 +6,8 @@ import { AyudaSoporteService } from '../../../usuario/services/ayuda-soporte.ser
 import { AyudaSoporteListItem, AyudaSoporteListResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 import { AyudaSoporteAdmiObtenerIdResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
 import { AyudaSoporteAdmiModificarResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
+import { SessionService } from '../../../../../shared/services/session.service';
+import { PerfilAdministradorService } from '../../services/perfil-administrador.service';
 
 interface Cliente {
   idCliente: number;
@@ -43,6 +45,7 @@ export class GestionClientesComponent implements OnInit {
   searchValue: string = '';
   loading: boolean = false;
   totalRecords: number = 0;
+  isAdministradorGeneral: boolean = false;
 
   // Ayuda y soporte global
   mostrarDialogAyudaGlobal: boolean = false;
@@ -68,11 +71,32 @@ export class GestionClientesComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private gestionClientesService: GestionClientesService,
-    private ayudaSoporteService: AyudaSoporteService
+    private ayudaSoporteService: AyudaSoporteService,
+    private sessionService: SessionService,
+    private perfilAdministradorService: PerfilAdministradorService
   ) {}
 
   ngOnInit(): void {
+    this.verificarPermisos();
     this.cargarClientes();
+  }
+
+  private verificarPermisos(): void {
+    const currentUser = this.sessionService.getCurrentUser();
+    if (currentUser && currentUser.rol === 'ADMINISTRADOR') {
+      this.perfilAdministradorService.getPerfilAdministrador(currentUser.idUsuario).subscribe({
+        next: (response) => {
+          if (response && response.ok && response.data) {
+            this.isAdministradorGeneral = response.data.cargo === 'Administrador General';
+            console.log('Cargo del administrador:', response.data.cargo);
+            console.log('Es Administrador General:', this.isAdministradorGeneral);
+          }
+        },
+        error: (error) => {
+          console.error('Error al verificar permisos:', error);
+        }
+      });
+    }
   }
 
   cargarClientes(): void {
@@ -455,5 +479,9 @@ export class GestionClientesComponent implements OnInit {
   limpiarFiltrosGlobales(): void {
     this.searchSolicitudesGlobales = '';
     this.filterEstadoGlobal = null;
+  }
+
+  cambiarAAdmin(cliente: Cliente): void {
+    this.router.navigate(['/administrador/gestionClientes/cambiar-a-admin', cliente.idCliente]);
   }
 }
