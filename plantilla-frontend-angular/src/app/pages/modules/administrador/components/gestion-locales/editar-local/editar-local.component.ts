@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LocalService } from '../../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 import { ListarLocalesResponse, Data } from '../../../interfaces/gestion-locales/local.interface';
 import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
@@ -33,7 +34,6 @@ localForm: FormGroup;
   private autocompleteService!: any;
   mapLoading = true;
   localId!: number; // ID del local a editar
-  isLoading = false; // Para mostrar estado de carga
 
   // Coordenadas por defecto (Lima, Perú)
   private defaultLat = GOOGLE_MAPS_CONFIG.defaultCenter.lat;
@@ -61,7 +61,8 @@ localForm: FormGroup;
       private fb: FormBuilder,
       private localService: LocalService,
       private customMessageService: CustomMessageService,
-      private registroUsuarioService: RegistroUsuarioService
+      private registroUsuarioService: RegistroUsuarioService,
+      private loadingService: LoadingService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
@@ -93,7 +94,7 @@ localForm: FormGroup;
    * Carga los datos del local existente para edición
    */
   private cargarDatosLocal(): void {
-    this.isLoading = true;
+    this.loadingService.show();
     this.customMessageService.info('Cargando datos del local...', 'Cargando');
 
     // Primero necesitamos obtener la lista de locales y encontrar el que coincida con el ID
@@ -109,17 +110,18 @@ localForm: FormGroup;
           } else {
             this.customMessageService.error('No se encontró el local especificado', 'Error');
             this.router.navigate(['/administrador/gestionLocales']);
+            this.loadingService.hide();
           }
         } else {
           this.customMessageService.error('No se pudieron cargar los locales', 'Error');
           this.router.navigate(['/administrador/gestionLocales']);
+          this.loadingService.hide();
         }
-        this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error al cargar los datos del local:', error);
         this.customMessageService.error('Error al cargar los datos del local', 'Error');
-        this.isLoading = false;
+        this.loadingService.hide();
       }
     });
   }
@@ -153,6 +155,7 @@ localForm: FormGroup;
                   estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
                 });
                 this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+                this.loadingService.hide();
               }
               return;
             }
@@ -197,6 +200,7 @@ localForm: FormGroup;
                                   estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
                                 });
                                 this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+                                this.loadingService.hide();
                               }, 300);
                             }, 300);
                           } else {
@@ -231,6 +235,7 @@ localForm: FormGroup;
       error: (error) => {
         console.error('Error al cargar departamentos:', error);
         this.customMessageService.error('Error al cargar los datos de ubicación', 'Error');
+        this.loadingService.hide();
       }
     });
   }
@@ -559,7 +564,7 @@ localForm: FormGroup;
       idDistrito: formData.idDistrito
     };
 
-    this.isLoading = true;
+    this.loadingService.show();
     this.customMessageService.info('Actualizando datos del local...', 'Procesando');
 
     // Llamar al servicio para actualizar el local
@@ -580,7 +585,7 @@ localForm: FormGroup;
         } else {
           this.customMessageService.error(response.mensaje || 'Error al actualizar el local', 'Error');
         }
-        this.isLoading = false;
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error al actualizar el local:', error);
@@ -588,7 +593,7 @@ localForm: FormGroup;
           'Error al actualizar el local. Por favor, inténtelo de nuevo.',
           'Error de conexión'
         );
-        this.isLoading = false;
+        this.loadingService.hide();
       }
     });
   }

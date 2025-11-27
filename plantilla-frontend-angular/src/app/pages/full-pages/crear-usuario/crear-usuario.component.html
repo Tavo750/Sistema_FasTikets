@@ -23,110 +23,179 @@
     <p class="subtitle">Regístrate y accede a muchos beneficios</p>
 
     <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
-      <input type="text" placeholder="Nombres *" formControlName="nombres" required>
-      <input type="text" placeholder="Apellidos *" formControlName="apellidos" required>
-      <input type="email" placeholder="Correo Electrónico *" formControlName="correo" required>
-      <input type="password" placeholder="Contraseña *" formControlName="contrasena" required>
-      <input type="password" placeholder="Repita Contraseña *" formControlName="repitaContrasena" required>
+      <!-- Nombres -->
+      <p-floatlabel>
+        <input pInputText id="nombres" formControlName="nombres" class="w-full" />
+        <label for="nombres">Nombres *</label>
+      </p-floatlabel>
+
+      <!-- Apellidos -->
+      <p-floatlabel>
+        <input pInputText id="apellidos" formControlName="apellidos" class="w-full" />
+        <label for="apellidos">Apellidos *</label>
+      </p-floatlabel>
+
+      <!-- Correo -->
+      <p-floatlabel>
+        <input pInputText id="correo" type="email" formControlName="correo" class="w-full" />
+        <label for="correo">Correo Electrónico *</label>
+      </p-floatlabel>
+
+      <!-- Contraseña -->
+      <p-floatlabel>
+        <p-password
+          id="contrasena"
+          formControlName="contrasena"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full">
+        </p-password>
+        <label for="contrasena">Contraseña *</label>
+      </p-floatlabel>
+
+      <!-- Repetir Contraseña -->
+      <p-floatlabel>
+        <p-password
+          id="repitaContrasena"
+          formControlName="repitaContrasena"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full">
+        </p-password>
+        <label for="repitaContrasena">Repita Contraseña *</label>
+      </p-floatlabel>
 
       <div class="form-row">
+        <!-- Fecha de Nacimiento -->
         <div class="form-group form-group-date">
-          <input 
-            type="date" 
-            placeholder="Fecha de nacimiento *" 
-            formControlName="fechaNacimiento" 
-            [max]="fechaMaxima"
-            required>
-          <div class="error-message" *ngIf="registroForm.get('fechaNacimiento')?.invalid && registroForm.get('fechaNacimiento')?.touched">
-            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('required')" class="error-text">
-              La fecha de nacimiento es requerida
-            </small>
-            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('fechaFutura')" class="error-text">
-              La fecha de nacimiento no puede ser futura
-            </small>
-            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('edadMinima')" class="error-text">
-              Debes ser mayor de 15 años para registrarte
-            </small>
-          </div>
+          <p-floatlabel>
+            <p-datepicker
+              id="fechaNacimiento"
+              formControlName="fechaNacimiento"
+              dateFormat="dd/mm/yy"
+              [showIcon]="true"
+              iconDisplay="input"
+              [maxDate]="maxDate"
+              styleClass="w-full"
+              inputStyleClass="w-full">
+            </p-datepicker>
+            <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+          </p-floatlabel>
         </div>
 
         <!-- Departamento -->
         <div class="form-group form-group-departamento">
-          <select
-            id="departamento"
-            placeholder="Departamento *"
-            formControlName="departamento"
-            class="form-control">
-            <option value="">Departamento *</option>
-            <option *ngFor="let dep of departamentos" [value]="dep.idDepartamento">
-              {{ dep.nombre }}
-            </option>
-          </select>
+          <p-floatlabel>
+            <p-select
+              id="departamento"
+              formControlName="departamento"
+              [options]="departamentos"
+              optionLabel="nombre"
+              optionValue="idDepartamento"
+              placeholder="Seleccione"
+              styleClass="w-full">
+            </p-select>
+            <label for="departamento">Departamento *</label>
+          </p-floatlabel>
         </div>
 
         <!-- Provincia -->
         <div class="form-group form-group-provincia">
-          <select
-            id="provincia"
-            placeholder="Provincia *"
-            formControlName="provincia"
-            class="form-control"
-            [disabled]="!provincias.length || loadingProvincias">
-            <option value="">
-              {{ loadingProvincias ? 'Cargando...' : 'Provincia *' }}
-            </option>
-            <option *ngFor="let prov of provincias" [value]="prov.idProvincia">
-              {{ prov.nombre }}
-            </option>
-          </select>
+          <p-floatlabel>
+            <p-select
+              id="provincia"
+              formControlName="provincia"
+              [options]="provincias"
+              optionLabel="nombre"
+              optionValue="idProvincia"
+              [disabled]="!provincias.length || loadingProvincias"
+              [placeholder]="loadingProvincias ? 'Cargando...' : 'Seleccione'"
+              styleClass="w-full">
+            </p-select>
+            <label for="provincia">Provincia *</label>
+          </p-floatlabel>
         </div>
 
         <!-- Distrito -->
         <div class="form-group form-group-distrito">
-          <select
-            id="distrito"
-            placeholder="Distrito *"
-            formControlName="distrito"
-            class="form-control"
-            [disabled]="!distritos.length || loadingDistritos">
-            <option value="">
-              {{ loadingDistritos ? 'Cargando...' : 'Distrito *' }}
-            </option>
-            <option *ngFor="let dist of distritos" [value]="dist.idDistrito">
-              {{ dist.nombre }}
-            </option>
-          </select>
+          <p-floatlabel>
+            <p-select
+              id="distrito"
+              formControlName="distrito"
+              [options]="distritos"
+              optionLabel="nombre"
+              optionValue="idDistrito"
+              [disabled]="!distritos.length || loadingDistritos"
+              [placeholder]="loadingDistritos ? 'Cargando...' : 'Seleccione'"
+              styleClass="w-full">
+            </p-select>
+            <label for="distrito">Distrito *</label>
+          </p-floatlabel>
         </div>
       </div>
 
-      <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>
+      <!-- Dirección -->
+      <p-floatlabel>
+        <input pInputText id="direccion" formControlName="direccion" class="w-full" />
+        <label for="direccion">Dirección domiciliaria *</label>
+      </p-floatlabel>
 
       <div class="form-row">
+        <!-- Teléfono -->
         <div class="form-group form-group-telefono">
-          <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"
-                 maxlength="9"
-                 (keypress)="onlyNumbers($event)"
-                 (paste)="onPaste($event, 'telefono')"
-                 required>
+          <p-floatlabel>
+            <input
+              pInputText
+              id="telefono"
+              formControlName="telefono"
+              maxlength="9"
+              (keypress)="onlyNumbers($event)"
+              (paste)="onPaste($event, 'telefono')"
+              class="w-full" />
+            <label for="telefono">Número de Teléfono *</label>
+          </p-floatlabel>
         </div>
+
+        <!-- Tipo de Documento -->
         <div class="form-group form-group-tipo-doc">
-          <select formControlName="tipoDocumento" required>
-            <option value="">Tipo de Documento *</option>
-            <option value="DNI">DNI</option>
-            <option value="PASAPORTE">Pasaporte</option>
-            <option value="ce">Carnet de Extranjería</option>
-          </select>
+          <p-floatlabel>
+            <p-select
+              id="tipoDocumento"
+              formControlName="tipoDocumento"
+              [options]="tiposDocumentoOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccione"
+              styleClass="w-full">
+            </p-select>
+            <label for="tipoDocumento">Tipo de Documento *</label>
+          </p-floatlabel>
         </div>
+
+        <!-- Número de Documento -->
         <div class="form-group form-group-num-doc">
-          <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"
-                 maxlength="8"
-                 (keypress)="onlyNumbers($event)"
-                 (paste)="onPaste($event, 'numeroDocumento')"
-                 required>
+          <p-floatlabel>
+            <input
+              pInputText
+              id="numeroDocumento"
+              formControlName="numeroDocumento"
+              maxlength="8"
+              (keypress)="onlyNumbers($event)"
+              (paste)="onPaste($event, 'numeroDocumento')"
+              class="w-full" />
+            <label for="numeroDocumento">Número de Documento *</label>
+          </p-floatlabel>
         </div>
       </div>
 
-      <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>
+      <p-button
+        type="button"
+        label="Continuar"
+        (onClick)="onSubmit()"
+        styleClass="w-full btn-login">
+      </p-button>
 
       <p class="terms-text">
         Al registrarse acepta los <a href="#" (click)="mostrarTerminos($event)">Términos del Servicio</a><br>
@@ -137,56 +206,61 @@
 
 </div>
 
-<!-- Modal de Verificación de Correo -->
-<div class="modal-overlay" *ngIf="mostrarModalVerificacion" (click)="cerrarModalVerificacion()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>Verificación de Correo</h2>
-      <button class="btn-close" (click)="cerrarModalVerificacion()">×</button>
+<!-- Modal de Verificación de Correo con PrimeNG -->
+<p-dialog
+  [(visible)]="mostrarModalVerificacion"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Verificación de Correo"
+  styleClass="modal-verificacion"
+  [style]="{width: '450px'}"
+  (onHide)="cerrarModalVerificacion()">
+
+  <div class="modal-body">
+    <p class="modal-description">
+      Hemos enviado un código de verificación a <strong>{{ correoAVerificar }}</strong>
+    </p>
+
+    <div class="codigo-input-container">
+      <label for="codigo-0">Ingrese el código de verificación:</label>
+      <div class="codigo-boxes">
+        <input
+          pInputText
+          *ngFor="let digit of codigoDigitos; let i = index"
+          type="text"
+          [id]="'codigo-' + i"
+          [value]="codigoDigitos[i]"
+          (keypress)="onCodigoKeypress($event, i)"
+          (keydown)="onCodigoKeydown($event, i)"
+          (paste)="onCodigoPaste($event, i)"
+          [disabled]="verificandoCodigo"
+          maxlength="1"
+          class="codigo-box"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="off">
+      </div>
     </div>
 
-    <div class="modal-body">
-      <p class="modal-description">
-        Hemos enviado un código de verificación a <strong>{{ correoAVerificar }}</strong>
-      </p>
+    <div class="modal-actions">
+      <p-button
+        label="{{ verificandoCodigo ? 'Verificando...' : 'Verificar' }}"
+        icon="pi pi-check"
+        (onClick)="validarCodigo()"
+        [disabled]="!codigoCompleto() || verificandoCodigo"
+        styleClass="p-button-success w-full mb-2">
+      </p-button>
 
-      <div class="codigo-input-container">
-        <label for="codigo-0">Ingrese el código de verificación:</label>
-        <div class="codigo-boxes">
-          <input
-            *ngFor="let digit of codigoDigitos; let i = index"
-            type="text"
-            [id]="'codigo-' + i"
-            [value]="codigoDigitos[i]"
-            (keypress)="onCodigoKeypress($event, i)"
-            (keydown)="onCodigoKeydown($event, i)"
-            (paste)="onCodigoPaste($event, i)"
-            [disabled]="verificandoCodigo"
-            maxlength="1"
-            class="codigo-box"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            autocomplete="off">
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button
-          type="button"
-          class="btn-verificar"
-          (click)="validarCodigo()"
-          [disabled]="!codigoCompleto() || verificandoCodigo">
-          {{ verificandoCodigo ? 'Verificando...' : 'Verificar' }}
-        </button>
-
-        <button
-          type="button"
-          class="btn-reenviar"
-          (click)="reenviarCodigo()"
-          [disabled]="enviandoCodigo">
-          {{ enviandoCodigo ? 'Enviando...' : 'Reenviar código' }}
-        </button>
-      </div>
+      <p-button
+        label="{{ enviandoCodigo ? 'Enviando...' : 'Reenviar código' }}"
+        icon="pi pi-refresh"
+        (onClick)="reenviarCodigo()"
+        [disabled]="enviandoCodigo"
+        styleClass="p-button-secondary w-full"
+        [outlined]="true">
+      </p-button>
     </div>
   </div>
-</div>
+</p-dialog>

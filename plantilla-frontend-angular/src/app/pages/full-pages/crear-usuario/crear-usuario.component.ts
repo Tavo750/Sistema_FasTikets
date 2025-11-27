@@ -31,6 +31,16 @@ export class CrearUsuarioComponent implements OnInit {
   loadingProvincias = false;
   loadingDistritos = false;
 
+  // Opciones para el select de tipo de documento
+  tiposDocumentoOptions = [
+    { label: 'DNI', value: 'DNI' },
+    { label: 'Pasaporte', value: 'PASAPORTE' },
+    { label: 'Carnet de Extranjería', value: 'ce' }
+  ];
+
+  // Fecha máxima para el datepicker (hoy)
+  maxDate: Date = new Date();
+
   // Variables para la verificación de correo
   mostrarModalVerificacion = false;
   codigoVerificacion = '';
@@ -65,7 +75,7 @@ export class CrearUsuarioComponent implements OnInit {
   }
 
   /**
-   * Validador personalizado para verificar que la fecha no sea futura
+   * Validador personalizado para verificar que la fecha no sea futura y que tenga al menos 15 años
    */
   validadorFechaNoFutura = (control: any) => {
     if (!control.value) {
@@ -76,33 +86,18 @@ export class CrearUsuarioComponent implements OnInit {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo la fecha
 
+    // Validar que no sea una fecha futura
     if (fechaSeleccionada > hoy) {
       return { fechaFutura: true };
     }
 
-    return null;
-  }
+    // Calcular edad mínima (15 años)
+    const fechaMinima = new Date();
+    fechaMinima.setFullYear(fechaMinima.getFullYear() - 15);
+    fechaMinima.setHours(0, 0, 0, 0);
 
-  /**
-   * Validador personalizado para verificar que el usuario tenga al menos 15 años
-   */
-  validadorEdadMinima = (control: any) => {
-    if (!control.value) {
-      return null;
-    }
-
-    const fechaNacimiento = new Date(control.value);
-    const hoy = new Date();
-    
-    // Calcular la edad
-    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-    const mes = hoy.getMonth() - fechaNacimiento.getMonth();
-    
-    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
-      edad--;
-    }
-
-    if (edad < 15) {
+    // Validar que tenga al menos 15 años
+    if (fechaSeleccionada > fechaMinima) {
       return { edadMinima: true };
     }
 
@@ -352,7 +347,7 @@ setupProvinciaListener(): void {
           } else if (control.errors['fechaFutura']) {
             errorMessage = 'La fecha de nacimiento no puede ser una fecha futura';
           } else if (control.errors['edadMinima']) {
-            errorMessage = 'Debes tener al menos 15 años para poder registrarte';
+            errorMessage = 'Debes tener al menos 15 años para registrarte';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
               errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';

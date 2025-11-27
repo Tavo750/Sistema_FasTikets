@@ -30,8 +30,25 @@
     color: #1976d2;
 }
 
-.add-button {
+.action-buttons-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.add-button,
+.upload-button {
     height: fit-content;
+}
+
+.upload-button ::ng-deep .p-button {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.upload-button ::ng-deep .p-button:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
 /* Panel de búsqueda */
