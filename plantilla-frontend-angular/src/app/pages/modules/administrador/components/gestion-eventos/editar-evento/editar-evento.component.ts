@@ -210,6 +210,15 @@ export class EditarEventoComponent implements OnInit{
       private eventoService: EventoService
     ) { }
 
+    /**
+     * Convierte una fecha string (YYYY-MM-DD) a un objeto Date usando zona horaria local
+     * Evita el problema de conversión UTC que causa desfase de un día
+     */
+    private convertirFechaLocal(fechaString: string): Date {
+      const [year, month, day] = fechaString.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
     ngOnInit(): void {
        // Aquí puedes cargar datos del evento si estás editando
       this.cargarEvento();
@@ -313,12 +322,12 @@ export class EditarEventoComponent implements OnInit{
     private inicializarFormularioDesdeEvento(): void {
       // Extraer fecha de fechaEvento (formato: YYYY-MM-DD) y establecer en el datepicker
       if (this.evento.fechaEvento) {
-        this.date = new Date(this.evento.fechaEvento);
+        this.date = this.convertirFechaLocal(this.evento.fechaEvento);
       }
 
       // Extraer fecha de fin del evento (formato: YYYY-MM-DD)
       if (this.evento.fechaFinEvento) {
-        this.dateFin = new Date(this.evento.fechaFinEvento);
+        this.dateFin = this.convertirFechaLocal(this.evento.fechaFinEvento);
       }
 
       // Extraer hora de horaInicio (formato: HH:MM:SS) y establecer en el datepicker
