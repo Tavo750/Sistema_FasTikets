@@ -285,6 +285,17 @@
   background-color: #f3f4f6;
 }
 
+/* Estilo para botón deshabilitado para administradores */
+.action-btn.disabled-admin {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn.disabled-admin:hover {
+  background-color: transparent;
+  opacity: 0.5;
+}
+
 .action-btn:focus,
 .hamburger-btn:focus,
 .btn-header:focus,

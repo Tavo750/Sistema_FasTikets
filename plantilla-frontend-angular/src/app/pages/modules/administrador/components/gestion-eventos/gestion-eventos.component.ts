@@ -50,6 +50,10 @@ export class GestionEventosComponent implements OnInit {
   eventoSeleccionado: Evento | null = null;
   cargandoDetalles: boolean = false;
 
+  // Variables para el dashboard de analytics
+  mostrarDashboard: boolean = false;
+  analyticsData: any = {};
+
   constructor(
     private router: Router,
     private eventoService: EventoService
@@ -260,6 +264,142 @@ export class GestionEventosComponent implements OnInit {
 
   crearEvento(idEvento: number){
     this.router.navigate(['/administrador/gestionEventos/crear', idEvento]);
+  }
+
+  abrirDashboard() {
+    this.calcularAnalytics();
+    this.mostrarDashboard = true;
+  }
+
+  cerrarDashboard() {
+    this.mostrarDashboard = false;
+    this.analyticsData = {};
+  }
+
+  calcularAnalytics() {
+    const ahora = new Date();
+    
+    // Calcular métricas básicas
+    const eventosActivos = this.eventos.filter(e => e.estadoEvento === 'PUBLICADO' || e.estadoEvento === 'ACTIVO');
+    const eventosFinalizados = this.eventos.filter(e => e.estadoEvento === 'COMPLETADO' || e.estadoEvento === 'FINALIZADO');
+    const eventosCancelados = this.eventos.filter(e => e.estadoEvento === 'CANCELADO');
+    const eventosProximos = this.eventos.filter(e => new Date(e.fechaEvento) > ahora);
+    
+    // Top 3 eventos por menor aforo disponible (más vendidos)
+    const top3EventosMasVendidos = this.eventos
+      .filter(e => e.estadoEvento !== 'CANCELADO')
+      .sort((a, b) => a.aforoDisponible - b.aforoDisponible)
+      .slice(0, 3);
+    
+    // Eventos por tipo
+    const eventosPorTipo = this.agruparPorTipo();
+    
+    // Próximos eventos (siguiente semana)
+    const proximosEventos = this.eventos
+      .filter(e => {
+        const fechaEvento = new Date(e.fechaEvento);
+        const unaSemana = new Date();
+        unaSemana.setDate(unaSemana.getDate() + 7);
+        return fechaEvento > ahora && fechaEvento <= unaSemana;
+      })
+      .sort((a, b) => new Date(a.fechaEvento).getTime() - new Date(b.fechaEvento).getTime())
+      .slice(0, 5);
+    
+    // Capacidad total y ocupada
+    const capacidadTotal = this.eventos
+      .filter(e => e.estadoEvento !== 'CANCELADO')
+      .reduce((total, evento) => {
+        // Asumimos que la capacidad total es aforo disponible + vendidos (simulado)
+        const capacidadEvento = evento.aforoDisponible + Math.floor(evento.aforoDisponible * 0.3); // Simulamos 30% vendido
+        return total + capacidadEvento;
+      }, 0);
+    
+    const aforoDisponibleTotal = this.eventos
+      .filter(e => e.estadoEvento !== 'CANCELADO')
+      .reduce((total, evento) => total + evento.aforoDisponible, 0);
+    
+    const ocupacionEstimada = capacidadTotal > 0 ? ((capacidadTotal - aforoDisponibleTotal) / capacidadTotal * 100) : 0;
+    
+    this.analyticsData = {
+      // KPIs principales
+      totalEventos: this.eventos.length,
+      eventosActivos: eventosActivos.length,
+      eventosFinalizados: eventosFinalizados.length,
+      eventosCancelados: eventosCancelados.length,
+      eventosProximos: eventosProximos.length,
+      
+      // Top eventos
+      top3Eventos: top3EventosMasVendidos,
+      
+      // Distribuciones
+      eventosPorTipo: eventosPorTipo,
+      proximosEventos: proximosEventos,
+      
+      // Métricas de capacidad
+      capacidadTotal: capacidadTotal,
+      aforoDisponible: aforoDisponibleTotal,
+      ocupacionEstimada: Math.round(ocupacionEstimada),
+      
+      // Ingresos estimados (simulado)
+      ingresosEstimados: this.calcularIngresosEstimados()
+    };
+    
+    console.log('📊 Analytics calculados:', this.analyticsData);
+  }
+
+  agruparPorTipo() {
+    return this.eventos.reduce((acc, evento) => {
+      const tipo = evento.tipoEvento || 'Sin categoría';
+      acc[tipo] = (acc[tipo] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  calcularIngresosEstimados() {
+    // Simulamos ingresos basados en el aforo y tipo de evento
+    const preciosPromedio: Record<string, number> = {
+      'ROCK': 120,
+      'METAL': 100,
+      'PUNK': 80,
+      'POP': 150,
+      'REGGAE': 90,
+      'REGGAETON': 140,
+      'ELECTRONICA': 160,
+      'ROCK_POP': 130,
+      'URBANO': 110
+    };
+    
+    return this.eventos
+      .filter(e => e.estadoEvento !== 'CANCELADO')
+      .reduce((total, evento) => {
+        const precioPromedio = preciosPromedio[evento.tipoEvento] || 100;
+        const ventasEstimadas = Math.floor((evento.aforoDisponible || 0) * 0.3); // 30% de ocupación estimada
+        return total + (ventasEstimadas * precioPromedio);
+      }, 0);
+  }
+
+  obtenerColorTipo(tipo: string): string {
+    const colores: Record<string, string> = {
+      'ROCK': '#e74c3c',
+      'METAL': '#34495e',
+      'PUNK': '#9b59b6',
+      'POP': '#f39c12',
+      'REGGAE': '#27ae60',
+      'REGGAETON': '#e67e22',
+      'ELECTRONICA': '#3498db',
+      'ROCK_POP': '#e91e63',
+      'URBANO': '#ff9800'
+    };
+    return colores[tipo] || '#95a5a6';
+  }
+
+  // Métodos auxiliares para el template del dashboard
+  getStringValue(value: unknown): string {
+    return String(value || '');
+  }
+
+  getNumberValue(value: unknown): number {
+    return Number(value) || 0;
   }
 
   // Métodos para el modal de detalles

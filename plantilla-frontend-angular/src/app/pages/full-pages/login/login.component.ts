@@ -138,7 +138,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           
           // Guardar la información del usuario directamente desde la respuesta
           this.sessionService.setUser(resp.data);
-          this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito', life: 1000 });
+          this.messageService.add({ severity: 'success', summary: 'Aviso', detail: 'Se ha iniciado sesión con éxito', life: 3000 });
 
           // Redirigir a la URL de retorno o a home por defecto
           this.router.navigate([this.returnUrl]);

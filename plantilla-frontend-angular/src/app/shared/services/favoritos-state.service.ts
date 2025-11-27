@@ -17,15 +17,15 @@ export class FavoritosStateService {
     private favoritosService: FavoritosService,
     private sessionService: SessionService
   ) {
-    // Cargar favoritos al inicializar si hay usuario
+    // Cargar favoritos al inicializar si hay usuario y no es administrador
     const usuario = this.sessionService.getCurrentUser();
-    if (usuario) {
+    if (usuario && usuario.rol !== 'ADMINISTRADOR') {
       this.cargarFavoritos();
     }
 
     // Suscribirse a cambios de usuario
     this.sessionService.user$.subscribe(user => {
-      if (user) {
+      if (user && user.rol !== 'ADMINISTRADOR') {
         this.cargarFavoritos();
       } else {
         this.limpiarFavoritos();

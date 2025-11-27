@@ -573,6 +573,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
       }
     }
 
+    volverAEventos() {
+      this.router.navigate(['/home/inicio']);
+    }
+
     onBuyNow() {
       // Obtener todos los tickets seleccionados de todas las zonas
       const selectedTickets: TicketType[] = [];

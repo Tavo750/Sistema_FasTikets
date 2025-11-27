@@ -318,7 +318,7 @@ export class InicioComponent implements OnInit, OnDestroy {
         severity: 'warn',
         summary: 'Atención',
         detail: 'Debes iniciar sesión para agregar favoritos',
-        life: 3000
+        life: 2000
       });
       return;
     }
@@ -330,7 +330,7 @@ export class InicioComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Éxito',
             detail: agregado ? 'Evento agregado a favoritos' : 'Evento eliminado de favoritos',
-            life: 1000
+            life: 2000
           });
         }
       },
@@ -340,7 +340,7 @@ export class InicioComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error?.mensaje || 'No se pudo procesar la acción',
-          life: 3000
+          life: 2000
         });
       }
     });

@@ -114,10 +114,15 @@
       <span id="cart-badge" class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
     </button>
 
-    <button class="action-btn" (click)="abrirFavoritos()" data-testid="favorites-btn">
+    <button 
+      class="action-btn" 
+      (click)="abrirFavoritos()" 
+      data-testid="favorites-btn"
+      [class.disabled-admin]="usuario?.rol === 'ADMINISTRADOR'"
+      [title]="usuario?.rol === 'ADMINISTRADOR' ? 'Funcionalidad no disponible para administradores' : 'Ver favoritos'">
       <i class="pi pi-heart"></i>
       <span class="action-label">Favoritos</span>
-      <span id="favorites-badge" class="favorites-badge" *ngIf="contadorFavoritos > 0">{{ contadorFavoritos }}</span>
+      <span id="favorites-badge" class="favorites-badge" *ngIf="contadorFavoritos > 0 && usuario?.rol !== 'ADMINISTRADOR'">{{ contadorFavoritos }}</span>
     </button>
 
     <!-- Opciones para usuario autenticado -->

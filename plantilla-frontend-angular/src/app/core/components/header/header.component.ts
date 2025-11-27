@@ -298,7 +298,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
         severity: 'warn',
         summary: 'Atención',
         detail: 'Debes iniciar sesión para ver tus favoritos',
-        life: 3000
+        life: 2000
+      });
+      return;
+    }
+
+    // Verificar si el usuario es administrador
+    if (this.usuario.rol === 'ADMINISTRADOR') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Acceso Denegado',
+        detail: 'No tienes permisos suficientes para realizar esta acción.',
+        life: 2000
       });
       return;
     }
@@ -327,7 +338,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             severity: 'error',
             summary: 'Error',
             detail: 'No se pudieron cargar los favoritos',
-            life: 3000
+            life: 2000
           });
         }
       }
@@ -342,7 +353,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Éxito',
             detail: 'Evento eliminado de favoritos',
-            life: 1000
+            life: 2000
           });
           // Recargar la lista de favoritos para el diálogo
           this.cargarFavoritos(true);
@@ -354,7 +365,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error?.mensaje || 'No se pudo eliminar el evento de favoritos',
-          life: 3000
+          life: 2000
         });
       }
     });
