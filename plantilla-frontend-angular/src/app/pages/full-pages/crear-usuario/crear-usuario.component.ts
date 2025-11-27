@@ -363,11 +363,12 @@ setupProvinciaListener(): void {
    * Valida el código de verificación ingresado por el usuario
    */
   validarCodigo(): void {
-    const codigo = this.codigoDigitos.join('');
-    if (!codigo || codigo.length !== 6) {
+    if (!this.codigoCompleto()) {
       this.messageService.error('Por favor ingrese el código completo de 6 dígitos');
       return;
     }
+
+    const codigo = this.codigoDigitos.join('');
 
     this.loadingService.show();
     this.verificandoCodigo = true;
@@ -412,38 +413,55 @@ setupProvinciaListener(): void {
   }
 
   /**
-   * Maneja el input de un dígito del código
+   * Maneja el keypress de un dígito del código
    */
-  onCodigoInput(event: any, index: number): void {
-    const input = event.target;
-    const value = input.value;
+  onCodigoKeypress(event: KeyboardEvent, index: number): void {
+    const char = event.key;
 
-    // Solo permitir un dígito
-    if (value.length > 1) {
-      input.value = value.charAt(0);
-      this.codigoDigitos[index] = input.value;
-    } else {
-      this.codigoDigitos[index] = value;
+    // Solo permitir números del 0 al 9
+    if (!/^[0-9]$/.test(char)) {
+      event.preventDefault();
+      return;
     }
 
-    // Auto-focus al siguiente input si se ingresó un valor
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`codigo-${index + 1}`);
-      if (nextInput) {
-        (nextInput as HTMLInputElement).focus();
-      }
+    // Prevenir la escritura por defecto
+    event.preventDefault();
+
+    // Actualizar el valor manualmente
+    this.codigoDigitos[index] = char;
+
+    // Auto-focus al siguiente input
+    if (index < 5) {
+      setTimeout(() => {
+        const nextInput = document.getElementById(`codigo-${index + 1}`) as HTMLInputElement;
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }, 0);
     }
   }
 
   /**
-   * Maneja el evento keydown para navegación con backspace
+   * Maneja el evento keydown para navegación con backspace y delete
    */
   onCodigoKeydown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Backspace' && !this.codigoDigitos[index] && index > 0) {
-      const prevInput = document.getElementById(`codigo-${index - 1}`);
-      if (prevInput) {
-        (prevInput as HTMLInputElement).focus();
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+
+      if (this.codigoDigitos[index]) {
+        // Si hay un valor, borrarlo
+        this.codigoDigitos[index] = '';
+      } else if (index > 0) {
+        // Si no hay valor, ir al anterior y borrarlo
+        this.codigoDigitos[index - 1] = '';
+        const prevInput = document.getElementById(`codigo-${index - 1}`) as HTMLInputElement;
+        if (prevInput) {
+          prevInput.focus();
+        }
       }
+    } else if (event.key === 'Delete') {
+      event.preventDefault();
+      this.codigoDigitos[index] = '';
     }
   }
 
@@ -458,9 +476,9 @@ setupProvinciaListener(): void {
     digits.forEach((digit, i) => {
       if (i < 6) {
         this.codigoDigitos[i] = digit;
-        const input = document.getElementById(`codigo-${i}`);
+        const input = document.getElementById(`codigo-${i}`) as HTMLInputElement;
         if (input) {
-          (input as HTMLInputElement).value = digit;
+          input.value = digit;
         }
       }
     });
@@ -468,10 +486,18 @@ setupProvinciaListener(): void {
     // Enfocar el último input llenado o el siguiente vacío
     const nextEmptyIndex = this.codigoDigitos.findIndex(d => !d);
     const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
-    const focusInput = document.getElementById(`codigo-${focusIndex}`);
+    const focusInput = document.getElementById(`codigo-${focusIndex}`) as HTMLInputElement;
     if (focusInput) {
-      (focusInput as HTMLInputElement).focus();
+      focusInput.focus();
     }
+  }
+
+  /**
+   * Verifica si el código de 6 dígitos está completo
+   */
+  codigoCompleto(): boolean {
+    return this.codigoDigitos.every(digit => digit !== '' && digit !== null && digit !== undefined) &&
+           this.codigoDigitos.length === 6;
   }
 
   /**
