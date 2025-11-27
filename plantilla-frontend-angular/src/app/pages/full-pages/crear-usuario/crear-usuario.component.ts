@@ -124,7 +124,7 @@ export class CrearUsuarioComponent implements OnInit {
       correo: ['', [Validators.required, Validators.email, this.validadorDominioEmail]],
       contrasena: ['', Validators.required],
       repitaContrasena: ['', Validators.required],
-      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura, this.validadorEdadMinima]],
+      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura]],
       departamento: ['', Validators.required],
       provincia: ['', Validators.required],
       distrito: ['', Validators.required],
