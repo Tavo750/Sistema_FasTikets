@@ -104,13 +104,14 @@ export class EventoService {
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
+    formData.append('fechaFinEvento', body.fechaFinEvento);
     formData.append('horaInicio', body.horaInicio);
     formData.append('horaFin', body.horaFin);
     formData.append('tipoEvento', body.tipoEvento);
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
+
     // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
     formData.append('restricciones', body.restricciones || '');
     formData.append('politicasDevolucion', body.politicasDevolucion || '');
@@ -171,13 +172,14 @@ export class EventoService {
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
+    formData.append('fechaFinEvento', body.fechaFinEvento);
     formData.append('horaInicio', body.horaInicio);
     formData.append('horaFin', body.horaFin);
     formData.append('tipoEvento', body.tipoEvento);
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
+
     // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
     formData.append('restricciones', body.restricciones || '');
     formData.append('politicasDevolucion', body.politicasDevolucion || '');
@@ -261,7 +263,7 @@ export class EventoService {
   }
 
   // ========================= reportes ======================
-  
+
   /**
    * Descarga el reporte PDF de ventas de un evento específico
    * @param idEvento ID del evento para el cual se generará el reporte
@@ -270,8 +272,8 @@ export class EventoService {
   descargarReporteVentasPDF(idEvento: number): Observable<Blob> {
     const url = `${baseUrl}/eventos/${idEvento}/reporte/ventas/pdf`;
     console.log('📝 Descargando reporte de ventas para evento ID:', idEvento);
-    
-    return this.http.get(url, { 
+
+    return this.http.get(url, {
       responseType: 'blob',
       headers: {
         'Accept': 'application/pdf'

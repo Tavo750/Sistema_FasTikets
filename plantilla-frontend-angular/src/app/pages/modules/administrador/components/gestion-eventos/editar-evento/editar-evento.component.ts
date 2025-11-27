@@ -47,6 +47,7 @@ interface LimiteCompra {
 })
 export class EditarEventoComponent implements OnInit{
     date: Date | undefined;
+    dateFin: Date | undefined; // Fecha de fin del evento
     time: Date | undefined; // Cambiar de array a Date único para timeOnly
     timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
 
@@ -56,6 +57,7 @@ export class EditarEventoComponent implements OnInit{
       tipoEvento: '',
       descripcion: '',
       fechaEvento: '',
+      fechaFinEvento: '',
       horaInicio: '',
       horaFin: '',
       estadoEvento: 'PUBLICADO',
@@ -260,6 +262,7 @@ export class EditarEventoComponent implements OnInit{
                 tipoEvento: eventoData.tipoEvento || '',
                 descripcion: eventoData.descripcion || '',
                 fechaEvento: eventoData.fechaEvento || '',
+                fechaFinEvento: eventoData.fechaFinEvento || '',
                 horaInicio: eventoData.horaInicio || '',
                 horaFin: eventoData.horaFin || '',
                 estadoEvento: eventoData.estadoEvento || 'PUBLICADO',
@@ -311,6 +314,11 @@ export class EditarEventoComponent implements OnInit{
       // Extraer fecha de fechaEvento (formato: YYYY-MM-DD) y establecer en el datepicker
       if (this.evento.fechaEvento) {
         this.date = new Date(this.evento.fechaEvento);
+      }
+
+      // Extraer fecha de fin del evento (formato: YYYY-MM-DD)
+      if (this.evento.fechaFinEvento) {
+        this.dateFin = new Date(this.evento.fechaFinEvento);
       }
 
       // Extraer hora de horaInicio (formato: HH:MM:SS) y establecer en el datepicker
@@ -369,6 +377,9 @@ export class EditarEventoComponent implements OnInit{
     private sincronizarFormularioAEvento(): void {
       // Construir fechaEvento desde el datepicker
       this.evento.fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+      // Construir fechaFinEvento desde el datepicker
+      this.evento.fechaFinEvento = this.dateFin ? this.dateFin.toISOString().split('T')[0] : '';
 
       // Construir horaInicio y horaFin desde los datepickers
       this.evento.horaInicio = this.time ?
@@ -1080,9 +1091,15 @@ export class EditarEventoComponent implements OnInit{
       }
 
       // Validar que la hora final sea posterior a la hora de inicio
-      if (this.timeFinal && this.time && this.timeFinal <= this.time) {
-        this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
-        return false;
+      // SOLO si las fechas de inicio y fin son el mismo día
+      if (this.timeFinal && this.time) {
+        const esMismoDia = this.date && this.dateFin &&
+          this.date.toDateString() === this.dateFin.toDateString();
+
+        if (esMismoDia && this.timeFinal <= this.time) {
+          this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio cuando el evento es el mismo día', 'Horarios Inválidos');
+          return false;
+        }
       }    return true;
     }
 
@@ -1109,6 +1126,7 @@ export class EditarEventoComponent implements OnInit{
         fechaEvento: fechaEvento,
         horaInicio: horaInicio,
         horaFin: horaFin,
+        fechaFinEvento: this.evento.fechaFinEvento || '',
         imagenUrl: this.formulario.banner!,
         tipoEvento: this.evento.tipoEvento,
         estadoEvento: this.evento.estadoEvento,
@@ -1199,6 +1217,7 @@ export class EditarEventoComponent implements OnInit{
         nombre: this.evento.nombre.trim(),
         descripcion: this.evento.descripcion.trim(),
         fechaEvento: fechaEvento,
+        fechaFinEvento: this.evento.fechaFinEvento || '',
         horaInicio: horaInicio,
         horaFin: horaFin,
         tipoEvento: this.evento.tipoEvento,
@@ -1247,6 +1266,7 @@ export class EditarEventoComponent implements OnInit{
         tipoEvento: '',
         descripcion: '',
         fechaEvento: '',
+        fechaFinEvento: '',
         horaInicio: '',
         horaFin: '',
         imagenUrl: null as any,
@@ -1510,6 +1530,7 @@ export class EditarEventoComponent implements OnInit{
         nombre: this.evento.nombre,
         descripcion: this.evento.descripcion,
         fechaEvento: this.evento.fechaEvento,
+        fechaFinEvento: this.evento.fechaFinEvento || '',
         horaInicio: this.evento.horaInicio,
         horaFin: this.evento.horaFin,
         // imagenUrl: NO enviamos este campo para mantener el banner existente
