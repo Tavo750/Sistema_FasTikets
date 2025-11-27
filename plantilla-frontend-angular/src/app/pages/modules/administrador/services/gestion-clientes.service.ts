@@ -135,7 +135,7 @@ export class GestionClientesService {
    * @returns Observable con la respuesta que contiene los datos actualizados del cliente
    */
   verificarCliente(id: number): Observable<VerificarClienteResponse> {
-    const url = `${baseUrl}/clientes/${id}/verificar`;
+    const url = `${baseUrl}/administrador/clientes/${id}/verificar`;
     console.log('URL verificar cliente:', url);
     
     return this.http.put<VerificarClienteResponse>(url, {}, {

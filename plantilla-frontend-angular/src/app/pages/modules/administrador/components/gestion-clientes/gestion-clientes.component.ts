@@ -289,12 +289,12 @@ export class GestionClientesComponent implements OnInit {
       next: (response) => {
         this.loading = false;
         if (response && response.ok) {
-          // Actualizar el cliente en la lista local
+          // Actualizar el cliente en la lista local directamente
           const index = this.clientes.findIndex(c => c.idCliente === cliente.idCliente);
           if (index !== -1) {
             this.clientes[index] = {
               ...this.clientes[index],
-              verificado: response.data.verificado
+              verificado: true
             };
           }
 
