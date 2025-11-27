@@ -14,7 +14,7 @@
                 class="dashboard-button"
                 [outlined]="true">
             </p-button>
-            
+
             <p-button
                 label="Agregar Evento"
                 icon="pi pi-plus"
@@ -116,16 +116,30 @@
                             <div class="detail-item">
                                 <label class="detail-label">
                                     <i class="pi pi-calendar"></i>
-                                    Fecha:
+                                    Fecha Inicio:
                                 </label>
                                 <span class="detail-value">{{evento.fechaEvento | date:'dd/MM/yyyy'}}</span>
                             </div>
                             <div class="detail-item">
                                 <label class="detail-label">
                                     <i class="pi pi-clock"></i>
-                                    Hora:
+                                    Hora Inicio:
                                 </label>
-                                <span class="detail-value">{{evento.horaInicio}} - {{evento.horaFin}}</span>
+                                <span class="detail-value">{{evento.horaInicio}}</span>
+                            </div>
+                            <div class="detail-item" *ngIf="evento.fechaFinEvento">
+                                <label class="detail-label">
+                                    <i class="pi pi-calendar"></i>
+                                    Fecha Fin:
+                                </label>
+                                <span class="detail-value">{{evento.fechaFinEvento | date:'dd/MM/yyyy'}}</span>
+                            </div>
+                            <div class="detail-item" *ngIf="evento.horaFin">
+                                <label class="detail-label">
+                                    <i class="pi pi-clock"></i>
+                                    Hora Fin:
+                                </label>
+                                <span class="detail-value">{{evento.horaFin}}</span>
                             </div>
                             <div class="detail-item full-width">
                                 <label class="detail-label">
@@ -209,9 +223,9 @@
 </div>
 
 <!-- Modal de Detalles del Evento -->
-<p-dialog 
+<p-dialog
     header="Detalles Completos del Evento"
-    [(visible)]="mostrarModalDetalles" 
+    [(visible)]="mostrarModalDetalles"
     [modal]="true"
     [closable]="true"
     [draggable]="false"
@@ -219,19 +233,19 @@
     [style]="{width: '90vw', maxWidth: '1200px'}"
     styleClass="evento-details-modal"
     (onHide)="cerrarModalDetalles()">
-    
+
     <div class="modal-content" *ngIf="eventoSeleccionado && !cargandoDetalles">
         <!-- Header del evento con imagen -->
         <div class="evento-header-modal">
             <div class="imagen-container">
-                <img 
+                <img
                     [src]="obtenerUrlImagen(eventoSeleccionado.imagenUrl)"
                     [alt]="eventoSeleccionado.nombre"
                     class="imagen-evento"
                     (error)="onImageError($event)">
                 <div class="overlay-info">
                     <h2 class="titulo-evento">{{eventoSeleccionado.nombre}}</h2>
-                    <p-tag 
+                    <p-tag
                         [value]="eventoSeleccionado.estadoEvento"
                         [severity]="getEstadoSeverity(eventoSeleccionado.estadoEvento)"
                         class="estado-tag">
@@ -276,22 +290,25 @@
                 </h3>
                 <div class="campos-grid">
                     <div class="campo-detalle fecha-destacada">
-                        <label>Fecha del Evento:</label>
+                        <label>Fecha de Inicio:</label>
                         <span class="fecha-principal">{{formatearFecha(eventoSeleccionado.fechaEvento)}}</span>
                     </div>
                     <div class="campo-detalle">
                         <label>Hora de Inicio:</label>
                         <span class="hora-valor">{{eventoSeleccionado.horaInicio}}</span>
                     </div>
+                    <div class="campo-detalle fecha-destacada" *ngIf="eventoSeleccionado.fechaFinEvento">
+                        <label>Fecha de Finalización:</label>
+                        <span class="fecha-principal">{{formatearFecha(eventoSeleccionado.fechaFinEvento)}}</span>
+                    </div>
                     <div class="campo-detalle">
                         <label>Hora de Finalización:</label>
                         <span class="hora-valor">{{eventoSeleccionado.horaFin}}</span>
                     </div>
-                    <div class="campo-detalle">
-                        <label>Duración Estimada:</label>
+                    <div class="campo-detalle" *ngIf="eventoSeleccionado.fechaFinEvento">
+                        <label>Duración:</label>
                         <span class="duracion-valor">
-                            <!-- Aquí podrías calcular la duración si quieres -->
-                            {{eventoSeleccionado.horaInicio}} a {{eventoSeleccionado.horaFin}}
+                            Evento de múltiples días
                         </span>
                     </div>
                 </div>
@@ -343,7 +360,7 @@
                     </div>
                     <div class="politica-item">
                         <h4>Menores de Edad:</h4>
-                        <p-tag 
+                        <p-tag
                             [value]="eventoSeleccionado.menoresDeEdadPermitidos ? 'Permitidos' : 'No Permitidos'"
                             [severity]="eventoSeleccionado.menoresDeEdadPermitidos ? 'success' : 'warn'">
                         </p-tag>
@@ -358,7 +375,7 @@
                     Mapa de Zonas
                 </h3>
                 <div class="imagen-zonas-container">
-                    <img 
+                    <img
                         [src]="obtenerUrlImagen(eventoSeleccionado.imagenZonasUrl)"
                         alt="Mapa de zonas del evento"
                         class="imagen-zonas"
@@ -395,12 +412,12 @@
     <!-- Footer con acciones -->
     <ng-template pTemplate="footer">
         <div class="modal-footer">
-            
-            
-            <p-button 
-                label="Cerrar" 
-                icon="pi pi-times" 
-                severity="secondary" 
+
+
+            <p-button
+                label="Cerrar"
+                icon="pi pi-times"
+                severity="secondary"
                 [text]="true"
                 (click)="cerrarModalDetalles()">
             </p-button>
@@ -409,9 +426,9 @@
 </p-dialog>
 
 <!-- Modal de Dashboard Analytics -->
-<p-dialog 
+<p-dialog
     header="📊 Dashboard de Analytics"
-    [(visible)]="mostrarDashboard" 
+    [(visible)]="mostrarDashboard"
     [modal]="true"
     [closable]="true"
     [draggable]="false"
@@ -419,7 +436,7 @@
     [style]="{width: '95vw', maxWidth: '1400px'}"
     styleClass="dashboard-modal"
     (onHide)="cerrarDashboard()">
-    
+
     <div class="dashboard-content" *ngIf="analyticsData && !cargando">
         <!-- KPIs Principales -->
         <div class="kpi-section">
@@ -437,7 +454,7 @@
                         <p>Eventos Activos</p>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card finalizados">
                     <div class="kpi-icon">
                         <i class="pi pi-check-circle"></i>
@@ -447,7 +464,7 @@
                         <p>Eventos Finalizados</p>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card total">
                     <div class="kpi-icon">
                         <i class="pi pi-chart-pie"></i>
@@ -457,7 +474,7 @@
                         <p>Total de Eventos</p>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card proximos">
                     <div class="kpi-icon">
                         <i class="pi pi-clock"></i>
@@ -486,7 +503,7 @@
                         <p>Ingresos Estimados</p>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card capacidad">
                     <div class="kpi-icon">
                         <i class="pi pi-users"></i>
@@ -496,7 +513,7 @@
                         <p>Capacidad Total</p>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card ocupacion">
                     <div class="kpi-icon">
                         <i class="pi pi-percentage"></i>
@@ -518,7 +535,7 @@
                     🏆 Top 3 Eventos Más Populares
                 </h4>
                 <div class="top-eventos">
-                    <div *ngFor="let evento of analyticsData.top3Eventos; index as i" 
+                    <div *ngFor="let evento of analyticsData.top3Eventos; index as i"
                          class="top-evento-item">
                         <div class="ranking-badge ranking-{{i+1}}">
                             #{{i+1}}
@@ -532,14 +549,14 @@
                             </span>
                         </div>
                         <div class="estado-badge">
-                            <p-tag [value]="evento.estadoEvento" 
+                            <p-tag [value]="evento.estadoEvento"
                                    [severity]="getEstadoSeverity(evento.estadoEvento)">
                             </p-tag>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Eventos por Tipo -->
             <div class="analysis-section">
                 <h4 class="analysis-title">
@@ -547,9 +564,9 @@
                     📊 Distribución por Tipo de Evento
                 </h4>
                 <div class="tipo-distribution">
-                    <div *ngFor="let tipo of analyticsData.eventosPorTipo | keyvalue" 
+                    <div *ngFor="let tipo of analyticsData.eventosPorTipo | keyvalue"
                          class="tipo-item">
-                        <div class="tipo-color" 
+                        <div class="tipo-color"
                              [style.background-color]="obtenerColorTipo(getStringValue(tipo.key))">
                         </div>
                         <div class="tipo-info">
@@ -562,7 +579,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Próximos Eventos -->
             <div class="analysis-section" *ngIf="analyticsData.proximosEventos && analyticsData.proximosEventos.length > 0">
                 <h4 class="analysis-title">
@@ -570,7 +587,7 @@
                     📅 Próximos Eventos (Esta Semana)
                 </h4>
                 <div class="proximos-eventos">
-                    <div *ngFor="let evento of analyticsData.proximosEventos" 
+                    <div *ngFor="let evento of analyticsData.proximosEventos"
                          class="proximo-evento-item">
                         <div class="fecha-badge">
                             <span class="dia">{{evento.fechaEvento | date:'dd'}}</span>
@@ -591,7 +608,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Resumen de Estados -->
             <div class="analysis-section">
                 <h4 class="analysis-title">
@@ -628,17 +645,17 @@
     <!-- Footer del dashboard -->
     <ng-template pTemplate="footer">
         <div class="dashboard-footer">
-            <p-button 
-                label="Actualizar Datos" 
-                icon="pi pi-refresh" 
+            <p-button
+                label="Actualizar Datos"
+                icon="pi pi-refresh"
                 severity="success"
                 [outlined]="true"
                 (click)="cargarEventos(); calcularAnalytics()">
             </p-button>
-            
-            <p-button 
-                label="Cerrar Dashboard" 
-                icon="pi pi-times" 
+
+            <p-button
+                label="Cerrar Dashboard"
+                icon="pi pi-times"
                 severity="secondary"
                 (click)="cerrarDashboard()">
             </p-button>

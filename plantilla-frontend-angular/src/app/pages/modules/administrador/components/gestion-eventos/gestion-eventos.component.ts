@@ -15,6 +15,7 @@ interface Evento {
   nombre: string;
   tipoEvento: string;
   fechaEvento: Date;
+  fechaFinEvento?: Date;
   nombreLocal: string;
   aforoDisponible: number;
   estadoEvento: string;
@@ -93,7 +94,8 @@ export class GestionEventosComponent implements OnInit {
               idEvento: evento.idEvento,
               nombre: evento.nombre,
               tipoEvento: evento.tipoEvento,
-              fechaEvento: new Date(evento.fechaEvento),
+              fechaEvento: this.convertirFechaLocal(evento.fechaEvento.toString()),
+              fechaFinEvento: evento.fechaFinEvento ? this.convertirFechaLocal(evento.fechaFinEvento.toString()) : undefined,
               nombreLocal: evento.nombreLocal,
               aforoDisponible: evento.aforoDisponible,
               estadoEvento: evento.estadoEvento,
@@ -173,6 +175,17 @@ export class GestionEventosComponent implements OnInit {
     return new Intl.NumberFormat('es-PE').format(numero);
   }
 
+  /**
+   * Convierte una fecha string a Date local sin problemas de zona horaria
+   * Evita que reste un día al convertir
+   */
+  convertirFechaLocal(fechaString: string): Date {
+    // Separar la fecha en partes (YYYY-MM-DD)
+    const [year, month, day] = fechaString.split('-').map(Number);
+    // Crear fecha local (mes es 0-indexed en JS)
+    return new Date(year, month - 1, day);
+  }
+
   generarReporte(evento: Evento) {
     console.log('Descargando reporte de ventas para:', evento.nombre);
 
@@ -224,7 +237,8 @@ export class GestionEventosComponent implements OnInit {
             nombre: response.data.nombre,
             descripcion: response.data.descripcion,
             tipoEvento: response.data.tipoEvento,
-            fechaEvento: new Date(response.data.fechaEvento),
+            fechaEvento: this.convertirFechaLocal(response.data.fechaEvento.toString()),
+            fechaFinEvento: (response.data as any).fechaFinEvento ? this.convertirFechaLocal((response.data as any).fechaFinEvento.toString()) : undefined,
             horaInicio: response.data.horaInicio,
             horaFin: response.data.horaFin,
             estadoEvento: response.data.estadoEvento,
@@ -283,22 +297,22 @@ export class GestionEventosComponent implements OnInit {
 
   calcularAnalytics() {
     const ahora = new Date();
-    
+
     // Calcular métricas básicas
     const eventosActivos = this.eventos.filter(e => e.estadoEvento === 'PUBLICADO' || e.estadoEvento === 'ACTIVO');
     const eventosFinalizados = this.eventos.filter(e => e.estadoEvento === 'COMPLETADO' || e.estadoEvento === 'FINALIZADO');
     const eventosCancelados = this.eventos.filter(e => e.estadoEvento === 'CANCELADO');
     const eventosProximos = this.eventos.filter(e => new Date(e.fechaEvento) > ahora);
-    
+
     // Top 3 eventos por menor aforo disponible (más vendidos)
     const top3EventosMasVendidos = this.eventos
       .filter(e => e.estadoEvento !== 'CANCELADO')
       .sort((a, b) => a.aforoDisponible - b.aforoDisponible)
       .slice(0, 3);
-    
+
     // Eventos por tipo
     const eventosPorTipo = this.agruparPorTipo();
-    
+
     // Próximos eventos (siguiente semana)
     const proximosEventos = this.eventos
       .filter(e => {
@@ -309,7 +323,7 @@ export class GestionEventosComponent implements OnInit {
       })
       .sort((a, b) => new Date(a.fechaEvento).getTime() - new Date(b.fechaEvento).getTime())
       .slice(0, 5);
-    
+
     // Capacidad total y ocupada
     const capacidadTotal = this.eventos
       .filter(e => e.estadoEvento !== 'CANCELADO')
@@ -318,13 +332,13 @@ export class GestionEventosComponent implements OnInit {
         const capacidadEvento = evento.aforoDisponible + Math.floor(evento.aforoDisponible * 0.3); // Simulamos 30% vendido
         return total + capacidadEvento;
       }, 0);
-    
+
     const aforoDisponibleTotal = this.eventos
       .filter(e => e.estadoEvento !== 'CANCELADO')
       .reduce((total, evento) => total + evento.aforoDisponible, 0);
-    
+
     const ocupacionEstimada = capacidadTotal > 0 ? ((capacidadTotal - aforoDisponibleTotal) / capacidadTotal * 100) : 0;
-    
+
     this.analyticsData = {
       // KPIs principales
       totalEventos: this.eventos.length,
@@ -332,23 +346,23 @@ export class GestionEventosComponent implements OnInit {
       eventosFinalizados: eventosFinalizados.length,
       eventosCancelados: eventosCancelados.length,
       eventosProximos: eventosProximos.length,
-      
+
       // Top eventos
       top3Eventos: top3EventosMasVendidos,
-      
+
       // Distribuciones
       eventosPorTipo: eventosPorTipo,
       proximosEventos: proximosEventos,
-      
+
       // Métricas de capacidad
       capacidadTotal: capacidadTotal,
       aforoDisponible: aforoDisponibleTotal,
       ocupacionEstimada: Math.round(ocupacionEstimada),
-      
+
       // Ingresos estimados (simulado)
       ingresosEstimados: this.calcularIngresosEstimados()
     };
-    
+
     console.log('📊 Analytics calculados:', this.analyticsData);
   }
 
@@ -373,7 +387,7 @@ export class GestionEventosComponent implements OnInit {
       'ROCK_POP': 130,
       'URBANO': 110
     };
-    
+
     return this.eventos
       .filter(e => e.estadoEvento !== 'CANCELADO')
       .reduce((total, evento) => {
