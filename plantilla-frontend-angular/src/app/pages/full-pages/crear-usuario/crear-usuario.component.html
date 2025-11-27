@@ -141,15 +141,16 @@
             *ngFor="let digit of codigoDigitos; let i = index"
             type="text"
             [id]="'codigo-' + i"
-            [(ngModel)]="codigoDigitos[i]"
-            (input)="onCodigoInput($event, i)"
+            [value]="codigoDigitos[i]"
+            (keypress)="onCodigoKeypress($event, i)"
             (keydown)="onCodigoKeydown($event, i)"
             (paste)="onCodigoPaste($event, i)"
             [disabled]="verificandoCodigo"
             maxlength="1"
             class="codigo-box"
             inputmode="numeric"
-            pattern="[0-9]*">
+            pattern="[0-9]*"
+            autocomplete="off">
         </div>
       </div>
 
@@ -158,7 +159,7 @@
           type="button"
           class="btn-verificar"
           (click)="validarCodigo()"
-          [disabled]="verificandoCodigo || codigoDigitos.join('').length !== 6">
+          [disabled]="!codigoCompleto() || verificandoCodigo">
           {{ verificandoCodigo ? 'Verificando...' : 'Verificar' }}
         </button>
 
