@@ -31,7 +31,23 @@
 
       <div class="form-row">
         <div class="form-group form-group-date">
-          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>
+          <input 
+            type="date" 
+            placeholder="Fecha de nacimiento *" 
+            formControlName="fechaNacimiento" 
+            [max]="fechaMaxima"
+            required>
+          <div class="error-message" *ngIf="registroForm.get('fechaNacimiento')?.invalid && registroForm.get('fechaNacimiento')?.touched">
+            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('required')" class="error-text">
+              La fecha de nacimiento es requerida
+            </small>
+            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('fechaFutura')" class="error-text">
+              La fecha de nacimiento no puede ser futura
+            </small>
+            <small *ngIf="registroForm.get('fechaNacimiento')?.hasError('edadMinima')" class="error-text">
+              Debes ser mayor de 15 años para registrarte
+            </small>
+          </div>
         </div>
 
         <!-- Departamento -->

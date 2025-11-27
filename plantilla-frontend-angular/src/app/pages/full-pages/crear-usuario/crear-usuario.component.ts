@@ -43,6 +43,9 @@ export class CrearUsuarioComponent implements OnInit {
   // Dominios permitidos para el correo electrónico
   private dominiosPermitidos = ['gmail.com', 'pucp.edu.pe', 'uni.pe', 'hotmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'unmsm.edu.pe'];
 
+  // Fecha máxima permitida (15 años atrás desde hoy)
+  fechaMaxima: string;
+
   /**
    * Validador personalizado para verificar que el dominio del email esté permitido
    */
@@ -80,6 +83,32 @@ export class CrearUsuarioComponent implements OnInit {
     return null;
   }
 
+  /**
+   * Validador personalizado para verificar que el usuario tenga al menos 15 años
+   */
+  validadorEdadMinima = (control: any) => {
+    if (!control.value) {
+      return null;
+    }
+
+    const fechaNacimiento = new Date(control.value);
+    const hoy = new Date();
+    
+    // Calcular la edad
+    let edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
+    const mes = hoy.getMonth() - fechaNacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNacimiento.getDate())) {
+      edad--;
+    }
+
+    if (edad < 15) {
+      return { edadMinima: true };
+    }
+
+    return null;
+  }
+
   constructor(
     public router: Router,
     private fb: FormBuilder,
@@ -89,13 +118,18 @@ export class CrearUsuarioComponent implements OnInit {
     private cambiarContraService: CambiarContraService,
     private loadingService: LoadingService
   ) {
+    // Calcular fecha máxima (15 años atrás desde hoy)
+    const hoy = new Date();
+    const fechaMax = new Date(hoy.getFullYear() - 15, hoy.getMonth(), hoy.getDate());
+    this.fechaMaxima = fechaMax.toISOString().split('T')[0];
+
     this.registroForm = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email, this.validadorDominioEmail]],
       contrasena: ['', Validators.required],
       repitaContrasena: ['', Validators.required],
-      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura]],
+      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura, this.validadorEdadMinima]],
       departamento: ['', Validators.required],
       provincia: ['', Validators.required],
       distrito: ['', Validators.required],
@@ -317,6 +351,8 @@ setupProvinciaListener(): void {
             errorMessage = 'El dominio del correo no está permitido. Use: gmail.com, pucp.edu.pe, uni.pe, hotmail.com, yahoo.com, outlook.com, icloud.com o unmsm.edu.pe';
           } else if (control.errors['fechaFutura']) {
             errorMessage = 'La fecha de nacimiento no puede ser una fecha futura';
+          } else if (control.errors['edadMinima']) {
+            errorMessage = 'Debes tener al menos 15 años para poder registrarte';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
               errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';
