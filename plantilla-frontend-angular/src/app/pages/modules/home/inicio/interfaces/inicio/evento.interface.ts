@@ -6,4 +6,5 @@ export interface Evento {
   categoria: string;
   precio: number;
   imagen: string;
+  esFavorito?: boolean;
 }

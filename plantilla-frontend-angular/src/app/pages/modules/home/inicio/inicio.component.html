@@ -184,11 +184,11 @@
               styleClass="evento-btn-detalle">
             </p-button>
             <p-button
-              [icon]="esFavorito(evento.id) ? 'pi pi-heart-fill' : 'pi pi-heart'"
-              (onClick)="toggleFavorito(evento.id, $event)"
-              [styleClass]="esFavorito(evento.id) ? 'evento-btn-favorito-activo' : 'evento-btn-favorito'"
-              [severity]="esFavorito(evento.id) ? 'danger' : 'secondary'"
-              [pTooltip]="esFavorito(evento.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+              [icon]="evento.esFavorito ? 'pi pi-heart-fill' : 'pi pi-heart'"
+              (onClick)="toggleFavorito(evento, $event)"
+              styleClass="evento-btn-comprar"
+              [severity]="evento.esFavorito ? 'danger' : 'secondary'"
+              [pTooltip]="evento.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'"
               tooltipPosition="top">
             </p-button>
           </div>
@@ -289,8 +289,8 @@
       <div class="footer-column">
         <h4>Legales</h4>
         <ul>
-          <li><a href="#">Términos y condiciones</a></li>
-          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="#" (click)="abrirDialogTerminos($event)">Términos y condiciones</a></li>
+          <li><a href="#" (click)="abrirDialogPolitica($event)">Política de privacidad</a></li>
           <li><a href="#">Política de cookies</a></li>
           <li><a href="#">Uso de datos personales</a></li>
         </ul>

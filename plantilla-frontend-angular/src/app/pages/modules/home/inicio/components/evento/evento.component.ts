@@ -14,6 +14,7 @@ import { Data as LocalData } from '../../../../administrador/interfaces/gestion-
 import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-evento/zona-categoria.interface';
 import { Data as EntradaData } from '../../../../administrador/interfaces/gestion-evento/entrada.interface';
 import { GOOGLE_MAPS_CONFIG } from '../../../../../../config/google-maps.config';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 
 // Declarar Google Maps para TypeScript
 declare global {
@@ -58,7 +59,8 @@ export class EventoComponent implements AfterViewInit, OnInit {
     private localService: LocalService,
     private carritoService: CarritoService,
     private sessionService: SessionService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private loadingService: LoadingService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -181,14 +183,14 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.date = this.formatearFecha(this.eventoData.fechaEvento);
       this.time = this.formatearHora(this.eventoData.horaInicio);
       this.imageUrl = this.eventoData.imagenUrl || '';
-      
+
       // Manejar menoresDeEdadPermitidos (null se trata como false)
       this.menoresDeEdadPermitidos = this.eventoData.menoresDeEdadPermitidos === true;
-      
+
       // Manejar restricciones y políticas (null se convierte en string vacío)
       this.restricciones = this.eventoData.restricciones || '';
       this.politicasDevolucion = this.eventoData.politicasDevolucion || '';
-      
+
       console.log('Datos del evento cargados:', {
         menoresDeEdadPermitidos: this.menoresDeEdadPermitidos,
         restricciones: this.restricciones,
@@ -239,10 +241,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.eventoService.getListarZonas(this.eventoId).subscribe({
         next: (zonesResponse) => {
           console.log('Respuesta de zonas:', zonesResponse);
-          
+
           if (zonesResponse.ok && zonesResponse.data) {
             const zonas: ZonaData[] = Array.isArray(zonesResponse.data) ? zonesResponse.data : [zonesResponse.data];
-            
+
             console.log('Zonas encontradas:', zonas.length, zonas);
 
             if (zonas.length === 0) {
@@ -263,16 +265,16 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
             zonas.forEach(zona => {
               console.log('Cargando tickets para zona:', zona.idZona, zona.nombre);
-              
+
               this.eventoService.getListarEntradasID(zona.idZona).subscribe({
                 next: (ticketsResponse) => {
                   console.log(`Respuesta tickets para zona ${zona.idZona}:`, ticketsResponse);
-                  
+
                   const ticketsDeZona: TicketType[] = [];
 
                   if (ticketsResponse.ok && ticketsResponse.data) {
                     const tickets: EntradaData[] = Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [ticketsResponse.data];
-                    
+
                     console.log(`Tickets encontrados para zona ${zona.nombre}:`, tickets.length);
 
                     tickets.forEach(ticket => {

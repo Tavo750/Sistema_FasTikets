@@ -3,6 +3,7 @@ import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { LoginService } from '../../../../../core/services/login.service';
 import { HttpClient } from '@angular/common/http';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-mis-entradas',
@@ -23,7 +24,8 @@ export class MisEntradasComponent implements OnInit {
     private messageService: MessageService,
     private router: Router,
     private loginService: LoginService,
-    private http: HttpClient
+    private http: HttpClient,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +37,7 @@ export class MisEntradasComponent implements OnInit {
   loadMyEntries(): void {
     const url = 'http://localhost:8081/api/v1/clientes/mis-entradas';
     console.log('mis-entradas: iniciando petición a', url);
+    this.loadingService.show();
     this.isLoadingEntries = true;
     this.lastResp = null;
     this.http.get<any>(url).subscribe({
@@ -68,12 +71,14 @@ export class MisEntradasComponent implements OnInit {
         } catch (e) {
           console.warn('No se aplicó actualización desde state', e);
         }
+        this.loadingService.hide();
         this.isLoadingEntries = false;
       },
       error: (err) => {
         console.error('Error cargando mis-entradas', err);
         this.lastResp = { error: err };
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron obtener tus entradas.' });
+        this.loadingService.hide();
         this.isLoadingEntries = false;
       }
     });

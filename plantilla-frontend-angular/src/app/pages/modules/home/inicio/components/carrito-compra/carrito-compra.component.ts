@@ -7,6 +7,7 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { Subscription } from 'rxjs';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-carrito-compra',
@@ -30,9 +31,9 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   private purchaseService: PurchaseService,
   private carritoService: CarritoService,
     private messageService: MessageService,
-    private sessionService: SessionService
-    ,
-    private cartTimerService: CartTimerService
+    private sessionService: SessionService,
+    private cartTimerService: CartTimerService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +49,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
       } catch (e) { console.warn('No se pudo suscribir a cartTimerService', e); }
       const idCliente = user?.idUsuario;
       if (idCliente) {
+        this.loadingService.show();
         this.carritoService.getItemsFromServer(idCliente).subscribe({
         next: (resp: any) => {
             // Log raw response to help diagnose structure issues
@@ -114,6 +116,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
               this.timerSubscriptions.push(this.cartTimerService.running$.subscribe(r => this.showTimer = r));
               this.timerSubscriptions.push(this.cartTimerService.expired$.subscribe(() => this.handleTimerExpired()));
             } catch (e) { console.warn('No se pudo suscribir a cartTimerService', e); }
+            this.loadingService.hide();
           },
           error: (err: any) => {
             console.error('Error cargando items desde servidor:', err);
@@ -121,6 +124,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
             this.loadedFromServer = false;
             // Continuar con watcher que manejará la vista
             this.setupCartWatcher();
+            this.loadingService.hide();
           }
         });
       } else {

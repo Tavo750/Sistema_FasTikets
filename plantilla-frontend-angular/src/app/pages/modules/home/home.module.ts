@@ -11,6 +11,8 @@ import { CarritoItemComponent }   from './inicio/components/carrito-compra/carri
 import { ResumenCarritoCompraComponent } from './inicio/components/carrito-compra/resumen-carrito-compra/resumen-carrito-compra.component';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
+import { CrearUsuarioModule } from '../../full-pages/crear-usuario/crear-usuario.module';
 
 
 
@@ -29,9 +31,11 @@ import { MessageService } from 'primeng/api';
     SharedModule,
     HomeRoutingModule,
     FormsModule,
+    CrearUsuarioModule
   ],
   providers: [
-    MessageService
+    MessageService,
+    DialogService
   ]
 })
 export class HomeModule { }

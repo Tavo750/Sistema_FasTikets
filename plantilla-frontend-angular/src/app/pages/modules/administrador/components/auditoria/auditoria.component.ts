@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 // Se usa la interfaz AuditoriaRecord del archivo de interfaces
 
@@ -47,7 +48,8 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
   constructor(
     private messageService: MessageService,
     private auditoriaService: AuditoriaService,
-    private customMessageService: CustomMessageService
+    private customMessageService: CustomMessageService,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -69,6 +71,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
    * Carga los registros de auditoría desde el backend
    */
   cargarRegistrosAuditoria(): void {
+    this.loadingService.show();
     this.isLoading = true;
     this.customMessageService.info('Cargando auditoría...', 'Cargando');
 
@@ -100,6 +103,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
           this.customMessageService.info('No se encontraron registros de auditoría', 'Sin resultados');
         }
 
+        this.loadingService.hide();
         this.isLoading = false;
       },
       error: (error) => {
@@ -108,6 +112,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
           'Error al cargar los registros de auditoría. Por favor, inténtelo de nuevo.',
           'Error de conexión'
         );
+        this.loadingService.hide();
         this.isLoading = false;
       }
     });
@@ -134,7 +139,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
   private formatearFecha(fechaISO: string): string {
     // Crear la fecha y obtener los componentes en hora local
     const fecha = new Date(fechaISO);
-    
+
     // Formatear usando métodos que respetan la zona horaria local
     const dia = fecha.getDate().toString().padStart(2, '0');
     const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
@@ -142,7 +147,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
     const horas = fecha.getHours().toString().padStart(2, '0');
     const minutos = fecha.getMinutes().toString().padStart(2, '0');
     const segundos = fecha.getSeconds().toString().padStart(2, '0');
-    
+
     return `${dia}/${mes}/${anio}, ${horas}:${minutos}:${segundos}`;
   }
 
@@ -181,10 +186,10 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
 
       return matches;
     });
-    
+
     // Ordenar resultados filtrados por fecha descendente (más recientes primero)
     this.auditoriasFiltered.sort((a, b) => b.fechaHora.getTime() - a.fechaHora.getTime());
-    
+
     // Actualizar el total de registros para la paginación
     this.totalRecords = this.auditoriasFiltered.length;
   }
@@ -220,18 +225,18 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
 
       // Crear documento simple
       const doc = new jsPDF();
-      
+
       // Título
       doc.setFontSize(16);
       doc.text('Reporte de Auditoría', 20, 20);
-      
+
       // Fecha
       doc.setFontSize(10);
       doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 35);
-      
+
       // Total de registros
       doc.text(`Total de registros: ${this.auditoriasFiltered.length}`, 20, 45);
-      
+
       // Información de filtros si existen
       let yPosition = 55;
       if (this.filtroUsuario || this.filtroTipoEvento) {
@@ -247,7 +252,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
         }
         yPosition += 5;
       }
-      
+
       // Usar autoTable para crear la tabla
       autoTable(doc, {
         startY: yPosition,
@@ -256,8 +261,8 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
           auditoria.fechaHoraString,
           auditoria.usuario,
           auditoria.accion,
-          auditoria.descripcion.length > 50 ? 
-            auditoria.descripcion.substring(0, 47) + '...' : 
+          auditoria.descripcion.length > 50 ?
+            auditoria.descripcion.substring(0, 47) + '...' :
             auditoria.descripcion
         ]),
         theme: 'striped',
@@ -277,21 +282,21 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
           3: { cellWidth: 60 }
         }
       });
-      
+
       // Guardar
       const timestamp = new Date().getTime();
       const filtroTexto = this.filtroUsuario || this.filtroTipoEvento ? '_filtrado' : '';
       doc.save(`auditoria_${timestamp}${filtroTexto}.pdf`);
-      
+
       // Mensaje de éxito
       this.customMessageService.success(
         'PDF generado y descargado correctamente',
         'Exportación exitosa'
       );
-      
+
     } catch (error) {
       console.error('Error detallado:', error);
-      
+
       // Implementación de respaldo usando window.print()
       this.exportarAlternativo();
     }
@@ -305,17 +310,17 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
       // Crear ventana con los datos
       const contenido = this.generarContenidoHTML();
       const ventana = window.open('', '_blank');
-      
+
       if (ventana) {
         ventana.document.write(contenido);
         ventana.document.close();
-        
+
         // Esperar un momento y luego imprimir
         setTimeout(() => {
           ventana.print();
           ventana.close();
         }, 500);
-        
+
         this.customMessageService.success(
           'Se abrirá el diálogo de impresión para generar el PDF',
           'Exportación alternativa'
@@ -336,10 +341,10 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
    * Genera contenido HTML para impresión
    */
   private generarContenidoHTML(): string {
-    const filtrosTexto = this.filtroUsuario || this.filtroTipoEvento ? 
+    const filtrosTexto = this.filtroUsuario || this.filtroTipoEvento ?
       `<p><strong>Filtros aplicados:</strong> Usuario: ${this.filtroUsuario || 'Todos'}, Evento: ${this.filtroTipoEvento || 'Todos'}</p>` : '';
-    
-    const filasTabla = this.auditoriasFiltered.map(auditoria => 
+
+    const filasTabla = this.auditoriasFiltered.map(auditoria =>
       `<tr>
         <td>${auditoria.fechaHoraString}</td>
         <td>${auditoria.usuario}</td>
@@ -368,7 +373,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
         <p><strong>Fecha de generación:</strong> ${new Date().toLocaleString('es-ES')}</p>
         ${filtrosTexto}
         <p><strong>Total de registros:</strong> ${this.auditoriasFiltered.length}</p>
-        
+
         <table>
           <thead>
             <tr>
@@ -382,7 +387,7 @@ export class AuditoriaComponent implements OnInit, OnDestroy {
             ${filasTabla}
           </tbody>
         </table>
-        
+
         <div style="margin-top: 20px; text-align: center; font-size: 10px; color: #666;">
           FasTikets - Sistema de Gestión de Eventos
         </div>

@@ -120,3 +120,56 @@
   </div>
 
 </div>
+
+<!-- Modal de Verificación de Correo -->
+<div class="modal-overlay" *ngIf="mostrarModalVerificacion" (click)="cerrarModalVerificacion()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Verificación de Correo</h2>
+      <button class="btn-close" (click)="cerrarModalVerificacion()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-description">
+        Hemos enviado un código de verificación a <strong>{{ correoAVerificar }}</strong>
+      </p>
+
+      <div class="codigo-input-container">
+        <label for="codigo-0">Ingrese el código de verificación:</label>
+        <div class="codigo-boxes">
+          <input
+            *ngFor="let digit of codigoDigitos; let i = index"
+            type="text"
+            [id]="'codigo-' + i"
+            [(ngModel)]="codigoDigitos[i]"
+            (input)="onCodigoInput($event, i)"
+            (keydown)="onCodigoKeydown($event, i)"
+            (paste)="onCodigoPaste($event, i)"
+            [disabled]="verificandoCodigo"
+            maxlength="1"
+            class="codigo-box"
+            inputmode="numeric"
+            pattern="[0-9]*">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-verificar"
+          (click)="validarCodigo()"
+          [disabled]="verificandoCodigo || codigoDigitos.join('').length !== 6">
+          {{ verificandoCodigo ? 'Verificando...' : 'Verificar' }}
+        </button>
+
+        <button
+          type="button"
+          class="btn-reenviar"
+          (click)="reenviarCodigo()"
+          [disabled]="enviandoCodigo">
+          {{ enviandoCodigo ? 'Enviando...' : 'Reenviar código' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

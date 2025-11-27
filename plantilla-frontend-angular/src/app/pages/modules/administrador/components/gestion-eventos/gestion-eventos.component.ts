@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { EventoService } from '../../services/evento.service';
 import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
 import { baseUrl } from '../../../../../global';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 interface TipoConcierto {
   label: string;
@@ -44,7 +45,7 @@ export class GestionEventosComponent implements OnInit {
   terminoBusqueda: string = '';
   tipoSeleccionado: TipoConcierto | null = null;
   cargando: boolean = false;
-  
+
   // Variables para el modal de detalles
   mostrarModalDetalles: boolean = false;
   eventoSeleccionado: Evento | null = null;
@@ -56,7 +57,8 @@ export class GestionEventosComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private eventoService: EventoService
+    private eventoService: EventoService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit() {
@@ -80,6 +82,7 @@ export class GestionEventosComponent implements OnInit {
   }
 
   cargarEventos() {
+    this.loadingService.show();
     this.cargando = true;
     this.eventoService.getListarEventos().subscribe({
       next: (response) => {
@@ -118,6 +121,7 @@ export class GestionEventosComponent implements OnInit {
           this.eventosFiltrados = [...this.eventos];
         }
 
+        this.loadingService.hide();
         this.cargando = false;
 
         console.log('Eventos cargados:', this.eventos);
@@ -126,6 +130,7 @@ export class GestionEventosComponent implements OnInit {
         console.error('Error al cargar eventos:', error);
         this.eventos = [];
         this.eventosFiltrados = [];
+        this.loadingService.hide();
         this.cargando = false;
       }
     });
@@ -170,30 +175,30 @@ export class GestionEventosComponent implements OnInit {
 
   generarReporte(evento: Evento) {
     console.log('Descargando reporte de ventas para:', evento.nombre);
-    
+
     this.eventoService.descargarReporteVentasPDF(evento.idEvento)
       .subscribe({
         next: (blob: Blob) => {
           // Crear URL temporal para el blob
           const url = window.URL.createObjectURL(blob);
-          
+
           // Crear elemento 'a' para forzar la descarga
           const link = document.createElement('a');
           link.href = url;
-          
+
           // Generar nombre del archivo con fecha actual
           const fechaActual = new Date().toISOString().split('T')[0];
           const nombreArchivo = `reporte-ventas-${evento.nombre.replace(/\s+/g, '-')}-${fechaActual}.pdf`;
           link.download = nombreArchivo;
-          
+
           // Simular click para descargar
           document.body.appendChild(link);
           link.click();
-          
+
           // Limpiar
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
-          
+
           console.log('✅ Reporte descargado exitosamente:', nombreArchivo);
         },
         error: (error) => {
@@ -208,7 +213,7 @@ export class GestionEventosComponent implements OnInit {
     console.log('Cargando detalles completos para:', evento.nombre);
     this.cargandoDetalles = true;
     this.mostrarModalDetalles = true;
-    
+
     // Cargar detalles completos del evento
     this.eventoService.getEventoPorId(evento.idEvento).subscribe({
       next: (response) => {
@@ -235,7 +240,7 @@ export class GestionEventosComponent implements OnInit {
             fechaCreacion: response.data.fechaCreacion ? new Date(response.data.fechaCreacion) : undefined,
             fechaActualizacion: (response.data as any).fechaActualizacion ? new Date((response.data as any).fechaActualizacion) : undefined
           };
-          
+
           console.log('✅ Detalles del evento cargados:', this.eventoSeleccionado);
         }
         this.cargandoDetalles = false;
@@ -413,19 +418,19 @@ export class GestionEventosComponent implements OnInit {
     if (!imagenUrl) {
       return 'assets/img/evento-placeholder.jpg';
     }
-    
+
     // Si ya es una URL completa, devolverla tal como está
     if (imagenUrl.startsWith('http')) {
       return imagenUrl;
     }
-    
+
     // Si es una ruta relativa, construir la URL completa
     return `${baseUrl.replace('/api/v1', '')}${imagenUrl}`;
   }
 
   formatearFecha(fecha: Date | undefined): string {
     if (!fecha) return 'No disponible';
-    
+
     return new Intl.DateTimeFormat('es-PE', {
       year: 'numeric',
       month: 'long',
@@ -436,7 +441,7 @@ export class GestionEventosComponent implements OnInit {
 
   formatearFechaCorta(fecha: Date | undefined): string {
     if (!fecha) return 'No disponible';
-    
+
     return new Intl.DateTimeFormat('es-PE', {
       year: 'numeric',
       month: '2-digit',

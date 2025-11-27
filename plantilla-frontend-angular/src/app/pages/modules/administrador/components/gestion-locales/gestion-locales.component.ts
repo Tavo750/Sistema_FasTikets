@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { LocalService } from '../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
 import { ListarLocalesResponse } from '../../interfaces/gestion-locales/local.interface';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 interface Local {
   idLocal: number;
@@ -36,7 +37,8 @@ export class GestionLocalesComponent implements OnInit {
     private confirmationService: ConfirmationService,
     private router: Router,
     private localService: LocalService,
-    private customMessageService: CustomMessageService
+    private customMessageService: CustomMessageService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -44,6 +46,7 @@ export class GestionLocalesComponent implements OnInit {
   }
 
   loadLocales(): void {
+    this.loadingService.show();
     this.isLoading = true;
     this.customMessageService.info('Cargando locales...', 'Cargando');
 
@@ -69,6 +72,7 @@ export class GestionLocalesComponent implements OnInit {
           this.customMessageService.info('No se encontraron locales registrados', 'Sin resultados');
         }
 
+        this.loadingService.hide();
         this.isLoading = false;
       },
       error: (error) => {
@@ -77,6 +81,7 @@ export class GestionLocalesComponent implements OnInit {
           'Error al cargar la lista de locales. Por favor, inténtelo de nuevo.',
           'Error de conexión'
         );
+        this.loadingService.hide();
         this.isLoading = false;
 
         // Mantener datos de ejemplo en caso de error para pruebas

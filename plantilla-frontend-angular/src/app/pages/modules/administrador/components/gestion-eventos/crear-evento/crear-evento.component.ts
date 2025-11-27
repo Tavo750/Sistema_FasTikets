@@ -49,6 +49,7 @@ export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
   time: Date | undefined; // Cambiar de array a Date único para timeOnly
   timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
+  minDate: Date = new Date(); // Fecha mínima permitida (hoy)
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;
@@ -181,6 +182,9 @@ export class CrearEventoComponent implements OnInit{
 
   // ID del evento (para identificar si estamos editando)
   idEvento: number | null = null;
+
+  // Controla si los campos de datos generales están bloqueados
+  datosGeneralesBloqueados: boolean = false;
 
   nuevaCategoria = {
     nombre: '',
@@ -710,6 +714,9 @@ export class CrearEventoComponent implements OnInit{
             this.idEvento = response.data.idEvento;
             this.messageService.info(`Evento creado con ID: ${this.idEvento}`, 'Información');
 
+            // Bloquear los campos de datos generales para evitar crear eventos duplicados
+            this.datosGeneralesBloqueados = true;
+
             // Cargar las zonas asociadas al evento recién creado
             this.cargarZonas(this.idEvento);
           }
@@ -796,6 +803,17 @@ export class CrearEventoComponent implements OnInit{
     // Validar fecha del evento usando directamente el datepicker
     if (!this.date) {
       this.messageService.error('La fecha del evento es obligatoria', 'Campo Requerido');
+      return false;
+    }
+
+    // Validar que la fecha no sea menor al día actual
+    const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+    const fechaSeleccionada = new Date(this.date);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+
+    if (fechaSeleccionada < fechaActual) {
+      this.messageService.error('La fecha del evento no puede ser anterior al día actual', 'Fecha Inválida');
       return false;
     }
 
@@ -1028,6 +1046,9 @@ export class CrearEventoComponent implements OnInit{
     // Resetear ID del evento (vuelve a modo creación)
     this.idEvento = null;
 
+    // Desbloquear los campos de datos generales
+    this.datosGeneralesBloqueados = false;
+
     this.messageService.info('Formulario limpiado', 'Información');
   }
 
@@ -1133,20 +1154,32 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar los datos del evento solo con la imagen de zonas
-    // NO incluir imagenUrl para que el backend mantenga el banner existente
+    // Verificar si existe la imagen del banner
+    if (!this.formulario.banner && !this.evento.imagenUrl) {
+      this.messageService.error('No se puede actualizar el mapa sin una imagen de banner previamente cargada', 'Error');
+      return;
+    }
+
+    // Preparar los datos del evento con AMBAS imágenes: banner y zonas
+    // El endpoint requiere ambas imágenes para actualizar correctamente
     const datosEvento: CrearEventoRequest = {
       nombre: this.evento.nombre,
       descripcion: this.evento.descripcion,
       fechaEvento: this.evento.fechaEvento,
       horaInicio: this.evento.horaInicio,
       horaFin: this.evento.horaFin,
-      // imagenUrl: NO enviamos este campo para mantener el banner existente
-      imagenZonasUrl: file, // Solo actualizar la imagen de zonas
+      // Incluir el banner: usar el File si existe, o mantener el del evento
+      imagenUrl: this.formulario.banner || this.evento.imagenUrl,
+      // Incluir la nueva imagen de zonas
+      imagenZonasUrl: file,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: this.evento.aforoDisponible,
-      idLocal: this.evento.idLocal
+      idLocal: this.evento.idLocal,
+      // IMPORTANTE: Incluir TODOS los campos opcionales para mantener los datos existentes
+      restricciones: this.evento.restricciones || '',
+      politicasDevolucion: this.evento.politicasDevolucion || '',
+      menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
     };
 
     // Mostrar mensaje de carga
