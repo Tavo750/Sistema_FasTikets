@@ -94,6 +94,34 @@
         </div>
 
         <div class="form-field">
+          <label for="tipoAsunto" class="field-label">
+            <i class="pi" [ngClass]="{
+              'pi-exclamation-triangle': tipoAsunto === 'INCIDENCIA',
+              'pi-times-circle': tipoAsunto === 'RECLAMO',
+              'pi-heart': tipoAsunto === 'FELICITACION',
+              'pi-info-circle': tipoAsunto === 'OTROS'
+            }"></i>
+            Tipo de Asunto *
+          </label>
+          <select 
+            id="tipoAsunto" 
+            name="tipoAsunto" 
+            [(ngModel)]="tipoAsunto" 
+            class="form-input"
+            required>
+            <option value="INCIDENCIA">🔧 Incidencia - Problema técnico o funcional</option>
+            <option value="RECLAMO">⚠️ Reclamo - Inconformidad o queja</option>
+            <option value="FELICITACION">💝 Felicitación - Reconocimiento o agradecimiento</option>
+            <option value="OTROS">📋 Otros - Consulta general</option>
+          </select>
+          <div class="field-errors" *ngIf="supportForm.submitted || supportForm.controls['tipoAsunto']?.touched">
+            <small class="error" *ngIf="supportForm.controls['tipoAsunto']?.errors?.['required']">
+              <i class="pi pi-exclamation-circle"></i> Debe seleccionar un tipo de asunto.
+            </small>
+          </div>
+        </div>
+
+        <div class="form-field">
           <label for="mensaje" class="field-label">
             <i class="pi pi-align-left"></i>
             Tu Mensaje *
@@ -168,36 +196,51 @@
   </p-dialog>
 
   <!-- Diálogo: listado de solicitudes -->
-  <p-dialog header="Listado de solicitudes" [(visible)]="mostrarListadoDialog" [modal]="true" [closable]="true" [style]="{width: '900px'}" (onHide)="solicitudes=[]">
+  <p-dialog header="Listado de solicitudes" [(visible)]="mostrarListadoDialog" [modal]="true" [closable]="true" [style]="{width: '1100px'}" (onHide)="solicitudes=[]">
     <div *ngIf="loadingSolicitudes">Cargando solicitudes...</div>
     <div *ngIf="!loadingSolicitudes">
       <table class="p-datatable p-component" style="width:100%;border-collapse:collapse;">
         <thead>
-          <tr style="text-align:left;border-bottom:1px solid #ddd;">
-            <th style="padding:8px;">ID</th>
-            <th style="padding:8px;">Asunto</th>
-            <th style="padding:8px;">Estado</th>
-            <th style="padding:8px;">Fecha</th>
-            <th style="padding:8px;">Acciones</th>
+          <tr style="text-align:left;border-bottom:2px solid #ddd;background:#f8f9fa;">
+            <th style="padding:10px;font-weight:600;">ID</th>
+            <th style="padding:10px;font-weight:600;">Asunto</th>
+            <th style="padding:10px;font-weight:600;text-align:center;">Tipo</th>
+            <th style="padding:10px;font-weight:600;text-align:center;">Estado</th>
+            <th style="padding:10px;font-weight:600;">Fecha</th>
+            <th style="padding:10px;font-weight:600;text-align:center;">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let s of solicitudes" style="border-bottom:1px solid #f1f1f1;">
-            <td style="padding:8px;vertical-align:top;">{{ s.idSolicitud }}</td>
-            <td style="padding:8px;vertical-align:top;">{{ s.asunto }}</td>
-            <td style="padding:8px;vertical-align:top;">{{ s.estado }}</td>
-            <td style="padding:8px;vertical-align:top;">{{ s.fechaCreacion | date:'short' }}</td>
-            <td style="padding:8px;vertical-align:top;">
+            <td style="padding:10px;vertical-align:middle;font-weight:600;color:#1976d2;">{{ s.idSolicitud }}</td>
+            <td style="padding:10px;vertical-align:middle;">{{ obtenerAsunto(s.asunto) }}</td>
+            <td style="padding:10px;vertical-align:middle;text-align:center;">
+              <p-tag 
+                *ngIf="obtenerTipo(s.asunto)"
+                [value]="obtenerTipo(s.asunto)" 
+                [severity]="obtenerSeveridadTipo(obtenerTipo(s.asunto))"
+                [icon]="'pi ' + obtenerIconoTipo(obtenerTipo(s.asunto))">
+              </p-tag>
+              <span *ngIf="!obtenerTipo(s.asunto)" style="color:#999;">-</span>
+            </td>
+            <td style="padding:10px;vertical-align:middle;text-align:center;">
+              <p-tag 
+                [value]="s.estado" 
+                [severity]="s.estado === 'ABIERTO' ? 'info' : (s.estado === 'RESUELTO' ? 'success' : 'secondary')">
+              </p-tag>
+            </td>
+            <td style="padding:10px;vertical-align:middle;font-size:0.9rem;color:#666;">{{ s.fechaCreacion | date:'short' }}</td>
+            <td style="padding:10px;vertical-align:middle;text-align:center;">
               <button pButton type="button"
                 [label]="s.observaciones ? 'Ver respuesta' : (s.estado === 'ABIERTO' ? 'No hay respuesta' : 'Ver respuesta')"
-                class="p-button-text"
+                class="p-button-text p-button-sm"
                 [disabled]="!s.observaciones && s.estado === 'ABIERTO'"
                 (click)="verObservacion(s)">
               </button>
             </td>
           </tr>
           <tr *ngIf="solicitudes.length === 0">
-            <td colspan="5" style="padding:12px;text-align:center;color:#666;">No hay solicitudes</td>
+            <td colspan="6" style="padding:20px;text-align:center;color:#999;font-style:italic;">No hay solicitudes registradas</td>
           </tr>
         </tbody>
       </table>

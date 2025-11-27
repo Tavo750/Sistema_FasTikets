@@ -18,6 +18,7 @@ export class AsuntoSoporteComponent {
   @ViewChild('supportForm') supportForm!: NgForm;
   
   asunto: string = '';
+  tipoAsunto: 'INCIDENCIA' | 'RECLAMO' | 'FELICITACION' | 'OTROS' | string = 'INCIDENCIA';
   mensaje: string = '';
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | string = 'MEDIA';
   canalOrigen: string = 'PORTAL_WEB';
@@ -137,9 +138,12 @@ export class AsuntoSoporteComponent {
     const ipOrigenToSend = (this.ipOrigen && this.ipOrigen.trim().length > 0) ? this.ipOrigen.trim() : '127.0.0.1';
     const metadataToSend = (this.metadataAdicional && this.metadataAdicional.trim().length > 0) ? this.metadataAdicional.trim() : 'prueba_frontend';
 
+    // Concatenar el asunto con el tipo de asunto en formato: "asunto - tipo"
+    const asuntoCompleto = `${this.asunto.trim()} - ${this.tipoAsunto}`;
+
     const payload: AyudaSoporteRequest = {
       idUsuario,
-      asunto: this.asunto.trim(),
+      asunto: asuntoCompleto,
       mensaje: this.mensaje.trim(),
       prioridad: this.prioridad,
       canalOrigen: this.canalOrigen,
@@ -231,5 +235,49 @@ export class AsuntoSoporteComponent {
 
     // Si está ABIERTO y no hay observaciones
     this.messageService.add({ severity: 'info', summary: 'Pendiente', detail: 'Aún no hay respuesta (observaciones vacías).' });
+  }
+
+  /**
+   * Extrae el asunto sin el tipo (parte antes del guion)
+   */
+  obtenerAsunto(asuntoCompleto: string): string {
+    if (!asuntoCompleto) return '';
+    const partes = asuntoCompleto.split(' - ');
+    return partes[0] || asuntoCompleto;
+  }
+
+  /**
+   * Extrae el tipo de asunto (parte después del guion)
+   */
+  obtenerTipo(asuntoCompleto: string): string {
+    if (!asuntoCompleto) return '';
+    const partes = asuntoCompleto.split(' - ');
+    return partes.length > 1 ? partes[1] : '';
+  }
+
+  /**
+   * Obtiene el icono según el tipo de asunto
+   */
+  obtenerIconoTipo(tipo: string): string {
+    switch(tipo) {
+      case 'INCIDENCIA': return 'pi-exclamation-triangle';
+      case 'RECLAMO': return 'pi-times-circle';
+      case 'FELICITACION': return 'pi-heart';
+      case 'OTROS': return 'pi-info-circle';
+      default: return 'pi-tag';
+    }
+  }
+
+  /**
+   * Obtiene la severidad del tag según el tipo de asunto
+   */
+  obtenerSeveridadTipo(tipo: string): string {
+    switch(tipo) {
+      case 'INCIDENCIA': return 'warning';
+      case 'RECLAMO': return 'danger';
+      case 'FELICITACION': return 'success';
+      case 'OTROS': return 'info';
+      default: return 'secondary';
+    }
   }
 }
