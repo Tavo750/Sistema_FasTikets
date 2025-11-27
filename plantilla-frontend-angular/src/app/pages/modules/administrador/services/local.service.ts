@@ -6,6 +6,7 @@ import { Observable, catchError } from 'rxjs';
 import { LocalResponse, ListarLocalesResponse } from '../interfaces/gestion-locales/local.interface';
 import { CrearLocalRequest } from '../interfaces/gestion-locales/crear-local.interface';
 import { DeleteLocalResponse } from '../interfaces/gestion-locales/delete-local.interface';
+import { CargaMasivaLocalResponse } from '../interfaces/gestion-locales/carga-local-masivo.interface';
 @Injectable({
   providedIn: 'root'
 })
@@ -29,6 +30,10 @@ export class LocalService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+
+
+
   /**
    * Actualiza un local existente
    * @param id ID del local a actualizar
@@ -83,6 +88,22 @@ export class LocalService {
   deleteLocal(id: number): Observable<DeleteLocalResponse> {
     const url = `${baseUrl}/locales/${id}`;
     return this.http.delete<DeleteLocalResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Carga masiva de locales mediante archivo Excel
+   * @param file Archivo Excel con los datos de los locales
+   * @returns Observable con la respuesta del servidor
+   */
+  postCargaMasivaLocales(file: File): Observable<CargaMasivaLocalResponse> {
+    const url = `${baseUrl}/admin/carga-masiva/locales`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<CargaMasivaLocalResponse>(url, formData)
       .pipe(
         catchError(this.httpUtils.handleError)
       );
