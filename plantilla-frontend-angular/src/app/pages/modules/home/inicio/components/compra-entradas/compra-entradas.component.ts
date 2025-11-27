@@ -597,5 +597,117 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	navigateToHome(): void {
 		this.router.navigate(['/home']);
 	}
-}
 
+	// ============= Métodos de validación para inputs =============
+	
+	/**
+	 * Permite solo números en el input (para CVV)
+	 */
+	onlyNumbers(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		// Permitir solo números (0-9)
+		if (charCode < 48 || charCode > 57) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Permite solo números y espacios (para número de tarjeta)
+	 */
+	onlyNumbersAndSpaces(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		// Permitir números (48-57) y espacio (32)
+		if ((charCode < 48 || charCode > 57) && charCode !== 32) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Permite solo letras, espacios y tildes (para nombre del titular)
+	 */
+	onlyLettersAndSpaces(event: KeyboardEvent): boolean {
+		const char = String.fromCharCode(event.which ? event.which : event.keyCode);
+		// Permitir letras a-z, A-Z, espacios, letras con tildes y ñ
+		const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]$/;
+		if (!regex.test(char)) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validación especial para fecha de expiración MM/AA
+	 * Permite solo números y el carácter /
+	 */
+	onExpiryKeypress(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		const currentValue = this.expiry || '';
+		
+		// Permitir números (48-57) y slash (47)
+		if ((charCode < 48 || charCode > 57) && charCode !== 47) {
+			event.preventDefault();
+			return false;
+		}
+
+		// Auto-agregar el slash después de 2 dígitos
+		if (currentValue.length === 2 && charCode !== 47) {
+			this.expiry = currentValue + '/';
+		}
+
+		return true;
+	}
+
+	/**
+	 * Maneja el pegado de texto en campos numéricos
+	 */
+	onPasteNumbers(event: ClipboardEvent, field: string): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea número
+		const cleanedText = pastedText.replace(/[^0-9]/g, '');
+		
+		if (field === 'cardNumber') {
+			// Para tarjeta, limitar a 19 dígitos
+			this.cardNumber = cleanedText.substring(0, 19);
+		} else if (field === 'cvv') {
+			// Para CVV, limitar a 3 dígitos
+			this.cvv = cleanedText.substring(0, 3);
+		}
+	}
+
+	/**
+	 * Maneja el pegado de texto en el campo de fecha de expiración
+	 */
+	onPasteExpiry(event: ClipboardEvent): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea número o /
+		const cleanedText = pastedText.replace(/[^0-9/]/g, '');
+		
+		// Validar formato básico
+		if (cleanedText.match(/^\d{2}\/?\d{2}$/)) {
+			// Asegurar que tenga el formato MM/AA
+			if (cleanedText.includes('/')) {
+				this.expiry = cleanedText;
+			} else {
+				this.expiry = cleanedText.substring(0, 2) + '/' + cleanedText.substring(2, 4);
+			}
+		}
+	}
+
+	/**
+	 * Maneja el pegado de texto en campos de letras (nombre del titular)
+	 */
+	onPasteLetters(event: ClipboardEvent): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea letra, espacio o tildes
+		const cleanedText = pastedText.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+		this.cardHolder = cleanedText;
+	}
+}
