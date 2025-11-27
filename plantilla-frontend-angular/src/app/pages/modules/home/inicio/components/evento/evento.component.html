@@ -1,16 +1,5 @@
 <div class="evento-container">
-  <!-- Botón de retroceder -->
-  <div class="btn-retroceder-container">
-    <p-button 
-      label="Volver a los eventos" 
-      icon="pi pi-arrow-left" 
-      severity="danger"
-      size="small"
-      [text]="true"
-      (onClick)="volverAEventos()"
-      styleClass="btn-retroceder">
-    </p-button>
-  </div>
+  
 
   <!-- Spinner de carga -->
   <div *ngIf="cargandoDatos" class="loading-container">
@@ -320,7 +309,18 @@
         </div>
       </div>
     </div>
-
+    <!-- Botón de retroceder -->
+  <div class="btn-retroceder-container">
+    <p-button 
+      label="Volver a los eventos" 
+      icon="pi pi-arrow-left" 
+      severity="danger"
+      size="small"
+      [text]="true"
+      (onClick)="volverAEventos()"
+      styleClass="btn-retroceder">
+    </p-button>
+  </div>
   </p-card>
 
   <!-- Barra inferior flotante con resumen -->
@@ -353,5 +353,5 @@
       </div>
     </p-card>
   </div>
-
+  
 </div>

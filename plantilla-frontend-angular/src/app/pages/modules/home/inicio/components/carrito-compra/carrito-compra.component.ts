@@ -300,9 +300,8 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   continueShopping(): void {
-    // Navegar de vuelta a la página de eventos
-    console.log('Continuar comprando');
-    // Aquí podrías usar el Router para navegar
+    // Navegar de vuelta a la página principal donde están todos los eventos
+    this.router.navigate(['/home/inicio']);
   }
 
   proceedToCheckout(): void {
@@ -320,8 +319,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   exploreEvents(): void {
-    // Navegar a la página de exploración de eventos
-    console.log('Explorar eventos');
-    // Aquí podrías usar el Router para navegar a los eventos
+    // Navegar a la página principal donde están todos los eventos disponibles
+    this.router.navigate(['/home/inicio']);
   }
 }
