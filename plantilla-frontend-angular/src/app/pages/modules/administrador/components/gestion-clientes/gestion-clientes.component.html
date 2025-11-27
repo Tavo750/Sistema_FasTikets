@@ -180,6 +180,17 @@
                   (onClick)="confirmarVerificacion(cliente)">
                 </p-button>
                 <p-button
+                  *ngIf="isAdministradorGeneral"
+                  icon="pi pi-user-plus"
+                  severity="help"
+                  size="small"
+                  [text]="true"
+                  [rounded]="true"
+                  pTooltip="Cambiar a Administrador"
+                  tooltipPosition="top"
+                  (onClick)="cambiarAAdmin(cliente)">
+                </p-button>
+                <p-button
                   icon="pi pi-trash"
                   severity="danger"
                   size="small"

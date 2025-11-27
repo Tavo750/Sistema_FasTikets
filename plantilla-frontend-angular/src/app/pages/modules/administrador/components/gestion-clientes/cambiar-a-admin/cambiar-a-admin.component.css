@@ -1,0 +1,341 @@
+/* Container principal */
+.container {
+  padding: 2rem;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+/* Header Section */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e88e5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.title i {
+  font-size: 2.5rem;
+  color: #1e88e5;
+}
+
+/* Loading Card */
+.loading-card {
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1.5rem;
+}
+
+.loading-content p {
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Form Card */
+.form-card {
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  border: none;
+}
+
+::ng-deep .form-card .p-card-content {
+  padding: 2rem;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+  color: white;
+  padding: 1.5rem;
+  margin: -1rem -1rem 0 -1rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+}
+
+.card-header i {
+  font-size: 1.25rem;
+}
+
+/* Client Info */
+.client-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-row .label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-row .value {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+/* Form Section */
+.form-section {
+  margin-top: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  color: #1e88e5;
+  font-size: 1.1rem;
+}
+
+/* Field */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.field label.required::after {
+  content: ' *';
+  color: #dc2626;
+}
+
+.field-hint {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.w-full {
+  width: 100%;
+}
+
+::ng-deep .p-dropdown,
+::ng-deep .p-password {
+  width: 100%;
+}
+
+::ng-deep .p-inputtext,
+::ng-deep .p-dropdown {
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  padding: 0.75rem;
+}
+
+::ng-deep .p-inputtext:focus,
+::ng-deep .p-dropdown:not(.p-disabled):hover {
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.15);
+}
+
+/* Warning Box */
+.warning-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.warning-box i {
+  color: #f59e0b;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.warning-box p {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+  line-height: 1.5;
+}
+
+.warning-box p:last-child {
+  margin-bottom: 0;
+}
+
+.warning-box strong {
+  font-weight: 700;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 2px solid #e9ecef;
+}
+
+/* Dialog Styles */
+::ng-deep .confirm-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 1.5rem;
+}
+
+::ng-deep .confirm-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+::ng-deep .confirm-dialog .p-dialog-content {
+  padding: 2rem;
+}
+
+::ng-deep .confirm-dialog .p-dialog-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8fafc;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.confirm-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+}
+
+.confirm-info .icon-large {
+  font-size: 3rem;
+  color: #1e88e5;
+}
+
+.confirm-info p {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.alert-box {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #e0f2fe;
+  border: 1px solid #0ea5e9;
+  border-radius: 6px;
+}
+
+.alert-box i {
+  color: #0284c7;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.alert-box p {
+  margin: 0;
+  color: #0c4a6e;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .client-info {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-actions,
+  .dialog-actions {
+    flex-direction: column;
+  }
+
+  .form-actions p-button,
+  .dialog-actions p-button {
+    width: 100%;
+  }
+
+  ::ng-deep .confirm-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+}
