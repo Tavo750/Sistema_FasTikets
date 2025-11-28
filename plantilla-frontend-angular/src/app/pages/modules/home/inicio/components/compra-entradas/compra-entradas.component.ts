@@ -525,8 +525,25 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	onViewDetail(): void {
-		// Acción para ver detalle de la compra
-		console.log('Ver detalle de la compra');
+		// Navegar al detalle de la compra usando el id disponible
+		let id: any = null;
+		// Preferir el id de la orden creada durante el flujo de pago
+		if (this.createdOrderId) id = this.createdOrderId;
+		// Fallbacks posibles en purchaseData (si el backend envía otro nombre)
+		if (!id && this.purchaseData) {
+			id = (this.purchaseData as any).idOrden ?? (this.purchaseData as any).orderId ?? (this.purchaseData as any).idCompra ?? (this.purchaseData as any).id ?? null;
+		}
+		if (!id) {
+			try { alert('No se pudo determinar el id de la compra para ver el detalle.'); } catch (e) {}
+			console.warn('onViewDetail: id de compra no disponible', { createdOrderId: this.createdOrderId, purchaseData: this.purchaseData });
+			return;
+		}
+		try {
+			// Navegar con el prefijo 'usuario' para coincidir con la ruta esperada
+			this.router.navigate(['/usuario', 'historialCompras', 'detalle', id]);
+		} catch (e) {
+			console.warn('Error navegando a detalle de compra', e);
+		}
 	}
 	onExitConfirm(): void {
 		// Lógica al salir: quizá navegar o limpiar estado
