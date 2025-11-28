@@ -4,6 +4,8 @@ import { EventoService } from '../../services/evento.service';
 import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
 import { baseUrl } from '../../../../../global';
 import { LoadingService } from '../../../../../shared/services/loading.service';
+import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
+import { ConfirmationService } from 'primeng/api';
 
 interface TipoConcierto {
   label: string;
@@ -46,6 +48,7 @@ export class GestionEventosComponent implements OnInit {
   terminoBusqueda: string = '';
   tipoSeleccionado: TipoConcierto | null = null;
   cargando: boolean = false;
+  isUploading: boolean = false;
 
   // Variables para el modal de detalles
   mostrarModalDetalles: boolean = false;
@@ -59,7 +62,9 @@ export class GestionEventosComponent implements OnInit {
   constructor(
     private router: Router,
     private eventoService: EventoService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private customMessageService: CustomMessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
@@ -478,5 +483,346 @@ export class GestionEventosComponent implements OnInit {
     if (img) {
       img.style.display = 'none';
     }
+  }
+
+  // =================== Métodos de carga masiva ===================
+
+  /**
+   * Maneja la selección de archivo Excel para carga masiva
+   */
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    // Validar que sea un archivo Excel
+    const allowedExtensions = ['.xlsx', '.xls'];
+    const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+    if (!allowedExtensions.includes(fileExtension)) {
+      this.customMessageService.error(
+        'Por favor, seleccione un archivo Excel válido (.xlsx o .xls)',
+        'Formato no válido'
+      );
+      event.target.value = '';
+      return;
+    }
+
+    // Validar tamaño del archivo (máximo 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.customMessageService.error(
+        'El archivo no debe superar los 10MB',
+        'Archivo muy grande'
+      );
+      event.target.value = '';
+      return;
+    }
+
+    // Recargar la lista de eventos para tener los datos más actualizados antes de validar
+    this.loadingService.show();
+    this.eventoService.getListarEventos().subscribe({
+      next: (response) => {
+        if (response && response.ok && response.data) {
+          if (Array.isArray(response.data)) {
+            this.eventos = response.data.map((evento: EventoData) => ({
+              idEvento: evento.idEvento,
+              nombre: evento.nombre,
+              tipoEvento: evento.tipoEvento,
+              fechaEvento: this.convertirFechaLocal(evento.fechaEvento.toString()),
+              fechaFinEvento: evento.fechaFinEvento ? this.convertirFechaLocal(evento.fechaFinEvento.toString()) : undefined,
+              nombreLocal: evento.nombreLocal,
+              aforoDisponible: evento.aforoDisponible,
+              estadoEvento: evento.estadoEvento,
+              descripcion: evento.descripcion,
+              horaInicio: evento.horaInicio,
+              horaFin: evento.horaFin
+            }));
+          }
+          this.eventosFiltrados = [...this.eventos];
+        }
+        this.loadingService.hide();
+
+        // Validar el formato del archivo Excel después de actualizar la lista
+        this.validarFormatoExcel(file, event);
+      },
+      error: (error) => {
+        console.error('Error al actualizar eventos:', error);
+        this.loadingService.hide();
+
+        // Continuar con la validación aunque falle la actualización
+        this.validarFormatoExcel(file, event);
+      }
+    });
+  }
+
+  /**
+   * Valida que el archivo Excel tenga el formato correcto (columnas requeridas)
+   */
+  private validarFormatoExcel(file: File, event: any): void {
+    const reader = new FileReader();
+
+    reader.onload = (e: any) => {
+      try {
+        import('xlsx').then((XLSX) => {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          if (jsonData.length === 0) {
+            this.customMessageService.error(
+              'El archivo Excel está vacío',
+              'Archivo inválido'
+            );
+            event.target.value = '';
+            return;
+          }
+
+          const headers = jsonData[0] as string[];
+
+          // Columnas requeridas según el formato
+          const columnasRequeridas = [
+            'Nombre Evento',
+            'Descripcion',
+            'Fecha Inicio (YYYY-MM-DD)',
+            'Fecha Fin (YYYY-MM-DD)',
+            'Hora Inicio (HH:mm)',
+            'Hora Fin (HH:mm)',
+            'Aforo Disponible',
+            'ID Local',
+            'Tipo Evento',
+            'Restricciones',
+            'Politicas Devolucion',
+            'Menores Permitidos',
+            'Imagen URL'
+          ];
+
+          // Validar que todas las columnas requeridas estén presentes
+          const columnasFaltantes = columnasRequeridas.filter(
+            columna => !headers.includes(columna)
+          );
+
+          if (columnasFaltantes.length > 0) {
+            this.customMessageService.error(
+              `El archivo no tiene el formato correcto. Faltan las siguientes columnas: ${columnasFaltantes.join(', ')}`,
+              'Formato inválido'
+            );
+            event.target.value = '';
+            return;
+          }
+
+          // Validar que haya al menos una fila de datos
+          if (jsonData.length < 2) {
+            this.customMessageService.error(
+              'El archivo no contiene datos de eventos para cargar',
+              'Sin datos'
+            );
+            event.target.value = '';
+            return;
+          }
+
+          // Validar duplicados
+          const validacionDuplicados = this.validarEventosDuplicados(jsonData, headers);
+
+          if (validacionDuplicados.hayDuplicadosEnArchivo) {
+            this.customMessageService.error(
+              `El archivo contiene nombres de eventos duplicados: ${validacionDuplicados.duplicadosEnArchivo.join(', ')}. Por favor, elimine los duplicados del archivo e intente nuevamente.`,
+              'Duplicados en archivo'
+            );
+            event.target.value = '';
+            return;
+          }
+
+          if (validacionDuplicados.hayDuplicadosEnSistema) {
+            const mensajeDuplicados = validacionDuplicados.duplicadosEnSistema.length > 5
+              ? `${validacionDuplicados.duplicadosEnSistema.slice(0, 5).join(', ')} y ${validacionDuplicados.duplicadosEnSistema.length - 5} más`
+              : validacionDuplicados.duplicadosEnSistema.join(', ');
+
+            this.customMessageService.error(
+              `Los siguientes eventos ya existen en el sistema: ${mensajeDuplicados}. Por favor, elimínelos del archivo Excel e intente nuevamente.`,
+              'Eventos duplicados'
+            );
+            event.target.value = '';
+            return;
+          }
+
+          // Si todo está correcto, mostrar confirmación
+          this.confirmationService.confirm({
+            message: `¿Desea cargar el archivo "${file.name}" con ${jsonData.length - 1} evento(s)?`,
+            header: 'Confirmar carga masiva',
+            icon: 'pi pi-upload',
+            acceptIcon: 'none',
+            rejectIcon: 'none',
+            rejectButtonStyleClass: 'p-button-text',
+            accept: () => {
+              this.cargarExcelMasivo(file);
+            },
+            reject: () => {
+              event.target.value = '';
+            }
+          });
+
+        }).catch((error) => {
+          console.error('Error al cargar la librería XLSX:', error);
+          this.customMessageService.error(
+            'Error al validar el archivo. Por favor, intente nuevamente.',
+            'Error de validación'
+          );
+          event.target.value = '';
+        });
+
+      } catch (error) {
+        console.error('Error al leer el archivo:', error);
+        this.customMessageService.error(
+          'Error al leer el archivo Excel. Verifique que el archivo no esté corrupto.',
+          'Error de lectura'
+        );
+        event.target.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      this.customMessageService.error(
+        'Error al leer el archivo. Por favor, intente nuevamente.',
+        'Error de lectura'
+      );
+      event.target.value = '';
+    };
+
+    reader.readAsArrayBuffer(file);
+  }
+
+  /**
+   * Valida que no haya eventos duplicados en el archivo ni con los existentes en el sistema
+   */
+  private validarEventosDuplicados(jsonData: any[], headers: string[]): {
+    hayDuplicadosEnArchivo: boolean;
+    hayDuplicadosEnSistema: boolean;
+    duplicadosEnArchivo: string[];
+    duplicadosEnSistema: string[];
+    eventosNuevos: number;
+  } {
+    const nombreIndex = headers.indexOf('Nombre Evento');
+
+    if (nombreIndex === -1) {
+      return {
+        hayDuplicadosEnArchivo: false,
+        hayDuplicadosEnSistema: false,
+        duplicadosEnArchivo: [],
+        duplicadosEnSistema: [],
+        eventosNuevos: jsonData.length - 1
+      };
+    }
+
+    const nombresEnArchivo: string[] = [];
+    const duplicadosEnArchivo: string[] = [];
+    const nombresCounts = new Map<string, number>();
+    const nombresVistosSet = new Set<string>();
+
+    for (let i = 1; i < jsonData.length; i++) {
+      const fila = jsonData[i] as any[];
+      const nombre = fila[nombreIndex];
+
+      if (nombre && typeof nombre === 'string' && nombre.trim() !== '') {
+        const nombreOriginal = nombre.trim();
+        const nombreNormalizado = nombreOriginal.toLowerCase();
+
+        const count = nombresCounts.get(nombreNormalizado) || 0;
+        nombresCounts.set(nombreNormalizado, count + 1);
+
+        if (count > 0) {
+          if (!nombresVistosSet.has(nombreNormalizado)) {
+            duplicadosEnArchivo.push(nombreOriginal);
+            nombresVistosSet.add(nombreNormalizado);
+          }
+        }
+
+        nombresEnArchivo.push(nombreOriginal);
+      }
+    }
+
+    // Verificar duplicados con los eventos existentes en el sistema
+    const eventosExistentes = this.eventos.map(evento => evento.nombre.trim().toLowerCase());
+    const duplicadosEnSistema: string[] = [];
+
+    nombresEnArchivo.forEach(nombre => {
+      const nombreNormalizado = nombre.toLowerCase();
+      if (eventosExistentes.includes(nombreNormalizado)) {
+        if (!duplicadosEnSistema.includes(nombre)) {
+          duplicadosEnSistema.push(nombre);
+        }
+      }
+    });
+
+    const eventosNuevos = nombresEnArchivo.length - duplicadosEnSistema.length;
+
+    return {
+      hayDuplicadosEnArchivo: duplicadosEnArchivo.length > 0,
+      hayDuplicadosEnSistema: duplicadosEnSistema.length > 0,
+      duplicadosEnArchivo,
+      duplicadosEnSistema,
+      eventosNuevos
+    };
+  }
+
+  /**
+   * Realiza la carga masiva de eventos desde un archivo Excel
+   */
+  private cargarExcelMasivo(file: File): void {
+    this.isUploading = true;
+    this.loadingService.show();
+    this.customMessageService.info('Procesando archivo Excel...', 'Cargando');
+
+    this.eventoService.postCargaMasivaEventos(file).subscribe({
+      next: (response) => {
+        console.log('Respuesta de carga masiva:', response);
+
+        if (response.ok) {
+          this.customMessageService.success(
+            response.mensaje || 'Eventos cargados correctamente',
+            'Carga exitosa'
+          );
+
+          // Recargar la lista de eventos
+          this.cargarEventos();
+        } else {
+          this.customMessageService.error(
+            response.mensaje || 'Error al procesar el archivo',
+            'Error'
+          );
+        }
+
+        this.isUploading = false;
+        this.loadingService.hide();
+
+        // Limpiar el input file
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      },
+      error: (error) => {
+        console.error('Error en carga masiva:', error);
+        this.customMessageService.error(
+          'Error al cargar el archivo. Por favor, verifique el formato y los datos.',
+          'Error de carga'
+        );
+
+        this.isUploading = false;
+        this.loadingService.hide();
+
+        // Limpiar el input file
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      }
+    });
   }
 }

@@ -15,6 +15,22 @@
                 [outlined]="true">
             </p-button>
 
+            <input
+                #fileInput
+                type="file"
+                accept=".xlsx,.xls"
+                style="display: none"
+                (change)="onFileSelected($event)">
+
+            <p-button
+                label="Cargar Excel"
+                icon="pi pi-upload"
+                severity="secondary"
+                (click)="fileInput.click()"
+                class="upload-button"
+                [loading]="isUploading">
+            </p-button>
+
             <p-button
                 label="Agregar Evento"
                 icon="pi pi-plus"

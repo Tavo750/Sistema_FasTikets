@@ -37,8 +37,20 @@
     color: #1976d2;
 }
 
-.add-button {
+.add-button,
+.upload-button,
+.dashboard-button {
     height: fit-content;
+}
+
+.upload-button ::ng-deep .p-button {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.upload-button ::ng-deep .p-button:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
 }
 
 /* Panel de búsqueda */
@@ -552,7 +564,7 @@
         overflow: hidden;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     }
-    
+
     .p-dialog-header {
         background: linear-gradient(135deg, #1976d2, #1565c0);
         color: white;
@@ -562,12 +574,12 @@
         font-size: 1.25rem;
         text-align: center;
     }
-    
+
     .p-dialog-content {
         padding: 0;
         background: #f8f9fa;
     }
-    
+
     .p-dialog-footer {
         background: white;
         border-top: 2px solid #e9ecef;
@@ -879,43 +891,43 @@
             max-width: none !important;
             margin: 1rem;
         }
-        
+
         .p-dialog-header {
             padding: 1rem 1.5rem;
             font-size: 1.1rem;
         }
-        
+
         .p-dialog-footer {
             padding: 1rem 1.5rem;
         }
     }
-    
+
     .titulo-evento {
         font-size: 1.5rem;
         min-width: auto;
     }
-    
+
     .detalles-grid {
         grid-template-columns: 1fr;
         padding: 1rem;
         gap: 1rem;
     }
-    
+
     .campos-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .fecha-destacada,
     .ubicacion-destacada,
     .descripcion-seccion,
     .imagen-zonas-seccion {
         grid-column: 1;
     }
-    
+
     .modal-footer {
         justify-content: center;
     }
-    
+
     .overlay-info {
         flex-direction: column;
         align-items: center;
@@ -950,7 +962,7 @@
         border-radius: 12px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     }
-    
+
     .p-dialog-header {
         background: linear-gradient(135deg, #1976d2, #1565c0);
         color: white;
@@ -959,13 +971,13 @@
         font-weight: 700;
         padding: 1.5rem 2rem;
     }
-    
+
     .p-dialog-content {
         padding: 0;
         max-height: 80vh;
         overflow-y: auto;
     }
-    
+
     .p-dialog-footer {
         border-top: 1px solid #e9ecef;
         padding: 1.5rem 2rem;

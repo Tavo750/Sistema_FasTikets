@@ -10,6 +10,7 @@ import { CrearEventoResponse, CrearEventoRequest } from '../interfaces/gestion-e
 import { EliminaEventoResponse } from '../interfaces/gestion-evento/elimina-evento.interface';
 import { EntradaResponse, EntradaResponseArray } from '../interfaces/gestion-evento/entrada.interface';
 import { EliminaEntradaResponse } from '../interfaces/gestion-evento/elimina-entrada.interface';
+import { CargaMasivaEventoResponse } from '../interfaces/gestion-evento/carga-masivo-evento.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -285,6 +286,24 @@ export class EventoService {
         return this.httpUtils.handleError(error);
       })
     );
+  }
+
+  // ========================= carga masiva ======================
+
+  /**
+   * Carga masiva de eventos mediante archivo Excel
+   * @param file Archivo Excel con los datos de los eventos
+   * @returns Observable con la respuesta del servidor
+   */
+  postCargaMasivaEventos(file: File): Observable<CargaMasivaEventoResponse> {
+    const url = `${baseUrl}/admin/carga-masiva/eventos`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<CargaMasivaEventoResponse>(url, formData)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
   }
 
 }
