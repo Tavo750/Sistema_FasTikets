@@ -378,15 +378,23 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 	// Submit handler with optional form parameter
 	onPagar(form?: NgForm): void {
+		console.debug('onPagar invoked');
 		this.cardNumberError = null;
 		this.expiryError = null;
 		this.cvvError = null;
 
-		// If no form provided, keep legacy behaviour: do nothing
-		// Construir y enviar la orden al backend con los asistentes y idTipoTicket
+		// Validar formulario y campos de pago antes de llamar a cualquier endpoint
 		const orderPayload = this.buildOrderPayload();
 		if (!orderPayload) {
 			alert('No se pudo construir la orden. Verifique el carrito y los participantes.');
+			return;
+		}
+
+		// Validaciones cliente: si fallan, no llamamos al backend
+		const valid = this.validatePaymentFields(form);
+		if (!valid) {
+			// validatePaymentFields ahora muestra alert con errores para feedback inmediato
+			console.warn('onPagar: validación cliente falló, no se llamará al backend');
 			return;
 		}
 
@@ -418,21 +426,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					}
 				}
 
-				// Validaciones cliente (establecen mensajes) — no abortan la llamada
-				if (!this.luhnCheck(this.cardNumber.replace(/\s+/g, ''))) {
-					this.cardNumberError = 'Número de tarjeta inválido';
-					console.warn('onPagar: Luhn inválido, se enviará de todas formas');
-				}
-
-				if (!this.validateExpiry(this.expiry)) {
-					this.expiryError = 'Fecha de caducidad inválida o ya vencida';
-					console.warn('onPagar: expiry inválido, se enviará de todas formas');
-				}
-
-				if (!/^[0-9]{3}$/.test(this.cvv)) {
-					this.cvvError = 'CVV inválido';
-					console.warn('onPagar: CVV inválido, se enviará de todas formas');
-				}
+				// Aquí ya se asumió que las validaciones precedentes pasaron
 
 				// Determinar número de cuotas: 'Sin cuotas' => 0, '3 cuotas' => 3, '6 cuotas' => 6
 				let numeroCuotas = 0;
@@ -485,7 +479,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	private luhnCheck(cardNumber: string): boolean {
-		if (!/^[0-9]{13,19}$/.test(cardNumber)) return false;
+		// Ahora validamos exactamente 12 dígitos según requerimiento
+		if (!/^[0-9]{12}$/.test(cardNumber)) return false;
 		let sum = 0;
 		let shouldDouble = false;
 		for (let i = cardNumber.length - 1; i >= 0; i--) {
@@ -501,13 +496,21 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	private validateExpiry(value: string): boolean {
-		// Expect MM/AA
-		const m = /^\s*(0[1-9]|1[0-2])\/(\d{2})\s*$/.exec(value);
+		// Expect YYYY-MM-DD
+		if (!value || typeof value !== 'string') return false;
+		const m = /^\s*(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\s*$/.exec(value);
 		if (!m) return false;
-		const month = parseInt(m[1], 10);
-		const year = parseInt(m[2], 10) + 2000;
+		const year = parseInt(m[1], 10);
+		const month = parseInt(m[2], 10);
+		const day = parseInt(m[3], 10);
+		// Construir fecha y verificar validez (p.ej. 2023-02-30 no válido)
+		const dt = new Date(year, month - 1, day);
+		if (dt.getFullYear() !== year || dt.getMonth() !== (month - 1) || dt.getDate() !== day) {
+			return false;
+		}
 		const now = new Date();
-		const exp = new Date(year, month, 0, 23, 59, 59, 999); // last day of month
+		// Comparar con fin del día provisto
+		const exp = new Date(year, month - 1, day, 23, 59, 59, 999);
 		return exp >= new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	}
 
@@ -641,22 +644,31 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-	 * Validación especial para fecha de expiración MM/AA
-	 * Permite solo números y el carácter /
+	 * Validación especial para fecha de expiración YYYY-MM-DD
+	 * Permite solo números y el carácter - y autoinserta guiones en posiciones correctas
 	 */
 	onExpiryKeypress(event: KeyboardEvent): boolean {
 		const charCode = event.which ? event.which : event.keyCode;
 		const currentValue = this.expiry || '';
-		
-		// Permitir números (48-57) y slash (47)
-		if ((charCode < 48 || charCode > 57) && charCode !== 47) {
+		// Permitir números (48-57) y guion (45)
+		if ((charCode < 48 || charCode > 57) && charCode !== 45) {
 			event.preventDefault();
 			return false;
 		}
 
-		// Auto-agregar el slash después de 2 dígitos
-		if (currentValue.length === 2 && charCode !== 47) {
-			this.expiry = currentValue + '/';
+		// Auto-agregar guiones después de 4 y 7 caracteres (YYYY- and YYYY-MM-)
+		if (charCode !== 45) {
+			if (currentValue.length === 4) {
+				this.expiry = currentValue + '-';
+			} else if (currentValue.length === 7) {
+				this.expiry = currentValue + '-';
+			}
+		}
+
+		// Limitar longitud a 10 (YYYY-MM-DD)
+		if (currentValue.length >= 10) {
+			event.preventDefault();
+			return false;
 		}
 
 		return true;
@@ -672,8 +684,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		const cleanedText = pastedText.replace(/[^0-9]/g, '');
 		
 		if (field === 'cardNumber') {
-			// Para tarjeta, limitar a 19 dígitos
-			this.cardNumber = cleanedText.substring(0, 19);
+			// Para tarjeta, limitar a 16 dígitos (requerimiento actualizado)
+			this.cardNumber = cleanedText.substring(0, 16);
 		} else if (field === 'cvv') {
 			// Para CVV, limitar a 3 dígitos
 			this.cvv = cleanedText.substring(0, 3);
@@ -681,21 +693,105 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	/**
-	 * Maneja el pegado de texto en el campo de fecha de expiración
+	 * Valida client-side los campos de pago y setea mensajes de error.
+	 * Retorna true si todo es válido, false en caso contrario.
+	 */
+	private validatePaymentFields(form?: NgForm): boolean {
+		let valid = true;
+		// marcar controles como tocados para mostrar errores nativos
+		if (form) {
+			Object.values(form.controls).forEach((c: any) => c.markAsTouched());
+		}
+		const errors: string[] = [];
+
+		const cardNumClean = (this.cardNumber || '').toString().replace(/\s+/g, '');
+		if (!cardNumClean || !/^[0-9]{16}$/.test(cardNumClean)) {
+			this.cardNumberError = 'Número debe tener exactamente 16 dígitos';
+			errors.push(this.cardNumberError);
+			valid = false;
+		} else {
+			// Aceptar cualquier número que tenga exactamente 16 dígitos (sin Luhn)
+			this.cardNumberError = null;
+		}
+
+		if (!this.validateExpiry(this.expiry)) {
+			this.expiryError = 'Fecha de caducidad inválida o ya vencida';
+			errors.push(this.expiryError);
+			valid = false;
+		} else {
+			this.expiryError = null;
+		}
+
+		if (!/^[0-9]{3}$/.test(this.cvv)) {
+			this.cvvError = 'CVV inválido';
+			errors.push(this.cvvError);
+			valid = false;
+		} else {
+			this.cvvError = null;
+		}
+
+		if (!this.cardHolder || this.cardHolder.trim().length === 0) {
+			const msg = 'Nombre del titular es obligatorio';
+			errors.push(msg);
+			valid = false;
+		}
+
+		if (!this.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+			const msg = 'Email inválido u obligatorio';
+			errors.push(msg);
+			valid = false;
+		}
+
+		if (!valid) {
+			// Mostrar todos los errores acumulados para feedback inmediato
+			try {
+				alert('Errores en el formulario:\n- ' + errors.join('\n- '));
+			} catch (e) {
+				console.warn('No se pudo mostrar alert con errores, logging to console', errors);
+			}
+			console.warn('validatePaymentFields errors:', errors);
+		}
+
+		return valid;
+	}
+
+	/**
+	 * Enmascara un número de tarjeta conservando los últimos 4 dígitos (para logging seguro)
+	 */
+	private maskCard(num: string): string {
+		if (!num) return '';
+		try {
+			return num.replace(/\d(?=\d{4})/g, '*');
+		} catch (e) {
+			return '************';
+		}
+	}
+
+	/**
+	 * Maneja el pegado de texto en el campo de fecha de expiración (YYYY-MM-DD)
 	 */
 	onPasteExpiry(event: ClipboardEvent): void {
 		event.preventDefault();
 		const pastedText = event.clipboardData?.getData('text') || '';
-		// Limpiar todo lo que no sea número o /
-		const cleanedText = pastedText.replace(/[^0-9/]/g, '');
-		
-		// Validar formato básico
-		if (cleanedText.match(/^\d{2}\/?\d{2}$/)) {
-			// Asegurar que tenga el formato MM/AA
-			if (cleanedText.includes('/')) {
-				this.expiry = cleanedText;
-			} else {
-				this.expiry = cleanedText.substring(0, 2) + '/' + cleanedText.substring(2, 4);
+		// Limpiar todo lo que no sea número o -
+		let cleanedText = pastedText.replace(/[^0-9-]/g, '');
+		// Aceptar formatos 8 dígitos (YYYYMMDD) o con guiones YYYY-MM-DD
+		if (/^\d{8}$/.test(cleanedText)) {
+			cleanedText = cleanedText.substring(0,4) + '-' + cleanedText.substring(4,6) + '-' + cleanedText.substring(6,8);
+		}
+		if (/^\d{4}-\d{2}-\d{2}$/.test(cleanedText)) {
+			this.expiry = cleanedText.substring(0, 10);
+		} else {
+			// intentar truncar para formar YYYY-MM-DD si es posible
+			const digits = cleanedText.replace(/-/g, '');
+			if (/^\d{0,8}$/.test(digits)) {
+				const y = digits.substring(0,4);
+				const m = digits.length >= 6 ? digits.substring(4,6) : '';
+				const d = digits.length === 8 ? digits.substring(6,8) : '';
+				let result = y;
+				if (m) result += '-' + m;
+				if (d) result += '-' + d;
+				this.expiry = result;
 			}
 		}
 	}
