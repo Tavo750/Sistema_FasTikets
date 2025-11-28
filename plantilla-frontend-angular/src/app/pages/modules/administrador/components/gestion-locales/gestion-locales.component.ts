@@ -391,7 +391,7 @@ export class GestionLocalesComponent implements OnInit {
             'Direccion',
             'Aforo Total',
             'URL Mapa',
-            'Imagen URL',
+            //'Imagen URL',
             'ID Distrito'
           ];
 
