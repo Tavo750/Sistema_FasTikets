@@ -49,8 +49,8 @@ export class MisEntradasComponent implements OnInit {
 
   loadReceivedTransfers(): void {
     // Usar endpoint oficial para solicitudes recibidas
-    const primary = 'http://localhost:8081/api/v1/transferencias/solicitudes/recibidas';
-    const fallback = 'http://localhost:8081/api/v1/transferencias/solicitudes/recibidas';
+    const primary = 'https://api.francoricra.online/api/v1/transferencias/solicitudes/recibidas';
+    const fallback = 'https://api.francoricra.online/api/v1/transferencias/solicitudes/recibidas';
     this.isLoadingReceivedTransfers = true;
     this.receivedTransfers = [];
     this.http.get<any>(primary).subscribe({
@@ -95,7 +95,7 @@ export class MisEntradasComponent implements OnInit {
     }
 
     // Llamada al endpoint unificado de respuesta
-    const url = `http://localhost:8081/api/v1/transferencias/solicitudes/${idSolicitud}/responder`;
+    const url = `https://api.francoricra.online/api/v1/transferencias/solicitudes/${idSolicitud}/responder`;
     const body = { idSolicitud: idSolicitud, aceptar: true };
     this.isProcessingAccept = true;
     this.http.post<any>(url, body).subscribe({
@@ -138,7 +138,7 @@ export class MisEntradasComponent implements OnInit {
       return;
     }
 
-    const url = `http://localhost:8081/api/v1/transferencias/solicitudes/${idSolicitud}/responder`;
+    const url = `https://api.francoricra.online/api/v1/transferencias/solicitudes/${idSolicitud}/responder`;
     const body = { idSolicitud: idSolicitud, aceptar: false };
     this.isProcessingCancel = true;
     this.http.post<any>(url, body).subscribe({
@@ -161,7 +161,7 @@ export class MisEntradasComponent implements OnInit {
   }
 
   loadMyEntries(): void {
-    const url = 'http://localhost:8081/api/v1/clientes/mis-entradas';
+    const url = 'https://api.francoricra.online/api/v1/clientes/mis-entradas';
     console.log('mis-entradas: iniciando petición a', url);
     this.loadingService.show();
     this.isLoadingEntries = true;

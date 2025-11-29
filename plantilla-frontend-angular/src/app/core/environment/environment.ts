@@ -2,5 +2,5 @@ export const environment = {
   production: false,
   useMockAuth: true, // en local es true
   // useMockAuth: false // en produccion es false
-  baseUrl: 'http://localhost:8081/api/v1' // Backend local
+  baseUrl: 'https://api.francoricra.online/api/v1'
 };
