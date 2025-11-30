@@ -51,6 +51,24 @@
     border-color: #545b62;
 }
 
+/* Botón naranja para carga de Excel */
+.orange-button ::ng-deep .p-button {
+    background-color: #ff9800;
+    border-color: #ff9800;
+    color: white;
+}
+
+.orange-button ::ng-deep .p-button:hover {
+    background-color: #fb8c00;
+    border-color: #fb8c00;
+    box-shadow: 0 4px 8px rgba(255, 152, 0, 0.3);
+}
+
+.orange-button ::ng-deep .p-button:active {
+    background-color: #f57c00;
+    border-color: #f57c00;
+}
+
 /* Panel de búsqueda */
 .search-panel {
     margin-bottom: 2rem;

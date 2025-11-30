@@ -604,6 +604,99 @@ export class GestionEventosComponent implements OnInit {
   // =================== Métodos de carga masiva ===================
 
   /**
+   * Descarga una plantilla Excel de ejemplo para carga masiva
+   */
+  descargarPlantillaExcel(): void {
+    import('xlsx').then((XLSX) => {
+      // Crear datos de ejemplo
+      const datos = [
+        [
+          'Nombre Evento',
+          'Descripcion',
+          'Fecha Inicio (YYYY-MM-DD)',
+          'Fecha Fin (YYYY-MM-DD)',
+          'Hora Inicio (HH:mm)',
+          'Hora Fin (HH:mm)',
+          'Aforo Disponible',
+          'Nombre Local',
+          'Tipo Evento',
+          'Restricciones',
+          'Politicas Devolucion',
+          'Menores Permitidos',
+          'Imagen URL'
+        ],
+        [
+          'Concierto Rock en Vivo',
+          'Gran concierto de rock con bandas locales e internacionales',
+          '2025-12-15',
+          '2025-12-15',
+          '20:00',
+          '23:30',
+          500,
+          'Arena Lima',
+          'ROCK',
+          'Prohibido el ingreso con objetos punzocortantes',
+          'Devoluciones hasta 7 días antes del evento',
+          'SI',
+          'https://ejemplo.com/imagen.jpg'
+        ],
+        [
+          'Festival Electrónico',
+          'Noche de música electrónica con DJs internacionales',
+          '2025-12-20',
+          '2025-12-21',
+          '22:00',
+          '06:00',
+          1000,
+          'Jockey Club',
+          'ELECTRONICA',
+          'Solo mayores de 18 años',
+          'No hay devoluciones',
+          'NO',
+          'https://ejemplo.com/festival.jpg'
+        ]
+      ];
+
+      // Crear libro de trabajo
+      const ws = XLSX.utils.aoa_to_sheet(datos);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Eventos');
+
+      // Ajustar ancho de columnas
+      const colWidths = [
+        { wch: 30 }, // Nombre Evento
+        { wch: 50 }, // Descripcion
+        { wch: 25 }, // Fecha Inicio
+        { wch: 25 }, // Fecha Fin
+        { wch: 18 }, // Hora Inicio
+        { wch: 18 }, // Hora Fin
+        { wch: 18 }, // Aforo Disponible
+        { wch: 25 }, // Nombre Local
+        { wch: 15 }, // Tipo Evento
+        { wch: 40 }, // Restricciones
+        { wch: 40 }, // Politicas Devolucion
+        { wch: 20 }, // Menores Permitidos
+        { wch: 40 }  // Imagen URL
+      ];
+      ws['!cols'] = colWidths;
+
+      // Descargar archivo
+      XLSX.writeFile(wb, 'plantilla_carga_eventos.xlsx');
+
+      this.customMessageService.success(
+        'Plantilla descargada correctamente. Use este formato para cargar eventos masivamente.',
+        'Plantilla Excel'
+      );
+    }).catch((error) => {
+      console.error('Error al generar plantilla:', error);
+      this.customMessageService.error(
+        'Error al generar la plantilla Excel',
+        'Error'
+      );
+    });
+  }
+
+  /**
    * Maneja la selección de archivo Excel para carga masiva
    */
   onFileSelected(event: any): void {
@@ -711,7 +804,7 @@ export class GestionEventosComponent implements OnInit {
             'Hora Inicio (HH:mm)',
             'Hora Fin (HH:mm)',
             'Aforo Disponible',
-            'ID Local',
+            'Nombre Local',
             'Tipo Evento',
             'Restricciones',
             'Politicas Devolucion',
@@ -897,20 +990,53 @@ export class GestionEventosComponent implements OnInit {
 
     this.eventoService.postCargaMasivaEventos(file).subscribe({
       next: (response) => {
-        console.log('Respuesta de carga masiva:', response);
+        console.log('Respuesta completa de carga masiva:', response);
 
         if (response.ok) {
+          // Mostrar mensaje de éxito con detalles
+          const eventosCreados = response.data?.eventosCreados || 0;
+          const errores = response.data?.errores || 0;
+          const conflictos = response.data?.conflictos || 0;
+
+          let mensajeDetallado = `${eventosCreados} evento(s) creado(s) exitosamente.`;
+          if (errores > 0 || conflictos > 0) {
+            mensajeDetallado += ` (Errores: ${errores}, Conflictos: ${conflictos})`;
+          }
+
           this.customMessageService.success(
-            response.mensaje || 'Eventos cargados correctamente',
-            'Carga exitosa'
+            mensajeDetallado,
+            'Carga finalizada'
           );
 
           // Recargar la lista de eventos
           this.cargarEventos();
         } else {
+          // Mostrar error con detalles
+          const errores = response.data?.errores || 0;
+          const conflictos = response.data?.conflictos || 0;
+          const detallesErrores = response.data?.detallesErrores || [];
+
+          let mensajeError = response.mensaje || 'Error al procesar el archivo';
+          
+          if (errores > 0 || conflictos > 0) {
+            mensajeError += `\n\nErrores: ${errores}, Conflictos: ${conflictos}`;
+          }
+
+          if (detallesErrores.length > 0) {
+            const maxErrores = 3;
+            const erroresAMostrar = detallesErrores.slice(0, maxErrores);
+            mensajeError += '\n\nDetalles:\n' + erroresAMostrar.join('\n');
+            
+            if (detallesErrores.length > maxErrores) {
+              mensajeError += `\n... y ${detallesErrores.length - maxErrores} errores más`;
+            }
+          }
+
+          console.error('Detalles de errores:', detallesErrores);
+
           this.customMessageService.error(
-            response.mensaje || 'Error al procesar el archivo',
-            'Error'
+            mensajeError,
+            'Error en carga'
           );
         }
 
@@ -925,8 +1051,18 @@ export class GestionEventosComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error en carga masiva:', error);
+        
+        let mensajeError = 'Error al cargar el archivo.';
+        
+        // Intentar obtener mensaje de error del backend
+        if (error.error?.mensaje) {
+          mensajeError = error.error.mensaje;
+        } else if (error.message) {
+          mensajeError += ' ' + error.message;
+        }
+
         this.customMessageService.error(
-          'Error al cargar el archivo. Por favor, verifique el formato y los datos.',
+          mensajeError,
           'Error de carga'
         );
 

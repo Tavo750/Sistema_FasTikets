@@ -220,6 +220,100 @@ export class GestionLocalesComponent implements OnInit {
   }
 
   /**
+   * Descarga una plantilla Excel de ejemplo para carga masiva de locales
+   */
+  descargarPlantillaExcel(): void {
+    import('xlsx').then((XLSX) => {
+      // Definir las cabeceras de la plantilla
+      const headers = [
+        'Nombre',
+        'Direccion',
+        'Aforo Total',
+        'Departamento',
+        'Provincia',
+        'Distrito'
+      ];
+
+      // Crear datos de ejemplo
+      const datosEjemplo = [
+        [
+          'Jockey Plaza Centro de Exposiciones',
+          'Av. Javier Prado Este 4200',
+          5000,
+          'Lima',
+          'Lima',
+          'Santiago de Surco'
+        ],
+        [
+          'Mall del Sur',
+          'Av. Los Lirios 15081',
+          1000,
+          'Lima',
+          'Lima',
+          'San Juan de Miraflores'
+        ],
+        [
+          'Estadio Nacional',
+          'Jr. José Díaz S/N',
+          45000,
+          'Lima',
+          'Lima',
+          'Lima'
+        ]
+      ];
+
+      // Crear el worksheet con cabeceras y datos de ejemplo
+      const worksheetData = [headers, ...datosEjemplo];
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+      // Configurar anchos de columna
+      worksheet['!cols'] = [
+        { wch: 40 },  // Nombre
+        { wch: 40 },  // Direccion
+        { wch: 15 },  // Aforo Total
+        { wch: 20 },  // Departamento
+        { wch: 20 },  // Provincia
+        { wch: 25 }   // Distrito
+      ];
+
+      // Crear el workbook
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Locales');
+
+      // Generar el archivo Excel
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array'
+      });
+
+      // Crear un Blob y descargarlo
+      const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Plantilla_Locales_${new Date().getTime()}.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      this.customMessageService.success(
+        'Plantilla descargada correctamente',
+        'Descarga exitosa'
+      );
+
+      console.log('✅ Plantilla de locales descargada correctamente');
+    }).catch((error) => {
+      console.error('Error al descargar plantilla:', error);
+      this.customMessageService.error(
+        'Error al generar la plantilla Excel. Por favor, intente nuevamente.',
+        'Error de descarga'
+      );
+    });
+  }
+
+  /**
    * Maneja la selección de archivo Excel para carga masiva
    */
   onFileSelected(event: any): void {
