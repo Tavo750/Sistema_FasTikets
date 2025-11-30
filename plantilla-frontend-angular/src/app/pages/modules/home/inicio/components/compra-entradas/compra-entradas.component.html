@@ -1,4 +1,5 @@
 <div class="compra-container">
+  <div class="content-wrapper">
   <!-- Temporizador compartido visible cuando corre (fila completa) -->
   <div class="cart-timer" *ngIf="showTimer">
     <div class="timer-content">
@@ -93,20 +94,10 @@
                     <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
                     <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
                     <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
-                    <span class="ticket-id" *ngIf="ticketIds && ticketIds.length">ID TipoTicket: {{ ticketIds[ti] || '-' }}</span>
+                    <!-- ID TipoTicket eliminado por petición del usuario -->
                   </div>
                 </div>
-                <!-- Mostrar los ids de tipo de ticket según items del carrito -->
-                <div class="cart-items-ids" *ngIf="cartItems && cartItems.length">
-                  <h5>IDs de Tipo de Ticket (carrito)</h5>
-                  <ul>
-                    <li *ngFor="let ci of cartItems">
-                      <strong>{{ ci.category || ci.ticketType || ci.title }}</strong>
-                      — cantidad: {{ ci.quantity }}
-                      — <em>idTipoTicket</em>: {{ ci.idTipoTicket || ci.serverId || ci.id }}
-                    </li>
-                  </ul>
-                </div>
+                <!-- IDs de tipo de ticket eliminado según solicitud del usuario -->
               </div>
 
               <!-- Formulario de participantes (uno por cada entrada) -->
@@ -122,7 +113,7 @@
                     </div>
                     <div class="participant-actions">
                       <label class="complete-label">
-                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" />
+                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" (change)="onParticipantAutoCompleteChange(p, i)" />
                         Completar con mis datos
                       </label>
                     </div>
@@ -238,7 +229,8 @@
     <div *ngIf="userLevel && !usePointsRedeem" class="user-level-box" [ngClass]="getLevelClass(userLevel)">
       <span class="user-level-text">
         {{ userLevel | uppercase }}
-        <span *ngIf="userLevelDiscountPercent && userLevelDiscountPercent > 0"> - {{ (userLevelDiscountPercent * 100) | number:'1.0-0' }}% de desc.</span>
+        <span class="level-discount" *ngIf="userLevelDiscountPercent !== null"> - {{ (userLevelDiscountPercent * 100) | number:'1.0-0' }}% de desc.</span>
+        <span class="level-discount" *ngIf="userLevelDiscountPercent === null"> - --% de desc.</span>
       </span>
     </div>
 
@@ -311,6 +303,7 @@
     </div>
   </div>
   </div> <!-- .columns-row -->
+  </div> <!-- .content-wrapper -->
 
   <!-- Modal de pago con PrimeNG -->
   <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">

@@ -8,6 +8,7 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { OrdenesService } from '../../../../../../shared/services/ordenes.service';
 import { PerfilPersonalService } from '../../../../usuario/services/perfil-personal.service';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 
 @Component({
@@ -51,6 +52,75 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		return this.purchaseData?.totalTickets || 0;
 	}
 
+	/**
+	 * Carga los porcentajes de descuento para membresías desde el backend.
+	 * Cada endpoint debe devolver un objeto con `data.value` o `value`.
+	 */
+	private loadMembershipDiscounts(): void {
+		const base = 'http://localhost:8081/api/v1/configuracion/';
+		const endpoints = {
+			oro: base + 'DSCTO_MEMBRESIA_ORO',
+			plata: base + 'DSCTO_MEMBRESIA_PLATA',
+			bronce: base + 'DSCTO_MEMBRESIA_BRONCE'
+		};
+
+		this.http.get(endpoints.oro).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountGold = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_ORO ->', this.discountGold);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_ORO', err)
+		});
+
+		this.http.get(endpoints.plata).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountSilver = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_PLATA ->', this.discountSilver);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_PLATA', err)
+		});
+
+		this.http.get(endpoints.bronce).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountBronze = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_BRONCE ->', this.discountBronze);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_BRONCE', err)
+		});
+	}
+
+	private extractConfigValue(resp: any): any {
+		if (!resp) return null;
+		return resp?.data?.value ?? resp?.value ?? (typeof resp === 'string' ? resp : null);
+	}
+
+	private normalizePercentage(val: any): number | null {
+		if (val === null || val === undefined) return null;
+		const s = String(val).trim();
+		if (s === '') return null;
+		const n = Number(s.replace(',', '.'));
+		if (isNaN(n)) return null;
+		if (n > 1) return n / 100;
+		return n;
+	}
+
+	/**
+	 * Actualiza `userLevelDiscountPercent` de acuerdo al `userLevel` actual
+	 * usando los valores remotos si están disponibles.
+	 */
+	private updateUserLevelDiscount(): void {
+		this.userLevelDiscountPercent = this.getDiscountForLevel(this.userLevel) || 0;
+	}
+
 	get ticketCategory(): string {
 		return this.purchaseData?.tickets[0]?.name || 'General';
 	}
@@ -82,17 +152,26 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		private sessionService: SessionService,
 		private ordenesService: OrdenesService
 			, private cartTimerService: CartTimerService,
-			private perfilService: PerfilPersonalService
+				private perfilService: PerfilPersonalService,
+				private http: HttpClient
 	) {}
 
 		// Nivel del usuario (ej. ORO, PLATA, BRONCE)
 		userLevel: string | null = null;
+
+		// Perfil completo del usuario (cargado desde perfilService)
+		userProfile: any = null;
 		// Puntos acumulados por el usuario (desde perfil)
 		userPoints: number = 0;
 
 		// Descuento asociado al nivel (por ejemplo 0.10 = 10%)
 		userLevelDiscountPercent: number = 0;
 		levelDiscountAmount: number = 0;
+
+		// Valores remotos de descuento por membresía (null = no cargado)
+		discountGold: number | null = null;
+		discountSilver: number | null = null;
+		discountBronze: number | null = null;
 
 		// Canje mediante código de texto
 		redeemCodeInput: string = '';
@@ -118,9 +197,9 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		getDiscountForLevel(level: string | null): number {
 			if (!level) return 0;
 			const l = level.toString().toLowerCase();
-			if (l.includes('bronce') || l.includes('bronze')) return 0.03; // 3%
-			if (l.includes('plata') || l.includes('silver')) return 0.05; // 5%
-			if (l.includes('oro') || l.includes('gold')) return 0.10; // 10%
+			if (l.includes('bronce') || l.includes('bronze')) return this.discountBronze ?? 0.03; // 3% fallback
+			if (l.includes('plata') || l.includes('silver')) return this.discountSilver ?? 0.05; // 5% fallback
+			if (l.includes('oro') || l.includes('gold')) return this.discountGold ?? 0.10; // 10% fallback
 			return 0;
 		}
 
@@ -137,6 +216,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	expiryError: string | null = null;
 	cvvError: string | null = null;
 	ngOnInit(): void {
+		// Cargar descuentos de membresía desde configuración remota
+		try { this.loadMembershipDiscounts(); } catch (e) { console.warn('No se pudo iniciar carga de descuentos', e); }
 		// Suscribirse al temporizador compartido para mostrarlo mientras navegamos
 		try {
 			this.timerSubscriptions.push(this.cartTimerService.display$.subscribe(d => this.timerDisplay = d));
@@ -163,13 +244,15 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 								next: (resp: any) => {
 									const nivel = resp?.data?.nivel ?? resp?.nivel ?? null;
 									this.userLevel = nivel;
+									// guardar perfil completo para autocompletar participantes
+									this.userProfile = resp?.data ?? resp;
 									// puntos acumulados reales desde el endpoint
 									const puntos = resp?.data?.puntosAcumulados ?? resp?.puntosAcumulados ?? resp?.data?.puntos ?? 0;
 									this.userPoints = Number(puntos) || 0;
 									// Inicializar remainingPoints y recalcular totales
 									this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
 									// determinar descuento por nivel
-									this.userLevelDiscountPercent = this.getDiscountForLevel(this.userLevel);
+									this.updateUserLevelDiscount();
 									this.calculateTotals();
 								},
 								error: (err: any) => {
@@ -221,6 +304,40 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 				}
 			}
 		);
+	}
+
+	/**
+	 * Handler cuando se activa/desactiva la casilla "Completar con mis datos" de un participante
+	 */
+	onParticipantAutoCompleteChange(participant: any, index: number): void {
+		if (!participant) return;
+		// Si se activa la casilla, completar con los datos del usuario corriente
+		if (participant.autoComplete) {
+			const currentUser = this.sessionService.getCurrentUser() || {};
+			// Preferir valores del perfil cargado (más completos), luego del session user
+			const profile = this.userProfile || {};
+			const profileAny = profile as any;
+			const currentAny = currentUser as any;
+
+			// Nombre / Apellidos
+			const firstName = profileAny?.nombres || profileAny?.nombre || currentAny?.nombres || currentAny?.nombre || currentAny?.firstName || '';
+			const lastName = profileAny?.apellidos || profileAny?.apellido || currentAny?.apellidos || currentAny?.apellido || currentAny?.lastName || '';
+
+			// Tipo y número de documento
+			const docType = profileAny?.tipoDocumento || profileAny?.docType || currentAny?.tipoDocumento || currentAny?.docType || '';
+			const docNumber = profileAny?.numeroDocumento || profileAny?.dni || profileAny?.documento || profileAny?.doc_identidad || profileAny?.docIdentidad || currentAny?.numeroDocumento || currentAny?.dni || currentAny?.documento || currentAny?.doc_identidad || currentAny?.docIdentidad || '';
+
+			if (firstName) participant.firstName = firstName;
+			if (lastName) participant.lastName = lastName;
+			if (docType) participant.docType = docType;
+			if (docNumber) participant.docNumber = docNumber;
+		} else {
+			// Si se desactiva, limpiar los campos (o dejarlos como estaban). Aquí se limpian para evitar datos residuales.
+			participant.docType = '';
+			participant.docNumber = '';
+			participant.firstName = '';
+			participant.lastName = '';
+		}
 	}
 
 	ngOnDestroy(): void {

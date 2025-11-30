@@ -82,6 +82,9 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
               title: it.nombreTicket || it.nombre || it.descripcion || 'Ticket',
               category: it.nombreTicket || it.categoria || '',
               price: it.precioUnitario || it.precio || it.precioVenta || 0,
+              // guardar precio base y porcentaje de recargo si vienen desde el backend
+              basePrice: (typeof it.precioBase !== 'undefined' && it.precioBase !== null) ? it.precioBase : null,
+              surchargePercent: (typeof it.porcentaje !== 'undefined' && it.porcentaje !== null) ? it.porcentaje : 0,
               quantity: it.cantidad || it.cantidadSeleccionada || 0,
               image: it.imagenUrl || '',
               serverId: it.idItemCarrito || it.id
@@ -251,16 +254,55 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
     return this.cartItems.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
   }
 
-  getTaxes(): number {
-    return this.getSubtotal() * 0.16; // 16% de impuestos
+  // Suma de los precios base (precio sin recargo por tiempo)
+  getBaseSubtotal(): number {
+    return this.cartItems.reduce((sum, it) => {
+      const base = (it as any).basePrice != null ? (it as any).basePrice : (it.price || 0);
+      return sum + base * (it.quantity || 0);
+    }, 0);
   }
 
-  getShipping(): number {
-    return this.getSubtotal() > 200 ? 0 : 25; // Envío gratis por compras mayores a $200
+  // Calcula el monto total de recargo por tiempo (suma por item)
+  getTimeSurchargeAmount(): number {
+    return this.cartItems.reduce((sum, it) => {
+      const qty = it.quantity || 0;
+      const base = (it as any).basePrice != null ? (it as any).basePrice : (it.price || 0);
+      const pct = (it as any).surchargePercent || 0;
+      // si price y basePrice están disponibles, preferimos la diferencia real
+      if ((it.price || 0) > 0 && (it as any).basePrice != null) {
+        const diff = (it.price || 0) - base;
+        return sum + diff * qty;
+      }
+      // fallback: calcular por porcentaje sobre base
+      return sum + (base * (pct / 100)) * qty;
+    }, 0);
+  }
+
+  // Si todos los items comparten el mismo porcentaje lo devolvemos, si no devolvemos 'varios'
+  getTimeSurchargePercentDisplay(): string {
+    const pcts = Array.from(new Set(this.cartItems.map(it => (it as any).surchargePercent || 0)));
+    if (pcts.length === 1) return `${pcts[0]}%`;
+    // eliminar ceros y si hay uno no cero devolver 'varios' o la lista
+    const nonZero = pcts.filter(p => p && p > 0);
+    if (nonZero.length === 1) return `${nonZero[0]}%`;
+    if (nonZero.length === 0) return '0%';
+    return 'Varios';
+  }
+
+  getTaxes(): number {
+    // Los precios ya incluyen impuestos (16%). Aquí calculamos
+    // la porción de impuesto incluida en el subtotal para mostrarla.
+    const subtotal = this.getSubtotal();
+    if (!subtotal || subtotal === 0) return 0;
+    // taxPortion = subtotal - subtotal / (1 + taxRate)
+    const taxRate = 0.16;
+    const taxPortion = subtotal - (subtotal / (1 + taxRate));
+    return Number(taxPortion.toFixed(2));
   }
 
   getTotal(): number {
-    return this.getSubtotal() + this.getTaxes() + this.getShipping();
+    // Como los precios ya incluyen impuestos, el total es simplemente el subtotal
+    return this.getSubtotal();
   }
 
   // Getter para mantener compatibilidad

@@ -578,24 +578,41 @@ export class EventoComponent implements AfterViewInit, OnInit {
                 }
               },
               error: (err: any) => {
-                // Registro y notificación de error de sincronización
+                // Mostrar modal de error cuando no se pudo persistir el item en el servidor
                 try {
                   const status = err?.status;
                   const body = err?.error;
                   const message = err?.message || (body && (body.mensaje || body.message)) || 'Error desconocido';
                   console.error('Error guardando item en servidor:', { status, body, message });
-                  this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Sincronización parcial',
-                    detail: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`
+
+                  const dialogRef = this.dialogService.open(DialogoComponent, {
+                    header: 'Error al sincronizar carrito',
+                    width: '480px',
+                    data: {
+                      mensaje: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`,
+                      severidad: 'error',
+                      buttonLabel: 'Aceptar'
+                    }
                   });
+
+                  dialogRef.onClose.subscribe(() => {
+                    // Opcional: aquí se puede realizar una acción tras cerrar el modal
+                  });
+                  // Revertir el item local que falló para mantener el carrito consistente
+                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor', e); }
                 } catch (e) {
                   console.error('Error procesando error del servidor', e);
-                  this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Sincronización parcial',
-                    detail: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.'
+                  const dialogRef = this.dialogService.open(DialogoComponent, {
+                    header: 'Error',
+                    width: '420px',
+                    data: {
+                      mensaje: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.',
+                      severidad: 'error',
+                      buttonLabel: 'Aceptar'
+                    }
                   });
+                  dialogRef.onClose.subscribe(() => {});
+                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor (fallback)', e); }
                 }
               }
             });
