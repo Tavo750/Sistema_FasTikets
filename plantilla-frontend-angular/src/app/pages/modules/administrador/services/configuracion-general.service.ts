@@ -18,7 +18,7 @@ import { baseUrl } from '../../../../global';
 })
 export class ConfiguracionGeneralService {
 
-  private readonly apiUrl = `${baseUrl}/admin/configuracion`;
+  private readonly apiUrl = `${baseUrl}/configuracion`;
 
   constructor(
     private http: HttpClient,
