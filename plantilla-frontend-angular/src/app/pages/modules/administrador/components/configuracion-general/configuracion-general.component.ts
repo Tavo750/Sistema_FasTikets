@@ -3,6 +3,8 @@ import { CartTimerService } from '../../../../../shared/services/cart-timer.serv
 import { MessageService } from 'primeng/api';
 import { CodigosPromocionalesService } from '../../services/codigos-promocionales.service';
 import { ReglaPuntos, CreateReglaPuntosRequest, UpdateReglaPuntosRequest } from '../../interfaces/reglas-puntos/reglas-puntos.interface';
+import { ConfiguracionGeneralService } from '../../services/configuracion-general.service';
+import { ConfiguracionItem, ConfiguracionRequest } from '../../interfaces/configuracion-general/configuracion-general.interface';
 
 @Component({
   selector: 'app-configuracion-general',
@@ -47,15 +49,37 @@ export class ConfiguracionGeneralComponent implements OnInit {
   };
   guardandoRegla: boolean = false;
 
+  // Configuraciones Generales (desde backend)
+  configuraciones: ConfiguracionItem[] = [];
+  loadingConfiguraciones: boolean = false;
+  editandoConfiguracion: ConfiguracionItem | null = null;
+  mostrarDialogConfiguracion: boolean = false;
+  searchConfiguraciones: string = '';
+  formularioConfiguracion: ConfiguracionRequest = {
+    key: '',
+    value: '',
+    descripcion: '',
+    valueType: 'string'
+  };
+  guardandoConfiguracion: boolean = false;
+  tiposValor: { label: string; value: string }[] = [
+    { label: 'Texto', value: 'string' },
+    { label: 'Número', value: 'number' },
+    { label: 'Booleano', value: 'boolean' },
+    { label: 'JSON', value: 'json' }
+  ];
+
   constructor(
     private cartTimerService: CartTimerService,
     private messageService: MessageService,
-    private codigosPromocionalesService: CodigosPromocionalesService
+    private codigosPromocionalesService: CodigosPromocionalesService,
+    private configuracionGeneralService: ConfiguracionGeneralService
   ) {}
 
   ngOnInit(): void {
     this.loadCurrentSettings();
     this.cargarReglasPuntos();
+    this.cargarConfiguraciones();
   }
 
   /**
@@ -103,25 +127,73 @@ export class ConfiguracionGeneralComponent implements OnInit {
     this.isSavingTimer = true;
     const success = this.cartTimerService.setTimeLimitMinutes(this.cartTimeLimitMinutes);
 
-    setTimeout(() => {
+    if (success) {
+      // Actualizar también en configuraciones generales
+      this.sincronizarTiempoCarroConfiguracion(this.cartTimeLimitMinutes);
+    } else {
       this.isSavingTimer = false;
-      
-      if (success) {
-        this.originalTimeLimitMinutes = this.cartTimeLimitMinutes;
-        this.hasChangesTimer = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Guardado',
-          detail: `Tiempo límite actualizado a ${this.cartTimeLimitMinutes} minutos`
-        });
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo guardar el tiempo límite'
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo guardar el tiempo límite'
+      });
+    }
+  }
+
+  /**
+   * Sincroniza el tiempo del carrito con la configuración general TIEMPO_CARRO_MINUTOS
+   */
+  private sincronizarTiempoCarroConfiguracion(minutos: number): void {
+    const configRequest: ConfiguracionRequest = {
+      key: 'TIEMPO_CARRO_MINUTOS',
+      value: String(minutos),
+      descripcion: 'Tiempo máximo en minutos que un cliente tiene para completar su compra',
+      valueType: 'number'
+    };
+
+    // Primero intentar actualizar, si no existe, crear
+    this.configuracionGeneralService.updateConfiguracion('TIEMPO_CARRO_MINUTOS', configRequest).subscribe({
+      next: (response) => {
+        this.isSavingTimer = false;
+        if (response.ok) {
+          this.originalTimeLimitMinutes = this.cartTimeLimitMinutes;
+          this.hasChangesTimer = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Guardado',
+            detail: `Tiempo límite actualizado a ${this.cartTimeLimitMinutes} minutos`
+          });
+          // Recargar configuraciones para reflejar el cambio
+          this.cargarConfiguraciones();
+        }
+      },
+      error: (error) => {
+        // Si falla porque no existe, intentar crear
+        this.configuracionGeneralService.createConfiguracion(configRequest).subscribe({
+          next: (response) => {
+            this.isSavingTimer = false;
+            if (response.ok) {
+              this.originalTimeLimitMinutes = this.cartTimeLimitMinutes;
+              this.hasChangesTimer = false;
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Guardado',
+                detail: `Tiempo límite actualizado a ${this.cartTimeLimitMinutes} minutos`
+              });
+              this.cargarConfiguraciones();
+            }
+          },
+          error: () => {
+            this.isSavingTimer = false;
+            this.messageService.add({
+              severity: 'warning',
+              summary: 'Guardado parcial',
+              detail: 'Tiempo guardado localmente, pero no se pudo sincronizar con configuración general'
+            });
+          }
         });
       }
-    }, 500);
+    });
   }
 
   /**
@@ -140,16 +212,64 @@ export class ConfiguracionGeneralComponent implements OnInit {
     this.isSavingEntradas = true;
     localStorage.setItem('max_entradas_por_cliente', String(this.maxEntradasPorCliente));
 
-    setTimeout(() => {
-      this.isSavingEntradas = false;
-      this.originalMaxEntradas = this.maxEntradasPorCliente;
-      this.hasChangesEntradas = false;
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Guardado',
-        detail: `Límite de entradas actualizado a ${this.maxEntradasPorCliente}`
-      });
-    }, 500);
+    // Actualizar también en configuraciones generales
+    this.sincronizarLimiteEntradasConfiguracion(this.maxEntradasPorCliente);
+  }
+
+  /**
+   * Sincroniza el límite de entradas con la configuración general LIMITE_PERSONAS_COMPRA
+   */
+  private sincronizarLimiteEntradasConfiguracion(limite: number): void {
+    const configRequest: ConfiguracionRequest = {
+      key: 'LIMITE_PERSONAS_COMPRA',
+      value: String(limite),
+      descripcion: 'Número máximo de entradas que un cliente puede comprar por evento',
+      valueType: 'number'
+    };
+
+    // Primero intentar actualizar, si no existe, crear
+    this.configuracionGeneralService.updateConfiguracion('LIMITE_PERSONAS_COMPRA', configRequest).subscribe({
+      next: (response) => {
+        this.isSavingEntradas = false;
+        if (response.ok) {
+          this.originalMaxEntradas = this.maxEntradasPorCliente;
+          this.hasChangesEntradas = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Guardado',
+            detail: `Límite de entradas actualizado a ${this.maxEntradasPorCliente}`
+          });
+          // Recargar configuraciones para reflejar el cambio
+          this.cargarConfiguraciones();
+        }
+      },
+      error: (error) => {
+        // Si falla porque no existe, intentar crear
+        this.configuracionGeneralService.createConfiguracion(configRequest).subscribe({
+          next: (response) => {
+            this.isSavingEntradas = false;
+            if (response.ok) {
+              this.originalMaxEntradas = this.maxEntradasPorCliente;
+              this.hasChangesEntradas = false;
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Guardado',
+                detail: `Límite de entradas actualizado a ${this.maxEntradasPorCliente}`
+              });
+              this.cargarConfiguraciones();
+            }
+          },
+          error: () => {
+            this.isSavingEntradas = false;
+            this.messageService.add({
+              severity: 'warning',
+              summary: 'Guardado parcial',
+              detail: 'Límite guardado localmente, pero no se pudo sincronizar con configuración general'
+            });
+          }
+        });
+      }
+    });
   }
 
   /**
@@ -453,5 +573,265 @@ export class ConfiguracionGeneralComponent implements OnInit {
    */
   getActivoSeverity(activo: boolean): 'success' | 'danger' {
     return activo ? 'success' : 'danger';
+  }
+
+  // ==================== CONFIGURACIONES GENERALES ====================
+
+  /**
+   * Carga las configuraciones generales desde el backend
+   */
+  cargarConfiguraciones(): void {
+    this.loadingConfiguraciones = true;
+    this.configuracionGeneralService.getConfiguraciones().subscribe({
+      next: (response) => {
+        this.loadingConfiguraciones = false;
+        if (response.ok && response.data) {
+          this.configuraciones = response.data;
+          
+          // Sincronizar TIEMPO_CARRO_MINUTOS con CartTimerService si existe
+          const tiempoCarroConfig = response.data.find(c => c.key === 'TIEMPO_CARRO_MINUTOS');
+          if (tiempoCarroConfig) {
+            const minutos = parseInt(tiempoCarroConfig.value, 10);
+            if (!isNaN(minutos) && minutos >= 1 && minutos <= 120) {
+              this.cartTimerService.setTimeLimitMinutes(minutos);
+              this.cartTimeLimitMinutes = minutos;
+              this.originalTimeLimitMinutes = minutos;
+              this.hasChangesTimer = false;
+            }
+          }
+
+          // Sincronizar LIMITE_PERSONAS_COMPRA con localStorage si existe
+          const limiteEntradasConfig = response.data.find(c => c.key === 'LIMITE_PERSONAS_COMPRA');
+          if (limiteEntradasConfig) {
+            const limite = parseInt(limiteEntradasConfig.value, 10);
+            if (!isNaN(limite) && limite >= 1 && limite <= 50) {
+              localStorage.setItem('max_entradas_por_cliente', String(limite));
+              this.maxEntradasPorCliente = limite;
+              this.originalMaxEntradas = limite;
+              this.hasChangesEntradas = false;
+            }
+          }
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudieron cargar las configuraciones'
+          });
+        }
+      },
+      error: (error) => {
+        this.loadingConfiguraciones = false;
+        console.error('Error al cargar configuraciones:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar las configuraciones generales'
+        });
+      }
+    });
+  }
+
+  /**
+   * Abre el diálogo para crear una nueva configuración
+   */
+  abrirDialogNuevaConfiguracion(): void {
+    this.editandoConfiguracion = null;
+    this.formularioConfiguracion = {
+      key: '',
+      value: '',
+      descripcion: '',
+      valueType: 'string'
+    };
+    this.mostrarDialogConfiguracion = true;
+  }
+
+  /**
+   * Abre el diálogo para editar una configuración existente
+   */
+  abrirDialogEditarConfiguracion(config: ConfiguracionItem): void {
+    this.editandoConfiguracion = config;
+    this.formularioConfiguracion = {
+      key: config.key,
+      value: config.value,
+      descripcion: config.descripcion,
+      valueType: config.valueType
+    };
+    this.mostrarDialogConfiguracion = true;
+  }
+
+  /**
+   * Guarda una configuración (crear o actualizar)
+   */
+  guardarConfiguracion(): void {
+    // Validaciones
+    if (!this.formularioConfiguracion.key || !this.formularioConfiguracion.key.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de validación',
+        detail: 'La clave es requerida'
+      });
+      return;
+    }
+
+    if (!this.formularioConfiguracion.value || !this.formularioConfiguracion.value.trim()) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de validación',
+        detail: 'El valor es requerido'
+      });
+      return;
+    }
+
+    this.guardandoConfiguracion = true;
+
+    if (this.editandoConfiguracion) {
+      // Actualizar
+      this.configuracionGeneralService.updateConfiguracion(this.editandoConfiguracion.key, this.formularioConfiguracion).subscribe({
+        next: (response) => {
+          this.guardandoConfiguracion = false;
+          if (response.ok) {
+            // Si se actualizó TIEMPO_CARRO_MINUTOS, sincronizar con CartTimerService
+            if (this.editandoConfiguracion!.key === 'TIEMPO_CARRO_MINUTOS') {
+              const minutos = parseInt(this.formularioConfiguracion.value, 10);
+              if (!isNaN(minutos) && minutos >= 1 && minutos <= 120) {
+                this.cartTimerService.setTimeLimitMinutes(minutos);
+                this.cartTimeLimitMinutes = minutos;
+                this.originalTimeLimitMinutes = minutos;
+                this.hasChangesTimer = false;
+              }
+            }
+            // Si se actualizó LIMITE_PERSONAS_COMPRA, sincronizar con localStorage
+            if (this.editandoConfiguracion!.key === 'LIMITE_PERSONAS_COMPRA') {
+              const limite = parseInt(this.formularioConfiguracion.value, 10);
+              if (!isNaN(limite) && limite >= 1 && limite <= 50) {
+                localStorage.setItem('max_entradas_por_cliente', String(limite));
+                this.maxEntradasPorCliente = limite;
+                this.originalMaxEntradas = limite;
+                this.hasChangesEntradas = false;
+              }
+            }
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Actualizado',
+              detail: 'Configuración actualizada correctamente'
+            });
+            this.cargarConfiguraciones();
+            this.cerrarDialogConfiguracion();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response.mensaje || 'No se pudo actualizar la configuración'
+            });
+          }
+        },
+        error: (error) => {
+          this.guardandoConfiguracion = false;
+          console.error('Error al actualizar configuración:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al actualizar la configuración'
+          });
+        }
+      });
+    } else {
+      // Crear
+      this.configuracionGeneralService.createConfiguracion(this.formularioConfiguracion).subscribe({
+        next: (response) => {
+          this.guardandoConfiguracion = false;
+          if (response.ok) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Creado',
+              detail: 'Configuración creada correctamente'
+            });
+            this.cargarConfiguraciones();
+            this.cerrarDialogConfiguracion();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response.mensaje || 'No se pudo crear la configuración'
+            });
+          }
+        },
+        error: (error) => {
+          this.guardandoConfiguracion = false;
+          console.error('Error al crear configuración:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al crear la configuración'
+          });
+        }
+      });
+    }
+  }
+
+  /**
+   * Elimina una configuración
+   */
+  eliminarConfiguracion(config: ConfiguracionItem): void {
+    this.configuracionGeneralService.deleteConfiguracion(config.key).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Eliminado',
+            detail: 'Configuración eliminada correctamente'
+          });
+          this.cargarConfiguraciones();
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudo eliminar la configuración'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al eliminar configuración:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al eliminar la configuración'
+        });
+      }
+    });
+  }
+
+  /**
+   * Cierra el diálogo de configuración
+   */
+  cerrarDialogConfiguracion(): void {
+    this.mostrarDialogConfiguracion = false;
+    this.editandoConfiguracion = null;
+  }
+
+  /**
+   * Obtiene la etiqueta del tipo de valor
+   */
+  getTipoValorLabel(tipo: string): string {
+    const tipos: { [key: string]: string } = {
+      'string': 'Texto',
+      'number': 'Número',
+      'boolean': 'Booleano',
+      'json': 'JSON'
+    };
+    return tipos[tipo] || tipo;
+  }
+
+  /**
+   * Obtiene la severidad del tag según el tipo de valor
+   */
+  getTipoValorSeverity(tipo: string): 'success' | 'info' | 'warning' | 'danger' {
+    const severities: { [key: string]: 'success' | 'info' | 'warning' | 'danger' } = {
+      'string': 'info',
+      'number': 'success',
+      'boolean': 'warning',
+      'json': 'danger'
+    };
+    return severities[tipo] || 'info';
   }
 }
