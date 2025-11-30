@@ -346,6 +346,101 @@
       </ng-template>
     </p-card>
 
+    <!-- Card de Configuración de Reglas de Puntos -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+          <div class="header-icon">
+            <i class="pi pi-star"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Reglas de Puntos</h2>
+            <p class="card-description">Gestiona las reglas de acumulación y canje de puntos del sistema de fidelización</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Botón agregar nueva regla -->
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+            <button 
+              pButton 
+              type="button" 
+              label="Nueva Regla" 
+              icon="pi pi-plus"
+              class="p-button-success"
+              (click)="abrirDialogNuevaRegla()">
+            </button>
+          </div>
+
+          <!-- Tabla de reglas -->
+          <p-table 
+            [value]="reglasPuntos" 
+            [loading]="loadingReglas"
+            [paginator]="true"
+            [rows]="5"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} reglas"
+            styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>ID</th>
+                <th>Tipo de Regla</th>
+                <th>Soles por Punto</th>
+                <th>Estado</th>
+                <th style="width: 200px">Acciones</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-regla>
+              <tr>
+                <td>{{ regla.idRegla }}</td>
+                <td>
+                  <p-tag 
+                    [value]="getTipoReglaLabel(regla.tipoRegla)"
+                    [severity]="regla.tipoRegla === 'COMPRA' ? 'info' : 'warning'">
+                  </p-tag>
+                </td>
+                <td>S/ {{ regla.solesPorPunto }}</td>
+                <td>
+                  <p-tag 
+                    [value]="regla.activo ? 'Activo' : 'Inactivo'"
+                    [severity]="getEstadoSeverity(regla.activo)">
+                  </p-tag>
+                </td>
+                <td>
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-text p-button-info"
+                    pTooltip="Editar"
+                    (click)="abrirDialogEditarRegla(regla)">
+                  </button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-trash" 
+                    class="p-button-rounded p-button-text p-button-danger"
+                    pTooltip="Eliminar"
+                    (click)="eliminarRegla(regla)">
+                  </button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem;">
+                  <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc; display: block; margin-bottom: 1rem;"></i>
+                  <p style="color: #999;">No hay reglas de puntos configuradas</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </ng-template>
+    </p-card>
+
     <!-- Información adicional -->
     <p-card class="info-card">
       <ng-template pTemplate="header">
@@ -390,6 +485,94 @@
     </p-card>
   </div>
 </div>
+
+<!-- Diálogo para crear/editar regla de puntos -->
+<p-dialog 
+  [(visible)]="mostrarDialogRegla" 
+  [header]="editandoRegla ? 'Editar Regla de Puntos' : 'Nueva Regla de Puntos'"
+  [modal]="true"
+  [style]="{width: '500px'}"
+  [closable]="!guardandoRegla">
+  
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem;">
+    <!-- Tipo de Regla -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="tipoRegla" style="font-weight: 600;">Tipo de Regla *</label>
+      <p-dropdown 
+        id="tipoRegla"
+        [(ngModel)]="formularioRegla.tipoRegla"
+        [options]="[{label: 'Por Compra', value: 'COMPRA'}, {label: 'Por Canje', value: 'CANJE'}]"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione tipo de regla"
+        [disabled]="guardandoRegla">
+      </p-dropdown>
+    </div>
+
+    <!-- Soles por Punto -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="solesPorPunto" style="font-weight: 600;">Soles por Punto *</label>
+      <p-inputNumber
+        id="solesPorPunto"
+        [(ngModel)]="formularioRegla.solesPorPunto"
+        [min]="0.01"
+        [max]="1000"
+        [step]="0.1"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        prefix="S/ "
+        placeholder="Ingrese monto"
+        [disabled]="guardandoRegla">
+      </p-inputNumber>
+      <small style="color: #666;">Cantidad de soles necesarios para ganar 1 punto</small>
+    </div>
+
+    <!-- Estado -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="estadoRegla" style="font-weight: 600;">Estado *</label>
+      <input 
+        id="estadoRegla"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioRegla.estado"
+        placeholder="Ej: ACTIVO, VIGENTE"
+        [disabled]="guardandoRegla" />
+    </div>
+
+    <!-- Activo -->
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <p-checkbox 
+        [(ngModel)]="formularioRegla.activo" 
+        [binary]="true"
+        inputId="activoRegla"
+        [disabled]="guardandoRegla">
+      </p-checkbox>
+      <label for="activoRegla" style="margin: 0; cursor: pointer;">Regla activa</label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancelar" 
+      icon="pi pi-times"
+      class="p-button-text"
+      [disabled]="guardandoRegla"
+      (click)="cerrarDialogRegla()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      [label]="editandoRegla ? 'Actualizar' : 'Crear'"
+      icon="pi pi-check"
+      class="p-button-success"
+      [loading]="guardandoRegla"
+      (click)="guardarRegla()">
+    </button>
+  </ng-template>
+</p-dialog>
 
 <!-- Toast para notificaciones -->
 <p-toast position="top-right"></p-toast>

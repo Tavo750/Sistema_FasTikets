@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CartTimerService } from '../../../../../shared/services/cart-timer.service';
 import { MessageService } from 'primeng/api';
+import { CodigosPromocionalesService } from '../../services/codigos-promocionales.service';
+import { ReglaPuntos, CreateReglaPuntosRequest, UpdateReglaPuntosRequest } from '../../interfaces/reglas-puntos/reglas-puntos.interface';
 
 @Component({
   selector: 'app-configuracion-general',
@@ -31,13 +33,28 @@ export class ConfiguracionGeneralComponent implements OnInit {
     return this.hasChangesTimer || this.hasChangesEntradas;
   }
 
+  // Configuración de Reglas de Puntos
+  reglasPuntos: ReglaPuntos[] = [];
+  loadingReglas: boolean = false;
+  editandoRegla: ReglaPuntos | null = null;
+  mostrarDialogRegla: boolean = false;
+  formularioRegla: CreateReglaPuntosRequest = {
+    solesPorPunto: 1,
+    tipoRegla: 'COMPRA',
+    activo: true,
+    estado: 'ACTIVO'
+  };
+  guardandoRegla: boolean = false;
+
   constructor(
     private cartTimerService: CartTimerService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private codigosPromocionalesService: CodigosPromocionalesService
   ) {}
 
   ngOnInit(): void {
     this.loadCurrentSettings();
+    this.cargarReglasPuntos();
   }
 
   /**
@@ -220,5 +237,206 @@ export class ConfiguracionGeneralComponent implements OnInit {
       this.maxEntradasPorCliente = Math.max(1, this.maxEntradasPorCliente - 5);
       this.onMaxEntradasChange();
     }
+  }
+
+  // ==================== REGLAS DE PUNTOS ====================
+
+  /**
+   * Carga las reglas de puntos desde el backend
+   */
+  cargarReglasPuntos(): void {
+    this.loadingReglas = true;
+    this.codigosPromocionalesService.getReglasPuntos().subscribe({
+      next: (response) => {
+        this.loadingReglas = false;
+        if (response.ok && response.data) {
+          this.reglasPuntos = response.data;
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudieron cargar las reglas de puntos'
+          });
+        }
+      },
+      error: (error) => {
+        this.loadingReglas = false;
+        console.error('Error al cargar reglas de puntos:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al cargar las reglas de puntos'
+        });
+      }
+    });
+  }
+
+  /**
+   * Abre el diálogo para crear una nueva regla
+   */
+  abrirDialogNuevaRegla(): void {
+    this.editandoRegla = null;
+    this.formularioRegla = {
+      solesPorPunto: 1,
+      tipoRegla: 'COMPRA',
+      activo: true,
+      estado: 'ACTIVO'
+    };
+    this.mostrarDialogRegla = true;
+  }
+
+  /**
+   * Abre el diálogo para editar una regla existente
+   */
+  abrirDialogEditarRegla(regla: ReglaPuntos): void {
+    this.editandoRegla = regla;
+    this.formularioRegla = {
+      solesPorPunto: regla.solesPorPunto,
+      tipoRegla: regla.tipoRegla as 'CANJE' | 'COMPRA',
+      activo: regla.activo,
+      estado: regla.estado
+    };
+    this.mostrarDialogRegla = true;
+  }
+
+  /**
+   * Guarda una regla de puntos (crear o actualizar)
+   */
+  guardarRegla(): void {
+    if (this.formularioRegla.solesPorPunto <= 0) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de validación',
+        detail: 'Los soles por punto deben ser mayor a 0'
+      });
+      return;
+    }
+
+    this.guardandoRegla = true;
+
+    if (this.editandoRegla) {
+      // Actualizar
+      const updateData: UpdateReglaPuntosRequest = {
+        solesPorPunto: this.formularioRegla.solesPorPunto,
+        tipoRegla: this.formularioRegla.tipoRegla,
+        activo: this.formularioRegla.activo,
+        estado: this.formularioRegla.estado
+      };
+
+      this.codigosPromocionalesService.updateReglaPuntos(this.editandoRegla.idRegla, updateData).subscribe({
+        next: (response) => {
+          this.guardandoRegla = false;
+          if (response.ok) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Actualizado',
+              detail: 'Regla de puntos actualizada correctamente'
+            });
+            this.cargarReglasPuntos();
+            this.cerrarDialogRegla();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response.mensaje || 'No se pudo actualizar la regla'
+            });
+          }
+        },
+        error: (error) => {
+          this.guardandoRegla = false;
+          console.error('Error al actualizar regla:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al actualizar la regla de puntos'
+          });
+        }
+      });
+    } else {
+      // Crear
+      this.codigosPromocionalesService.createReglaPuntos(this.formularioRegla).subscribe({
+        next: (response) => {
+          this.guardandoRegla = false;
+          if (response.ok) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Creado',
+              detail: 'Regla de puntos creada correctamente'
+            });
+            this.cargarReglasPuntos();
+            this.cerrarDialogRegla();
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: response.mensaje || 'No se pudo crear la regla'
+            });
+          }
+        },
+        error: (error) => {
+          this.guardandoRegla = false;
+          console.error('Error al crear regla:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Error al crear la regla de puntos'
+          });
+        }
+      });
+    }
+  }
+
+  /**
+   * Elimina una regla de puntos
+   */
+  eliminarRegla(regla: ReglaPuntos): void {
+    this.codigosPromocionalesService.deleteReglaPuntos(regla.idRegla).subscribe({
+      next: (response) => {
+        if (response.ok) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Eliminado',
+            detail: 'Regla de puntos eliminada correctamente'
+          });
+          this.cargarReglasPuntos();
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudo eliminar la regla'
+          });
+        }
+      },
+      error: (error) => {
+        console.error('Error al eliminar regla:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al eliminar la regla de puntos'
+        });
+      }
+    });
+  }
+
+  /**
+   * Cierra el diálogo de regla
+   */
+  cerrarDialogRegla(): void {
+    this.mostrarDialogRegla = false;
+    this.editandoRegla = null;
+  }
+
+  /**
+   * Obtiene la etiqueta del tipo de regla
+   */
+  getTipoReglaLabel(tipo: string): string {
+    return tipo === 'COMPRA' ? 'Por Compra' : 'Por Canje';
+  }
+
+  /**
+   * Obtiene la severidad del badge según el estado
+   */
+  getEstadoSeverity(activo: boolean): 'success' | 'danger' {
+    return activo ? 'success' : 'danger';
   }
 }
