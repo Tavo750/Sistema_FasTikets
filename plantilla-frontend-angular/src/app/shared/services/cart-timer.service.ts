@@ -26,11 +26,14 @@ export class CartTimerService {
 
   
 
-  // URL del endpoint de configuración (puede ajustarse según entorno)
-  private readonly CONFIG_URL = `${baseUrl}/configuracion/LIMITE_PERSONAS_COMPRA`;
+  // URL fija del endpoint de configuración para el tiempo de reserva del carrito
+  // No dinámico: usar siempre este endpoint específico
+  private readonly CONFIG_URL = `${baseUrl}/configuracion/TIEMPO_RESERVA_CARRITO_MIN`;
   // Promesa que se resuelve cuando la carga inicial (petición remota) termina
   private initialLoadPromise: Promise<void> | null = null;
   private resolveInitialLoad: (() => void) | null = null;
+  // Indica si ya se inició la petición remota al menos una vez
+  private initialLoadStarted: boolean = false;
 
   /**
    * Crea el servicio e intenta cargar la configuración remota si está disponible
@@ -55,17 +58,22 @@ export class CartTimerService {
    */
   private loadTimeLimitFromEndpoint(): void {
     try {
+      console.debug('CartTimerService.loadTimeLimitFromEndpoint -> GET', this.CONFIG_URL);
+      this.initialLoadStarted = true;
       this.http.get<any>(this.CONFIG_URL).subscribe({
         next: (resp) => {
           try {
-            const value = resp?.data?.value ?? resp?.value ?? null;
-            const minutes = value !== null && value !== undefined ? parseInt(String(value), 10) : NaN;
+            // Respuesta esperada: { ok: true, mensaje: '...', data: { value: 15 } }
+            const value = resp?.data?.value ?? resp?.value ?? resp ?? null;
+            // Aceptar formatos como "15", "15.0", "15.00"
+            const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
+            const minutes = !isNaN(parsed) ? Math.round(parsed) : NaN;
             if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
               // Aplicar nuevo tiempo límite
               this.setTimeLimitMinutes(minutes);
             } else {
               // no válido: ignorar
-              // console.info('CartTimerService: valor de tiempo remoto no válido', value);
+              console.info('CartTimerService: valor de tiempo remoto no válido, se mantiene el valor actual', value);
             }
           } catch (e) {
             console.warn('Error procesando respuesta de configuración de tiempo', e);
@@ -75,7 +83,7 @@ export class CartTimerService {
         },
         error: (err) => {
           // No bloquear si falla la petición; se sigue con el valor guardado o por defecto
-          console.warn('No se pudo obtener configuración remota de tiempo de carrito', err);
+          console.warn('No se pudo obtener configuración remota de tiempo de carrito, se mantiene valor por defecto/storage', err);
           try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
         }
       });
@@ -127,6 +135,7 @@ export class CartTimerService {
       // Actualizar el valor interno
       this.CART_TIMER_MS = minutes * 60 * 1000;
       this.timeLimitSubject.next(minutes);
+      try { console.debug('CartTimerService.setTimeLimitMinutes -> applied minutes', minutes, 'CART_TIMER_MS', this.CART_TIMER_MS); } catch (_) {}
       
       return true;
     } catch (e) {
@@ -138,8 +147,11 @@ export class CartTimerService {
   async startIfNotStarted(userId?: number | string): Promise<void> {
     const key = userId ? `cart_timer_start_${userId}` : 'cart_timer_start_guest';
     this.storageKey = key;
+    try { console.debug('CartTimerService.startIfNotStarted -> called', { userId, storageKey: key, CART_TIMER_MS: this.CART_TIMER_MS, timeLimitSubject: this.timeLimitSubject.value, initialLoadStarted: this.initialLoadStarted }); } catch(_) {}
     try {
       // Esperar la carga inicial (si está en progreso)
+      // Si no se ha iniciado la petición aún, intentar iniciarla ahora
+      try { if (!this.initialLoadStarted) this.loadTimeLimitFromEndpoint(); } catch(_) {}
       try { if (this.initialLoadPromise) await this.initialLoadPromise; } catch(_) {}
       // Si no se obtuvo un tiempo límite válido, no iniciar el temporizador
       if (!this.CART_TIMER_MS || this.CART_TIMER_MS <= 0) {

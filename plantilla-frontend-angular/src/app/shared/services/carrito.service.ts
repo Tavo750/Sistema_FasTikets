@@ -99,4 +99,24 @@ export class CarritoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Aplica un cupón al carrito indicado por idCarrito.
+   * Endpoint: POST /carrito/{idCarrito}/aplicar-cupon (body: { codigo })
+   */
+  applyCoupon(idCarrito: number, codigo: string): Observable<any> {
+    const url = `${baseUrl}/carrito/${idCarrito}/aplicar-cupon`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    const body = { codigo };
+    try { console.debug('CarritoService.applyCoupon -> POST', url, body); } catch (e) {}
+
+    return this.http.post<any>(url, body, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.applyCoupon response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
 }

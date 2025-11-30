@@ -20,8 +20,9 @@
 .qr-caption { font-size:14px; color:#333; margin-top:12px; text-align:center; }
 .qr-image { width: 200px; height: 200px; object-fit: contain; border-radius: 8px; }
 .qr-placeholder { color:#6b7280; font-size:14px; }
-.btn-download-qr { background:#000; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
-.btn-transfer { background:#fff; border:1px solid #ddd; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
+.btn-download-qr { background:#0f172a; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
+.btn-comprobante { background:#0ea5a4; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
+.btn-transfer { background:#f59e0b; color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; width:100%; }
 
 @media (max-width: 900px) {
   .detail-body { flex-direction: column; }

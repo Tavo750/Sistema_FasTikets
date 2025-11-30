@@ -30,9 +30,8 @@
 		</div>
 	</div>
 
-	<div *ngIf="(!purchases || purchases.length === 0) && lastResp" class="no-results">
-		<p>No se encontraron órdenes para mostrar. Respuesta del servidor (debug):</p>
-		<pre style="max-height:200px;overflow:auto;background:#f8f9fa;padding:8px;border-radius:6px;">{{ lastResp | json }}</pre>
+	<div *ngIf="!purchases || purchases.length === 0" class="no-results">
+		<p>No hay compras registradas.</p>
 	</div>
 
 	<div class="historial-grid">

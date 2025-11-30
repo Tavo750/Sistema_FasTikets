@@ -75,4 +75,25 @@ export class OrdenesService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+
+  /**
+   * Descarga el comprobante PDF asociado a un idOrden.
+   * Endpoint: GET /ordenes/{idOrden}/comprobante
+   * Retorna un Blob (application/pdf)
+   */
+  getComprobantePdf(idOrden: number): Observable<Blob> {
+    const url = `${baseUrl}/ordenes/${encodeURIComponent(String(idOrden))}/comprobante`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Accept': 'application/pdf' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('OrdenesService.getComprobantePdf -> GET', url); } catch(e) {}
+
+    return this.http.get(url, { headers, responseType: 'blob' as 'blob' })
+      .pipe(
+        tap(blob => { try { console.debug('OrdenesService.getComprobantePdf: received blob', blob); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
 }

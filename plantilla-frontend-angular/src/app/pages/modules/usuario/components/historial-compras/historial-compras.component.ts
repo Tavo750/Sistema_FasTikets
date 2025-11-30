@@ -62,6 +62,7 @@ export class HistorialComprasComponent implements OnInit {
           const statusClass = estado === 'APROBADO' ? 'status-approved' : (estado === 'RECHAZADO' ? 'status-rejected' : (estado === 'TRANSFERIDO' ? 'status-transfer' : 'status-pending'));
           return {
             id: o.idOrdenCompra,
+            idOrden: o.idOrdenCompra,
             title: eventName,
             date: o.fechaOrden,
             tickets: ticketsCount,

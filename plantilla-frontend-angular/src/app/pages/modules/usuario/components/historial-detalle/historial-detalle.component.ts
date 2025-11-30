@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { OrdenesService } from '../../../../../shared/services/ordenes.service';
 
 @Component({
   selector: 'app-historial-detalle',
@@ -13,7 +14,7 @@ export class HistorialDetalleComponent implements OnInit {
   purchase: any = null;
   qrImageUrl: string | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private ordenesService: OrdenesService) {}
 
   ngOnInit(): void {
     // Try to read purchase from navigation state
@@ -173,6 +174,21 @@ export class HistorialDetalleComponent implements OnInit {
     this.router.navigateByUrl('/usuario/historialCompras');
   }
 
+  /**
+   * Redirige al usuario al listado `MisEntradas` para iniciar un proceso
+   * de transferencia; pasamos la compra en `state` para que el destino
+   * pueda aprovechar los datos si lo requiere.
+   */
+  goToMisEntradas(): void {
+    try {
+      this.router.navigate(['/usuario/misEntradas'], { state: { from: 'historialDetalle', purchase: this.purchase } });
+    } catch (e) {
+      console.warn('No se pudo navegar a MisEntradas', e);
+      // Fallback simple
+      this.router.navigateByUrl('/usuario/misEntradas');
+    }
+  }
+
   downloadQr() {
     // Only attempt PDF download. If jspdf is not installed, inform the user.
     if (!this.qrImageUrl) {
@@ -184,6 +200,39 @@ export class HistorialDetalleComponent implements OnInit {
       console.error('Error al generar PDF', err);
       alert('No se pudo generar el PDF. Para habilitar la descarga en PDF instala la dependencia `jspdf` ejecutando:\n\n  npm install jspdf\n\ny luego recarga la aplicación.');
     });
+  }
+
+  /**
+   * Genera y descarga un comprobante (PDF) con los datos principales de la compra.
+   */
+  async downloadComprobante(): Promise<void> {
+    // Prefer explicit idOrden provided in the purchase object
+    const idOrdenRaw = this.purchase?.idOrden ?? this.purchase?.purchaseNumber ?? this.purchase?.id;
+    if (!idOrdenRaw) {
+      alert('No se pudo determinar el id de la orden para descargar el comprobante.');
+      return;
+    }
+    const idOrden = Number(idOrdenRaw);
+    if (isNaN(idOrden) || idOrden <= 0) {
+      alert('Id de orden inválido para descargar comprobante.');
+      return;
+    }
+
+    try {
+      this.ordenesService.getComprobantePdf(idOrden).subscribe({
+        next: (blob: Blob) => {
+          const filename = `Comprobante-${this.purchase?.purchaseNumber ?? idOrden}.pdf`;
+          this.triggerDownload(blob, filename);
+        },
+        error: (err: any) => {
+          console.error('Error descargando comprobante desde el servidor', err);
+          alert('No se pudo descargar el comprobante desde el servidor. Revise la consola para más detalles.');
+        }
+      });
+    } catch (e) {
+      console.error('Error iniciando descarga del comprobante', e);
+      alert('No se pudo iniciar la descarga del comprobante.');
+    }
   }
 
   private async downloadAsPng(): Promise<void> {

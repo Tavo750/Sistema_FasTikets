@@ -59,7 +59,6 @@
 
           <div class="detail-actions">
             <button class="btn-back" (click)="back()">Volver</button>
-            <button class="btn-download" (click)="downloadQr()">Descargar</button>
           </div>
         </ng-container>
 
@@ -74,7 +73,6 @@
 
             <div class="detail-actions" style="justify-content:flex-end; margin-top:12px;">
               <button class="btn-back" (click)="back()">Volver</button>
-              <button class="btn-download" (click)="downloadQr()">Descargar</button>
             </div>
           </div>
         </ng-container>
@@ -93,7 +91,8 @@
           <div class="qr-caption">{{ purchase.title }}</div>
         </div>
         <button class="btn-download-qr" (click)="downloadQr()">Descargar QR</button>
-        <button class="btn-transfer">Transferir entrada a otra persona</button>
+        <button class="btn-comprobante" (click)="downloadComprobante()">Descargar comprobante</button>
+        <button class="btn-transfer" (click)="goToMisEntradas()">Transferir entrada a otra persona</button>
       </div>
     </div>
   </div>
