@@ -1042,10 +1042,25 @@ export class EditarEventoComponent implements OnInit{
         return false;
       }
 
-      // Validar que la hora final sea posterior a la hora de inicio
-      if (this.timeFinal && this.time && this.timeFinal <= this.time) {
-        this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
-        return false;
+      // Validar que la fecha de fin sea mayor o igual a la fecha de inicio
+      if (this.date && this.dateFin) {
+        const fechaInicio = new Date(this.date);
+        fechaInicio.setHours(0, 0, 0, 0);
+        const fechaFin = new Date(this.dateFin);
+        fechaFin.setHours(0, 0, 0, 0);
+
+        if (fechaFin < fechaInicio) {
+          this.messageService.error('La fecha fin del evento debe ser mayor o igual a la fecha de inicio', 'Fechas Inválidas');
+          return false;
+        }
+
+        // Validar que la hora final sea posterior a la hora de inicio
+        // SOLO si las fechas de inicio y fin son el mismo día
+        const esMismoDia = fechaInicio.getTime() === fechaFin.getTime();
+        if (esMismoDia && this.timeFinal <= this.time) {
+          this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio cuando el evento es el mismo día', 'Horarios Inválidos');
+          return false;
+        }
       }
 
       // Validar que se haya seleccionado un banner
