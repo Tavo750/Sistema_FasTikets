@@ -128,7 +128,7 @@
           </div>
 
           <!-- Vista previa del cambio -->
-          <div class="preview-box" *ngIf="hasChanges">
+          <div class="preview-box" *ngIf="hasChangesTimer">
             <i class="pi pi-eye"></i>
             <div class="preview-text">
               <strong>Vista previa:</strong>
@@ -144,10 +144,10 @@
             <button 
               pButton 
               type="button" 
-              label="Restablecer por defecto" 
+              label="Restablecer" 
               icon="pi pi-refresh"
               class="p-button-outlined p-button-secondary"
-              (click)="resetToDefault()">
+              (click)="resetTimerToDefault()">
             </button>
 
             <div class="primary-actions">
@@ -157,19 +157,19 @@
                 label="Cancelar" 
                 icon="pi pi-times"
                 class="p-button-outlined"
-                [disabled]="!hasChanges || isSaving"
-                (click)="cancelChanges()">
+                [disabled]="!hasChangesTimer || isSavingTimer"
+                (click)="cancelTimerChanges()">
               </button>
               
               <button 
                 pButton 
                 type="button" 
-                label="Guardar cambios" 
+                label="Guardar" 
                 icon="pi pi-check"
                 class="p-button-success"
-                [disabled]="!hasChanges || isSaving"
-                [loading]="isSaving"
-                (click)="saveSettings()">
+                [disabled]="!hasChangesTimer || isSavingTimer"
+                [loading]="isSavingTimer"
+                (click)="saveTimerSettings()">
               </button>
             </div>
           </div>
@@ -297,11 +297,49 @@
           </div>
 
           <!-- Vista previa del cambio -->
-          <div class="preview-box" *ngIf="hasChanges && maxEntradasPorCliente !== originalMaxEntradas">
+          <div class="preview-box" *ngIf="hasChangesEntradas">
             <i class="pi pi-eye"></i>
             <div class="preview-text">
               <strong>Vista previa:</strong>
               <span>Los clientes podrán comprar un <strong class="highlight">máximo de {{ maxEntradasPorCliente }} entradas</strong> por evento</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="footer-actions">
+            <button 
+              pButton 
+              type="button" 
+              label="Restablecer" 
+              icon="pi pi-refresh"
+              class="p-button-outlined p-button-secondary"
+              (click)="resetEntradasToDefault()">
+            </button>
+
+            <div class="primary-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Cancelar" 
+                icon="pi pi-times"
+                class="p-button-outlined"
+                [disabled]="!hasChangesEntradas || isSavingEntradas"
+                (click)="cancelEntradasChanges()">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                label="Guardar" 
+                icon="pi pi-check"
+                class="p-button-success"
+                [disabled]="!hasChangesEntradas || isSavingEntradas"
+                [loading]="isSavingEntradas"
+                (click)="saveEntradasSettings()">
+              </button>
             </div>
           </div>
         </div>
@@ -324,8 +362,12 @@
       <ng-template pTemplate="content">
         <div class="info-list">
           <div class="info-item">
+            <i class="pi pi-save"></i>
+            <span>Cada configuración tiene su <strong>propio botón de guardado</strong>, permitiendo guardar cambios de forma independiente.</span>
+          </div>
+          <div class="info-item">
             <i class="pi pi-check-circle"></i>
-            <span>Los cambios se aplicarán <strong>inmediatamente</strong> a todos los nuevos carritos creados.</span>
+            <span>Los cambios se aplicarán <strong>inmediatamente</strong> después de presionar el botón "Guardar" de cada sección.</span>
           </div>
           <div class="info-item">
             <i class="pi pi-clock"></i>
@@ -337,11 +379,11 @@
           </div>
           <div class="info-item">
             <i class="pi pi-chart-line"></i>
-            <span>Se recomienda un tiempo entre <strong>10 y 30 minutos</strong> para una experiencia óptima.</span>
+            <span>Se recomienda un tiempo entre <strong>10 y 30 minutos</strong> para el carrito y entre <strong>5 y 20 entradas</strong> por cliente.</span>
           </div>
           <div class="info-item">
             <i class="pi pi-ticket"></i>
-            <span>El límite de entradas ayuda a prevenir acaparamiento y garantiza una distribución más equitativa.</span>
+            <span>El límite de entradas (rango: <strong>1-50</strong>) ayuda a prevenir acaparamiento y garantiza una distribución equitativa.</span>
           </div>
         </div>
       </ng-template>

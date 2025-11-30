@@ -13,14 +13,23 @@ export class ConfiguracionGeneralComponent implements OnInit {
   // Configuración del tiempo límite del carrito
   cartTimeLimitMinutes: number = 15;
   originalTimeLimitMinutes: number = 15;
+  hasChangesTimer: boolean = false;
+  isSavingTimer: boolean = false;
   
   // Configuración del límite de entradas por cliente
   maxEntradasPorCliente: number = 10;
   originalMaxEntradas: number = 10;
+  hasChangesEntradas: boolean = false;
+  isSavingEntradas: boolean = false;
   
-  // Estados
-  isSaving: boolean = false;
-  hasChanges: boolean = false;
+  // Estados globales (deprecated - se mantienen por compatibilidad)
+  get isSaving(): boolean {
+    return this.isSavingTimer || this.isSavingEntradas;
+  }
+  
+  get hasChanges(): boolean {
+    return this.hasChangesTimer || this.hasChangesEntradas;
+  }
 
   constructor(
     private cartTimerService: CartTimerService,
@@ -44,38 +53,26 @@ export class ConfiguracionGeneralComponent implements OnInit {
       this.maxEntradasPorCliente = parseInt(maxEntradas, 10);
     }
     this.originalMaxEntradas = this.maxEntradasPorCliente;
-    
-    this.hasChanges = false;
   }
 
   /**
    * Detecta cambios en el formulario
    */
   onTimeLimitChange(): void {
-    this.checkForChanges();
+    this.hasChangesTimer = this.cartTimeLimitMinutes !== this.originalTimeLimitMinutes;
   }
 
   /**
    * Detecta cambios en el límite de entradas
    */
   onMaxEntradasChange(): void {
-    this.checkForChanges();
+    this.hasChangesEntradas = this.maxEntradasPorCliente !== this.originalMaxEntradas;
   }
 
   /**
-   * Verifica si hay cambios en alguna configuración
+   * Guarda solo la configuración del tiempo límite
    */
-  private checkForChanges(): void {
-    this.hasChanges = 
-      this.cartTimeLimitMinutes !== this.originalTimeLimitMinutes ||
-      this.maxEntradasPorCliente !== this.originalMaxEntradas;
-  }
-
-  /**
-   * Guarda los cambios de configuración
-   */
-  saveSettings(): void {
-    // Validar rango de tiempo límite
+  saveTimerSettings(): void {
     if (this.cartTimeLimitMinutes < 1 || this.cartTimeLimitMinutes > 120) {
       this.messageService.add({
         severity: 'error',
@@ -85,7 +82,34 @@ export class ConfiguracionGeneralComponent implements OnInit {
       return;
     }
 
-    // Validar rango de límite de entradas
+    this.isSavingTimer = true;
+    const success = this.cartTimerService.setTimeLimitMinutes(this.cartTimeLimitMinutes);
+
+    setTimeout(() => {
+      this.isSavingTimer = false;
+      
+      if (success) {
+        this.originalTimeLimitMinutes = this.cartTimeLimitMinutes;
+        this.hasChangesTimer = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Guardado',
+          detail: `Tiempo límite actualizado a ${this.cartTimeLimitMinutes} minutos`
+        });
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo guardar el tiempo límite'
+        });
+      }
+    }, 500);
+  }
+
+  /**
+   * Guarda solo la configuración del límite de entradas
+   */
+  saveEntradasSettings(): void {
     if (this.maxEntradasPorCliente < 1 || this.maxEntradasPorCliente > 50) {
       this.messageService.add({
         severity: 'error',
@@ -95,52 +119,67 @@ export class ConfiguracionGeneralComponent implements OnInit {
       return;
     }
 
-    this.isSaving = true;
-
-    // Guardar configuración del timer
-    const success = this.cartTimerService.setTimeLimitMinutes(this.cartTimeLimitMinutes);
-    
-    // Guardar configuración de límite de entradas en localStorage
+    this.isSavingEntradas = true;
     localStorage.setItem('max_entradas_por_cliente', String(this.maxEntradasPorCliente));
 
     setTimeout(() => {
-      this.isSaving = false;
-      
-      if (success) {
-        this.originalTimeLimitMinutes = this.cartTimeLimitMinutes;
-        this.originalMaxEntradas = this.maxEntradasPorCliente;
-        this.hasChanges = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Configuración guardada',
-          detail: `Tiempo límite: ${this.cartTimeLimitMinutes} min | Máx. entradas: ${this.maxEntradasPorCliente}`
-        });
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo guardar la configuración'
-        });
-      }
+      this.isSavingEntradas = false;
+      this.originalMaxEntradas = this.maxEntradasPorCliente;
+      this.hasChangesEntradas = false;
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Guardado',
+        detail: `Límite de entradas actualizado a ${this.maxEntradasPorCliente}`
+      });
     }, 500);
   }
 
   /**
-   * Cancela los cambios y restaura valores originales
+   * Cancela los cambios del tiempo límite
    */
-  cancelChanges(): void {
+  cancelTimerChanges(): void {
     this.cartTimeLimitMinutes = this.originalTimeLimitMinutes;
-    this.maxEntradasPorCliente = this.originalMaxEntradas;
-    this.hasChanges = false;
+    this.hasChangesTimer = false;
   }
 
   /**
-   * Resetea al valor por defecto (15 minutos y 10 entradas)
+   * Cancela los cambios del límite de entradas
+   */
+  cancelEntradasChanges(): void {
+    this.maxEntradasPorCliente = this.originalMaxEntradas;
+    this.hasChangesEntradas = false;
+  }
+
+  /**
+   * Cancela los cambios y restaura valores originales (método legacy)
+   */
+  cancelChanges(): void {
+    this.cancelTimerChanges();
+    this.cancelEntradasChanges();
+  }
+
+  /**
+   * Resetea el tiempo límite por defecto (15 minutos)
+   */
+  resetTimerToDefault(): void {
+    this.cartTimeLimitMinutes = 15;
+    this.hasChangesTimer = this.cartTimeLimitMinutes !== this.originalTimeLimitMinutes;
+  }
+
+  /**
+   * Resetea el límite de entradas por defecto (10 entradas)
+   */
+  resetEntradasToDefault(): void {
+    this.maxEntradasPorCliente = 10;
+    this.hasChangesEntradas = this.maxEntradasPorCliente !== this.originalMaxEntradas;
+  }
+
+  /**
+   * Resetea al valor por defecto (15 minutos y 10 entradas) - método legacy
    */
   resetToDefault(): void {
-    this.cartTimeLimitMinutes = 15;
-    this.maxEntradasPorCliente = 10;
-    this.checkForChanges();
+    this.resetTimerToDefault();
+    this.resetEntradasToDefault();
   }
 
   /**
