@@ -390,9 +390,9 @@ export class GestionLocalesComponent implements OnInit {
             'Nombre',
             'Direccion',
             'Aforo Total',
-            'URL Mapa',
-            //'Imagen URL',
-            'ID Distrito'
+            'Departamento',
+            'Provincia',
+            'Distrito'
           ];
 
           // Validar que todas las columnas requeridas estén presentes
