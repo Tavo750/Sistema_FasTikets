@@ -453,7 +453,7 @@
     styleClass="dashboard-modal"
     (onHide)="cerrarDashboard()">
 
-    <div class="dashboard-content" *ngIf="analyticsData && !cargando">
+    <div class="dashboard-content" *ngIf="analyticsData && !cargandoDashboard">
         <!-- KPIs Principales -->
         <div class="kpi-section">
             <h3 class="section-title-dashboard">
@@ -507,7 +507,7 @@
         <div class="kpi-section">
             <h3 class="section-title-dashboard">
                 <i class="pi pi-dollar"></i>
-                Métricas de Ingresos y Capacidad
+                Métricas de Ingresos
             </h3>
             <div class="kpi-grid-secondary">
                 <div class="kpi-card ingresos">
@@ -515,30 +515,12 @@
                         <i class="pi pi-money-bill"></i>
                     </div>
                     <div class="kpi-content">
-                        <h3>{{formatearMoneda(analyticsData.ingresosEstimados)}}</h3>
-                        <p>Ingresos Estimados</p>
+                        <h3>{{formatearMoneda(analyticsData.ingresosReales)}}</h3>
+                        <p>Ingresos</p>
                     </div>
                 </div>
 
-                <div class="kpi-card capacidad">
-                    <div class="kpi-icon">
-                        <i class="pi pi-users"></i>
-                    </div>
-                    <div class="kpi-content">
-                        <h3>{{formatearNumero(analyticsData.capacidadTotal)}}</h3>
-                        <p>Capacidad Total</p>
-                    </div>
-                </div>
-
-                <div class="kpi-card ocupacion">
-                    <div class="kpi-icon">
-                        <i class="pi pi-percentage"></i>
-                    </div>
-                    <div class="kpi-content">
-                        <h3>{{analyticsData.ocupacionEstimada}}%</h3>
-                        <p>Ocupación Estimada</p>
-                    </div>
-                </div>
+                
             </div>
         </div>
 
@@ -552,13 +534,15 @@
                 </h4>
                 <div class="top-eventos">
                     <div *ngFor="let evento of analyticsData.top3Eventos; index as i"
-                         class="top-evento-item">
+                         class="top-evento-item clickeable-evento"
+                         (click)="verVentasEvento(evento.idEvento, evento.nombre)"
+                         title="Click para ver ventas del evento">
                         <div class="ranking-badge ranking-{{i+1}}">
                             #{{i+1}}
                         </div>
                         <div class="evento-info">
-                            <h5>{{evento.nombre}}</h5>
-                            <p>{{evento.tipoEvento}} - {{formatearFecha(evento.fechaEvento)}}</p>
+                            <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
+                            <p>ID: {{evento.idEvento}} - {{formatearFecha(convertirFechaString(evento.fechaEvento))}}</p>
                             <span class="aforo-info">
                                 <i class="pi pi-users"></i>
                                 Aforo disponible: {{formatearNumero(evento.aforoDisponible)}}
@@ -573,29 +557,6 @@
                 </div>
             </div>
 
-            <!-- Eventos por Tipo -->
-            <div class="analysis-section">
-                <h4 class="analysis-title">
-                    <i class="pi pi-chart-pie"></i>
-                    📊 Distribución por Tipo de Evento
-                </h4>
-                <div class="tipo-distribution">
-                    <div *ngFor="let tipo of analyticsData.eventosPorTipo | keyvalue"
-                         class="tipo-item">
-                        <div class="tipo-color"
-                             [style.background-color]="obtenerColorTipo(getStringValue(tipo.key))">
-                        </div>
-                        <div class="tipo-info">
-                            <span class="tipo-nombre">{{tipo.key}}</span>
-                            <span class="tipo-count">{{tipo.value}} eventos</span>
-                        </div>
-                        <div class="tipo-percentage">
-                            {{(getNumberValue(tipo.value) / analyticsData.totalEventos * 100).toFixed(1)}}%
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Próximos Eventos -->
             <div class="analysis-section" *ngIf="analyticsData.proximosEventos && analyticsData.proximosEventos.length > 0">
                 <h4 class="analysis-title">
@@ -604,14 +565,16 @@
                 </h4>
                 <div class="proximos-eventos">
                     <div *ngFor="let evento of analyticsData.proximosEventos"
-                         class="proximo-evento-item">
+                         class="proximo-evento-item clickeable-evento"
+                         (click)="verVentasEvento(evento.idEvento, evento.nombre)"
+                         title="Click para ver ventas del evento">
                         <div class="fecha-badge">
                             <span class="dia">{{evento.fechaEvento | date:'dd'}}</span>
                             <span class="mes">{{evento.fechaEvento | date:'MMM'}}</span>
                         </div>
                         <div class="evento-details">
-                            <h5>{{evento.nombre}}</h5>
-                            <p>{{evento.tipoEvento}} - {{evento.horaInicio}}</p>
+                            <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
+                            <p>ID: {{evento.idEvento}} - {{evento.horaInicio}}</p>
                             <span class="venue">
                                 <i class="pi pi-map-marker"></i>
                                 {{evento.nombreLocal}}
@@ -653,9 +616,10 @@
     </div>
 
     <!-- Loading state para dashboard -->
-    <div class="loading-modal" *ngIf="cargando">
+    <div class="loading-modal" *ngIf="cargandoDashboard">
         <p-progressSpinner styleClass="spinner-large"></p-progressSpinner>
-        <p>Calculando analytics...</p>
+        <p>Cargando datos del dashboard...</p>
+        <small>Obteniendo información en tiempo real del servidor</small>
     </div>
 
     <!-- Footer del dashboard -->
@@ -666,7 +630,8 @@
                 icon="pi pi-refresh"
                 severity="success"
                 [outlined]="true"
-                (click)="cargarEventos(); calcularAnalytics()">
+                [disabled]="cargandoDashboard"
+                (click)="abrirDashboard()">
             </p-button>
 
             <p-button
@@ -674,6 +639,103 @@
                 icon="pi pi-times"
                 severity="secondary"
                 (click)="cerrarDashboard()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal de Ventas del Evento -->
+<p-dialog 
+    [(visible)]="mostrarModalVentas" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false"
+    [closable]="true"
+    (onHide)="cerrarModalVentas()"
+    header="💰 Ventas del Evento"
+    [style]="{width: '600px'}"
+    styleClass="modal-ventas-evento">
+    
+    <ng-template pTemplate="content">
+        <div class="ventas-content" *ngIf="datosVentasEvento">
+            
+            <!-- Header con información del evento -->
+            <div class="evento-info-header">
+                <div class="evento-titulo">
+                    <h3>
+                        <i class="pi pi-ticket"></i>
+                        {{datosVentasEvento.nombreEvento}}
+                    </h3>
+                    <p class="evento-id">ID del Evento: #{{datosVentasEvento.idEvento}}</p>
+                </div>
+            </div>
+
+            <!-- Estado de carga -->
+            <div class="ventas-loading" *ngIf="datosVentasEvento.cargando">
+                <div class="loading-content">
+                    <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4"></p-progressSpinner>
+                    <p>Consultando ventas del evento...</p>
+                </div>
+            </div>
+
+            <!-- Datos de ventas -->
+            <div class="ventas-datos" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error">
+                <div class="ventas-card">
+                    <div class="ventas-icono">
+                        <i class="pi pi-dollar"></i>
+                    </div>
+                    <div class="ventas-info">
+                        <h2 class="ventas-monto">
+                            ${{datosVentasEvento.ventasTotales.toLocaleString('es-PE')}}
+                        </h2>
+                        <p class="ventas-label">Ventas Totales</p>
+                        <small class="ventas-descripcion">
+                            Ingresos generados hasta la fecha
+                        </small>
+                    </div>
+                </div>
+
+                <div class="ventas-detalles">
+                    <div class="detalle-item">
+                        <span class="detalle-label">Estado:</span>
+                        <span class="detalle-valor">
+                            <i class="pi pi-check-circle" style="color: #4caf50;"></i>
+                            Datos actualizados
+                        </span>
+                    </div>
+                    <div class="detalle-item">
+                        <span class="detalle-label">Fecha consulta:</span>
+                        <span class="detalle-valor">{{obtenerFechaActual()}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="ventas-error" *ngIf="!datosVentasEvento.cargando && datosVentasEvento.error">
+                <div class="error-content">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    <h4>No se pudieron cargar las ventas</h4>
+                    <p>{{datosVentasEvento.error}}</p>
+                    <p-button 
+                        label="Reintentar" 
+                        icon="pi pi-refresh"
+                        severity="secondary"
+                        size="small"
+                        (click)="verVentasEvento(datosVentasEvento.idEvento, datosVentasEvento.nombreEvento)">
+                    </p-button>
+                </div>
+            </div>
+
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <div class="modal-actions">
+            <p-button 
+                label="Cerrar" 
+                icon="pi pi-times"
+                severity="secondary"
+                (click)="cerrarModalVentas()">
             </p-button>
         </div>
     </ng-template>

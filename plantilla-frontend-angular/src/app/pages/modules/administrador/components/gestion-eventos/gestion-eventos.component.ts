@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventoService } from '../../services/evento.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
+import { DashboardData, EventoPopular } from '../../interfaces/dashboard/dashboard.interface';
 import { baseUrl } from '../../../../../global';
 import { LoadingService } from '../../../../../shared/services/loading.service';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
@@ -57,11 +59,23 @@ export class GestionEventosComponent implements OnInit {
 
   // Variables para el dashboard de analytics
   mostrarDashboard: boolean = false;
-  analyticsData: any = {};
+  analyticsData: DashboardData | null = null;
+  cargandoDashboard: boolean = false;
+
+  // Variables para el modal de ventas
+  mostrarModalVentas: boolean = false;
+  datosVentasEvento: {
+    nombreEvento: string;
+    idEvento: number;
+    ventasTotales: number;
+    cargando: boolean;
+    error?: string;
+  } | null = null;
 
   constructor(
     private router: Router,
     private eventoService: EventoService,
+    private dashboardService: DashboardService,
     private loadingService: LoadingService,
     private customMessageService: CustomMessageService,
     private confirmationService: ConfirmationService
@@ -82,9 +96,9 @@ export class GestionEventosComponent implements OnInit {
     ];
 
 
-    console.log('holaaa...');
+
     this.cargarEventos();
-    console.log('holaaa...');
+    
   }
 
   cargarEventos() {
@@ -152,18 +166,18 @@ export class GestionEventosComponent implements OnInit {
   }
 
   getEstadoSeverity(estado: string): string {
-    switch (estado.toLowerCase()) {
-      case 'completado':
-      case 'activo':
+    switch (estado.toUpperCase()) {
+      case 'ACTIVO':
+      case 'PUBLICADO':
         return 'success';
-      case 'próximo':
-      case 'programado':
+      case 'FINALIZADO':
         return 'info';
-      case 'vendido':
-      case 'agotado':
+      case 'AGOTADO':
         return 'warning';
-      case 'cancelado':
+      case 'CANCELADO':
         return 'danger';
+      case 'BORRADOR':
+        return 'secondary';
       default:
         return 'secondary';
     }
@@ -291,34 +305,157 @@ export class GestionEventosComponent implements OnInit {
   }
 
   abrirDashboard() {
-    this.calcularAnalytics();
+    console.log('🔄 Abriendo dashboard con datos reales del backend...');
+    this.cargandoDashboard = true;
     this.mostrarDashboard = true;
+    this.analyticsData = null; // Limpiar datos previos
+    
+    // Cargar datos reales desde el backend
+    this.dashboardService.getDashboardCompleto().subscribe({
+      next: (response) => {
+        if (response.ok && response.data) {
+          this.analyticsData = response.data;
+          console.log('✅ Dashboard cargado:', this.analyticsData);
+          
+          this.customMessageService.success(
+            'Dashboard actualizado correctamente',
+            'Datos Cargados'
+          );
+        } else {
+          console.error('❌ Error en respuesta del dashboard:', response.mensaje);
+          this.customMessageService.error(
+            'No se pudieron cargar los datos del dashboard',
+            'Error'
+          );
+          // Fallback a datos simulados si falla el backend
+          //this.calcularAnalyticsSimulados();
+        }
+        this.cargandoDashboard = false;
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar dashboard:', error);
+        this.cargandoDashboard = false;
+        this.customMessageService.error(
+          'Error al conectar con el servidor. Mostrando datos locales.',
+          'Conexión fallida'
+        );
+        // Fallback a datos simulados si hay error de conexión
+        //this.calcularAnalyticsSimulados();
+      }
+    });
   }
 
   cerrarDashboard() {
     this.mostrarDashboard = false;
-    this.analyticsData = {};
+    this.analyticsData = null;
+    this.cargandoDashboard = false;
   }
 
-  calcularAnalytics() {
+  /**
+   * Ver ventas de un evento específico en un modal
+   */
+  verVentasEvento(eventoId: number, nombreEvento: string): void {
+    console.log(`📊 Consultando ventas del evento ${eventoId}: ${nombreEvento}`);
+    
+    // Inicializar datos del modal
+    this.datosVentasEvento = {
+      nombreEvento,
+      idEvento: eventoId,
+      ventasTotales: 0,
+      cargando: true
+    };
+    
+    // Mostrar el modal
+    this.mostrarModalVentas = true;
+    
+    // Hacer la petición al backend
+    this.dashboardService.getVentasEvento(eventoId).subscribe({
+      next: (response) => {
+        if (this.datosVentasEvento) {
+          this.datosVentasEvento.cargando = false;
+          
+          if (response.ok) {
+            this.datosVentasEvento.ventasTotales = response.data;
+          } else {
+            this.datosVentasEvento.error = response.mensaje || `No se pudieron cargar las ventas del evento "${nombreEvento}"`;
+          }
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error al consultar ventas:', error);
+        if (this.datosVentasEvento) {
+          this.datosVentasEvento.cargando = false;
+          this.datosVentasEvento.error = `Error al consultar ventas del evento "${nombreEvento}"`;
+        }
+      }
+    });
+  }
+
+  /**
+   * Cerrar modal de ventas
+   */
+  cerrarModalVentas(): void {
+    this.mostrarModalVentas = false;
+    this.datosVentasEvento = null;
+  }
+
+  /**
+   * Obtener fecha actual formateada
+   */
+  obtenerFechaActual(): string {
+    return new Date().toLocaleString('es-PE');
+  }
+
+  // =================== MÉTODOS DE DASHBOARD ===================
+
+  /**
+   * Método de fallback para calcular analytics con datos locales
+   * Se usa cuando el backend no está disponible
+   */
+  calcularAnalyticsSimulados() {
+    console.log('⚠️ Usando datos simulados para el dashboard...');
     const ahora = new Date();
 
-    // Calcular métricas básicas
-    const eventosActivos = this.eventos.filter(e => e.estadoEvento === 'PUBLICADO' || e.estadoEvento === 'ACTIVO');
-    const eventosFinalizados = this.eventos.filter(e => e.estadoEvento === 'COMPLETADO' || e.estadoEvento === 'FINALIZADO');
+    // Calcular métricas básicas con datos locales
+    const eventosActivos = this.eventos.filter(e => e.estadoEvento === 'ACTIVO' || e.estadoEvento === 'PUBLICADO');
+    const eventosFinalizados = this.eventos.filter(e => e.estadoEvento === 'FINALIZADO');
     const eventosCancelados = this.eventos.filter(e => e.estadoEvento === 'CANCELADO');
     const eventosProximos = this.eventos.filter(e => new Date(e.fechaEvento) > ahora);
 
     // Top 3 eventos por menor aforo disponible (más vendidos)
-    const top3EventosMasVendidos = this.eventos
+    const top3EventosMasVendidos: EventoPopular[] = this.eventos
       .filter(e => e.estadoEvento !== 'CANCELADO')
       .sort((a, b) => a.aforoDisponible - b.aforoDisponible)
-      .slice(0, 3);
+      .slice(0, 3)
+      .map((evento, index): EventoPopular => ({
+        idEvento: evento.idEvento,
+        nombre: evento.nombre,
+        descripcion: evento.descripcion,
+        fechaEvento: evento.fechaEvento.toISOString(),
+        fechaFinEvento: undefined,
+        horaInicio: evento.horaInicio,
+        horaFin: evento.horaFin,
+        imagenUrl: undefined,
+        imagenZonasUrl: undefined,
+        tipoEvento: evento.tipoEvento,
+        estadoEvento: evento.estadoEvento,
+        aforoDisponible: evento.aforoDisponible,
+        activo: true,
+        idLocal: evento.idLocal || 0,
+        nombreLocal: evento.nombreLocal,
+        fechaCreacion: new Date().toISOString(),
+        menoresDeEdadPermitidos: false,
+        restricciones: undefined,
+        politicasDevolucion: undefined,
+        // Propiedades calculadas para el dashboard
+        ventasTotales: Math.floor(evento.aforoDisponible * 0.3),
+        entradasVendidas: Math.floor(evento.aforoDisponible * 0.3),
+        porcentajeOcupacion: 30,
+        ingresosGenerados: Math.floor(evento.aforoDisponible * 0.3) * 100,
+        ranking: index + 1
+      }));
 
-    // Eventos por tipo
-    const eventosPorTipo = this.agruparPorTipo();
-
-    // Próximos eventos (siguiente semana)
+    // Próximos eventos con formato correcto
     const proximosEventos = this.eventos
       .filter(e => {
         const fechaEvento = new Date(e.fechaEvento);
@@ -327,22 +464,21 @@ export class GestionEventosComponent implements OnInit {
         return fechaEvento > ahora && fechaEvento <= unaSemana;
       })
       .sort((a, b) => new Date(a.fechaEvento).getTime() - new Date(b.fechaEvento).getTime())
-      .slice(0, 5);
+      .slice(0, 5)
+      .map(evento => ({
+        idEvento: evento.idEvento,
+        nombre: evento.nombre,
+        fechaEvento: evento.fechaEvento.toISOString(),
+        horaInicio: evento.horaInicio,
+        nombreLocal: evento.nombreLocal,
+        tipoEvento: evento.tipoEvento,
+        estadoEvento: evento.estadoEvento,
+        aforoDisponible: evento.aforoDisponible,
+        diasRestantes: Math.ceil((new Date(evento.fechaEvento).getTime() - ahora.getTime()) / (1000 * 3600 * 24))
+      }));
 
-    // Capacidad total y ocupada
-    const capacidadTotal = this.eventos
-      .filter(e => e.estadoEvento !== 'CANCELADO')
-      .reduce((total, evento) => {
-        // Asumimos que la capacidad total es aforo disponible + vendidos (simulado)
-        const capacidadEvento = evento.aforoDisponible + Math.floor(evento.aforoDisponible * 0.3); // Simulamos 30% vendido
-        return total + capacidadEvento;
-      }, 0);
-
-    const aforoDisponibleTotal = this.eventos
-      .filter(e => e.estadoEvento !== 'CANCELADO')
-      .reduce((total, evento) => total + evento.aforoDisponible, 0);
-
-    const ocupacionEstimada = capacidadTotal > 0 ? ((capacidadTotal - aforoDisponibleTotal) / capacidadTotal * 100) : 0;
+    // Ingresos estimados simulados
+    const ingresosEstimados = this.calcularIngresosEstimados();
 
     this.analyticsData = {
       // KPIs principales
@@ -352,31 +488,18 @@ export class GestionEventosComponent implements OnInit {
       eventosCancelados: eventosCancelados.length,
       eventosProximos: eventosProximos.length,
 
-      // Top eventos
+      // Métricas de ventas (simuladas)
+      ventasTotales: this.eventos.length * 150, // Simulado
+      ingresosReales: ingresosEstimados,
+
+      // Top eventos (simulados)
       top3Eventos: top3EventosMasVendidos,
 
-      // Distribuciones
-      eventosPorTipo: eventosPorTipo,
-      proximosEventos: proximosEventos,
-
-      // Métricas de capacidad
-      capacidadTotal: capacidadTotal,
-      aforoDisponible: aforoDisponibleTotal,
-      ocupacionEstimada: Math.round(ocupacionEstimada),
-
-      // Ingresos estimados (simulado)
-      ingresosEstimados: this.calcularIngresosEstimados()
+      // Próximos eventos
+      proximosEventos: proximosEventos
     };
 
-    console.log('📊 Analytics calculados:', this.analyticsData);
-  }
-
-  agruparPorTipo() {
-    return this.eventos.reduce((acc, evento) => {
-      const tipo = evento.tipoEvento || 'Sin categoría';
-      acc[tipo] = (acc[tipo] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    console.log('📊 Dashboard simulado calculado:', this.analyticsData);
   }
 
   calcularIngresosEstimados() {
@@ -402,21 +525,6 @@ export class GestionEventosComponent implements OnInit {
       }, 0);
   }
 
-  obtenerColorTipo(tipo: string): string {
-    const colores: Record<string, string> = {
-      'ROCK': '#e74c3c',
-      'METAL': '#34495e',
-      'PUNK': '#9b59b6',
-      'POP': '#f39c12',
-      'REGGAE': '#27ae60',
-      'REGGAETON': '#e67e22',
-      'ELECTRONICA': '#3498db',
-      'ROCK_POP': '#e91e63',
-      'URBANO': '#ff9800'
-    };
-    return colores[tipo] || '#95a5a6';
-  }
-
   // Métodos auxiliares para el template del dashboard
   getStringValue(value: unknown): string {
     return String(value || '');
@@ -424,6 +532,14 @@ export class GestionEventosComponent implements OnInit {
 
   getNumberValue(value: unknown): number {
     return Number(value) || 0;
+  }
+
+  /**
+   * Convierte fechas string a Date para el template
+   */
+  convertirFechaString(fechaString: string): Date {
+    if (!fechaString) return new Date();
+    return new Date(fechaString);
   }
 
   // Métodos para el modal de detalles

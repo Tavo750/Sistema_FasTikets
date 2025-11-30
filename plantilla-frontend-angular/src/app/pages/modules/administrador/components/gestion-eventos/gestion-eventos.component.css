@@ -1186,6 +1186,52 @@
     transition: all 0.2s ease;
 }
 
+/* Estilos para elementos clickeables */
+.clickeable-evento {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.clickeable-evento::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(25, 118, 210, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.clickeable-evento:hover::before {
+    opacity: 1;
+}
+
+.clickeable-evento:hover {
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+    border: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.clickeable-evento:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(25, 118, 210, 0.1);
+}
+
+.clickeable-evento .pi-external-link {
+    font-size: 0.8rem;
+    color: #1976d2;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.clickeable-evento:hover .pi-external-link {
+    opacity: 1;
+}
+
 .top-evento-item:hover {
     background: #e9ecef;
     transform: translateX(4px);
@@ -1306,7 +1352,9 @@
 }
 
 .proximo-evento-item:hover {
-    background: #e9ecef;
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
 }
 
 .fecha-badge {
@@ -1491,5 +1539,231 @@
     .dashboard-footer {
         justify-content: center;
         flex-direction: column-reverse;
+    }
+}
+
+/* Modal de Ventas del Evento */
+.modal-ventas-evento {
+    max-width: 90vw !important;
+}
+
+.ventas-content {
+    padding: 1rem;
+}
+
+.evento-info-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.evento-titulo h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.evento-titulo h3 i {
+    font-size: 1.6rem;
+    color: #ffd700;
+}
+
+.evento-id {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.ventas-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+}
+
+.loading-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.loading-content p {
+    color: #666;
+    margin: 0;
+    font-weight: 500;
+}
+
+.ventas-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.ventas-card {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    padding: 2rem;
+    border-radius: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.3);
+}
+
+.ventas-icono {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    min-width: 60px;
+    height: 60px;
+}
+
+.ventas-info {
+    flex: 1;
+}
+
+.ventas-monto {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ventas-label {
+    margin: 0.5rem 0 0 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    opacity: 0.95;
+}
+
+.ventas-descripcion {
+    opacity: 0.8;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.ventas-detalles {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detalle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.detalle-label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.detalle-valor {
+    color: #212529;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ventas-error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.error-content {
+    text-align: center;
+    color: #dc3545;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 400px;
+}
+
+.error-content i {
+    font-size: 3rem;
+    color: #ffc107;
+}
+
+.error-content h4 {
+    margin: 0;
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.error-content p {
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-ventas-evento {
+        max-width: 95vw !important;
+    }
+    
+    .evento-info-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .evento-titulo h3 {
+        font-size: 1.2rem;
+    }
+    
+    .ventas-card {
+        padding: 1.5rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .ventas-monto {
+        font-size: 2rem;
+    }
+    
+    .ventas-detalles {
+        padding: 1rem;
+    }
+    
+    .detalle-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .modal-actions {
+        justify-content: center;
     }
 }
