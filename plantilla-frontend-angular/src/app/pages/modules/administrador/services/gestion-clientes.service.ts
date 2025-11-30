@@ -85,7 +85,7 @@ export class GestionClientesService {
    * @returns Observable con la respuesta del servidor
    */
   eliminarClienteLogico(id: number): Observable<EliminarClienteResponse> {
-    const url = `${baseUrl}/administrador/clientes/${id}`; // Endpoint esperado para DELETE (ajustar si es otro)
+    const url = `${baseUrl}/clientes/${id}`; // Endpoint esperado para DELETE (ajustar si es otro)
     console.log('URL eliminación lógica:', url);
 
     return this.http.delete<EliminarClienteResponse>(url, {
