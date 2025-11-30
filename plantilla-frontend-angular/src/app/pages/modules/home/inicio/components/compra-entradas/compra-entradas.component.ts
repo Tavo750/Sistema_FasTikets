@@ -8,6 +8,7 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { OrdenesService } from '../../../../../../shared/services/ordenes.service';
 import { PerfilPersonalService } from '../../../../usuario/services/perfil-personal.service';
 import { Subscription } from 'rxjs';
+import { baseUrl } from '../../../../../../global';
 import { HttpClient } from '@angular/common/http';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 
@@ -57,7 +58,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	 * Cada endpoint debe devolver un objeto con `data.value` o `value`.
 	 */
 	private loadMembershipDiscounts(): void {
-		const base = 'http://localhost:8081/api/v1/configuracion/';
+		const base = `${baseUrl}/configuracion/`;
 		const endpoints = {
 			oro: base + 'DSCTO_MEMBRESIA_ORO',
 			plata: base + 'DSCTO_MEMBRESIA_PLATA',

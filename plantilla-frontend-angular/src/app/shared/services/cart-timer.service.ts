@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { baseUrl } from '../../global';
 
 @Injectable({ providedIn: 'root' })
 export class CartTimerService {
@@ -26,7 +27,7 @@ export class CartTimerService {
   
 
   // URL del endpoint de configuración (puede ajustarse según entorno)
-  private readonly CONFIG_URL = 'http://localhost:8081/api/v1/configuracion/LIMITE_PERSONAS_COMPRA';
+  private readonly CONFIG_URL = `${baseUrl}/configuracion/LIMITE_PERSONAS_COMPRA`;
   // Promesa que se resuelve cuando la carga inicial (petición remota) termina
   private initialLoadPromise: Promise<void> | null = null;
   private resolveInitialLoad: (() => void) | null = null;
