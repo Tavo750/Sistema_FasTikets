@@ -98,7 +98,12 @@ export class MenuService {
       iconRef: 'iconSubopcion1',
       routerLink: ['/administrador/gestionAdministradores'],
     },
-
+    {
+      label: 'Configuración General',
+      icon: 'pi pi-cog',
+      iconRef: 'iconSubopcion1',
+      routerLink: ['/administrador/configuracionGeneral'],
+    }
   ];
 
   // Por compatibilidad - devuelve todos los items
