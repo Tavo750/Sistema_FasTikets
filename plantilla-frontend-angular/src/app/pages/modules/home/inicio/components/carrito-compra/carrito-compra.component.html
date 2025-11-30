@@ -48,7 +48,7 @@
                     [(ngModel)]="item.quantity"
                     [showButtons]="true"
                     [min]="1"
-                    [max]="10"
+                    [max]="getMaxQuantityForItem(item)"
                     (onInput)="updateQuantity(item.id, item.quantity)"
                     buttonLayout="horizontal"
                     decrementButtonIcon="pi pi-minus"
@@ -86,13 +86,18 @@
               <span>S/ {{ getSubtotal() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
-              <span>Impuestos (16%):</span>
+              <span>Impuestos (incluidos 16%):</span>
               <span>S/ {{ getTaxes() | number:'1.2-2' }}</span>
             </div>
             <div class="summary-row">
-              <span>Envío:</span>
-              <span>S/ {{ getShipping() | number:'1.2-2' }}</span>
+              <span>Subtotal Base:</span>
+              <span>S/ {{ getBaseSubtotal() | number:'1.2-2' }}</span>
             </div>
+            <div class="summary-row">
+              <span>Recargo por tiempo ({{ getTimeSurchargePercentDisplay() }}):</span>
+              <span>S/ {{ getTimeSurchargeAmount() | number:'1.2-2' }}</span>
+            </div>
+            <!-- Envío eliminado del resumen -->
             <p-divider></p-divider>
             <div class="summary-row total-row">
               <span class="total-label">Total:</span>

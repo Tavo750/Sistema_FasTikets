@@ -6,6 +6,9 @@ import { AyudaSoporteService } from '../../../usuario/services/ayuda-soporte.ser
 import { AyudaSoporteListItem, AyudaSoporteListResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-listar.interface';
 import { AyudaSoporteAdmiObtenerIdResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-obtener-id.interface';
 import { AyudaSoporteAdmiModificarResponse } from '../../../usuario/interfaces/ayuda-soporte/ayuda-soporte-admi-modificar.interface';
+import { LoadingService } from '../../../../../shared/services/loading.service';
+import { SessionService } from '../../../../../shared/services/session.service';
+import { PerfilAdministradorService } from '../../services/perfil-administrador.service';
 
 interface Cliente {
   idCliente: number;
@@ -22,6 +25,7 @@ interface Cliente {
   nivel: string;
   puntosAcumulados: number;
   verificado: boolean;
+  activo: boolean;
   departamento?: string;
   distrito?: string;
   rol?: string;
@@ -35,13 +39,14 @@ interface Cliente {
   providers: [MessageService, ConfirmationService]
 })
 export class GestionClientesComponent implements OnInit {
-  
+
   clientes: Cliente[] = [];
   clienteSeleccionado: Cliente | null = null;
   mostrarDialogDetalle: boolean = false;
   searchValue: string = '';
   loading: boolean = false;
   totalRecords: number = 0;
+  isAdministradorGeneral: boolean = false;
 
   // Ayuda y soporte global
   mostrarDialogAyudaGlobal: boolean = false;
@@ -67,14 +72,37 @@ export class GestionClientesComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private gestionClientesService: GestionClientesService,
-    private ayudaSoporteService: AyudaSoporteService
+    private ayudaSoporteService: AyudaSoporteService,
+    private loadingService: LoadingService,
+    private sessionService: SessionService,
+    private perfilAdministradorService: PerfilAdministradorService
   ) {}
 
   ngOnInit(): void {
+    this.verificarPermisos();
     this.cargarClientes();
   }
 
+  private verificarPermisos(): void {
+    const currentUser = this.sessionService.getCurrentUser();
+    if (currentUser && currentUser.rol === 'ADMINISTRADOR') {
+      this.perfilAdministradorService.getPerfilAdministrador(currentUser.idUsuario).subscribe({
+        next: (response) => {
+          if (response && response.ok && response.data) {
+            this.isAdministradorGeneral = response.data.cargo === 'Administrador General';
+            console.log('Cargo del administrador:', response.data.cargo);
+            console.log('Es Administrador General:', this.isAdministradorGeneral);
+          }
+        },
+        error: (error) => {
+          console.error('Error al verificar permisos:', error);
+        }
+      });
+    }
+  }
+
   cargarClientes(): void {
+    this.loadingService.show();
     this.loading = true;
     this.clientes = [];
     this.totalRecords = 0;
@@ -82,7 +110,7 @@ export class GestionClientesComponent implements OnInit {
     this.gestionClientesService.getListarClientes().subscribe({
       next: (response) => {
         console.log('Respuesta del servicio:', response);
-        
+
         if (response && response.ok && response.data) {
           try {
             this.clientes = response.data.map(cliente => ({
@@ -91,10 +119,10 @@ export class GestionClientesComponent implements OnInit {
               distrito: this.obtenerDistrito(cliente.direccion || ''),
               rol: 'CLIENTE'
             }));
-            
+
             this.totalRecords = this.clientes.length;
             console.log('Clientes procesados:', this.clientes);
-            
+
             if (this.clientes.length > 0) {
               this.messageService.add({
                 severity: 'success',
@@ -134,10 +162,11 @@ export class GestionClientesComponent implements OnInit {
         });
       },
       complete: () => {
+        this.loadingService.hide();
         this.loading = false;
       }
     });
-    
+
     // TODO: Reemplazar con llamada real al servicio
     // this.clienteService.obtenerClientes().subscribe({
     //   next: (response) => {
@@ -197,37 +226,39 @@ export class GestionClientesComponent implements OnInit {
 
   eliminarCliente(cliente: Cliente): void {
     this.loading = true;
-    // TODO: Implementar el servicio de eliminación cuando esté disponible en el backend
-    setTimeout(() => {
-      this.clientes = this.clientes.filter(c => c.idCliente !== cliente.idCliente);
-      this.totalRecords = this.clientes.length;
-      this.loading = false;
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Cliente Eliminado',
-        detail: `${cliente.nombres} ${cliente.apellidos} ha sido eliminado correctamente`
-      });
-    }, 500);
     
-    // TODO: Reemplazar con llamada real al servicio
-    // this.clienteService.eliminarCliente(cliente.id).subscribe({
-    //   next: () => {
-    //     this.cargarClientes();
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Cliente Eliminado',
-    //       detail: 'El cliente ha sido eliminado correctamente'
-    //     });
-    //   },
-    //   error: (error) => {
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: 'No se pudo eliminar el cliente'
-    //     });
-    //   }
-    // });
+    this.gestionClientesService.eliminarClienteLogico(cliente.idCliente).subscribe({
+      next: (response) => {
+        this.loading = false;
+        
+        if (response.ok) {
+          // Recargar la lista de clientes después de eliminar
+          this.cargarClientes();
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cliente Eliminado',
+            detail: response.mensaje || `${cliente.nombres} ${cliente.apellidos} ha sido eliminado correctamente`
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudo eliminar el cliente'
+          });
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error al eliminar cliente:', error);
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.mensaje || 'No se pudo eliminar el cliente'
+        });
+      }
+    });
   }
 
   confirmarVerificacion(cliente: Cliente): void {
@@ -255,20 +286,20 @@ export class GestionClientesComponent implements OnInit {
 
   verificarCliente(cliente: Cliente): void {
     this.loading = true;
-    
+
     this.gestionClientesService.verificarCliente(cliente.idCliente).subscribe({
       next: (response) => {
         this.loading = false;
         if (response && response.ok) {
-          // Actualizar el cliente en la lista local
+          // Actualizar el cliente en la lista local directamente
           const index = this.clientes.findIndex(c => c.idCliente === cliente.idCliente);
           if (index !== -1) {
             this.clientes[index] = {
               ...this.clientes[index],
-              verificado: response.data.verificado
+              verificado: true
             };
           }
-          
+
           this.messageService.add({
             severity: 'success',
             summary: 'Cliente Verificado',
@@ -336,14 +367,14 @@ export class GestionClientesComponent implements OnInit {
 
   abrirModificarObservacionGlobal(solicitud: AyudaSoporteListItem): void {
     if (!solicitud || !solicitud.idSolicitud) {
-      this.messageService.add({ 
-        severity: 'warn', 
-        summary: 'Advertencia', 
-        detail: 'Solicitud inválida' 
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Solicitud inválida'
       });
       return;
     }
-    
+
     this.loadingModificarGlobal = true;
     this.ayudaSoporteService.obtenerPorId(Number(solicitud.idSolicitud)).subscribe({
       next: (response: AyudaSoporteAdmiObtenerIdResponse) => {
@@ -353,20 +384,20 @@ export class GestionClientesComponent implements OnInit {
           this.editarObservacionGlobal = response.data.observaciones || '';
           this.mostrarDialogModificarGlobal = true;
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'No se pudo obtener el detalle de la solicitud' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo obtener el detalle de la solicitud'
           });
         }
       },
       error: (error: any) => {
         this.loadingModificarGlobal = false;
         console.error('Error al obtener detalle de solicitud:', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'No se pudo obtener el detalle de la solicitud' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo obtener el detalle de la solicitud'
         });
       }
     });
@@ -374,7 +405,7 @@ export class GestionClientesComponent implements OnInit {
 
   guardarObservacionGlobal(): void {
     if (!this.solicitudGlobalParaEditar) return;
-    
+
     const id = Number(this.solicitudGlobalParaEditar.idSolicitud);
     const payload = {
       estado: 'RESUELTO',
@@ -387,7 +418,7 @@ export class GestionClientesComponent implements OnInit {
         this.loadingModificarGlobal = false;
         if (response && response.ok && response.data) {
           // Actualizar la solicitud en la lista
-          const index = this.solicitudesGlobales.findIndex(s => 
+          const index = this.solicitudesGlobales.findIndex(s =>
             Number(s.idSolicitud) === id
           );
           if (index !== -1) {
@@ -397,31 +428,31 @@ export class GestionClientesComponent implements OnInit {
               observaciones: response.data.observaciones
             };
           }
-          
+
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
             detail: 'Observación actualizada correctamente'
           });
-          
+
           this.mostrarDialogModificarGlobal = false;
           this.editarObservacionGlobal = '';
           this.solicitudGlobalParaEditar = null;
         } else {
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: response?.mensaje || 'No se pudo actualizar la observación' 
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response?.mensaje || 'No se pudo actualizar la observación'
           });
         }
       },
       error: (error: any) => {
         this.loadingModificarGlobal = false;
         console.error('Error al modificar observación global:', error);
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'Error', 
-          detail: 'Error al actualizar la observación' 
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al actualizar la observación'
         });
       }
     });
@@ -436,17 +467,17 @@ export class GestionClientesComponent implements OnInit {
         const mensaje = (s.mensaje || '').toLowerCase();
         const nombreUsuario = (s.nombreUsuario || '').toLowerCase();
         const emailUsuario = (s.emailUsuario || '').toLowerCase();
-        if (!asunto.includes(searchTerm) && !mensaje.includes(searchTerm) && 
+        if (!asunto.includes(searchTerm) && !mensaje.includes(searchTerm) &&
             !nombreUsuario.includes(searchTerm) && !emailUsuario.includes(searchTerm)) {
           return false;
         }
       }
-      
+
       // Filtrar por estado
       if (this.filterEstadoGlobal && s.estado !== this.filterEstadoGlobal) {
         return false;
       }
-      
+
       return true;
     });
   }
@@ -454,5 +485,9 @@ export class GestionClientesComponent implements OnInit {
   limpiarFiltrosGlobales(): void {
     this.searchSolicitudesGlobales = '';
     this.filterEstadoGlobal = null;
+  }
+
+  cambiarAAdmin(cliente: Cliente): void {
+    this.router.navigate(['/administrador/gestionClientes/cambiar-a-admin', cliente.idCliente]);
   }
 }

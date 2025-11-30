@@ -31,6 +31,13 @@ export class SessionService {
   }
 
   /**
+   * Alias para getCurrentUser (compatibilidad)
+   */
+  getUser(): Data | null {
+    return this.getCurrentUser();
+  }
+
+  /**
    * Obtiene el rol del usuario actual
    */
   getUserRole(): string | null {

@@ -278,10 +278,22 @@
   transition: background-color 0.2s ease;
   color: #1f2937;
   font-size: 0.95rem;
+  position: relative; /* Asegurar posicionamiento para badges */
 }
 
 .action-btn:hover {
   background-color: #f3f4f6;
+}
+
+/* Estilo para botón deshabilitado para administradores */
+.action-btn.disabled-admin {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn.disabled-admin:hover {
+  background-color: transparent;
+  opacity: 0.5;
 }
 
 .action-btn:focus,
@@ -338,6 +350,33 @@
   text-align: center;
 }
 
+/* Badge de favoritos */
+.favorites-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.35rem;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Asegurar que SOLO el botón de favoritos tenga el badge */
+.action-btn:not([data-testid="favorites-btn"]) .favorites-badge {
+  display: none !important;
+}
+
+/* Posicionamiento específico para el botón de favoritos */
+.action-btn[data-testid="favorites-btn"] {
+  position: relative;
+}
+
 /* Avatar */
 .perfil {
   display: flex;
@@ -345,6 +384,7 @@
   margin-left: 0.5rem;
   padding-left: 0.5rem;
   border-left: 1px solid #e5e7eb;
+  position: relative;
 }
 
 .imagen {
@@ -354,6 +394,115 @@
 
 .imagen:hover {
   opacity: 0.8;
+}
+
+/* Estilos para el menú de usuario */
+::ng-deep .custom-user-menu {
+  min-width: 200px;
+}
+
+::ng-deep .custom-user-menu .p-menu-list {
+  padding: 0.5rem 0;
+}
+
+::ng-deep .custom-user-menu .p-menuitem-link {
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .custom-user-menu .p-menuitem-link:hover {
+  background-color: #f3f4f6;
+}
+
+/* Eliminar cualquier badge o contador del menú de usuario */
+::ng-deep .custom-user-menu .p-badge,
+::ng-deep .custom-user-menu .p-menuitem-badge,
+::ng-deep .perfil .p-badge,
+::ng-deep .perfil .p-component-badge,
+::ng-deep .perfil .p-avatar-badge,
+::ng-deep .perfil .favorites-badge,
+::ng-deep .perfil .cart-badge,
+::ng-deep .perfil .notification-badge {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Asegurar que no haya badges en el avatar */
+::ng-deep .perfil p-avatar .p-badge,
+::ng-deep .perfil p-avatar::after,
+::ng-deep .perfil p-avatar::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Eliminar cualquier pseudo-elemento que pueda mostrar números */
+.perfil::after,
+.perfil::before,
+.perfil p-avatar::after,
+.perfil p-avatar::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Forzar que solo existan badges dentro de botones específicos */
+.favorites-badge,
+.cart-badge,
+.notification-badge {
+  display: none !important;
+}
+
+/* Solo mostrar badge de favoritos en el botón correcto */
+.action-btn[data-testid="favorites-btn"] .favorites-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #e74c3c !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Solo mostrar badge de carrito en el botón correcto */
+.action-btn[data-testid="cart-btn"] .cart-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #f59e0b !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Solo mostrar badge de notificaciones en el botón correcto */
+.action-btn[data-testid="notification-btn"] .notification-badge {
+  display: block !important;
+  position: absolute !important;
+  top: 0.25rem !important;
+  right: 0.25rem !important;
+  background-color: #ef4444 !important;
+  color: white !important;
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 10px !important;
+  min-width: 18px !important;
+  text-align: center !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
 }
 
 /* Responsive */
@@ -807,6 +956,256 @@
   .search-result-item {
     gap: 0.75rem;
     padding: 0.5rem;
+  }
+}
+
+/* Estilos para el diálogo de notificaciones */
+.notificaciones-dialog .dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.badge-header {
+  margin-left: auto;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.notificaciones-contenedor {
+  min-height: 200px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.notificaciones-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6b7280;
+  gap: 1rem;
+}
+
+.notificaciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+}
+
+.notificacion-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.notificacion-item:hover {
+  background: #f3f4f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notificacion-item.no-leida {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.notificacion-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notificacion-icon i {
+  font-size: 1.25rem;
+  color: #3b82f6;
+}
+
+.notificacion-contenido {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notificacion-header-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.notificacion-titulo {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.notificacion-tipo-tag {
+  flex-shrink: 0;
+}
+
+.notificacion-mensaje {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.notificacion-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.notificacion-fecha {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.notificacion-fecha i {
+  font-size: 0.7rem;
+}
+
+.badge-no-leida {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge-no-leida i {
+  font-size: 0.5rem;
+}
+
+.notificaciones-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6b7280;
+  gap: 1rem;
+}
+
+.notificaciones-vacio h3 {
+  margin: 0.5rem 0 0 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+}
+
+.notificaciones-vacio p {
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Responsive para notificaciones */
+@media (max-width: 768px) {
+  .notificaciones-lista {
+    gap: 0.5rem;
+    padding: 0.25rem;
+  }
+
+  .notificacion-item {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .notificacion-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .notificacion-icon i {
+    font-size: 1.1rem;
+  }
+
+  .notificacion-titulo {
+    font-size: 0.9rem;
+  }
+
+  .notificacion-mensaje {
+    font-size: 0.8rem;
+  }
+
+  .notificacion-header-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-header {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .notificaciones-contenedor {
+    max-height: 500px;
+  }
+
+  .notificacion-item {
+    padding: 0.625rem;
+  }
+
+  .notificacion-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .notificacion-icon i {
+    font-size: 1rem;
+  }
+
+  .notificacion-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .notificaciones-vacio {
+    padding: 2rem 1rem;
+  }
+
+  .notificaciones-vacio h3 {
+    font-size: 1.1rem;
+  }
+
+  .notificaciones-vacio i {
+    font-size: 3rem !important;
   }
 }
 

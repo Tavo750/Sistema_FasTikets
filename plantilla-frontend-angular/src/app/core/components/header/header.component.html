@@ -108,23 +108,33 @@
       </div>
     </div>
 
-    <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')">
-      <i class="pi pi-shopping-cart"></i>
-      <span class="action-label">Carrito</span>
-      <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+    <!-- Botón Carrito / Eventos según rol -->
+    <button 
+      class="action-btn cart-btn" 
+      (click)="usuario?.rol === 'ADMINISTRADOR' ? navegarA('/administrador/gestionEventos') : navegarA('/home/carritoCompra')" 
+      data-testid="cart-btn">
+      <i [class]="usuario?.rol === 'ADMINISTRADOR' ? 'pi pi-calendar' : 'pi pi-shopping-cart'"></i>
+      <span class="action-label">{{ usuario?.rol === 'ADMINISTRADOR' ? 'Eventos' : 'Carrito' }}</span>
+      <span id="cart-badge" class="cart-badge" *ngIf="cartItemCount > 0 && usuario?.rol !== 'ADMINISTRADOR'">{{ cartItemCount }}</span>
     </button>
 
-    <button class="action-btn" (click)="abrirFavoritos()">
+    <button 
+      class="action-btn" 
+      (click)="abrirFavoritos()" 
+      data-testid="favorites-btn"
+      [class.disabled-admin]="usuario?.rol === 'ADMINISTRADOR'"
+      [title]="usuario?.rol === 'ADMINISTRADOR' ? 'Funcionalidad no disponible para administradores' : 'Ver favoritos'">
       <i class="pi pi-heart"></i>
       <span class="action-label">Favoritos</span>
+      <span id="favorites-badge" class="favorites-badge" *ngIf="contadorFavoritos > 0 && usuario?.rol !== 'ADMINISTRADOR'">{{ contadorFavoritos }}</span>
     </button>
 
     <!-- Opciones para usuario autenticado -->
     <ng-container *ngIf="usuario">
-      <button class="action-btn notification-btn">
+      <button class="action-btn notification-btn" (click)="abrirNotificaciones()">
         <i class="pi pi-bell"></i>
         <span class="action-label desktop-only">Notificaciones</span>
-        <span class="notification-badge" *ngIf="notificationCount > 0">
+        <span id="notification-badge" class="notification-badge" *ngIf="notificationCount > 0">
           {{ notificationCount }}
         </span>
       </button>
@@ -132,12 +142,19 @@
       <!-- Avatar -->
       <div class="perfil">
         <p-avatar
+          [image]="avatarUrl"
           (click)="menu.toggle($event)"
           size="large"
           shape="circle"
           class="imagen"
         />
-        <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+        <p-menu 
+          #menu 
+          [model]="menuItems" 
+          [popup]="true" 
+          appendTo="body"
+          [styleClass]="'custom-user-menu'"
+        />
       </div>
     </ng-container>
 
@@ -247,6 +264,79 @@
         (onClick)="navegarA('/home/inicio'); mostrarDialogoFavoritos = false"
         severity="secondary">
       </p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Diálogo de Notificaciones -->
+<p-dialog
+  [(visible)]="mostrarDialogoNotificaciones"
+  [modal]="true"
+  [style]="{width: '90vw', maxWidth: '600px'}"
+  [draggable]="false"
+  [resizable]="false"
+  [breakpoints]="{'960px': '95vw', '640px': '100vw'}"
+  styleClass="notificaciones-dialog">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <i class="pi pi-bell" style="color: #3b82f6; margin-right: 0.5rem;"></i>
+      <span>Notificaciones</span>
+      <span *ngIf="notificacionesNoLeidas > 0" class="badge-header">
+        {{ notificacionesNoLeidas }} nueva{{ notificacionesNoLeidas > 1 ? 's' : '' }}
+      </span>
+    </div>
+  </ng-template>
+
+  <div class="notificaciones-contenedor">
+    <!-- Loader mientras carga -->
+    <div *ngIf="cargandoNotificaciones" class="notificaciones-loading">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <p>Cargando notificaciones...</p>
+    </div>
+
+    <!-- Lista de notificaciones -->
+    <div *ngIf="!cargandoNotificaciones && notificaciones.length > 0" class="notificaciones-lista">
+      <div
+        *ngFor="let notificacion of notificaciones"
+        class="notificacion-item"
+        [class.no-leida]="!notificacion.leida">
+
+        <div class="notificacion-icon">
+          <i class="pi" [ngClass]="obtenerIconoNotificacion(notificacion.tipo)"></i>
+        </div>
+
+        <div class="notificacion-contenido">
+          <div class="notificacion-header-item">
+            <h4 class="notificacion-titulo">{{ notificacion.titulo }}</h4>
+            <p-tag
+              [value]="notificacion.tipo"
+              [severity]="obtenerSeveridadNotificacion(notificacion.tipo)"
+              styleClass="notificacion-tipo-tag">
+            </p-tag>
+          </div>
+
+          <p class="notificacion-mensaje">{{ notificacion.mensaje }}</p>
+
+          <div class="notificacion-footer">
+            <span class="notificacion-fecha">
+              <i class="pi pi-clock"></i>
+              {{ formatearFechaNotificacion(notificacion.creadaEn) }}
+            </span>
+            <span *ngIf="!notificacion.leida" class="badge-no-leida">
+              <i class="pi pi-circle-fill"></i>
+              Nueva
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay notificaciones -->
+    <div *ngIf="!cargandoNotificaciones && notificaciones.length === 0" class="notificaciones-vacio">
+      <i class="pi pi-bell" style="font-size: 4rem; color: #ccc;"></i>
+      <h3>No tienes notificaciones</h3>
+      <p>Cuando tengas nuevas notificaciones, aparecerán aquí</p>
     </div>
   </div>
 </p-dialog>

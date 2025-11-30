@@ -123,17 +123,7 @@
                     placeholder="Seleccionar distrito..."
                     styleClass="distrito-select"
                     [disabled]="!localForm.get('idProvincia')?.value || distritos.length === 0"
-                    (onChange)="centerMapOnDistrict()"
                   ></p-dropdown>
-                  <p-button
-                    icon="pi pi-crosshairs"
-                    (onClick)="centerMapOnDistrict()"
-                    [disabled]="!localForm.get('idDistrito')?.value"
-                    class="distrito-btn"
-                    severity="info"
-                    outlined="true"
-                    pTooltip="Centrar mapa en distrito"
-                  ></p-button>
                 </div>
               </div>
 
@@ -175,6 +165,10 @@
                 <i class="pi pi-globe"></i>
                 Ubicación en el mapa
               </label>
+              <div class="map-instructions">
+                      <i class="pi pi-info-circle"></i>
+                      <span>💡 Ingresa la dirección y haz clic en buscar</span>
+              </div>
 
               <div class="map-wrapper">
                 <div id="map" class="map-container">
@@ -206,7 +200,7 @@
                   </div>
                 </div>
 
-                <div class="map-instructions">
+                <!-- <div class="map-instructions">
                   <i class="pi pi-info-circle"></i>
                   💡 Ingresa la dirección y haz clic en buscar, o haz clic en el mapa para actualizar la ubicación del local
                 </div>
@@ -220,7 +214,7 @@
                     outlined="true"
                     (onClick)="reloadMap()"
                   ></p-button>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>

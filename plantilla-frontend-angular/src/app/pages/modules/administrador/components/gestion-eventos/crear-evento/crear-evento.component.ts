@@ -47,8 +47,10 @@ interface LimiteCompra {
 })
 export class CrearEventoComponent implements OnInit{
   date: Date | undefined;
+  dateFin: Date | undefined; // Fecha de fin del evento
   time: Date | undefined; // Cambiar de array a Date único para timeOnly
   timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
+  minDate: Date = new Date(); // Fecha mínima permitida (hoy)
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;
@@ -61,6 +63,7 @@ export class CrearEventoComponent implements OnInit{
     tipoEvento: '',
     descripcion: '',
     fechaEvento: '',
+    fechaFinEvento: '',
     horaInicio: '',
     horaFin: '',
     estadoEvento: 'PUBLICADO',
@@ -182,6 +185,9 @@ export class CrearEventoComponent implements OnInit{
   // ID del evento (para identificar si estamos editando)
   idEvento: number | null = null;
 
+  // Controla si los campos de datos generales están bloqueados
+  datosGeneralesBloqueados: boolean = false;
+
   nuevaCategoria = {
     nombre: '',
     aforoMaximo: null as number | null
@@ -243,6 +249,11 @@ export class CrearEventoComponent implements OnInit{
       this.date = new Date(this.evento.fechaEvento);
     }
 
+    // Extraer fecha de fin del evento (formato: YYYY-MM-DD)
+    if (this.evento.fechaFinEvento) {
+      this.dateFin = new Date(this.evento.fechaFinEvento);
+    }
+
     // Extraer hora de horaInicio (formato: HH:MM:SS) y establecer en el datepicker
     if (this.evento.horaInicio) {
       const [hora, minutos] = this.evento.horaInicio.split(':');
@@ -285,6 +296,9 @@ export class CrearEventoComponent implements OnInit{
   private sincronizarFormularioAEvento(): void {
     // Construir fechaEvento desde el datepicker
     this.evento.fechaEvento = this.date ? this.date.toISOString().split('T')[0] : '';
+
+    // Construir fechaFinEvento desde el datepicker
+    this.evento.fechaFinEvento = this.dateFin ? this.dateFin.toISOString().split('T')[0] : '';
 
     // Construir horaInicio y horaFin desde los datepickers
     this.evento.horaInicio = this.time ?
@@ -710,6 +724,9 @@ export class CrearEventoComponent implements OnInit{
             this.idEvento = response.data.idEvento;
             this.messageService.info(`Evento creado con ID: ${this.idEvento}`, 'Información');
 
+            // Bloquear los campos de datos generales para evitar crear eventos duplicados
+            this.datosGeneralesBloqueados = true;
+
             // Cargar las zonas asociadas al evento recién creado
             this.cargarZonas(this.idEvento);
           }
@@ -755,9 +772,15 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Validar que la hora final sea posterior a la hora de inicio
-    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
-      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
-      return false;
+    // SOLO si las fechas de inicio y fin son el mismo día
+    if (this.timeFinal && this.time) {
+      const esMismoDia = this.date && this.dateFin &&
+        this.date.toDateString() === this.dateFin.toDateString();
+
+      if (esMismoDia && this.timeFinal <= this.time) {
+        this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio cuando el evento es el mismo día', 'Horarios Inválidos');
+        return false;
+      }
     }
 
     // Validar que se haya seleccionado un banner
@@ -799,6 +822,17 @@ export class CrearEventoComponent implements OnInit{
       return false;
     }
 
+    // Validar que la fecha no sea menor al día actual
+    const fechaActual = new Date();
+    fechaActual.setHours(0, 0, 0, 0);
+    const fechaSeleccionada = new Date(this.date);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+
+    if (fechaSeleccionada < fechaActual) {
+      this.messageService.error('La fecha del evento no puede ser anterior al día actual', 'Fecha Inválida');
+      return false;
+    }
+
     // Validar hora de inicio usando directamente el datepicker
     if (!this.time) {
       this.messageService.error('La hora de inicio es obligatoria', 'Campo Requerido');
@@ -812,9 +846,15 @@ export class CrearEventoComponent implements OnInit{
     }
 
     // Validar que la hora final sea posterior a la hora de inicio
-    if (this.timeFinal && this.time && this.timeFinal <= this.time) {
-      this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio', 'Horarios Inválidos');
-      return false;
+    // SOLO si las fechas de inicio y fin son el mismo día
+    if (this.timeFinal && this.time) {
+      const esMismoDia = this.date && this.dateFin &&
+        this.date.toDateString() === this.dateFin.toDateString();
+
+      if (esMismoDia && this.timeFinal <= this.time) {
+        this.messageService.error('La hora de finalización debe ser posterior a la hora de inicio cuando el evento es el mismo día', 'Horarios Inválidos');
+        return false;
+      }
     }    return true;
   }
 
@@ -836,6 +876,7 @@ export class CrearEventoComponent implements OnInit{
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
+      fechaFinEvento: this.evento.fechaFinEvento || '',
       horaInicio: horaInicio,
       horaFin: horaFin,
       tipoEvento: this.evento.tipoEvento,
@@ -940,6 +981,7 @@ export class CrearEventoComponent implements OnInit{
       nombre: this.evento.nombre.trim(),
       descripcion: this.evento.descripcion.trim(),
       fechaEvento: fechaEvento,
+      fechaFinEvento: this.evento.fechaFinEvento || '',
       horaInicio: horaInicio,
       horaFin: horaFin,
       tipoEvento: this.evento.tipoEvento,
@@ -974,6 +1016,7 @@ export class CrearEventoComponent implements OnInit{
       tipoEvento: '',
       descripcion: '',
       fechaEvento: '',
+      fechaFinEvento: '',
       horaInicio: '',
       horaFin: '',
       imagenUrl: null as any,
@@ -1027,6 +1070,9 @@ export class CrearEventoComponent implements OnInit{
 
     // Resetear ID del evento (vuelve a modo creación)
     this.idEvento = null;
+
+    // Desbloquear los campos de datos generales
+    this.datosGeneralesBloqueados = false;
 
     this.messageService.info('Formulario limpiado', 'Información');
   }
@@ -1133,20 +1179,33 @@ export class CrearEventoComponent implements OnInit{
       return;
     }
 
-    // Preparar los datos del evento solo con la imagen de zonas
-    // NO incluir imagenUrl para que el backend mantenga el banner existente
+    // Verificar si existe la imagen del banner
+    if (!this.formulario.banner && !this.evento.imagenUrl) {
+      this.messageService.error('No se puede actualizar el mapa sin una imagen de banner previamente cargada', 'Error');
+      return;
+    }
+
+    // Preparar los datos del evento con AMBAS imágenes: banner y zonas
+    // El endpoint requiere ambas imágenes para actualizar correctamente
     const datosEvento: CrearEventoRequest = {
       nombre: this.evento.nombre,
       descripcion: this.evento.descripcion,
       fechaEvento: this.evento.fechaEvento,
+      fechaFinEvento: this.evento.fechaFinEvento || '',
       horaInicio: this.evento.horaInicio,
       horaFin: this.evento.horaFin,
-      // imagenUrl: NO enviamos este campo para mantener el banner existente
-      imagenZonasUrl: file, // Solo actualizar la imagen de zonas
+      // Incluir el banner: usar el File si existe, o mantener el del evento
+      imagenUrl: this.formulario.banner || this.evento.imagenUrl,
+      // Incluir la nueva imagen de zonas
+      imagenZonasUrl: file,
       tipoEvento: this.evento.tipoEvento,
       estadoEvento: this.evento.estadoEvento,
       aforoDisponible: this.evento.aforoDisponible,
-      idLocal: this.evento.idLocal
+      idLocal: this.evento.idLocal,
+      // IMPORTANTE: Incluir TODOS los campos opcionales para mantener los datos existentes
+      restricciones: this.evento.restricciones || '',
+      politicasDevolucion: this.evento.politicasDevolucion || '',
+      menoresDeEdadPermitidos: this.evento.menoresDeEdadPermitidos || false
     };
 
     // Mostrar mensaje de carga

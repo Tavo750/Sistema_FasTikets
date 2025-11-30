@@ -8,6 +8,7 @@ export interface CrearEventoRequest {
     nombre: string;
     descripcion: string;
     fechaEvento: string;
+    fechaFinEvento: string;
     horaInicio: string;
     horaFin: string;
     imagenUrl?: File; // Opcional: para permitir actualizar solo imagenZonasUrl sin modificar el banner
@@ -26,6 +27,7 @@ export interface Data {
     nombre:                   string;
     descripcion:              string;
     fechaEvento:              Date;
+    fechaFinEvento:          Date;
     horaInicio:               string;
     horaFin:                  string;
     imagenUrl:                string;

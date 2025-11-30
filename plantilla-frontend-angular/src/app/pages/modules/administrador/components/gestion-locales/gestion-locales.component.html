@@ -5,12 +5,38 @@
       Gestión de Locales
     </h1>
 
-    <p-button
-      label="Crear Nuevo Local"
-      icon="pi pi-plus"
-      (onClick)="crearNuevoLocal()"
-      class="add-button">
-    </p-button>
+    <div class="action-buttons-container">
+      <input
+        #fileInput
+        type="file"
+        accept=".xlsx,.xls"
+        style="display: none"
+        (change)="onFileSelected($event)">
+
+      <p-button
+        label="Descargar Plantilla"
+        icon="pi pi-download"
+        severity="help"
+        (click)="descargarPlantillaExcel()"
+        class="download-template-button"
+        [outlined]="true">
+      </p-button>
+
+      <p-button
+        label="Cargar Excel"
+        icon="pi pi-upload"
+        (onClick)="fileInput.click()"
+        class="upload-button orange-button"
+        [loading]="isUploading">
+      </p-button>
+
+      <p-button
+        label="Crear Nuevo Local"
+        icon="pi pi-plus"
+        (onClick)="crearNuevoLocal()"
+        class="add-button">
+      </p-button>
+    </div>
   </div>
 
   <p-panel header="Filtros de Búsqueda" [toggleable]="true" class="search-panel">
@@ -181,5 +207,5 @@
   <p-confirmDialog></p-confirmDialog>
 
   <!-- Toast para mensajes -->
-  
+
 </div>

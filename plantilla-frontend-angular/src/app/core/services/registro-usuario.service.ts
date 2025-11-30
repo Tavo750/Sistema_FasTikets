@@ -5,6 +5,8 @@ import { environment } from '../environment/environment';
 import { RegistroResponse, RegistroUsuario } from '../interfaces/registro_usuario.interface';
 import { Departamento, departamentoResponse, Distrito, distritoResponse, Provincia, provinciaResponse } from '../interfaces/ubigeo.interface';
 import { baseUrl } from '../../global';
+import { VerificacionCuentaResponse } from '../interfaces/verificacion-cuenta.interface';
+import { ReenvioVerificacionResponse } from '../interfaces/reenvio-verificacion.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,9 +18,9 @@ export class RegistroUsuarioService {
     private http: HttpClient
   ) { }
 
-  postRegistro(usuario: RegistroUsuario): Observable<any> {
+  postRegistro(usuario: RegistroUsuario): Observable<RegistroResponse> {
     const url = `${baseUrl}/auth/registro`;
-    return this.http.post<any>(url, usuario);
+    return this.http.post<RegistroResponse>(url, usuario);
   }
 
 
@@ -33,6 +35,17 @@ export class RegistroUsuarioService {
 
   getDistritos(provinciaId: string): Observable<distritoResponse> {
     return this.http.get<distritoResponse>(`${baseUrl}/geografia/provincias/${provinciaId}/distritos`);
+  }
+
+  //================= Verificacion de cuenta por correo ==================
+  postVerificacionCuenta(token: string): Observable<VerificacionCuentaResponse> {
+    const url = `${baseUrl}/auth/verificar/cuenta`;
+    return this.http.post<VerificacionCuentaResponse>(url, {token});
+  }
+
+  postReenvioVerificacionCorreo(email: string): Observable<ReenvioVerificacionResponse> {
+    const url = `${baseUrl}/auth/verificar/reenviar`;
+    return this.http.post<ReenvioVerificacionResponse>(url, {email});
   }
 
 }

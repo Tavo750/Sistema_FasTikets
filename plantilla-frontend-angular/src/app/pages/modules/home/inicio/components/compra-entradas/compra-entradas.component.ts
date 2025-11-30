@@ -8,6 +8,8 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { OrdenesService } from '../../../../../../shared/services/ordenes.service';
 import { PerfilPersonalService } from '../../../../usuario/services/perfil-personal.service';
 import { Subscription } from 'rxjs';
+import { baseUrl } from '../../../../../../global';
+import { HttpClient } from '@angular/common/http';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 
 @Component({
@@ -51,6 +53,75 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		return this.purchaseData?.totalTickets || 0;
 	}
 
+	/**
+	 * Carga los porcentajes de descuento para membresías desde el backend.
+	 * Cada endpoint debe devolver un objeto con `data.value` o `value`.
+	 */
+	private loadMembershipDiscounts(): void {
+		const base = `${baseUrl}/configuracion/`;
+		const endpoints = {
+			oro: base + 'DSCTO_MEMBRESIA_ORO',
+			plata: base + 'DSCTO_MEMBRESIA_PLATA',
+			bronce: base + 'DSCTO_MEMBRESIA_BRONCE'
+		};
+
+		this.http.get(endpoints.oro).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountGold = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_ORO ->', this.discountGold);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_ORO', err)
+		});
+
+		this.http.get(endpoints.plata).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountSilver = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_PLATA ->', this.discountSilver);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_PLATA', err)
+		});
+
+		this.http.get(endpoints.bronce).subscribe({
+			next: (resp: any) => {
+				const raw = this.extractConfigValue(resp);
+				this.discountBronze = this.normalizePercentage(raw);
+				console.debug('DSCTO_MEMBRESIA_BRONCE ->', this.discountBronze);
+				this.updateUserLevelDiscount();
+				this.calculateTotals();
+			},
+			error: (err: any) => console.warn('No se pudo obtener DSCTO_MEMBRESIA_BRONCE', err)
+		});
+	}
+
+	private extractConfigValue(resp: any): any {
+		if (!resp) return null;
+		return resp?.data?.value ?? resp?.value ?? (typeof resp === 'string' ? resp : null);
+	}
+
+	private normalizePercentage(val: any): number | null {
+		if (val === null || val === undefined) return null;
+		const s = String(val).trim();
+		if (s === '') return null;
+		const n = Number(s.replace(',', '.'));
+		if (isNaN(n)) return null;
+		if (n > 1) return n / 100;
+		return n;
+	}
+
+	/**
+	 * Actualiza `userLevelDiscountPercent` de acuerdo al `userLevel` actual
+	 * usando los valores remotos si están disponibles.
+	 */
+	private updateUserLevelDiscount(): void {
+		this.userLevelDiscountPercent = this.getDiscountForLevel(this.userLevel) || 0;
+	}
+
 	get ticketCategory(): string {
 		return this.purchaseData?.tickets[0]?.name || 'General';
 	}
@@ -82,17 +153,26 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		private sessionService: SessionService,
 		private ordenesService: OrdenesService
 			, private cartTimerService: CartTimerService,
-			private perfilService: PerfilPersonalService
+				private perfilService: PerfilPersonalService,
+				private http: HttpClient
 	) {}
 
 		// Nivel del usuario (ej. ORO, PLATA, BRONCE)
 		userLevel: string | null = null;
+
+		// Perfil completo del usuario (cargado desde perfilService)
+		userProfile: any = null;
 		// Puntos acumulados por el usuario (desde perfil)
 		userPoints: number = 0;
 
 		// Descuento asociado al nivel (por ejemplo 0.10 = 10%)
 		userLevelDiscountPercent: number = 0;
 		levelDiscountAmount: number = 0;
+
+		// Valores remotos de descuento por membresía (null = no cargado)
+		discountGold: number | null = null;
+		discountSilver: number | null = null;
+		discountBronze: number | null = null;
 
 		// Canje mediante código de texto
 		redeemCodeInput: string = '';
@@ -118,9 +198,9 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		getDiscountForLevel(level: string | null): number {
 			if (!level) return 0;
 			const l = level.toString().toLowerCase();
-			if (l.includes('bronce') || l.includes('bronze')) return 0.03; // 3%
-			if (l.includes('plata') || l.includes('silver')) return 0.05; // 5%
-			if (l.includes('oro') || l.includes('gold')) return 0.10; // 10%
+			if (l.includes('bronce') || l.includes('bronze')) return this.discountBronze ?? 0.03; // 3% fallback
+			if (l.includes('plata') || l.includes('silver')) return this.discountSilver ?? 0.05; // 5% fallback
+			if (l.includes('oro') || l.includes('gold')) return this.discountGold ?? 0.10; // 10% fallback
 			return 0;
 		}
 
@@ -137,6 +217,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	expiryError: string | null = null;
 	cvvError: string | null = null;
 	ngOnInit(): void {
+		// Cargar descuentos de membresía desde configuración remota
+		try { this.loadMembershipDiscounts(); } catch (e) { console.warn('No se pudo iniciar carga de descuentos', e); }
 		// Suscribirse al temporizador compartido para mostrarlo mientras navegamos
 		try {
 			this.timerSubscriptions.push(this.cartTimerService.display$.subscribe(d => this.timerDisplay = d));
@@ -163,13 +245,15 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 								next: (resp: any) => {
 									const nivel = resp?.data?.nivel ?? resp?.nivel ?? null;
 									this.userLevel = nivel;
+									// guardar perfil completo para autocompletar participantes
+									this.userProfile = resp?.data ?? resp;
 									// puntos acumulados reales desde el endpoint
 									const puntos = resp?.data?.puntosAcumulados ?? resp?.puntosAcumulados ?? resp?.data?.puntos ?? 0;
 									this.userPoints = Number(puntos) || 0;
 									// Inicializar remainingPoints y recalcular totales
 									this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
 									// determinar descuento por nivel
-									this.userLevelDiscountPercent = this.getDiscountForLevel(this.userLevel);
+									this.updateUserLevelDiscount();
 									this.calculateTotals();
 								},
 								error: (err: any) => {
@@ -221,6 +305,40 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 				}
 			}
 		);
+	}
+
+	/**
+	 * Handler cuando se activa/desactiva la casilla "Completar con mis datos" de un participante
+	 */
+	onParticipantAutoCompleteChange(participant: any, index: number): void {
+		if (!participant) return;
+		// Si se activa la casilla, completar con los datos del usuario corriente
+		if (participant.autoComplete) {
+			const currentUser = this.sessionService.getCurrentUser() || {};
+			// Preferir valores del perfil cargado (más completos), luego del session user
+			const profile = this.userProfile || {};
+			const profileAny = profile as any;
+			const currentAny = currentUser as any;
+
+			// Nombre / Apellidos
+			const firstName = profileAny?.nombres || profileAny?.nombre || currentAny?.nombres || currentAny?.nombre || currentAny?.firstName || '';
+			const lastName = profileAny?.apellidos || profileAny?.apellido || currentAny?.apellidos || currentAny?.apellido || currentAny?.lastName || '';
+
+			// Tipo y número de documento
+			const docType = profileAny?.tipoDocumento || profileAny?.docType || currentAny?.tipoDocumento || currentAny?.docType || '';
+			const docNumber = profileAny?.numeroDocumento || profileAny?.dni || profileAny?.documento || profileAny?.doc_identidad || profileAny?.docIdentidad || currentAny?.numeroDocumento || currentAny?.dni || currentAny?.documento || currentAny?.doc_identidad || currentAny?.docIdentidad || '';
+
+			if (firstName) participant.firstName = firstName;
+			if (lastName) participant.lastName = lastName;
+			if (docType) participant.docType = docType;
+			if (docNumber) participant.docNumber = docNumber;
+		} else {
+			// Si se desactiva, limpiar los campos (o dejarlos como estaban). Aquí se limpian para evitar datos residuales.
+			participant.docType = '';
+			participant.docNumber = '';
+			participant.firstName = '';
+			participant.lastName = '';
+		}
 	}
 
 	ngOnDestroy(): void {
@@ -378,15 +496,23 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 	// Submit handler with optional form parameter
 	onPagar(form?: NgForm): void {
+		console.debug('onPagar invoked');
 		this.cardNumberError = null;
 		this.expiryError = null;
 		this.cvvError = null;
 
-		// If no form provided, keep legacy behaviour: do nothing
-		// Construir y enviar la orden al backend con los asistentes y idTipoTicket
+		// Validar formulario y campos de pago antes de llamar a cualquier endpoint
 		const orderPayload = this.buildOrderPayload();
 		if (!orderPayload) {
 			alert('No se pudo construir la orden. Verifique el carrito y los participantes.');
+			return;
+		}
+
+		// Validaciones cliente: si fallan, no llamamos al backend
+		const valid = this.validatePaymentFields(form);
+		if (!valid) {
+			// validatePaymentFields ahora muestra alert con errores para feedback inmediato
+			console.warn('onPagar: validación cliente falló, no se llamará al backend');
 			return;
 		}
 
@@ -418,21 +544,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					}
 				}
 
-				// Validaciones cliente (establecen mensajes) — no abortan la llamada
-				if (!this.luhnCheck(this.cardNumber.replace(/\s+/g, ''))) {
-					this.cardNumberError = 'Número de tarjeta inválido';
-					console.warn('onPagar: Luhn inválido, se enviará de todas formas');
-				}
-
-				if (!this.validateExpiry(this.expiry)) {
-					this.expiryError = 'Fecha de caducidad inválida o ya vencida';
-					console.warn('onPagar: expiry inválido, se enviará de todas formas');
-				}
-
-				if (!/^[0-9]{3}$/.test(this.cvv)) {
-					this.cvvError = 'CVV inválido';
-					console.warn('onPagar: CVV inválido, se enviará de todas formas');
-				}
+				// Aquí ya se asumió que las validaciones precedentes pasaron
 
 				// Determinar número de cuotas: 'Sin cuotas' => 0, '3 cuotas' => 3, '6 cuotas' => 6
 				let numeroCuotas = 0;
@@ -485,7 +597,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	private luhnCheck(cardNumber: string): boolean {
-		if (!/^[0-9]{13,19}$/.test(cardNumber)) return false;
+		// Ahora validamos exactamente 12 dígitos según requerimiento
+		if (!/^[0-9]{12}$/.test(cardNumber)) return false;
 		let sum = 0;
 		let shouldDouble = false;
 		for (let i = cardNumber.length - 1; i >= 0; i--) {
@@ -501,13 +614,21 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	private validateExpiry(value: string): boolean {
-		// Expect MM/AA
-		const m = /^\s*(0[1-9]|1[0-2])\/(\d{2})\s*$/.exec(value);
+		// Expect YYYY-MM-DD
+		if (!value || typeof value !== 'string') return false;
+		const m = /^\s*(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])\s*$/.exec(value);
 		if (!m) return false;
-		const month = parseInt(m[1], 10);
-		const year = parseInt(m[2], 10) + 2000;
+		const year = parseInt(m[1], 10);
+		const month = parseInt(m[2], 10);
+		const day = parseInt(m[3], 10);
+		// Construir fecha y verificar validez (p.ej. 2023-02-30 no válido)
+		const dt = new Date(year, month - 1, day);
+		if (dt.getFullYear() !== year || dt.getMonth() !== (month - 1) || dt.getDate() !== day) {
+			return false;
+		}
 		const now = new Date();
-		const exp = new Date(year, month, 0, 23, 59, 59, 999); // last day of month
+		// Comparar con fin del día provisto
+		const exp = new Date(year, month - 1, day, 23, 59, 59, 999);
 		return exp >= new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	}
 
@@ -522,8 +643,25 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	onViewDetail(): void {
-		// Acción para ver detalle de la compra
-		console.log('Ver detalle de la compra');
+		// Navegar al detalle de la compra usando el id disponible
+		let id: any = null;
+		// Preferir el id de la orden creada durante el flujo de pago
+		if (this.createdOrderId) id = this.createdOrderId;
+		// Fallbacks posibles en purchaseData (si el backend envía otro nombre)
+		if (!id && this.purchaseData) {
+			id = (this.purchaseData as any).idOrden ?? (this.purchaseData as any).orderId ?? (this.purchaseData as any).idCompra ?? (this.purchaseData as any).id ?? null;
+		}
+		if (!id) {
+			try { alert('No se pudo determinar el id de la compra para ver el detalle.'); } catch (e) {}
+			console.warn('onViewDetail: id de compra no disponible', { createdOrderId: this.createdOrderId, purchaseData: this.purchaseData });
+			return;
+		}
+		try {
+			// Navegar con el prefijo 'usuario' para coincidir con la ruta esperada
+			this.router.navigate(['/usuario', 'historialCompras', 'detalle', id]);
+		} catch (e) {
+			console.warn('Error navegando a detalle de compra', e);
+		}
 	}
 	onExitConfirm(): void {
 		// Lógica al salir: quizá navegar o limpiar estado
@@ -597,5 +735,210 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	navigateToHome(): void {
 		this.router.navigate(['/home']);
 	}
-}
 
+	// ============= Métodos de validación para inputs =============
+	
+	/**
+	 * Permite solo números en el input (para CVV)
+	 */
+	onlyNumbers(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		// Permitir solo números (0-9)
+		if (charCode < 48 || charCode > 57) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Permite solo números y espacios (para número de tarjeta)
+	 */
+	onlyNumbersAndSpaces(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		// Permitir números (48-57) y espacio (32)
+		if ((charCode < 48 || charCode > 57) && charCode !== 32) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Permite solo letras, espacios y tildes (para nombre del titular)
+	 */
+	onlyLettersAndSpaces(event: KeyboardEvent): boolean {
+		const char = String.fromCharCode(event.which ? event.which : event.keyCode);
+		// Permitir letras a-z, A-Z, espacios, letras con tildes y ñ
+		const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]$/;
+		if (!regex.test(char)) {
+			event.preventDefault();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validación especial para fecha de expiración YYYY-MM-DD
+	 * Permite solo números y el carácter - y autoinserta guiones en posiciones correctas
+	 */
+	onExpiryKeypress(event: KeyboardEvent): boolean {
+		const charCode = event.which ? event.which : event.keyCode;
+		const currentValue = this.expiry || '';
+		// Permitir números (48-57) y guion (45)
+		if ((charCode < 48 || charCode > 57) && charCode !== 45) {
+			event.preventDefault();
+			return false;
+		}
+
+		// Auto-agregar guiones después de 4 y 7 caracteres (YYYY- and YYYY-MM-)
+		if (charCode !== 45) {
+			if (currentValue.length === 4) {
+				this.expiry = currentValue + '-';
+			} else if (currentValue.length === 7) {
+				this.expiry = currentValue + '-';
+			}
+		}
+
+		// Limitar longitud a 10 (YYYY-MM-DD)
+		if (currentValue.length >= 10) {
+			event.preventDefault();
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Maneja el pegado de texto en campos numéricos
+	 */
+	onPasteNumbers(event: ClipboardEvent, field: string): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea número
+		const cleanedText = pastedText.replace(/[^0-9]/g, '');
+		
+		if (field === 'cardNumber') {
+			// Para tarjeta, limitar a 16 dígitos (requerimiento actualizado)
+			this.cardNumber = cleanedText.substring(0, 16);
+		} else if (field === 'cvv') {
+			// Para CVV, limitar a 3 dígitos
+			this.cvv = cleanedText.substring(0, 3);
+		}
+	}
+
+	/**
+	 * Valida client-side los campos de pago y setea mensajes de error.
+	 * Retorna true si todo es válido, false en caso contrario.
+	 */
+	private validatePaymentFields(form?: NgForm): boolean {
+		let valid = true;
+		// marcar controles como tocados para mostrar errores nativos
+		if (form) {
+			Object.values(form.controls).forEach((c: any) => c.markAsTouched());
+		}
+		const errors: string[] = [];
+
+		const cardNumClean = (this.cardNumber || '').toString().replace(/\s+/g, '');
+		if (!cardNumClean || !/^[0-9]{16}$/.test(cardNumClean)) {
+			this.cardNumberError = 'Número debe tener exactamente 16 dígitos';
+			errors.push(this.cardNumberError);
+			valid = false;
+		} else {
+			// Aceptar cualquier número que tenga exactamente 16 dígitos (sin Luhn)
+			this.cardNumberError = null;
+		}
+
+		if (!this.validateExpiry(this.expiry)) {
+			this.expiryError = 'Fecha de caducidad inválida o ya vencida';
+			errors.push(this.expiryError);
+			valid = false;
+		} else {
+			this.expiryError = null;
+		}
+
+		if (!/^[0-9]{3}$/.test(this.cvv)) {
+			this.cvvError = 'CVV inválido';
+			errors.push(this.cvvError);
+			valid = false;
+		} else {
+			this.cvvError = null;
+		}
+
+		if (!this.cardHolder || this.cardHolder.trim().length === 0) {
+			const msg = 'Nombre del titular es obligatorio';
+			errors.push(msg);
+			valid = false;
+		}
+
+		if (!this.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+			const msg = 'Email inválido u obligatorio';
+			errors.push(msg);
+			valid = false;
+		}
+
+		if (!valid) {
+			// Mostrar todos los errores acumulados para feedback inmediato
+			try {
+				alert('Errores en el formulario:\n- ' + errors.join('\n- '));
+			} catch (e) {
+				console.warn('No se pudo mostrar alert con errores, logging to console', errors);
+			}
+			console.warn('validatePaymentFields errors:', errors);
+		}
+
+		return valid;
+	}
+
+	/**
+	 * Enmascara un número de tarjeta conservando los últimos 4 dígitos (para logging seguro)
+	 */
+	private maskCard(num: string): string {
+		if (!num) return '';
+		try {
+			return num.replace(/\d(?=\d{4})/g, '*');
+		} catch (e) {
+			return '************';
+		}
+	}
+
+	/**
+	 * Maneja el pegado de texto en el campo de fecha de expiración (YYYY-MM-DD)
+	 */
+	onPasteExpiry(event: ClipboardEvent): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea número o -
+		let cleanedText = pastedText.replace(/[^0-9-]/g, '');
+		// Aceptar formatos 8 dígitos (YYYYMMDD) o con guiones YYYY-MM-DD
+		if (/^\d{8}$/.test(cleanedText)) {
+			cleanedText = cleanedText.substring(0,4) + '-' + cleanedText.substring(4,6) + '-' + cleanedText.substring(6,8);
+		}
+		if (/^\d{4}-\d{2}-\d{2}$/.test(cleanedText)) {
+			this.expiry = cleanedText.substring(0, 10);
+		} else {
+			// intentar truncar para formar YYYY-MM-DD si es posible
+			const digits = cleanedText.replace(/-/g, '');
+			if (/^\d{0,8}$/.test(digits)) {
+				const y = digits.substring(0,4);
+				const m = digits.length >= 6 ? digits.substring(4,6) : '';
+				const d = digits.length === 8 ? digits.substring(6,8) : '';
+				let result = y;
+				if (m) result += '-' + m;
+				if (d) result += '-' + d;
+				this.expiry = result;
+			}
+		}
+	}
+
+	/**
+	 * Maneja el pegado de texto en campos de letras (nombre del titular)
+	 */
+	onPasteLetters(event: ClipboardEvent): void {
+		event.preventDefault();
+		const pastedText = event.clipboardData?.getData('text') || '';
+		// Limpiar todo lo que no sea letra, espacio o tildes
+		const cleanedText = pastedText.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g, '');
+		this.cardHolder = cleanedText;
+	}
+}

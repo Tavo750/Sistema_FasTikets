@@ -1,4 +1,5 @@
 <div class="compra-container">
+  <div class="content-wrapper">
   <!-- Temporizador compartido visible cuando corre (fila completa) -->
   <div class="cart-timer" *ngIf="showTimer">
     <div class="timer-content">
@@ -93,20 +94,10 @@
                     <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
                     <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
                     <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
-                    <span class="ticket-id" *ngIf="ticketIds && ticketIds.length">ID TipoTicket: {{ ticketIds[ti] || '-' }}</span>
+                    <!-- ID TipoTicket eliminado por petición del usuario -->
                   </div>
                 </div>
-                <!-- Mostrar los ids de tipo de ticket según items del carrito -->
-                <div class="cart-items-ids" *ngIf="cartItems && cartItems.length">
-                  <h5>IDs de Tipo de Ticket (carrito)</h5>
-                  <ul>
-                    <li *ngFor="let ci of cartItems">
-                      <strong>{{ ci.category || ci.ticketType || ci.title }}</strong>
-                      — cantidad: {{ ci.quantity }}
-                      — <em>idTipoTicket</em>: {{ ci.idTipoTicket || ci.serverId || ci.id }}
-                    </li>
-                  </ul>
-                </div>
+                <!-- IDs de tipo de ticket eliminado según solicitud del usuario -->
               </div>
 
               <!-- Formulario de participantes (uno por cada entrada) -->
@@ -122,7 +113,7 @@
                     </div>
                     <div class="participant-actions">
                       <label class="complete-label">
-                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" />
+                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" (change)="onParticipantAutoCompleteChange(p, i)" />
                         Completar con mis datos
                       </label>
                     </div>
@@ -238,7 +229,8 @@
     <div *ngIf="userLevel && !usePointsRedeem" class="user-level-box" [ngClass]="getLevelClass(userLevel)">
       <span class="user-level-text">
         {{ userLevel | uppercase }}
-        <span *ngIf="userLevelDiscountPercent && userLevelDiscountPercent > 0"> - {{ (userLevelDiscountPercent * 100) | number:'1.0-0' }}% de desc.</span>
+        <span class="level-discount" *ngIf="userLevelDiscountPercent !== null"> - {{ (userLevelDiscountPercent * 100) | number:'1.0-0' }}% de desc.</span>
+        <span class="level-discount" *ngIf="userLevelDiscountPercent === null"> - --% de desc.</span>
       </span>
     </div>
 
@@ -311,6 +303,7 @@
     </div>
   </div>
   </div> <!-- .columns-row -->
+  </div> <!-- .content-wrapper -->
 
   <!-- Modal de pago con PrimeNG -->
   <p-dialog header="" [(visible)]="showPagoDialog" modal="true" [style]="{width: '400px'}" [closable]="false">
@@ -332,42 +325,88 @@
         <p>S/ {{ totalAmount | number:'1.2-2' }}</p>
       </div>
       <p class="subtitle">Recuerda activar las compras por internet con tu banco</p>
-      <form class="payment-form" #paymentForm="ngForm" (ngSubmit)="onPagar(paymentForm)">
+          <form class="payment-form" #paymentForm="ngForm" (ngSubmit)="onPagar(paymentForm)">
         <div class="form-group">
           <label><i class="pi pi-credit-card"></i> Número de tarjeta *</label>
-          <input name="cardNumber" type="text" inputmode="numeric" placeholder="Número de tarjeta" [(ngModel)]="cardNumber" #cardNumberModel="ngModel" required minlength="13" maxlength="19" pattern="[0-9 ]+" />
-          <div class="form-error" *ngIf="cardNumberModel.invalid && (cardNumberModel.dirty || cardNumberModel.touched)">
+          <input
+            name="cardNumber"
+            type="text"
+            inputmode="numeric"
+            placeholder="Número de tarjeta"
+            [(ngModel)]="cardNumber"
+            #cardNumberModel="ngModel"
+            required
+            minlength="16"
+            maxlength="16"
+            pattern="^[0-9]{16}$"
+            (keypress)="onlyNumbers($event)"
+            (paste)="onPasteNumbers($event, 'cardNumber')" />
+          <div class="form-error" *ngIf="(cardNumberModel.invalid && (cardNumberModel.dirty || cardNumberModel.touched)) || cardNumberError">
             <small *ngIf="cardNumberModel.errors?.['required']">Número de tarjeta es obligatorio</small>
-            <small *ngIf="cardNumberModel.errors?.['minlength']">Número demasiado corto</small>
-            <small *ngIf="cardNumberModel.errors?.['maxlength']">Número demasiado largo</small>
+            <small *ngIf="cardNumberModel.errors?.['minlength']">Número demasiado corto (debe ser 16 dígitos)</small>
+            <small *ngIf="cardNumberModel.errors?.['maxlength']">Número demasiado largo (debe ser 16 dígitos)</small>
+            <small *ngIf="cardNumberModel.errors?.['pattern']">Solo se permiten 16 números</small>
             <small *ngIf="cardNumberError">{{ cardNumberError }}</small>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label><i class="pi pi-calendar"></i> Fecha de caducidad *</label>
-            <input name="expiry" type="text" placeholder="MM/AA" [(ngModel)]="expiry" #expiryModel="ngModel" required pattern="^(0[1-9]|1[0-2])/[0-9]{2}$" />
+            <input 
+              name="expiry"
+              type="text"
+              placeholder="YYYY-MM-DD"
+              [(ngModel)]="expiry"
+              #expiryModel="ngModel"
+              required
+              pattern="^\d{4}-\d{2}-\d{2}$"
+              maxlength="10"
+              (keypress)="onExpiryKeypress($event)"
+              (paste)="onPasteExpiry($event)" />
             <div class="form-error" *ngIf="expiryModel.invalid && (expiryModel.dirty || expiryModel.touched)">
-              <small *ngIf="expiryModel.errors?.['required']">Fecha obligatoria</small>
-              <small *ngIf="expiryModel.errors?.['pattern']">Formato MM/AA</small>
-              <small *ngIf="expiryError">{{ expiryError }}</small>
+                <small *ngIf="expiryModel.errors?.['required']">Fecha obligatoria</small>
+                <small *ngIf="expiryModel.errors?.['pattern']">Formato inválido. Use YYYY-MM-DD</small>
+                <small *ngIf="expiryError">{{ expiryError }}</small>
             </div>
           </div>
           <div class="form-group">
             <label><i class="pi pi-key"></i> CVV *</label>
-            <input name="cvv" type="text" inputmode="numeric" placeholder="CVV" [(ngModel)]="cvv" #cvvModel="ngModel" required minlength="3" maxlength="3" pattern="[0-9]{3}" />
+            <input 
+              name="cvv" 
+              type="text" 
+              inputmode="numeric" 
+              placeholder="CVV" 
+              [(ngModel)]="cvv" 
+              #cvvModel="ngModel" 
+              required 
+              minlength="3" 
+              maxlength="3" 
+              pattern="[0-9]{3}"
+              (keypress)="onlyNumbers($event)"
+              (paste)="onPasteNumbers($event, 'cvv')" />
             <div class="form-error" *ngIf="cvvModel.invalid && (cvvModel.dirty || cvvModel.touched)">
               <small *ngIf="cvvModel.errors?.['required']">CVV obligatorio</small>
-              <small *ngIf="cvvModel.errors?.['pattern']">CVV inválido</small>
+              <small *ngIf="cvvModel.errors?.['minlength']">CVV debe tener 3 dígitos</small>
+              <small *ngIf="cvvModel.errors?.['pattern']">Solo se permiten números</small>
               <small *ngIf="cvvError">{{ cvvError }}</small>
             </div>
           </div>
         </div>
         <div class="form-group">
           <label><i class="pi pi-user"></i> Nombre del titular de la tarjeta *</label>
-          <input name="cardHolder" type="text" placeholder="Nombre del titular de la tarjeta" [(ngModel)]="cardHolder" #cardHolderModel="ngModel" required />
+          <input 
+            name="cardHolder" 
+            type="text" 
+            placeholder="Nombre del titular de la tarjeta" 
+            [(ngModel)]="cardHolder" 
+            #cardHolderModel="ngModel" 
+            required
+            pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+"
+            (keypress)="onlyLettersAndSpaces($event)"
+            (paste)="onPasteLetters($event)" />
           <div class="form-error" *ngIf="cardHolderModel.invalid && (cardHolderModel.dirty || cardHolderModel.touched)">
-            <small>Nombre obligatorio</small>
+            <small *ngIf="cardHolderModel.errors?.['required']">Nombre obligatorio</small>
+            <small *ngIf="cardHolderModel.errors?.['pattern']">Solo se permiten letras y espacios</small>
           </div>
         </div>
         <div class="form-group">

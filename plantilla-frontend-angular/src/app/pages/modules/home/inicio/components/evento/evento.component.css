@@ -5,6 +5,36 @@
   background: #f8f9fa;
 }
 
+/* Botón de retroceder */
+.btn-retroceder-container {
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+::ng-deep .btn-retroceder {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+  transition: all 0.2s ease !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .btn-retroceder:hover {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+::ng-deep .btn-retroceder:focus {
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2) !important;
+}
+
+::ng-deep .btn-retroceder .p-button-icon {
+  margin-right: 0.5rem;
+}
+
 /* Estado de carga */
 .loading-container {
   display: flex;
@@ -513,6 +543,17 @@
 @media (max-width: 768px) {
   .evento-container {
     padding: 1rem 0.5rem;
+  }
+
+  /* Botón de retroceder en móvil */
+  .btn-retroceder-container {
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  ::ng-deep .btn-retroceder {
+    width: 100%;
+    justify-content: center !important;
   }
 
   .evento-titulo {

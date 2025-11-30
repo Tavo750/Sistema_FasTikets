@@ -14,6 +14,7 @@ import { Data as LocalData } from '../../../../administrador/interfaces/gestion-
 import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-evento/zona-categoria.interface';
 import { Data as EntradaData } from '../../../../administrador/interfaces/gestion-evento/entrada.interface';
 import { GOOGLE_MAPS_CONFIG } from '../../../../../../config/google-maps.config';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 
 // Declarar Google Maps para TypeScript
 declare global {
@@ -58,7 +59,8 @@ export class EventoComponent implements AfterViewInit, OnInit {
     private localService: LocalService,
     private carritoService: CarritoService,
     private sessionService: SessionService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private loadingService: LoadingService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -181,14 +183,14 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.date = this.formatearFecha(this.eventoData.fechaEvento);
       this.time = this.formatearHora(this.eventoData.horaInicio);
       this.imageUrl = this.eventoData.imagenUrl || '';
-      
+
       // Manejar menoresDeEdadPermitidos (null se trata como false)
       this.menoresDeEdadPermitidos = this.eventoData.menoresDeEdadPermitidos === true;
-      
+
       // Manejar restricciones y políticas (null se convierte en string vacío)
       this.restricciones = this.eventoData.restricciones || '';
       this.politicasDevolucion = this.eventoData.politicasDevolucion || '';
-      
+
       console.log('Datos del evento cargados:', {
         menoresDeEdadPermitidos: this.menoresDeEdadPermitidos,
         restricciones: this.restricciones,
@@ -239,10 +241,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
       this.eventoService.getListarZonas(this.eventoId).subscribe({
         next: (zonesResponse) => {
           console.log('Respuesta de zonas:', zonesResponse);
-          
+
           if (zonesResponse.ok && zonesResponse.data) {
             const zonas: ZonaData[] = Array.isArray(zonesResponse.data) ? zonesResponse.data : [zonesResponse.data];
-            
+
             console.log('Zonas encontradas:', zonas.length, zonas);
 
             if (zonas.length === 0) {
@@ -263,16 +265,16 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
             zonas.forEach(zona => {
               console.log('Cargando tickets para zona:', zona.idZona, zona.nombre);
-              
+
               this.eventoService.getListarEntradasID(zona.idZona).subscribe({
                 next: (ticketsResponse) => {
                   console.log(`Respuesta tickets para zona ${zona.idZona}:`, ticketsResponse);
-                  
+
                   const ticketsDeZona: TicketType[] = [];
 
                   if (ticketsResponse.ok && ticketsResponse.data) {
                     const tickets: EntradaData[] = Array.isArray(ticketsResponse.data) ? ticketsResponse.data : [ticketsResponse.data];
-                    
+
                     console.log(`Tickets encontrados para zona ${zona.nombre}:`, tickets.length);
 
                     tickets.forEach(ticket => {
@@ -388,7 +390,38 @@ export class EventoComponent implements AfterViewInit, OnInit {
       return null;
     }
 
+    /**
+     * Obtiene el límite máximo de entradas configurado por el administrador
+     */
+    getMaxEntradasPermitidas(): number {
+      const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+      return maxEntradas ? parseInt(maxEntradas, 10) : 10;
+    }
+
+    /**
+     * Calcula el total de entradas seleccionadas actualmente
+     */
+    getTotalEntradasSeleccionadas(): number {
+      let total = 0;
+      for (const zonaConTickets of this.zonasConTickets) {
+        total += zonaConTickets.tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      }
+      return total;
+    }
+
     increment(t: TicketType) {
+      const limiteMaximo = this.getMaxEntradasPermitidas();
+      const totalActual = this.getTotalEntradasSeleccionadas();
+      
+      if (totalActual >= limiteMaximo) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Límite alcanzado',
+          detail: `No puedes seleccionar más de ${limiteMaximo} entradas en total para este evento.`
+        });
+        return;
+      }
+      
       t.quantity++;
     }
 
@@ -461,6 +494,30 @@ export class EventoComponent implements AfterViewInit, OnInit {
         return;
       }
 
+      // Validar límite máximo de entradas configurado por el administrador
+      const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+      const limiteMaximo = maxEntradas ? parseInt(maxEntradas, 10) : 10;
+      
+      const totalSeleccionado = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      const eventoId = this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-');
+      
+      // Calcular entradas actuales en el carrito para este evento
+      const currentCartItems = this.cartService.getCartItems();
+      const entradasActualesEvento = currentCartItems
+        .filter(item => item.eventId === eventoId)
+        .reduce((sum, item) => sum + item.quantity, 0);
+      
+      const totalFinal = entradasActualesEvento + totalSeleccionado;
+      
+      if (totalFinal > limiteMaximo) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Límite excedido',
+          detail: `No puedes comprar más de ${limiteMaximo} entradas para este evento. Ya tienes ${entradasActualesEvento} en el carrito.`
+        });
+        return;
+      }
+
       // Si no está autenticado, mostrar modal y redirigir al login solo después de aceptar
       const currentUser = this.sessionService.getCurrentUser();
       if (!currentUser || !currentUser.idUsuario) {
@@ -521,24 +578,41 @@ export class EventoComponent implements AfterViewInit, OnInit {
                 }
               },
               error: (err: any) => {
-                // Registro y notificación de error de sincronización
+                // Mostrar modal de error cuando no se pudo persistir el item en el servidor
                 try {
                   const status = err?.status;
                   const body = err?.error;
                   const message = err?.message || (body && (body.mensaje || body.message)) || 'Error desconocido';
                   console.error('Error guardando item en servidor:', { status, body, message });
-                  this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Sincronización parcial',
-                    detail: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`
+
+                  const dialogRef = this.dialogService.open(DialogoComponent, {
+                    header: 'Error al sincronizar carrito',
+                    width: '480px',
+                    data: {
+                      mensaje: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`,
+                      severidad: 'error',
+                      buttonLabel: 'Aceptar'
+                    }
                   });
+
+                  dialogRef.onClose.subscribe(() => {
+                    // Opcional: aquí se puede realizar una acción tras cerrar el modal
+                  });
+                  // Revertir el item local que falló para mantener el carrito consistente
+                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor', e); }
                 } catch (e) {
                   console.error('Error procesando error del servidor', e);
-                  this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Sincronización parcial',
-                    detail: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.'
+                  const dialogRef = this.dialogService.open(DialogoComponent, {
+                    header: 'Error',
+                    width: '420px',
+                    data: {
+                      mensaje: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.',
+                      severidad: 'error',
+                      buttonLabel: 'Aceptar'
+                    }
                   });
+                  dialogRef.onClose.subscribe(() => {});
+                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor (fallback)', e); }
                 }
               }
             });
@@ -571,6 +645,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
           ticket.quantity = 0;
         });
       }
+    }
+
+    volverAEventos() {
+      this.router.navigate(['/home/inicio']);
     }
 
     onBuyNow() {

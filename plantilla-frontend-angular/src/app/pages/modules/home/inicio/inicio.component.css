@@ -592,6 +592,43 @@
   box-shadow: var(--shadow-large);
 }
 
+/* BOTONES DE FAVORITOS */
+.evento-btn-favorito ::ng-deep .p-button {
+  background: transparent;
+  border: 2px solid var(--medium-gray);
+  color: var(--medium-gray);
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  transition: all 0.3s ease;
+  min-width: 50px;
+}
+
+.evento-btn-favorito ::ng-deep .p-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--light-red);
+  color: var(--light-red);
+  transform: translateY(-2px);
+}
+
+.evento-btn-favorito-activo ::ng-deep .p-button {
+  background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-medium);
+  min-width: 50px;
+}
+
+.evento-btn-favorito-activo ::ng-deep .p-button:hover {
+  background: linear-gradient(135deg, var(--dark-red) 0%, #991b1b 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-large);
+}
+
 /* PAGINACIÓN */
 .paginacion-container {
   display: flex;

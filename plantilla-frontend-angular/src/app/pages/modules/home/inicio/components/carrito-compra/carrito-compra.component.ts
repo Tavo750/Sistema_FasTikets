@@ -7,6 +7,7 @@ import { SessionService } from '../../../../../../shared/services/session.servic
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { Subscription } from 'rxjs';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-carrito-compra',
@@ -30,9 +31,9 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   private purchaseService: PurchaseService,
   private carritoService: CarritoService,
     private messageService: MessageService,
-    private sessionService: SessionService
-    ,
-    private cartTimerService: CartTimerService
+    private sessionService: SessionService,
+    private cartTimerService: CartTimerService,
+    private loadingService: LoadingService
   ) {}
 
   ngOnInit(): void {
@@ -48,6 +49,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
       } catch (e) { console.warn('No se pudo suscribir a cartTimerService', e); }
       const idCliente = user?.idUsuario;
       if (idCliente) {
+        this.loadingService.show();
         this.carritoService.getItemsFromServer(idCliente).subscribe({
         next: (resp: any) => {
             // Log raw response to help diagnose structure issues
@@ -80,6 +82,9 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
               title: it.nombreTicket || it.nombre || it.descripcion || 'Ticket',
               category: it.nombreTicket || it.categoria || '',
               price: it.precioUnitario || it.precio || it.precioVenta || 0,
+              // guardar precio base y porcentaje de recargo si vienen desde el backend
+              basePrice: (typeof it.precioBase !== 'undefined' && it.precioBase !== null) ? it.precioBase : null,
+              surchargePercent: (typeof it.porcentaje !== 'undefined' && it.porcentaje !== null) ? it.porcentaje : 0,
               quantity: it.cantidad || it.cantidadSeleccionada || 0,
               image: it.imagenUrl || '',
               serverId: it.idItemCarrito || it.id
@@ -114,6 +119,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
               this.timerSubscriptions.push(this.cartTimerService.running$.subscribe(r => this.showTimer = r));
               this.timerSubscriptions.push(this.cartTimerService.expired$.subscribe(() => this.handleTimerExpired()));
             } catch (e) { console.warn('No se pudo suscribir a cartTimerService', e); }
+            this.loadingService.hide();
           },
           error: (err: any) => {
             console.error('Error cargando items desde servidor:', err);
@@ -121,6 +127,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
             this.loadedFromServer = false;
             // Continuar con watcher que manejará la vista
             this.setupCartWatcher();
+            this.loadingService.hide();
           }
         });
       } else {
@@ -247,16 +254,55 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
     return this.cartItems.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
   }
 
-  getTaxes(): number {
-    return this.getSubtotal() * 0.16; // 16% de impuestos
+  // Suma de los precios base (precio sin recargo por tiempo)
+  getBaseSubtotal(): number {
+    return this.cartItems.reduce((sum, it) => {
+      const base = (it as any).basePrice != null ? (it as any).basePrice : (it.price || 0);
+      return sum + base * (it.quantity || 0);
+    }, 0);
   }
 
-  getShipping(): number {
-    return this.getSubtotal() > 200 ? 0 : 25; // Envío gratis por compras mayores a $200
+  // Calcula el monto total de recargo por tiempo (suma por item)
+  getTimeSurchargeAmount(): number {
+    return this.cartItems.reduce((sum, it) => {
+      const qty = it.quantity || 0;
+      const base = (it as any).basePrice != null ? (it as any).basePrice : (it.price || 0);
+      const pct = (it as any).surchargePercent || 0;
+      // si price y basePrice están disponibles, preferimos la diferencia real
+      if ((it.price || 0) > 0 && (it as any).basePrice != null) {
+        const diff = (it.price || 0) - base;
+        return sum + diff * qty;
+      }
+      // fallback: calcular por porcentaje sobre base
+      return sum + (base * (pct / 100)) * qty;
+    }, 0);
+  }
+
+  // Si todos los items comparten el mismo porcentaje lo devolvemos, si no devolvemos 'varios'
+  getTimeSurchargePercentDisplay(): string {
+    const pcts = Array.from(new Set(this.cartItems.map(it => (it as any).surchargePercent || 0)));
+    if (pcts.length === 1) return `${pcts[0]}%`;
+    // eliminar ceros y si hay uno no cero devolver 'varios' o la lista
+    const nonZero = pcts.filter(p => p && p > 0);
+    if (nonZero.length === 1) return `${nonZero[0]}%`;
+    if (nonZero.length === 0) return '0%';
+    return 'Varios';
+  }
+
+  getTaxes(): number {
+    // Los precios ya incluyen impuestos (16%). Aquí calculamos
+    // la porción de impuesto incluida en el subtotal para mostrarla.
+    const subtotal = this.getSubtotal();
+    if (!subtotal || subtotal === 0) return 0;
+    // taxPortion = subtotal - subtotal / (1 + taxRate)
+    const taxRate = 0.16;
+    const taxPortion = subtotal - (subtotal / (1 + taxRate));
+    return Number(taxPortion.toFixed(2));
   }
 
   getTotal(): number {
-    return this.getSubtotal() + this.getTaxes() + this.getShipping();
+    // Como los precios ya incluyen impuestos, el total es simplemente el subtotal
+    return this.getSubtotal();
   }
 
   // Getter para mantener compatibilidad
@@ -265,6 +311,30 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   // Métodos de acciones
+  
+  /**
+   * Obtiene el máximo de entradas configurado por el administrador
+   */
+  getMaxEntradasPermitidas(): number {
+    const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+    return maxEntradas ? parseInt(maxEntradas, 10) : 10;
+  }
+  
+  /**
+   * Calcula el máximo permitido para un item considerando las entradas del mismo evento
+   */
+  getMaxQuantityForItem(item: CartItem): number {
+    const maxGlobal = this.getMaxEntradasPermitidas();
+    
+    // Calcular cuántas entradas del mismo evento ya están en el carrito (excluyendo este item)
+    const entradasDelEvento = this.cartItems
+      .filter(i => i.eventId === item.eventId && i.id !== item.id)
+      .reduce((sum, i) => sum + i.quantity, 0);
+    
+    // Retornar el máximo que puede tener este item
+    return Math.max(1, maxGlobal - entradasDelEvento);
+  }
+  
   removeItem(item: CartItem): void {
     // Si el item viene del servidor (tiene serverId y cargamos desde servidor), llamar al endpoint DELETE
     const currentUser = this.sessionService.getCurrentUser();
@@ -296,13 +366,36 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   updateQuantity(id: number, quantity: number): void {
+    const item = this.cartItems.find(i => i.id === id);
+    if (!item) return;
+    
+    const maxGlobal = this.getMaxEntradasPermitidas();
+    
+    // Calcular total de entradas del mismo evento
+    const entradasOtrosItems = this.cartItems
+      .filter(i => i.eventId === item.eventId && i.id !== id)
+      .reduce((sum, i) => sum + i.quantity, 0);
+    
+    const totalEntradas = entradasOtrosItems + quantity;
+    
+    if (totalEntradas > maxGlobal) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Límite excedido',
+        detail: `No puedes tener más de ${maxGlobal} entradas para este evento. Actualmente tienes ${entradasOtrosItems} en otros tipos de entrada.`
+      });
+      // Restaurar la cantidad máxima permitida
+      item.quantity = Math.max(1, maxGlobal - entradasOtrosItems);
+      this.cartService.updateQuantity(id, item.quantity);
+      return;
+    }
+    
     this.cartService.updateQuantity(id, quantity);
   }
 
   continueShopping(): void {
-    // Navegar de vuelta a la página de eventos
-    console.log('Continuar comprando');
-    // Aquí podrías usar el Router para navegar
+    // Navegar de vuelta a la página principal donde están todos los eventos
+    this.router.navigate(['/home/inicio']);
   }
 
   proceedToCheckout(): void {
@@ -320,8 +413,7 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   exploreEvents(): void {
-    // Navegar a la página de exploración de eventos
-    console.log('Explorar eventos');
-    // Aquí podrías usar el Router para navegar a los eventos
+    // Navegar a la página principal donde están todos los eventos disponibles
+    this.router.navigate(['/home/inicio']);
   }
 }

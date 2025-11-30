@@ -184,10 +184,12 @@
               styleClass="evento-btn-detalle">
             </p-button>
             <p-button
-              icon="pi pi-heart"
-              (onClick)="agregarAFavoritos(evento.id)"
+              [icon]="evento.esFavorito ? 'pi pi-heart-fill' : 'pi pi-heart'"
+              (onClick)="toggleFavorito(evento, $event)"
               styleClass="evento-btn-comprar"
-              severity="danger">
+              [severity]="evento.esFavorito ? 'danger' : 'secondary'"
+              [pTooltip]="evento.esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+              tooltipPosition="top">
             </p-button>
           </div>
         </ng-template>
@@ -264,7 +266,7 @@
         </div>
       </div>
 
-      <div class="footer-column">
+      <!-- <div class="footer-column">
         <h4>Conócenos</h4>
         <ul>
           <li><a href="#">Sobre Fasticket</a></li>
@@ -272,9 +274,9 @@
           <li><a href="#">Promotores</a></li>
           <li><a href="#">Trabaja con nosotros</a></li>
         </ul>
-      </div>
+      </div> -->
 
-      <div class="footer-column">
+      <!-- <div class="footer-column">
         <h4>Soporte</h4>
         <ul>
           <li><a href="#">Centro de ayuda</a></li>
@@ -282,31 +284,31 @@
           <li><a href="#">Libro de reclamaciones</a></li>
           <li><a href="#">Canales de contacto</a></li>
         </ul>
-      </div>
+      </div> -->
 
       <div class="footer-column">
         <h4>Legales</h4>
         <ul>
-          <li><a href="#">Términos y condiciones</a></li>
-          <li><a href="#">Política de privacidad</a></li>
-          <li><a href="#">Política de cookies</a></li>
-          <li><a href="#">Uso de datos personales</a></li>
+          <li><a href="#" (click)="abrirDialogTerminos($event)">Términos y condiciones</a></li>
+          <li><a href="#" (click)="abrirDialogPolitica($event)">Política de privacidad</a></li>
+          <!-- <li><a href="#">Política de cookies</a></li>
+          <li><a href="#">Uso de datos personales</a></li> -->
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <div class="footer-social">
+      <!-- <div class="footer-social">
         <span>Síguenos:</span>
         <a href="#" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
         <a href="#" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
         <a href="#" aria-label="TikTok"><i class="pi pi-video"></i></a>
         <a href="#" aria-label="YouTube"><i class="pi pi-youtube"></i></a>
-      </div>
+      </div> -->
       <div class="footer-lang">
         <button type="button"><i class="pi pi-globe"></i> Español</button>
       </div>
-      <div class="footer-copy">© {{ currentYear || '2024' }} Fasticket. Todos los derechos reservados.</div>
+      <div class="footer-copy">© {{ currentYear || '2024' }} LagStore S.A. Todos los derechos reservados.</div>
     </div>
   </div>
 </footer>

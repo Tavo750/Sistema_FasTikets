@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PerfilPersonalService } from '../../services/perfil-personal.service';
 import { SessionService } from '../../../../../shared/services/session.service';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 
 interface TipoDocumento {
@@ -31,7 +32,8 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private router: Router,
     private perfilPersonalService: PerfilPersonalService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private loadingService: LoadingService
   ) {
     this.tiposDocumento = [
       { nombre: 'Documento Nacional de Identidad (DNI)', valor: 'DNI' },
@@ -58,12 +60,13 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'error',
         summary: 'Error de sesión',
         detail: 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
-        life: 3000
+        life: 1000
       });
       this.router.navigate(['/login']);
       return;
     }
 
+    this.loadingService.show();
     this.perfilPersonalService.getobtenerPerfilPorId(currentUser.idUsuario)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -86,9 +89,10 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'warn',
             summary: 'Datos no encontrados',
             detail: response.mensaje || 'No se pudieron cargar los datos del perfil',
-            life: 3000
+            life: 1000
           });
         }
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error al cargar el perfil:', error);
@@ -96,8 +100,9 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error al cargar datos',
           detail: 'Ocurrió un error al cargar los datos del perfil. Intente nuevamente.',
-          life: 3000
+          life: 1000
         });
+        this.loadingService.hide();
       }
     });
   }
@@ -144,7 +149,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'warn',
         summary: 'Campos incompletos',
         detail: 'Por favor complete todos los campos correctamente antes de continuar',
-        life: 3000
+        life: 1000
       });
       this.editForm.markAllAsTouched();
       return;
@@ -157,7 +162,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
         severity: 'error',
         summary: 'Error de sesión',
         detail: 'No se pudo obtener la información del usuario. Por favor, inicie sesión nuevamente.',
-        life: 3000
+        life: 1000
       });
       return;
     }
@@ -187,7 +192,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'success',
             summary: 'Perfil actualizado',
             detail: 'Los datos del perfil se han actualizado exitosamente',
-            life: 3000
+            life: 1000
           });
 
           this.isEditing = false;
@@ -196,7 +201,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
             severity: 'warn',
             summary: 'Error al actualizar',
             detail: response.mensaje || 'No se pudieron actualizar los datos del perfil',
-            life: 3000
+            life: 1000
           });
         }
       },
@@ -206,7 +211,7 @@ export class PerfilPersonalComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error al actualizar',
           detail: 'Ocurrió un error al actualizar los datos del perfil. Intente nuevamente.',
-          life: 3000
+          life: 1000
         });
       }
     });

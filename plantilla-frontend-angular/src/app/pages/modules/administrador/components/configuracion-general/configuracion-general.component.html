@@ -1,0 +1,1116 @@
+<div class="config-container">
+  <div class="config-header">
+    <h1 class="config-title">
+      <i class="pi pi-cog"></i>
+      Configuración General
+    </h1>
+    <p class="config-subtitle">Gestiona las configuraciones globales del sistema</p>
+  </div>
+
+  <div class="config-content">
+    <!-- Card de Configuración del Carrito -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);">
+          <div class="header-icon">
+            <i class="pi pi-shopping-cart"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Tiempo Límite del Carrito</h2>
+            <p class="card-description">Configura el tiempo máximo que los clientes tienen para completar su compra</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Información actual -->
+          <div class="info-box">
+            <i class="pi pi-info-circle"></i>
+            <div class="info-text">
+              <strong>Configuración actual:</strong>
+              <span>Los clientes tienen {{ originalTimeLimitMinutes }} minutos para completar su compra antes de que expire el carrito.</span>
+            </div>
+          </div>
+
+          <!-- Control principal -->
+          <div class="time-control-section">
+            <label for="timeLimit" class="control-label">
+              <i class="pi pi-clock"></i>
+              Tiempo límite (minutos)
+            </label>
+            
+            <div class="time-input-group">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-minus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="cartTimeLimitMinutes <= 1"
+                (click)="decreaseTime()"
+                pTooltip="Disminuir 5 minutos">
+              </button>
+
+              <p-inputNumber
+                id="timeLimit"
+                [(ngModel)]="cartTimeLimitMinutes"
+                [showButtons]="false"
+                [min]="1"
+                [max]="120"
+                [step]="1"
+                suffix=" min"
+                (onInput)="onTimeLimitChange()"
+                class="time-input">
+              </p-inputNumber>
+
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="cartTimeLimitMinutes >= 120"
+                (click)="increaseTime()"
+                pTooltip="Aumentar 5 minutos">
+              </button>
+            </div>
+
+            <small class="help-text">
+              <i class="pi pi-exclamation-triangle"></i>
+              Rango permitido: 1 - 120 minutos
+            </small>
+          </div>
+
+          <!-- Presets rápidos -->
+          <div class="presets-section">
+            <label class="presets-label">Configuraciones rápidas:</label>
+            <div class="presets-buttons">
+              <button 
+                pButton 
+                type="button" 
+                label="5 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 5"
+                (click)="cartTimeLimitMinutes = 5; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="10 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 10"
+                (click)="cartTimeLimitMinutes = 10; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="15 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 15"
+                (click)="cartTimeLimitMinutes = 15; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="30 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 30"
+                (click)="cartTimeLimitMinutes = 30; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="60 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 60"
+                (click)="cartTimeLimitMinutes = 60; onTimeLimitChange()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa del cambio -->
+          <div class="preview-box" *ngIf="hasChangesTimer">
+            <i class="pi pi-eye"></i>
+            <div class="preview-text">
+              <strong>Vista previa:</strong>
+              <span>El nuevo tiempo límite será de <strong class="highlight">{{ cartTimeLimitMinutes }} minutos</strong></span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="footer-actions">
+            <button 
+              pButton 
+              type="button" 
+              label="Restablecer" 
+              icon="pi pi-refresh"
+              class="p-button-outlined p-button-secondary"
+              (click)="resetTimerToDefault()">
+            </button>
+
+            <div class="primary-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Cancelar" 
+                icon="pi pi-times"
+                class="p-button-outlined"
+                [disabled]="!hasChangesTimer || isSavingTimer"
+                (click)="cancelTimerChanges()">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                label="Guardar" 
+                icon="pi pi-check"
+                class="p-button-success"
+                [disabled]="!hasChangesTimer || isSavingTimer"
+                [loading]="isSavingTimer"
+                (click)="saveTimerSettings()">
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Card de Configuración de Límite de Entradas -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);">
+          <div class="header-icon">
+            <i class="pi pi-ticket"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Límite de Entradas por Cliente</h2>
+            <p class="card-description">Define el máximo de entradas que cada cliente puede comprar por evento</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Información actual -->
+          <div class="info-box">
+            <i class="pi pi-info-circle"></i>
+            <div class="info-text">
+              <strong>Configuración actual:</strong>
+              <span>Los clientes pueden comprar hasta {{ originalMaxEntradas }} entradas por evento.</span>
+            </div>
+          </div>
+
+          <!-- Control principal -->
+          <div class="time-control-section">
+            <label for="maxEntradas" class="control-label">
+              <i class="pi pi-ticket"></i>
+              Máximo de entradas permitidas
+            </label>
+            
+            <div class="time-input-group">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-minus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxEntradasPorCliente <= 1"
+                (click)="decreaseMaxEntradas()"
+                pTooltip="Disminuir 5 entradas">
+              </button>
+
+              <p-inputNumber
+                id="maxEntradas"
+                [(ngModel)]="maxEntradasPorCliente"
+                [showButtons]="false"
+                [min]="1"
+                [max]="50"
+                [step]="1"
+                suffix=" entradas"
+                (onInput)="onMaxEntradasChange()"
+                class="time-input">
+              </p-inputNumber>
+
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxEntradasPorCliente >= 50"
+                (click)="increaseMaxEntradas()"
+                pTooltip="Aumentar 5 entradas">
+              </button>
+            </div>
+
+            <small class="help-text">
+              <i class="pi pi-exclamation-triangle"></i>
+              Rango permitido: 1 - 50 entradas por evento
+            </small>
+          </div>
+
+          <!-- Presets rápidos -->
+          <div class="presets-section">
+            <label class="presets-label">Configuraciones rápidas:</label>
+            <div class="presets-buttons">
+              <button 
+                pButton 
+                type="button" 
+                label="5" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 5"
+                (click)="maxEntradasPorCliente = 5; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="10" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 10"
+                (click)="maxEntradasPorCliente = 10; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="15" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 15"
+                (click)="maxEntradasPorCliente = 15; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="20" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 20"
+                (click)="maxEntradasPorCliente = 20; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="30" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 30"
+                (click)="maxEntradasPorCliente = 30; onMaxEntradasChange()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa del cambio -->
+          <div class="preview-box" *ngIf="hasChangesEntradas">
+            <i class="pi pi-eye"></i>
+            <div class="preview-text">
+              <strong>Vista previa:</strong>
+              <span>Los clientes podrán comprar un <strong class="highlight">máximo de {{ maxEntradasPorCliente }} entradas</strong> por evento</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="footer-actions">
+            <button 
+              pButton 
+              type="button" 
+              label="Restablecer" 
+              icon="pi pi-refresh"
+              class="p-button-outlined p-button-secondary"
+              (click)="resetEntradasToDefault()">
+            </button>
+
+            <div class="primary-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Cancelar" 
+                icon="pi pi-times"
+                class="p-button-outlined"
+                [disabled]="!hasChangesEntradas || isSavingEntradas"
+                (click)="cancelEntradasChanges()">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                label="Guardar" 
+                icon="pi pi-check"
+                class="p-button-success"
+                [disabled]="!hasChangesEntradas || isSavingEntradas"
+                [loading]="isSavingEntradas"
+                (click)="saveEntradasSettings()">
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Card de Configuración de Límite de Transferencias -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);">
+          <div class="header-icon">
+            <i class="pi pi-sync"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Límite de Transferencias de Tickets</h2>
+            <p class="card-description">Define el número máximo de veces que una persona puede transferir un ticket</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Información actual -->
+          <div class="info-box">
+            <i class="pi pi-info-circle"></i>
+            <div class="info-text">
+              <strong>Configuración actual:</strong>
+              <span>Cada persona puede transferir un ticket hasta <strong class="highlight">{{ maxTransferenciasTicket }} veces</strong></span>
+            </div>
+          </div>
+
+          <!-- Control principal -->
+          <div class="control-group">
+            <label for="maxTransferencias" class="control-label">
+              <i class="pi pi-sync"></i>
+              Número máximo de transferencias
+            </label>
+
+            <div class="control-wrapper">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-minus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxTransferenciasTicket <= 0"
+                (click)="decreaseMaxTransferencias()"
+                pTooltip="Disminuir 1 transferencia">
+              </button>
+
+              <p-inputNumber
+                id="maxTransferencias"
+                [(ngModel)]="maxTransferenciasTicket"
+                [showButtons]="false"
+                [min]="0"
+                [max]="20"
+                [step]="1"
+                suffix=" transferencias"
+                (onInput)="onMaxTransferenciasChange()"
+                class="time-input">
+              </p-inputNumber>
+
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxTransferenciasTicket >= 20"
+                (click)="increaseMaxTransferencias()"
+                pTooltip="Aumentar 1 transferencia">
+              </button>
+            </div>
+
+            <small class="help-text">
+              <i class="pi pi-exclamation-triangle"></i>
+              Rango permitido: 0 - 20 transferencias por ticket (0 = transferencias deshabilitadas)
+            </small>
+          </div>
+
+          <!-- Presets rápidos -->
+          <div class="presets-section">
+            <label class="presets-label">Configuraciones rápidas:</label>
+            <div class="presets-buttons">
+              <button 
+                pButton 
+                type="button" 
+                label="0 (Deshabilitado)" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 0"
+                (click)="maxTransferenciasTicket = 0; onMaxTransferenciasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="1" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 1"
+                (click)="maxTransferenciasTicket = 1; onMaxTransferenciasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="2" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 2"
+                (click)="maxTransferenciasTicket = 2; onMaxTransferenciasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="3" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 3"
+                (click)="maxTransferenciasTicket = 3; onMaxTransferenciasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="5" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 5"
+                (click)="maxTransferenciasTicket = 5; onMaxTransferenciasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="10" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxTransferenciasTicket !== 10"
+                (click)="maxTransferenciasTicket = 10; onMaxTransferenciasChange()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa del cambio -->
+          <div class="preview-box" *ngIf="hasChangesTransferencias">
+            <i class="pi pi-eye"></i>
+            <div class="preview-text">
+              <strong>Vista previa:</strong>
+              <span *ngIf="maxTransferenciasTicket === 0">Las <strong class="highlight">transferencias de tickets estarán deshabilitadas</strong></span>
+              <span *ngIf="maxTransferenciasTicket > 0">Cada persona podrá transferir un ticket <strong class="highlight">máximo {{ maxTransferenciasTicket }} veces</strong></span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="footer-actions">
+            <button 
+              pButton 
+              type="button" 
+              label="Restablecer" 
+              icon="pi pi-refresh"
+              class="p-button-outlined p-button-secondary"
+              (click)="resetTransferenciasToDefault()">
+            </button>
+
+            <div class="primary-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Cancelar" 
+                icon="pi pi-times"
+                class="p-button-outlined"
+                [disabled]="!hasChangesTransferencias || isSavingTransferencias"
+                (click)="cancelTransferenciasChanges()">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                label="Guardar" 
+                icon="pi pi-check"
+                class="p-button-success"
+                [disabled]="!hasChangesTransferencias || isSavingTransferencias"
+                [loading]="isSavingTransferencias"
+                (click)="saveTransferenciasSettings()">
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Card de Configuraciones Generales del Sistema -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);">
+          <div class="header-icon">
+            <i class="pi pi-database"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Configuraciones Generales</h2>
+            <p class="card-description">Gestiona las configuraciones del sistema mediante pares clave-valor</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Panel de filtros y acciones -->
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+              <!-- Barra de búsqueda -->
+              <div style="flex: 1; min-width: 250px;">
+                <label for="busquedaConfiguraciones" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                  <i class="pi pi-search"></i> Buscar configuración
+                </label>
+                <span class="p-input-icon-left" style="width: 100%;">
+                  <i class="pi pi-search"></i>
+                  <input
+                    id="busquedaConfiguraciones"
+                    type="text"
+                    pInputText
+                    [(ngModel)]="searchConfiguraciones"
+                    placeholder="Buscar por clave, valor o descripción..."
+                    style="width: 100%;" />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de configuraciones -->
+          <p-table 
+            [value]="configuraciones" 
+            [loading]="loadingConfiguraciones"
+            [globalFilterFields]="['key', 'value', 'descripcion', 'valueType']"
+            [paginator]="true"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} configuraciones"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            styleClass="p-datatable-sm p-datatable-striped"
+            responsiveLayout="scroll">
+            
+            <ng-template pTemplate="caption">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #2c3e50;">
+                  <i class="pi pi-list"></i> Lista de Configuraciones ({{ configuraciones.length }})
+                </span>
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-refresh" 
+                  class="p-button-rounded p-button-text"
+                  (click)="cargarConfiguraciones()"
+                  pTooltip="Recargar"
+                  tooltipPosition="left">
+                </button>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="key" style="width: 20%;">
+                  Clave 
+                  <p-sortIcon field="key"></p-sortIcon>
+                </th>
+                <th pSortableColumn="value" style="width: 25%;">
+                  Valor 
+                  <p-sortIcon field="value"></p-sortIcon>
+                </th>
+                <th pSortableColumn="descripcion" style="width: 30%;">
+                  Descripción 
+                  <p-sortIcon field="descripcion"></p-sortIcon>
+                </th>
+                <th pSortableColumn="valueType" style="width: 15%;">
+                  Tipo 
+                  <p-sortIcon field="valueType"></p-sortIcon>
+                </th>
+                <th style="width: 10%; text-align: center;">Editar</th>
+              </tr>
+              <tr>
+                <th>
+                  <input 
+                    pInputText 
+                    type="text" 
+                    [(ngModel)]="searchConfiguraciones"
+                    placeholder="Filtrar..."
+                    style="width: 100%;" />
+                </th>
+                <th colspan="4"></th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-config>
+              <tr>
+                <td>
+                  <strong style="color: #667eea;">{{ config.key }}</strong>
+                </td>
+                <td>
+                  <span style="font-family: monospace; background: #f8f9fa; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                    {{ config.value }}
+                  </span>
+                </td>
+                <td>
+                  <span style="color: #6c757d;">{{ config.descripcion }}</span>
+                </td>
+                <td>
+                  <p-tag 
+                    [value]="getTipoValorLabel(config.valueType)" 
+                    [severity]="getTipoValorSeverity(config.valueType)">
+                  </p-tag>
+                </td>
+                <td style="text-align: center;">
+                  <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-text p-button-warning"
+                      (click)="abrirDialogEditarConfiguracion(config)"
+                      pTooltip="Editar"
+                      tooltipPosition="top">
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #bdc3c7;"></i>
+                    <div>
+                      <h3 style="margin: 0; color: #7f8c8d;">No hay configuraciones</h3>
+                      <p style="margin: 0.5rem 0 0 0; color: #95a5a6;">Comienza creando una nueva configuración</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="loadingbody">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <p-progressSpinner styleClass="custom-spinner" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+                    <p style="margin: 0; color: #7f8c8d;">Cargando configuraciones...</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Card de Configuración de Reglas de Puntos -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #29b6f6 0%, #0288d1 100%);">
+          <div class="header-icon">
+            <i class="pi pi-star"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Reglas de Puntos</h2>
+            <p class="card-description">Gestiona las reglas de acumulación y canje de puntos del sistema de fidelización</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Panel de filtros -->
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+              <!-- Barra de búsqueda -->
+              <div style="flex: 1; min-width: 250px;">
+                <label for="busquedaReglas" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                  <i class="pi pi-search"></i> Buscar regla
+                </label>
+                <span class="p-input-icon-left" style="width: 100%;">
+                  <i class="pi pi-search"></i>
+                  <input
+                    id="busquedaReglas"
+                    type="text"
+                    pInputText
+                    placeholder="Filtrar por ID, tipo o estado"
+                    [(ngModel)]="searchReglas"
+                    style="width: 100%;"/>
+                </span>
+              </div>
+
+              <!-- Botón agregar nueva regla -->
+              <button 
+                pButton 
+                type="button" 
+                label="Nueva Regla" 
+                icon="pi pi-plus"
+                class="p-button-success"
+                (click)="abrirDialogNuevaRegla()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabla de reglas -->
+          <p-table 
+            [value]="reglasPuntos" 
+            [loading]="loadingReglas"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            [globalFilterFields]="['idRegla', 'tipoRegla', 'estado', 'solesPorPunto']"
+            [globalFilter]="searchReglas"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} reglas"
+            styleClass="p-datatable-sm p-datatable-striped">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="idRegla" style="width: 100px;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="pi pi-hashtag"></i>
+                    ID
+                    <p-sortIcon field="idRegla"></p-sortIcon>
+                  </div>
+                </th>
+                <th pSortableColumn="tipoRegla">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="pi pi-tag"></i>
+                    Tipo de Regla
+                    <p-sortIcon field="tipoRegla"></p-sortIcon>
+                  </div>
+                </th>
+                <th pSortableColumn="solesPorPunto">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="pi pi-dollar"></i>
+                    Soles por Punto
+                    <p-sortIcon field="solesPorPunto"></p-sortIcon>
+                  </div>
+                </th>
+                <th pSortableColumn="activo">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="pi pi-check-circle"></i>
+                    Estado
+                    <p-sortIcon field="activo"></p-sortIcon>
+                  </div>
+                </th>
+                <th pSortableColumn="estado">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="pi pi-info-circle"></i>
+                    Descripción
+                    <p-sortIcon field="estado"></p-sortIcon>
+                  </div>
+                </th>
+                <th style="width: 150px; text-align: center;">
+                  <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+                    <i class="pi pi-cog"></i>
+                    Editar
+                  </div>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-regla>
+              <tr>
+                <td>
+                  <span style="font-weight: 600; color: #3498db;">{{ regla.idRegla }}</span>
+                </td>
+                <td>
+                  <p-tag 
+                    [value]="getTipoReglaLabel(regla.tipoRegla)"
+                    [severity]="getTipoReglaSeverity(regla.tipoRegla)">
+                  </p-tag>
+                </td>
+                <td>
+                  <span style="font-weight: 600; color: #27ae60;">S/ {{ regla.solesPorPunto | number:'1.2-2' }}</span>
+                </td>
+                <td>
+                  <p-tag 
+                    [value]="regla.activo ? 'Activo' : 'Inactivo'"
+                    [severity]="getActivoSeverity(regla.activo)">
+                  </p-tag>
+                </td>
+                <td>
+                  <span style="color: #7f8c8d;">{{ regla.estado }}</span>
+                </td>
+                <td style="text-align: center;">
+                  <div style="display: flex; gap: 0.25rem; justify-content: center;">
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-text p-button-info"
+                      pTooltip="Editar"
+                      tooltipPosition="top"
+                      (click)="abrirDialogEditarRegla(regla)">
+                    </button>
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-text p-button-danger"
+                      pTooltip="Eliminar"
+                      tooltipPosition="top"
+                      (click)="eliminarRegla(regla)">
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #bdc3c7;"></i>
+                    <div>
+                      <h3 style="margin: 0; color: #7f8c8d;">No hay reglas de puntos</h3>
+                      <p style="margin: 0.5rem 0 0 0; color: #95a5a6;">Comienza creando una nueva regla</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="loadingbody">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <p-progressSpinner styleClass="custom-spinner" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+                    <p style="margin: 0; color: #7f8c8d;">Cargando reglas de puntos...</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Información adicional -->
+    <p-card class="info-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);">
+          <div class="header-icon warning">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Información importante</h2>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="info-list">
+          <div class="info-item">
+            <i class="pi pi-save"></i>
+            <span>Cada configuración tiene su <strong>propio botón de guardado</strong>, permitiendo guardar cambios de forma independiente.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Los cambios se aplicarán <strong>inmediatamente</strong> después de presionar el botón "Guardar" de cada sección.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-clock"></i>
+            <span>Los carritos activos mantendrán su tiempo original hasta que expiren o se completen.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-shield"></i>
+            <span>Un tiempo muy corto puede frustrar a los clientes, mientras que uno muy largo puede afectar el inventario.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-chart-line"></i>
+            <span>Se recomienda un tiempo entre <strong>10 y 30 minutos</strong> para el carrito y entre <strong>5 y 20 entradas</strong> por cliente.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-ticket"></i>
+            <span>El límite de entradas (rango: <strong>1-50</strong>) ayuda a prevenir acaparamiento y garantiza una distribución equitativa.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-sync"></i>
+            <span>El límite de transferencias (rango: <strong>0-20</strong>) controla cuántas veces un ticket puede ser transferido. Use <strong>0</strong> para deshabilitar transferencias.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-database"></i>
+            <span>Las <strong>Configuraciones Generales</strong> permiten personalizar el comportamiento del sistema mediante pares clave-valor almacenados en la base de datos.</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
+
+<!-- Diálogo para crear/editar regla de puntos -->
+<p-dialog 
+  [(visible)]="mostrarDialogRegla" 
+  [header]="editandoRegla ? 'Editar Regla de Puntos' : 'Nueva Regla de Puntos'"
+  [modal]="true"
+  [style]="{width: '500px'}"
+  [closable]="!guardandoRegla">
+  
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem;">
+    <!-- Tipo de Regla -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="tipoRegla" style="font-weight: 600;">Tipo de Regla *</label>
+      <p-dropdown 
+        id="tipoRegla"
+        [(ngModel)]="formularioRegla.tipoRegla"
+        [options]="[{label: 'Por Compra', value: 'COMPRA'}, {label: 'Por Canje', value: 'CANJE'}]"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione tipo de regla"
+        [disabled]="guardandoRegla">
+      </p-dropdown>
+    </div>
+
+    <!-- Soles por Punto -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="solesPorPunto" style="font-weight: 600;">Soles por Punto *</label>
+      <p-inputNumber
+        id="solesPorPunto"
+        [(ngModel)]="formularioRegla.solesPorPunto"
+        [min]="0.01"
+        [max]="1000"
+        [step]="0.1"
+        mode="decimal"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        prefix="S/ "
+        placeholder="Ingrese monto"
+        [disabled]="guardandoRegla">
+      </p-inputNumber>
+      <small style="color: #666;">Cantidad de soles necesarios para ganar 1 punto</small>
+    </div>
+
+    <!-- Descripción -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="estadoRegla" style="font-weight: 600;">Descripción *</label>
+      <input 
+        id="estadoRegla"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioRegla.estado"
+        placeholder="Ej: Regla activa, Promoción especial"
+        [disabled]="guardandoRegla" />
+    </div>
+
+    <!-- Activo -->
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <p-checkbox 
+        [(ngModel)]="formularioRegla.activo" 
+        [binary]="true"
+        inputId="activoRegla"
+        [disabled]="guardandoRegla">
+      </p-checkbox>
+      <label for="activoRegla" style="margin: 0; cursor: pointer;">Regla activa</label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancelar" 
+      icon="pi pi-times"
+      class="p-button-text"
+      [disabled]="guardandoRegla"
+      (click)="cerrarDialogRegla()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      [label]="editandoRegla ? 'Actualizar' : 'Crear'"
+      icon="pi pi-check"
+      class="p-button-success"
+      [loading]="guardandoRegla"
+      (click)="guardarRegla()">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo para crear/editar configuración general -->
+<p-dialog 
+  [(visible)]="mostrarDialogConfiguracion" 
+  [header]="editandoConfiguracion ? 'Editar Configuración' : 'Nueva Configuración'"
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [closable]="!guardandoConfiguracion">
+  
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem;">
+    <!-- Clave -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="keyConfig" style="font-weight: 600;">Clave *</label>
+      <input 
+        id="keyConfig"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioConfiguracion.key"
+        placeholder="Ej: max_intentos_login, tiempo_sesion"
+        [disabled]="guardandoConfiguracion || editandoConfiguracion !== null"
+        style="font-family: monospace;" />
+      <small style="color: #666;">La clave debe ser única y no se puede modificar después de creada</small>
+    </div>
+
+    <!-- Valor -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="valueConfig" style="font-weight: 600;">Valor *</label>
+      <input 
+        id="valueConfig"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioConfiguracion.value"
+        placeholder="Ej: 3, true, configuracion@example.com"
+        [disabled]="guardandoConfiguracion"
+        style="font-family: monospace;" />
+      <small style="color: #666;">Valor de la configuración</small>
+    </div>
+
+    <!-- Descripción -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="descripcionConfig" style="font-weight: 600;">Descripción *</label>
+      <textarea 
+        id="descripcionConfig"
+        pInputTextarea 
+        [(ngModel)]="formularioConfiguracion.descripcion"
+        placeholder="Describe para qué sirve esta configuración..."
+        [disabled]="guardandoConfiguracion"
+        [rows]="3"
+        style="resize: vertical;">
+      </textarea>
+    </div>
+
+    <!-- Tipo de Valor -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="tipoValorConfig" style="font-weight: 600;">Tipo de Valor *</label>
+      <p-dropdown 
+        id="tipoValorConfig"
+        [(ngModel)]="formularioConfiguracion.valueType"
+        [options]="tiposValor"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione tipo de valor"
+        [disabled]="guardandoConfiguracion">
+      </p-dropdown>
+      <small style="color: #666;">Tipo de dato que representa el valor</small>
+    </div>
+
+    <!-- Ejemplo según el tipo -->
+    <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+      <div style="margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+        <i class="pi pi-info-circle"></i> Ejemplos según el tipo:
+      </div>
+      <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
+        <li><strong>Texto:</strong> "Hola Mundo", "admin&#64;example.com"</li>
+        <li><strong>Número:</strong> 100, 3.14, -5</li>
+        <li><strong>Booleano:</strong> true, false</li>
+        <li><strong>JSON:</strong> {{ '{' }}"key": "value", "number": 123{{ '}' }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancelar" 
+      icon="pi pi-times"
+      class="p-button-text"
+      [disabled]="guardandoConfiguracion"
+      (click)="cerrarDialogConfiguracion()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      [label]="editandoConfiguracion ? 'Actualizar' : 'Crear'"
+      icon="pi pi-check"
+      class="p-button-success"
+      [loading]="guardandoConfiguracion"
+      (click)="guardarConfiguracion()">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast para notificaciones -->
+<p-toast position="top-right"></p-toast>

@@ -1,0 +1,40 @@
+<div class="verificacion-container">
+  <div class="verificacion-card">
+    <!-- Cargando -->
+    <div *ngIf="cargando" class="loading-container">
+      <div class="spinner"></div>
+      <h2>Verificando tu cuenta...</h2>
+      <p>Por favor espera un momento</p>
+    </div>
+
+    <!-- Verificación Exitosa -->
+    <div *ngIf="verificacionExitosa && !cargando" class="success-container">
+      <div class="icon-container success">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+      </div>
+      <h1>¡Verificación Exitosa!</h1>
+      <p class="mensaje">{{ mensaje }}</p>
+      <p class="descripcion">Tu cuenta ha sido activada correctamente. Ya puedes iniciar sesión y disfrutar de todos nuestros servicios.</p>
+      <button class="btn-continuar" (click)="continuarAlInicio()">
+        Continuar al Inicio
+      </button>
+    </div>
+
+    <!-- Verificación Fallida -->
+    <div *ngIf="verificacionFallida && !cargando" class="error-container">
+      <div class="icon-container error">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </div>
+      <h1>Verificación Fallida</h1>
+      <p class="mensaje">{{ mensaje }}</p>
+      <p class="descripcion">Si necesitas un nuevo enlace de verificación, por favor contacta con soporte.</p>
+      <button class="btn-continuar" (click)="continuarAlInicio()">
+        Volver al Inicio
+      </button>
+    </div>
+  </div>
+</div>

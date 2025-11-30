@@ -48,7 +48,7 @@ describe('LoginComponent', () => {
     };
 
     const mockLoginService = {
-      getLogin: jasmine.createSpy('getLogin').and.returnValue(of({ 
+      postLogin: jasmine.createSpy('postLogin').and.returnValue(of({ 
         ok: true, 
         data: { id: 1, email: 'test@test.com' }, 
         mensaje: 'Login exitoso' 

@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LocalService } from '../../../services/local.service';
 import { MessageService as CustomMessageService } from '../../../../../../core/services/message.service';
+import { LoadingService } from '../../../../../../shared/services/loading.service';
 import { CrearLocalRequest } from '../../../interfaces/gestion-locales/crear-local.interface';
 import { ListarLocalesResponse, Data } from '../../../interfaces/gestion-locales/local.interface';
 import { RegistroUsuarioService } from '../../../../../../core/services/registro-usuario.service';
@@ -33,7 +34,6 @@ localForm: FormGroup;
   private autocompleteService!: any;
   mapLoading = true;
   localId!: number; // ID del local a editar
-  isLoading = false; // Para mostrar estado de carga
 
   // Coordenadas por defecto (Lima, Perú)
   private defaultLat = GOOGLE_MAPS_CONFIG.defaultCenter.lat;
@@ -61,7 +61,8 @@ localForm: FormGroup;
       private fb: FormBuilder,
       private localService: LocalService,
       private customMessageService: CustomMessageService,
-      private registroUsuarioService: RegistroUsuarioService
+      private registroUsuarioService: RegistroUsuarioService,
+      private loadingService: LoadingService
     ) {
       this.localForm = this.fb.group({
         nombre: ['', [Validators.required]],
@@ -93,7 +94,7 @@ localForm: FormGroup;
    * Carga los datos del local existente para edición
    */
   private cargarDatosLocal(): void {
-    this.isLoading = true;
+    this.loadingService.show();
     this.customMessageService.info('Cargando datos del local...', 'Cargando');
 
     // Primero necesitamos obtener la lista de locales y encontrar el que coincida con el ID
@@ -109,17 +110,18 @@ localForm: FormGroup;
           } else {
             this.customMessageService.error('No se encontró el local especificado', 'Error');
             this.router.navigate(['/administrador/gestionLocales']);
+            this.loadingService.hide();
           }
         } else {
           this.customMessageService.error('No se pudieron cargar los locales', 'Error');
           this.router.navigate(['/administrador/gestionLocales']);
+          this.loadingService.hide();
         }
-        this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error al cargar los datos del local:', error);
         this.customMessageService.error('Error al cargar los datos del local', 'Error');
-        this.isLoading = false;
+        this.loadingService.hide();
       }
     });
   }
@@ -153,6 +155,7 @@ localForm: FormGroup;
                   estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
                 });
                 this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+                this.loadingService.hide();
               }
               return;
             }
@@ -197,6 +200,7 @@ localForm: FormGroup;
                                   estado: localData.activo ? 'HABILITADO' : 'DESHABILITADO'
                                 });
                                 this.customMessageService.success('Datos del local cargados correctamente', 'Éxito');
+                                this.loadingService.hide();
                               }, 300);
                             }, 300);
                           } else {
@@ -231,6 +235,7 @@ localForm: FormGroup;
       error: (error) => {
         console.error('Error al cargar departamentos:', error);
         this.customMessageService.error('Error al cargar los datos de ubicación', 'Error');
+        this.loadingService.hide();
       }
     });
   }
@@ -246,7 +251,7 @@ localForm: FormGroup;
 
     const checkGoogleMaps = () => {
       attempts++;
-      
+
       if (typeof google !== 'undefined' && google.maps) {
         console.log('Google Maps cargado correctamente');
         setTimeout(() => {
@@ -328,7 +333,7 @@ localForm: FormGroup;
       const infoWindow = new google.maps.InfoWindow({
         content: '📍 Ubicación del local<br><small>Arrastra para ajustar la posición</small>'
       });
-      
+
       // Mostrar InfoWindow inicial
       infoWindow.open(this.map, this.marker);
 
@@ -374,7 +379,7 @@ localForm: FormGroup;
     const infoWindow = new google.maps.InfoWindow({
       content: `📍 Ubicación del local<br><small>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</small>`
     });
-    
+
     // Mostrar InfoWindow actualizada
     infoWindow.open(this.map, this.marker);
 
@@ -481,60 +486,12 @@ localForm: FormGroup;
     });
   }
 
-  centerMapOnDistrict(): void {
-    const distritoId = this.localForm.get('idDistrito')?.value;
 
-    if (!distritoId) {
-      this.customMessageService.warn(
-        'Por favor seleccione un distrito',
-        'Distrito no seleccionado'
-      );
-      return;
-    }
-
-    // Buscar el distrito seleccionado en la lista para obtener su nombre
-    const distritoSeleccionado = this.distritos.find(d => d.idDistrito === distritoId);
-
-    if (!distritoSeleccionado) {
-      console.warn('Distrito no encontrado en la lista:', distritoId);
-      return;
-    }
-
-    // Usar Geocoding de Google Maps para buscar el distrito
-    const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
-    const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
-    
-    const direccionBusqueda = `${distritoSeleccionado.nombre}, ${provinciaSeleccionada?.nombre}, ${departamentoSeleccionado?.nombre}, Perú`;
-
-    this.geocoder.geocode({ address: direccionBusqueda }, (results: any, status: any) => {
-      if (status === 'OK' && results[0]) {
-        const location = results[0].geometry.location;
-        const lat = location.lat();
-        const lng = location.lng();
-
-        // Centrar el mapa en las coordenadas encontradas
-        this.map.setCenter({ lat, lng });
-        this.map.setZoom(15);
-        this.updateMarkerPosition(lat, lng);
-
-        this.customMessageService.success(
-          `Mapa centrado en ${distritoSeleccionado.nombre}`,
-          'Ubicación encontrada'
-        );
-      } else {
-        console.warn('Geocoding falló para:', direccionBusqueda, status);
-        this.customMessageService.warn(
-          `No se pudo encontrar la ubicación exacta de ${distritoSeleccionado.nombre}. Ajusta la ubicación manualmente.`,
-          'Ubicación no encontrada'
-        );
-      }
-    });
-  }
 
   // Método para buscar dirección automáticamente
   buscarDireccion(): void {
     const direccion = this.localForm.get('direccion')?.value;
-    
+
     if (!direccion || direccion.length < 5) {
       this.customMessageService.warn(
         'Ingresa una dirección más específica para buscar',
@@ -545,11 +502,11 @@ localForm: FormGroup;
 
     // Construir dirección completa con ubigeo si está disponible
     let direccionCompleta = direccion;
-    
+
     const distritoSeleccionado = this.distritos.find(d => d.idDistrito === this.localForm.get('idDistrito')?.value);
     const provinciaSeleccionada = this.provincias.find(p => p.idProvincia === this.localForm.get('idProvincia')?.value);
     const departamentoSeleccionado = this.departamentos.find(d => d.idDepartamento === this.localForm.get('idDepartamento')?.value);
-    
+
     if (distritoSeleccionado && provinciaSeleccionada && departamentoSeleccionado) {
       direccionCompleta = `${direccion}, ${distritoSeleccionado.nombre}, ${provinciaSeleccionada.nombre}, ${departamentoSeleccionado.nombre}, Perú`;
     } else {
@@ -607,7 +564,7 @@ localForm: FormGroup;
       idDistrito: formData.idDistrito
     };
 
-    this.isLoading = true;
+    this.loadingService.show();
     this.customMessageService.info('Actualizando datos del local...', 'Procesando');
 
     // Llamar al servicio para actualizar el local
@@ -628,7 +585,7 @@ localForm: FormGroup;
         } else {
           this.customMessageService.error(response.mensaje || 'Error al actualizar el local', 'Error');
         }
-        this.isLoading = false;
+        this.loadingService.hide();
       },
       error: (error) => {
         console.error('Error al actualizar el local:', error);
@@ -636,7 +593,7 @@ localForm: FormGroup;
           'Error al actualizar el local. Por favor, inténtelo de nuevo.',
           'Error de conexión'
         );
-        this.isLoading = false;
+        this.loadingService.hide();
       }
     });
   }

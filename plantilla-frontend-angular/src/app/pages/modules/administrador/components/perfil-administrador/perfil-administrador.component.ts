@@ -8,6 +8,7 @@ import { SessionService } from '../../../../../shared/services/session.service';
 import { MessageService } from '../../../../../core/services/message.service';
 import { Data as PerfilData } from '../../interfaces/perfil-administrador/perfilAdministradorResponse.interface';
 import { ActualizarPerfilRequest } from '../../interfaces/perfil-administrador/actualizar-perfil.interface';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 interface TipoDocumento {
   nombre: string;
@@ -34,7 +35,8 @@ export class PerfilAdministradorComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private router: Router,
     private perfilService: PerfilAdministradorService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private loadingService: LoadingService
   ) {
     this.tiposDocumento = [
       { nombre: 'Cédula de Ciudadanía', valor: 'CC' },
@@ -111,11 +113,13 @@ export class PerfilAdministradorComponent implements OnInit, OnDestroy {
               'Error'
             );
           }
+          this.loadingService.hide();
           this.isLoading = false;
         },
         error: (error) => {
           console.error('Error al cargar perfil:', error);
           this.messageService.handleHttpError(error);
+          this.loadingService.hide();
           this.isLoading = false;
         }
       });

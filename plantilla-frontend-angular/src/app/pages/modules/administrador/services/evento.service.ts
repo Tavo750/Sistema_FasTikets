@@ -10,6 +10,7 @@ import { CrearEventoResponse, CrearEventoRequest } from '../interfaces/gestion-e
 import { EliminaEventoResponse } from '../interfaces/gestion-evento/elimina-evento.interface';
 import { EntradaResponse, EntradaResponseArray } from '../interfaces/gestion-evento/entrada.interface';
 import { EliminaEntradaResponse } from '../interfaces/gestion-evento/elimina-entrada.interface';
+import { CargaMasivaEventoResponse } from '../interfaces/gestion-evento/carga-masivo-evento.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -104,13 +105,14 @@ export class EventoService {
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
+    formData.append('fechaFinEvento', body.fechaFinEvento);
     formData.append('horaInicio', body.horaInicio);
     formData.append('horaFin', body.horaFin);
     formData.append('tipoEvento', body.tipoEvento);
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
+
     // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
     formData.append('restricciones', body.restricciones || '');
     formData.append('politicasDevolucion', body.politicasDevolucion || '');
@@ -171,13 +173,14 @@ export class EventoService {
     formData.append('nombre', body.nombre);
     formData.append('descripcion', body.descripcion);
     formData.append('fechaEvento', body.fechaEvento);
+    formData.append('fechaFinEvento', body.fechaFinEvento);
     formData.append('horaInicio', body.horaInicio);
     formData.append('horaFin', body.horaFin);
     formData.append('tipoEvento', body.tipoEvento);
     formData.append('estadoEvento', body.estadoEvento);
     formData.append('aforoDisponible', body.aforoDisponible.toString());
     formData.append('idLocal', body.idLocal.toString());
-    
+
     // Agregar campos opcionales (siempre enviar, incluso si están vacíos)
     formData.append('restricciones', body.restricciones || '');
     formData.append('politicasDevolucion', body.politicasDevolucion || '');
@@ -261,7 +264,7 @@ export class EventoService {
   }
 
   // ========================= reportes ======================
-  
+
   /**
    * Descarga el reporte PDF de ventas de un evento específico
    * @param idEvento ID del evento para el cual se generará el reporte
@@ -270,8 +273,8 @@ export class EventoService {
   descargarReporteVentasPDF(idEvento: number): Observable<Blob> {
     const url = `${baseUrl}/eventos/${idEvento}/reporte/ventas/pdf`;
     console.log('📝 Descargando reporte de ventas para evento ID:', idEvento);
-    
-    return this.http.get(url, { 
+
+    return this.http.get(url, {
       responseType: 'blob',
       headers: {
         'Accept': 'application/pdf'
@@ -283,6 +286,25 @@ export class EventoService {
         return this.httpUtils.handleError(error);
       })
     );
+  }
+
+  // ========================= carga masiva ======================
+
+  /**
+   * Carga masiva de eventos mediante archivo Excel
+   * @param file Archivo Excel con los datos de los eventos
+   * @returns Observable con la respuesta del servidor
+   */
+  postCargaMasivaEventos(file: File): Observable<CargaMasivaEventoResponse> {
+    const url = `${baseUrl}/admin/carga-masiva/eventos`;
+    const formData = new FormData();
+    // Agregar el archivo con su nombre explícito (tercer parámetro)
+    formData.append('file', file, file.name);
+
+    return this.http.post<CargaMasivaEventoResponse>(url, formData)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
   }
 
 }

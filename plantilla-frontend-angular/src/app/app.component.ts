@@ -1,5 +1,6 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { InactivityService } from './shared/services/inactivity.service';
+import { FavoritosStateService } from './shared/services/favoritos-state.service';
 import { PrimeNG } from 'primeng/config';
 import * as global from './global';
 import { FullscreenService } from './shared/services/fullscreen.service';
@@ -27,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private primeng: PrimeNG,
     private fullscreenService: FullscreenService,
     private themeService: ThemeService,
-
+    private favoritosStateService: FavoritosStateService // Inyectar para inicializar
   ) {
   }
 

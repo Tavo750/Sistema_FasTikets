@@ -10,6 +10,8 @@ import { RegistroResponse, RegistroUsuario } from '../../../core/interfaces/regi
 import { TipoDocumento } from '../../../core/interfaces/tipo-documento.enum';
 import { MessageService } from '../../../core/services/message.service';
 import { Departamento, Distrito, Provincia } from '../../../core/interfaces/ubigeo.interface';
+import { CambiarContraService } from '../../../core/services/cambiar-contra.service';
+import { LoadingService } from '../../../shared/services/loading.service';
 
 
 @Component({
@@ -29,20 +31,90 @@ export class CrearUsuarioComponent implements OnInit {
   loadingProvincias = false;
   loadingDistritos = false;
 
+  // Opciones para el select de tipo de documento
+  tiposDocumentoOptions = [
+    { label: 'DNI', value: 'DNI' },
+    { label: 'Pasaporte', value: 'PASAPORTE' },
+    { label: 'Carnet de Extranjería', value: 'ce' }
+  ];
+
+  // Fecha máxima para el datepicker (hoy)
+  maxDate: Date = new Date();
+
+  // Dominios permitidos para el correo electrónico
+  private dominiosPermitidos = ['gmail.com', 'pucp.edu.pe', 'uni.pe', 'hotmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'unmsm.edu.pe'];
+
+  // Fecha máxima permitida (15 años atrás desde hoy)
+  fechaMaxima: string;
+
+  /**
+   * Validador personalizado para verificar que el dominio del email esté permitido
+   */
+  validadorDominioEmail = (control: any) => {
+    if (!control.value) {
+      return null;
+    }
+
+    const email = control.value.toLowerCase();
+    const dominio = email.split('@')[1];
+
+    if (!dominio || !this.dominiosPermitidos.includes(dominio)) {
+      return { dominioNoPermitido: true };
+    }
+
+    return null;
+  }
+
+  /**
+   * Validador personalizado para verificar que la fecha no sea futura y que tenga al menos 15 años
+   */
+  validadorFechaNoFutura = (control: any) => {
+    if (!control.value) {
+      return null;
+    }
+
+    const fechaSeleccionada = new Date(control.value);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Resetear horas para comparar solo la fecha
+
+    // Validar que no sea una fecha futura
+    if (fechaSeleccionada > hoy) {
+      return { fechaFutura: true };
+    }
+
+    // Calcular edad mínima (15 años)
+    const fechaMinima = new Date();
+    fechaMinima.setFullYear(fechaMinima.getFullYear() - 15);
+    fechaMinima.setHours(0, 0, 0, 0);
+
+    // Validar que tenga al menos 15 años
+    if (fechaSeleccionada > fechaMinima) {
+      return { edadMinima: true };
+    }
+
+    return null;
+  }
+
   constructor(
     public router: Router,
     private fb: FormBuilder,
     private dialogService: DialogService,
     private registroUsuarioService: RegistroUsuarioService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private loadingService: LoadingService
   ) {
+    // Calcular fecha máxima (15 años atrás desde hoy)
+    const hoy = new Date();
+    const fechaMax = new Date(hoy.getFullYear() - 15, hoy.getMonth(), hoy.getDate());
+    this.fechaMaxima = fechaMax.toISOString().split('T')[0];
+
     this.registroForm = this.fb.group({
       nombres: ['', Validators.required],
       apellidos: ['', Validators.required],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: ['', [Validators.required, Validators.email, this.validadorDominioEmail]],
       contrasena: ['', Validators.required],
       repitaContrasena: ['', Validators.required],
-      fechaNacimiento: ['', Validators.required],
+      fechaNacimiento: ['', [Validators.required, this.validadorFechaNoFutura]],
       departamento: ['', Validators.required],
       provincia: ['', Validators.required],
       distrito: ['', Validators.required],
@@ -71,7 +143,6 @@ cargarDepartamentos(): void {
       }
     },
     error: (error) => {
-      console.error('Error al cargar departamentos:', error);
       this.messageService.error('Error al cargar departamentos');
     }
   });
@@ -95,14 +166,11 @@ setupDepartamentoListener(): void {
           if (response.ok && response.data) {
             this.provincias = response.data;
           } else {
-            console.error('Error al cargar provincias:', response.mensaje);
             this.messageService.error(response.mensaje || 'Error al cargar provincias');
           }
           this.loadingProvincias = false;
         },
         error: (error) => {
-
-          console.error('Error al cargar provincias:', error);
           this.messageService.error('Error al cargar provincias');
           this.loadingProvincias = false;
         }
@@ -124,13 +192,11 @@ setupProvinciaListener(): void {
           if (response.ok && response.data) {
             this.distritos = response.data;
           } else {
-            console.error('Error al cargar distritos:', response.mensaje);
             this.messageService.error(response.mensaje || 'Error al cargar distritos');
           }
           this.loadingDistritos = false;
         },
         error: (error) => {
-          console.error('Error al cargar distritos:', error);
           this.messageService.error('Error al cargar distritos');
           this.loadingDistritos = false;
         }
@@ -171,7 +237,7 @@ setupProvinciaListener(): void {
 
     this.dialogRef.onClose.subscribe((acepto: boolean) => {
       if (acepto) {
-        console.log('Términos aceptados');
+        // Términos aceptados
       }
     });
   }
@@ -190,7 +256,7 @@ setupProvinciaListener(): void {
     });
 
     this.dialogRef.onClose.subscribe((result: any) => {
-      console.log('Dialog exitoso cerrado');
+      // Dialog exitoso cerrado
     });
   }
 
@@ -202,72 +268,8 @@ setupProvinciaListener(): void {
         return;
       }
 
-      // Formatear la fecha de nacimiento a ISO string si es un objeto Date
-      const fechaNacimiento = this.registroForm.get('fechaNacimiento')?.value;
-      const fechaFormateada = fechaNacimiento instanceof Date ?
-        fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
-
-      const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
-
-      const usuario: RegistroUsuario = {
-        tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
-        docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
-        nombres: this.registroForm.get('nombres')?.value.trim(),
-        apellidos: this.registroForm.get('apellidos')?.value.trim(),
-        email: email,
-        contrasena: this.registroForm.get('contrasena')?.value,
-        telefono: this.registroForm.get('telefono')?.value.trim(),
-        fechaNacimiento: fechaFormateada,
-        direccion: this.registroForm.get('direccion')?.value.trim(),
-        idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1   // aqui se debe cambiar por el id del distrito seleccionado
-      };
-
-      // Validar que todos los campos requeridos tengan valor
-      for (const [key, value] of Object.entries(usuario)) {
-        if (!value && value !== 0) {
-          this.messageService.error(`El campo ${key} es requerido`);
-          return;
-        }
-      }
-
-      this.registroUsuarioService.postRegistro(usuario).subscribe({
-        next: (response: any) => {
-          // Verificar si la respuesta tiene la estructura esperada
-          if (response && typeof response === 'object') {
-            if (response.ok && response.data && response.data.exito) {
-              this.messageService.success(response.data.mensaje || 'Usuario registrado exitosamente');
-              this.mostrarDialogExitoso();
-              this.registroForm.reset();
-            } else if (response.ok === false) {
-              this.messageService.error(response.data?.mensaje || response.mensaje || 'Error en el registro');
-            } else {
-              // Respuesta exitosa pero estructura diferente
-              this.messageService.success('Usuario registrado exitosamente');
-              this.mostrarDialogExitoso();
-              this.registroForm.reset();
-            }
-          } else {
-            // Respuesta exitosa sin estructura JSON (posible texto plano)
-            this.messageService.success('Usuario registrado exitosamente');
-            this.mostrarDialogExitoso();
-            this.registroForm.reset();
-          }
-        },
-        error: (error) => {
-          let mensajeError = 'Error en el registro';
-
-          // Si el error tiene estructura de respuesta HTTP
-          if (error?.error) {
-            mensajeError = error.error.mensaje || error.error.message || mensajeError;
-          } else if (error?.mensaje) {
-            mensajeError = error.mensaje;
-          } else if (error?.message) {
-            mensajeError = error.message;
-          }
-
-          this.messageService.error(mensajeError);
-        },
-      });
+      // Registrar usuario directamente
+      this.registrarUsuario();
     } else {
       // Marcar todos los campos como tocados para mostrar los errores
       Object.keys(this.registroForm.controls).forEach(key => {
@@ -297,6 +299,9 @@ setupProvinciaListener(): void {
               case 'departamento':
                 errorMessage = 'Debe seleccionar un Departamento';
                 break;
+              case 'provincia':
+                errorMessage = 'Debe seleccionar una Provincia';
+                break;
               case 'distrito':
                 errorMessage = 'Debe seleccionar un Distrito';
                 break;
@@ -317,6 +322,12 @@ setupProvinciaListener(): void {
             }
           } else if (control.errors['email']) {
             errorMessage = 'El formato del correo electrónico no es válido';
+          } else if (control.errors['dominioNoPermitido']) {
+            errorMessage = 'El dominio del correo no está permitido. Use: gmail.com, pucp.edu.pe, uni.pe, hotmail.com, yahoo.com, outlook.com, icloud.com o unmsm.edu.pe';
+          } else if (control.errors['fechaFutura']) {
+            errorMessage = 'La fecha de nacimiento no puede ser una fecha futura';
+          } else if (control.errors['edadMinima']) {
+            errorMessage = 'Debes tener al menos 15 años para registrarte';
           } else if (control.errors['pattern']) {
             if (key === 'numeroDocumento') {
               errorMessage = 'El número de documento debe tener exactamente 8 dígitos numéricos';
@@ -329,6 +340,79 @@ setupProvinciaListener(): void {
         control?.markAsTouched();
       });
     }
+  }
+
+  /**
+   * Registra el usuario
+   */
+  registrarUsuario(): void {
+    // Formatear la fecha de nacimiento a ISO string si es un objeto Date
+    const fechaNacimiento = this.registroForm.get('fechaNacimiento')?.value;
+    const fechaFormateada = fechaNacimiento instanceof Date ?
+      fechaNacimiento.toISOString().split('T')[0] : fechaNacimiento;
+
+    const usuario: RegistroUsuario = {
+      tipoDocumento: this.registroForm.get('tipoDocumento')?.value,
+      docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
+      nombres: this.registroForm.get('nombres')?.value.trim(),
+      apellidos: this.registroForm.get('apellidos')?.value.trim(),
+      email: this.registroForm.get('correo')?.value.trim().toLowerCase(),
+      contrasena: this.registroForm.get('contrasena')?.value,
+      telefono: this.registroForm.get('telefono')?.value.trim(),
+      fechaNacimiento: fechaFormateada,
+      direccion: this.registroForm.get('direccion')?.value.trim(),
+      idDistrito: parseInt(this.registroForm.get('distrito')?.value) || 1
+    };
+
+    // Validar que todos los campos requeridos tengan valor
+    for (const [key, value] of Object.entries(usuario)) {
+      if (!value && value !== 0) {
+        this.messageService.error(`El campo ${key} es requerido`);
+        return;
+      }
+    }
+
+    this.loadingService.show();
+    this.registroUsuarioService.postRegistro(usuario).subscribe({
+      next: (response: any) => {
+        this.loadingService.hide();
+        // Verificar si la respuesta tiene la estructura esperada
+        if (response && typeof response === 'object') {
+          if (response.ok && response.data && response.data.exito) {
+            this.messageService.success(response.data.mensaje || 'Usuario registrado exitosamente');
+            this.mostrarDialogExitoso();
+            this.registroForm.reset();
+          } else if (response.ok === false) {
+            this.messageService.error(response.data?.mensaje || response.mensaje || 'Error en el registro');
+          } else {
+            // Respuesta exitosa pero estructura diferente
+            this.messageService.success('Usuario registrado exitosamente');
+            this.mostrarDialogExitoso();
+            this.registroForm.reset();
+          }
+        } else {
+          // Respuesta exitosa sin estructura JSON (posible texto plano)
+          this.messageService.success('Usuario registrado exitosamente');
+          this.mostrarDialogExitoso();
+          this.registroForm.reset();
+        }
+      },
+      error: (error) => {
+        this.loadingService.hide();
+        let mensajeError = 'Error en el registro';
+
+        // Si el error tiene estructura de respuesta HTTP
+        if (error?.error) {
+          mensajeError = error.error.mensaje || error.error.message || mensajeError;
+        } else if (error?.mensaje) {
+          mensajeError = error.mensaje;
+        } else if (error?.message) {
+          mensajeError = error.message;
+        }
+
+        this.messageService.error(mensajeError);
+      },
+    });
   }
 
   /**

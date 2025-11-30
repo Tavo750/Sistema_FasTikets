@@ -136,7 +136,7 @@
 }
 
 .form-row.three-columns {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 /* Banner Section */
@@ -565,14 +565,18 @@
   width: 100%;
 }
 
-::ng-deep .calendar-up.p-datepicker {
+::ng-deep .calendar-up {
   transform-origin: bottom center !important;
 }
 
-::ng-deep .calendar-up.p-datepicker-panel {
+::ng-deep .p-datepicker.calendar-up,
+::ng-deep .p-datepicker-panel.calendar-up {
+  position: fixed !important;
   top: auto !important;
-  bottom: 100% !important;
-  margin-bottom: 0.25rem !important;
+  bottom: auto !important;
+  margin-bottom: 0.5rem !important;
+  transform-origin: center bottom !important;
+  z-index: 9999 !important;
 }
 
 ::ng-deep .p-dropdown .p-dropdown-label,
@@ -879,6 +883,14 @@
 
 ::ng-deep .estado-dropdown {
   width: 100% !important;
+}
+
+/* Hacer que el panel del dropdown de Válido Para se despliegue hacia arriba */
+::ng-deep .p-dropdown-panel-up {
+  top: auto !important;
+  bottom: 100% !important;
+  transform-origin: center bottom !important;
+  margin-bottom: 0.25rem !important;
 }
 
 /* Estilos para entradas disponibles */

@@ -278,6 +278,10 @@
   color: #495057;
 }
 
+.status-cell {
+  text-align: center;
+}
+
 /* Actions Column */
 .actions-column {
   width: 150px;
@@ -359,28 +363,40 @@
 /* Tags customization */
 ::ng-deep .p-tag {
   font-weight: 600;
-  padding: 0.4rem 1rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+::ng-deep .p-tag .p-tag-icon {
+  font-size: 0.875rem;
 }
 
 ::ng-deep .p-tag-success {
-  background: #d1fae5;
-  color: #047857;
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  border: 1px solid #10b981;
 }
 
 ::ng-deep .p-tag-info {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #3b82f6;
 }
 
 ::ng-deep .p-tag-warning {
-  background: #fef3c7;
-  color: #d97706;
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid #f59e0b;
 }
 
 ::ng-deep .p-tag-danger {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #ef4444;
 }
 
 /* Responsive */

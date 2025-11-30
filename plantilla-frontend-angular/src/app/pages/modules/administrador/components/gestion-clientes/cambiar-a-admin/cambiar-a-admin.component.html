@@ -1,0 +1,165 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="container">
+  <div class="header-section">
+    <h1 class="title">
+      <i class="pi pi-user-plus"></i>
+      Cambiar Cliente a Administrador
+    </h1>
+    <p-button
+      label="Volver"
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      (onClick)="volver()">
+    </p-button>
+  </div>
+
+  <p-card *ngIf="loading" class="loading-card">
+    <div class="loading-content">
+      <p-progressSpinner></p-progressSpinner>
+      <p>Cargando datos del cliente...</p>
+    </div>
+  </p-card>
+
+  <p-card *ngIf="!loading && cliente" class="form-card">
+    <ng-template pTemplate="header">
+      <div class="card-header">
+        <h3>
+          <i class="pi pi-user"></i>
+          Información del Cliente
+        </h3>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <div class="client-info">
+        <div class="info-row">
+          <span class="label">Nombre Completo:</span>
+          <span class="value">{{ clienteNombre }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">{{ cliente.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">DNI:</span>
+          <span class="value">{{ cliente.docIdentidad }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Teléfono:</span>
+          <span class="value">{{ cliente.telefono }}</span>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4 class="section-title">
+          <i class="pi pi-briefcase"></i>
+          Asignar Cargo de Administrador
+        </h4>
+
+        <div class="field">
+          <label for="cargo" class="required">Cargo:</label>
+          <p-dropdown
+            id="cargo"
+            [(ngModel)]="cargoSeleccionado"
+            [options]="cargosDisponibles"
+            placeholder="Seleccione un cargo"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            [showClear]="true">
+          </p-dropdown>
+          <small class="field-hint">Seleccione el cargo que tendrá el nuevo administrador</small>
+        </div>
+
+        <div class="warning-box">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div>
+            <p><strong>Advertencia:</strong></p>
+            <p>Al realizar esta acción, el cliente será convertido en administrador y tendrá acceso al panel administrativo según el cargo asignado.</p>
+            <p>Esta acción requiere confirmación con clave.</p>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="form-actions">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          (onClick)="volver()">
+        </p-button>
+        <p-button
+          label="Cambiar a Administrador"
+          icon="pi pi-check"
+          severity="success"
+          [disabled]="!cargoSeleccionado"
+          (onClick)="abrirConfirmacion()">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>
+
+<!-- Dialog de Confirmación con Clave -->
+<p-dialog
+  [(visible)]="mostrarDialogConfirmacion"
+  header="Confirmar Cambio a Administrador"
+  [modal]="true"
+  [style]="{'width': '500px'}"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="!guardando"
+  styleClass="confirm-dialog">
+
+  <div class="dialog-content">
+    <div class="confirm-info">
+      <i class="pi pi-shield icon-large"></i>
+      <p><strong>Cliente:</strong> {{ clienteNombre }}</p>
+      <p><strong>Cargo asignado:</strong> {{ cargoSeleccionado }}</p>
+    </div>
+
+    <div class="field">
+      <label for="clave" class="required">Ingrese clave de confirmación:</label>
+      <p-password
+        id="clave"
+        [(ngModel)]="claveConfirmacion"
+        placeholder="Clave de confirmación"
+        [toggleMask]="true"
+        [feedback]="false"
+        class="w-full"
+        [disabled]="guardando"
+        inputStyleClass="w-full">
+      </p-password>
+      <small class="field-hint">Ingrese la clave de administrador para confirmar el cambio</small>
+    </div>
+
+    <div class="alert-box">
+      <i class="pi pi-info-circle"></i>
+      <p>Esta acción es irreversible. El cliente se convertirá en administrador inmediatamente.</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="mostrarDialogConfirmacion = false"
+        [disabled]="guardando">
+      </p-button>
+      <p-button
+        label="Confirmar"
+        [icon]="guardando ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+        severity="success"
+        (onClick)="confirmarCambio()"
+        [disabled]="guardando || !claveConfirmacion"
+        [loading]="guardando">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

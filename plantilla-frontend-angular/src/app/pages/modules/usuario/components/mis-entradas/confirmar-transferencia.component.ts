@@ -44,7 +44,7 @@ export class ConfirmarTransferenciaComponent {
       mensaje: this.data?.mensaje ?? ''
     };
 
-    const url = 'http://localhost:8081/api/v1/transferencias/solicitudes';
+    const url = 'https://api.francoricra.online/api/v1/transferencias/solicitudes';
     this.isSubmitting = true;
 
     this.http.post(url, body).subscribe({

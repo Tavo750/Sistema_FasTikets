@@ -19,4 +19,5 @@ export interface Data {
     edad: number;
     fechaCreacion: string;
     verificado: boolean;
+    activo: boolean;
 }

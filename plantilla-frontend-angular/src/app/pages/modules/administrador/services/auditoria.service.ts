@@ -23,25 +23,21 @@ export class AuditoriaService {
   getListarAuditoria(): Observable<AuditoriaResponse> {
     // Intentar primero con el endpoint que mostró el usuario
     const url = `${baseUrl}/admin/audit/`;
-    console.log('🔍 Cargando registros de auditoría desde:', url);
-    console.log('🌐 Base URL configurada:', baseUrl);
+    
     
     return this.http.get<AuditoriaResponse>(url)
       .pipe(
         catchError((error) => {
-          console.error('❌ Error al obtener registros de auditoría:', error);
-          console.error('❌ URL intentada:', url);
-          console.error('❌ Status:', error.status);
-          console.error('❌ Error completo:', error);
+          
           
           // Si falla con slash, intentar sin slash
           if (url.endsWith('/')) {
             const urlSinSlash = url.slice(0, -1);
-            console.log('🔄 Reintentando sin slash final:', urlSinSlash);
+            
             
             return this.http.get<AuditoriaResponse>(urlSinSlash).pipe(
               catchError((secondError) => {
-                console.error('❌ También falló sin slash:', secondError);
+                
                 return this.httpUtils.handleError(secondError);
               })
             );

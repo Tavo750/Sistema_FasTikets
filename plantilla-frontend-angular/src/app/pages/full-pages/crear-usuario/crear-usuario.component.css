@@ -209,3 +209,225 @@ select{
   .btn-login{ height:38px; width:190px; }
   .form-row{ gap:8px; margin:4px 0; }
 }
+
+/* ===== Modal de Verificación ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+  font-family: Arial, sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8e8e8;
+  background: #f8f9fa;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.btn-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 28px 24px;
+}
+
+.modal-description {
+  margin: 0 0 24px 0;
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.modal-description strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.codigo-input-container {
+  margin-bottom: 28px;
+}
+
+.codigo-input-container label {
+  display: block;
+  margin-bottom: 14px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  text-align: center;
+}
+
+.codigo-boxes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.codigo-box {
+  width: 50px;
+  height: 56px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid #d0d0d0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.codigo-box:focus {
+  border-color: #333;
+  box-shadow: 0 0 0 3px rgba(51, 51, 51, 0.1);
+}
+
+.codigo-box:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-verificar,
+.btn-reenviar {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-verificar {
+  background: #333;
+  color: #fff;
+}
+
+.btn-verificar:hover:not(:disabled) {
+  background: #1a1a1a;
+}
+
+.btn-verificar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-reenviar {
+  background: #fff;
+  color: #333;
+  border: 2px solid #d0d0d0;
+}
+
+.btn-reenviar:hover:not(:disabled) {
+  background: #f5f5f5;
+  border-color: #b0b0b0;
+}
+
+.btn-reenviar:disabled {
+  background: #f9f9f9;
+  color: #999;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/* Responsive para el modal */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    margin: 0 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 20px;
+  }
+
+  .modal-body {
+    padding: 24px 16px;
+  }
+
+  .modal-description {
+    font-size: 14px;
+  }
+
+  .codigo-boxes {
+    gap: 6px;
+  }
+
+  .codigo-box {
+    width: 42px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+

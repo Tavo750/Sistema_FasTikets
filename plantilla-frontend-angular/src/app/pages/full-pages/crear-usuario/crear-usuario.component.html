@@ -31,7 +31,7 @@
 
       <div class="form-row">
         <div class="form-group form-group-date">
-          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" required>
+          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" [max]="maxDate | date:'yyyy-MM-dd'" required>
         </div>
 
         <!-- Departamento -->

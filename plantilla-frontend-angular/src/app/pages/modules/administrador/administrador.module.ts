@@ -33,6 +33,8 @@ import { RegistroCodigosPromoComponent } from './components/codigos-promocionale
 import { EditarRegistroPromoComponent } from './components/codigos-promocionales/editar-registro-promo/editar-registro-promo.component';
 import { DetalleRegistroPromoComponent } from './components/codigos-promocionales/detalle-registro-promo/detalle-registro-promo.component';
 import { GestionAdministadoresComponent } from './components/gestion-administadores/gestion-administadores.component';
+import { CambiarAAdminComponent } from './components/gestion-clientes/cambiar-a-admin/cambiar-a-admin.component';
+import { ConfiguracionGeneralComponent } from './components/configuracion-general/configuracion-general.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +56,9 @@ import { GestionAdministadoresComponent } from './components/gestion-administado
     RegistroCodigosPromoComponent,
     EditarRegistroPromoComponent,
     DetalleRegistroPromoComponent,
-    GestionAdministadoresComponent
+    GestionAdministadoresComponent,
+    CambiarAAdminComponent,
+    ConfiguracionGeneralComponent
   ],
   imports: [
     CommonModule,

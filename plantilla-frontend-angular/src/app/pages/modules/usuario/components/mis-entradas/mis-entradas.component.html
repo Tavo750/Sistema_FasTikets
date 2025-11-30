@@ -47,6 +47,66 @@
 		</p-card>
 	</div>
 
+	<!-- Dialogo: confirmar aceptación de solicitud -->
+	<p-dialog header="Confirmar aceptación" [(visible)]="showAcceptDialog" modal="true" [closable]="false" [style]="{width: '420px'}">
+		<div class="confirm-accept-body">
+			<p>¿Seguro que deseas aceptar la transferencia del ticket <strong>{{ selectedReceivedTransfer?.id || selectedReceivedTransfer?.raw?.idTicket }}</strong> enviado por <strong>{{ selectedReceivedTransfer?.fromUser }}</strong>?</p>
+		</div>
+		<div class="dialog-actions" style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1rem;">
+			<button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancelAccept()"></button>
+			<button pButton type="button" label="Aceptar transferencia" class="p-button-success" (click)="confirmAccept()" [loading]="isProcessingAccept"></button>
+		</div>
+	</p-dialog>
+
+	<!-- Dialogo: confirmar rechazo de solicitud -->
+	<p-dialog header="Confirmar rechazo" [(visible)]="showCancelDialog" modal="true" [closable]="false" [style]="{width: '420px'}">
+		<div class="confirm-cancel-body">
+			<p>¿Seguro que deseas rechazar la transferencia del ticket <strong>{{ selectedCancelTransfer?.id || selectedCancelTransfer?.raw?.idTicket }}</strong> enviado por <strong>{{ selectedCancelTransfer?.fromUser }}</strong>?</p>
+		</div>
+		<div class="dialog-actions" style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:1rem;">
+			<button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="cancelCancel()"></button>
+			<button pButton type="button" label="Rechazar transferencia" class="p-button-danger" (click)="confirmCancel()" [loading]="isProcessingCancel"></button>
+		</div>
+	</p-dialog>
+
 	<!-- Interfaz de transferencia eliminada del componente -->
+
+	<!-- Sección: Solicitudes de Transferencias recibidas -->
+	<div class="entries-card received-transfers-card mt-4">
+		<p-card>
+			<h3 class="entries-title">Solicitudes de transferencias</h3>
+			<p *ngIf="isLoadingReceivedTransfers">Cargando solicitudes recibidas...</p>
+			<p *ngIf="!isLoadingReceivedTransfers && (!receivedTransfers || receivedTransfers.length === 0)">No tienes solicitudes de transferencia como destinatario.</p>
+			<p-table *ngIf="receivedTransfers && receivedTransfers.length" [value]="receivedTransfers" responsiveLayout="scroll">
+				<ng-template pTemplate="header">
+					<tr>
+						<th>ID</th>
+						<th>Remitente</th>
+						<th>Evento</th>
+						<th>Fecha evento</th>
+						<th>Fecha de expiración</th>
+						<th>Estado</th>
+						<th>Acciones</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-tr>
+					<tr>
+						<td>{{ tr.id }}</td>
+						<td>{{ tr.fromUser }}</td>
+						<td>{{ tr.eventName }}</td>
+						<td>{{ tr.eventDate }}</td>
+						<td>{{ tr.expirationDate }}</td>
+						<td>{{ tr.status }}</td>
+						<td>
+							<div style="display:flex; gap:8px;">
+								<button *ngIf="tr.status === 'PENDIENTE'" pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-sm p-button-success" (click)="openAcceptDialog(tr)"></button>
+								<button *ngIf="tr.status === 'PENDIENTE'" pButton type="button" icon="pi pi-times" class="p-button-rounded p-button-sm p-button-danger" (click)="openCancelDialog(tr)"></button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</p-card>
+	</div>
 
 </div>

@@ -151,6 +151,20 @@
 
             <div class="form-field">
               <label class="field-label">
+                <i class="pi pi-calendar"></i>
+                Fecha fin del evento
+              </label>
+              <p-datepicker
+                [(ngModel)]="dateFin"
+                dateFormat="dd/mm/yy"
+                styleClass="form-input"
+                panelStyleClass="calendar-up"
+                [minDate]="date"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
                 <i class="pi pi-clock"></i>
                 Hora de finalización
               </label>
@@ -571,6 +585,8 @@
               dateFormat="dd/mm/yy"
               styleClass="form-input"
               placeholder="Seleccionar fecha"
+              [showIcon]="true"
+              appendTo="body"
             ></p-datepicker>
           </div>
 
@@ -584,6 +600,8 @@
               dateFormat="dd/mm/yy"
               styleClass="form-input"
               placeholder="Seleccionar fecha"
+              [showIcon]="true"
+              appendTo="body"
             ></p-datepicker>
           </div>
 
@@ -599,6 +617,7 @@
               optionValue="value"
               placeholder="Seleccionar categoría..."
               styleClass="form-input"
+              panelStyleClass="p-dropdown-panel-up"
               (onChange)="onValidoParaSeleccionado($event)"
             ></p-dropdown>
           </div>
@@ -724,7 +743,7 @@
         </div>
 
         <!-- Límite de compra -->
-        <div class="limite-compra-section">
+        <!-- <div class="limite-compra-section">
           <label class="field-label">
             <i class="pi pi-shield"></i>
             Límite de compra por persona
@@ -759,7 +778,7 @@
               <span>entradas</span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </p-card>
 

@@ -5,6 +5,7 @@ import { BeneficiosResponse } from '../../interfaces/beneficios/beneficios.inter
 import { HistorialPuntosService } from '../../services/historial-puntos.service';
 import { HistorialPuntosResponse, Datum } from '../../interfaces/beneficios/historial-puntos.interface';
 import { LoginService } from '../../../../../core/services/login.service';
+import { LoadingService } from '../../../../../shared/services/loading.service';
 
 type Tier = 'BRONCE' | 'PLATA' | 'ORO' | 'BLACK';
 type EstadoPuntos = 'Vigentes' | 'Canjeado';
@@ -68,19 +69,18 @@ export class BeneficiosComponent implements OnInit {
   // Beneficios (mock)
   benefitsByTier: Record<Tier, string[]> = {
     BRONCE: [
-      'Descuento del 10% en compras',
       'Acceso a preventas seleccionadas',
       'Soporte estándar',
       'Acumulación de puntos'
     ],
     PLATA: [
-      'Descuento del 25% en todas las entradas',
+      'Descuento del 5% en todas las entradas',
       'Puntos dobles en compras',
       'Acceso exclusivo a pre-ventas',
       'Beneficios especiales en lanzamientos'
     ],
     ORO: [
-      'Descuento del 40% en todas las entradas',
+      'Descuento del 10% en todas las entradas',
       'Puntos triples en compras',
       'Acceso exclusivo a pre-ventas',
       'Beneficios especiales en lanzamientos',
@@ -101,11 +101,12 @@ export class BeneficiosComponent implements OnInit {
   isLoadingHistory = false;
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private route: ActivatedRoute,
     private beneficiosService: BeneficiosService,
     private historialPuntosService: HistorialPuntosService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private loadingService: LoadingService
   ) {
     // Deep-link opcional: ?tier=ORO
     const qpTier = (this.route.snapshot.queryParamMap.get('tier') as Tier) || null;
@@ -128,7 +129,7 @@ export class BeneficiosComponent implements OnInit {
     try {
       const usuario = this.loginService.getCurrentUser();
       const persona = this.loginService.getCurrentPersona();
-      
+
       if (persona && persona.nombreCompleto) {
         // Usar el nombre completo de la persona
         this.userName = persona.nombreCompleto;
@@ -139,7 +140,7 @@ export class BeneficiosComponent implements OnInit {
         // Último fallback
         this.userName = 'Usuario';
       }
-      
+
       console.log('Nombre de usuario cargado:', this.userName);
       this.isLoadingUserName = false;
     } catch (error) {
@@ -154,8 +155,9 @@ export class BeneficiosComponent implements OnInit {
    * El endpoint usa el token de autenticación para identificar automáticamente al cliente
    */
   private cargarPuntosCliente(): void {
+    this.loadingService.show();
     this.isLoadingPoints = true;
-    
+
     this.beneficiosService.getObtenerPuntosDeClienteAutenticado()
       .subscribe({
         next: (response: BeneficiosResponse) => {
@@ -163,23 +165,25 @@ export class BeneficiosComponent implements OnInit {
             // Actualizar puntos y tier dinámicamente
             this.points = response.data.puntosAcumulados;
             this.tier = this.calculateTierByPoints(this.points);
-            
+
             console.log('Cliente ID:', response.data.idCliente);
             console.log('Puntos cargados:', this.points);
             console.log('Tier calculado:', this.tier);
             console.log('Mensaje del servidor:', response.data.mensaje);
-            
+
             // Opcional: mostrar mensaje de éxito
             // this.messageService.success(`Puntos actualizados: ${this.points}`, 'Beneficios');
           } else {
             console.error('Error en la respuesta del servidor:', response.mensaje);
             this.handlePuntosError('Error en la respuesta del servidor');
           }
+          this.loadingService.hide();
           this.isLoadingPoints = false;
         },
         error: (error) => {
           console.error('Error al cargar puntos del cliente autenticado:', error);
           this.handlePuntosError('Error de conexión al cargar puntos');
+          this.loadingService.hide();
           this.isLoadingPoints = false;
         }
       });
@@ -217,13 +221,13 @@ export class BeneficiosComponent implements OnInit {
     //this.router.navigate([], { queryParams: { tier: null }, queryParamsHandling: 'merge' });
   }
 
-  viewPointsHistory() { 
-    this.showHistory = true; 
+  viewPointsHistory() {
+    this.showHistory = true;
     this.cargarHistorialPuntos();
   }
-  
-  closeHistory() { 
-    this.showHistory = false; 
+
+  closeHistory() {
+    this.showHistory = false;
   }
 
   /**
@@ -254,14 +258,14 @@ export class BeneficiosComponent implements OnInit {
    */
   private cargarHistorialPuntos(): void {
     this.isLoadingHistory = true;
-    
+
     this.historialPuntosService.getObtenerHistorialDePuntosDeClienteAutenticado()
       .subscribe({
         next: (response: HistorialPuntosResponse) => {
           if (response.ok && response.data) {
             this.historialPuntosRaw = response.data;
             this.history = this.transformarHistorialParaVista(response.data);
-            
+
             console.log('Historial de puntos cargado:', this.historialPuntosRaw);
             console.log('Historial transformado:', this.history);
           } else {
@@ -287,11 +291,11 @@ export class BeneficiosComponent implements OnInit {
     return historialRaw.map(item => {
       // Determinar el estado basado en el tipo de transacción y si está activo
       const estado: EstadoPuntos = this.determinarEstadoPunto(item);
-      
+
       // Formatear fechas
       const fechaTransaccion = this.formatearFecha(item.fechaTransaccion);
       const fechaVencimiento = this.formatearFecha(item.fechaVencimiento);
-      
+
       return {
         fechaAdquisicion: fechaTransaccion,
         fechaVencimiento: fechaVencimiento,
@@ -310,14 +314,14 @@ export class BeneficiosComponent implements OnInit {
     if (!item.activo || item.cantPuntos < 0 || item.tipoTransaccion.includes('CANJE')) {
       return 'Canjeado';
     }
-    
+
     // Si la fecha de vencimiento ya pasó, también es considerado como usado
     const fechaVencimiento = new Date(item.fechaVencimiento);
     const hoy = new Date();
     if (fechaVencimiento < hoy) {
       return 'Canjeado';
     }
-    
+
     return 'Vigentes';
   }
 

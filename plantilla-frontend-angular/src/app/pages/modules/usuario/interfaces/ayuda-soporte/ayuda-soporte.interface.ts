@@ -1,6 +1,7 @@
 export interface AyudaSoporteRequest {
 	idUsuario: number;
 	asunto: string;
+	tipoAsunto?: 'INCIDENCIA' | 'RECLAMO' | 'FELICITACION' | 'OTROS' | string;
 	mensaje: string;
 	prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | string;
 	canalOrigen: string;
@@ -14,6 +15,7 @@ export interface AyudaSoporteData {
 	nombreUsuario: string;
 	emailUsuario: string;
 	asunto: string;
+	tipoAsunto?: string;
 	mensaje: string;
 	estado: string;
 	prioridad: string;

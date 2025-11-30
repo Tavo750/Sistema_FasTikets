@@ -8,9 +8,12 @@ import { SessionService } from '../../../shared/services/session.service';
 import { LoginService } from '../../services/login.service';
 import { CartService } from '../../../shared/services/cart.service';
 import { FavoritosService } from '../../services/favoritos.service';
+import { FavoritosStateService } from '../../../shared/services/favoritos-state.service';
 import { Datum } from '../../interfaces/favoritos.interface';
 import { EventoService } from '../../../pages/modules/administrador/services/evento.service';
 import { Data as EventoData } from '../../../pages/modules/administrador/interfaces/gestion-evento/evento.interface';
+import { NotificacionesService } from '../../services/notificaciones.service';
+import { Content, NotificacionesResponse } from '../../interfaces/notificaciones.interface';
 
 @Component({
   selector: 'app-header',
@@ -21,19 +24,37 @@ import { Data as EventoData } from '../../../pages/modules/administrador/interfa
 export class HeaderComponent implements OnInit, OnDestroy {
 
   currentLabel: string = '';
-  breadcrumbDisplay = '';     // Para la vista
-  breadcrumbFull = '';        // Para el tooltip completo
+  breadcrumbDisplay = '';
+  breadcrumbFull = '';
   items: MenuItem[] | undefined;
   itemsAdmin: MenuItem[] | undefined;
   searchTerm: string = '';
-  notificationCount: number = 5; // Ejemplo
+  notificationCount: number = 0; // Contador de notificaciones
   cartItemCount: number = 0; // Contador de items del carrito
   @Input() usuario: Data | null = null; // Usuario actual, puede ser nulo si no hay sesión activa
 
   // Variables para favoritos
   mostrarDialogoFavoritos: boolean = false;
   eventosFavoritos: Datum[] = [];
+  contadorFavoritos: number = 0;
   cargandoFavoritos: boolean = false;
+
+  // Avatar del usuario
+  avatarUsuario: string = 'https://api.dicebear.com/7.x/notionists/svg?seed=user';
+  avatarAdmin: string = 'https://api.dicebear.com/7.x/bottts/svg?seed=admin';
+  
+  /**
+   * Getter que retorna el avatar según el rol del usuario
+   */
+  get avatarUrl(): string {
+    return this.usuario?.rol === 'ADMINISTRADOR' ? this.avatarAdmin : this.avatarUsuario;
+  }
+
+  // Variables para notificaciones
+  mostrarDialogoNotificaciones: boolean = false;
+  notificaciones: Content[] = [];
+  cargandoNotificaciones: boolean = false;
+  notificacionesNoLeidas: number = 0;
 
   // Variable para menú móvil
   mobileMenuOpen: boolean = false;
@@ -61,6 +82,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private routerSubscription!: Subscription;
   private userSubscription!: Subscription;
   private cartSubscription!: Subscription;
+  private favoritosSubscription!: Subscription;
 
   constructor(
     private router: Router,
@@ -69,33 +91,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private loginService: LoginService,
     private cartService: CartService,
     private favoritosService: FavoritosService,
+    private favoritosStateService: FavoritosStateService,
     private messageService: MessageService,
-    private eventoService: EventoService
+    private eventoService: EventoService,
+    private notificacionesService: NotificacionesService
   ) {
-    // Inicializar los items del menú
     this.actualizarMenuItems();
   }
 
-  /**
-   * Navega a la ruta especificada
-   * @param ruta Ruta a la que se desea navegar
-   */
   navegarA(ruta: string): void {
     this.router.navigate([ruta]);
     this.closeMobileMenu();
   }
 
-  /**
-   * Alterna el estado del menú móvil
-   */
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     this.toggleBodyScroll();
   }
 
-  /**
-   * Cierra el menú móvil
-   */
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
     if (typeof document !== 'undefined') {
@@ -103,9 +116,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Controla el scroll del body cuando el menú móvil está abierto
-   */
   private toggleBodyScroll(): void {
     if (typeof document !== 'undefined') {
       if (this.mobileMenuOpen) {
@@ -116,21 +126,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Maneja el click en el menú para cerrar el overlay
-   */
   onMenuClick(event: MouseEvent): void {
-    // Si se hace click en el overlay (fuera del contenido), cerrar el menú
     if ((event.target as HTMLElement).classList.contains('header-actions')) {
       this.closeMobileMenu();
     }
   }
 
-  /**
-   * Actualiza los items del menú según el estado de autenticación
-   */
   private actualizarMenuItems(): void {
-    // Menú para usuarios con rol CLIENTE
     this.items = [
       {
         label: 'Usuario',
@@ -161,7 +163,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     ];
 
-    // Menú para usuarios con rol ADMINISTRADOR
     this.itemsAdmin = [
       {
         label: 'Administrador',
@@ -203,30 +204,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const currentUrl = this.router.url;
     this.findLabelForUrl(currentUrl);
 
-    // Suscribirse a cambios de ruta
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         const newUrl = event.urlAfterRedirects;
         this.findLabelForUrl(newUrl);
-        this.closeMobileMenu(); // Cerrar menú móvil al cambiar de ruta
-        console.log('hola')
+        this.closeMobileMenu();
       });
 
-    // Suscribirse a cambios del usuario autenticado
     this.userSubscription = this.sessionService.user$.subscribe((user: Data | null) => {
-      // Si no hay usuario o el input usuario no está definido, usar el del SessionService
       if (!this.usuario) {
         this.usuario = user;
       }
+      if (!this.usuario) {
+        this.eventosFavoritos = [];
+        this.contadorFavoritos = 0;
+      }
     });
 
-    // Suscribirse a cambios del carrito
     this.cartSubscription = this.cartService.getCartItems$().subscribe(items => {
       this.cartItemCount = this.cartService.getTotalItems();
     });
 
-    // Configurar búsqueda con debounce
     this.searchSubscription = this.searchSubject
       .pipe(
         debounceTime(300),
@@ -236,8 +235,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.filtrarEventos(searchTerm);
       });
 
-    // Cargar todos los eventos al iniciar
     this.cargarEventos();
+
+    // Cargar notificaciones si hay usuario autenticado
+    if (this.usuario) {
+      this.cargarNotificaciones();
+    }
   }
 
   ngOnDestroy() {
@@ -251,19 +254,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
+    if (this.favoritosSubscription) {
+      this.favoritosSubscription.unsubscribe();
+    }
   }
 
   private findLabelForUrl(url: string) {
     const items = this.menuService.getMenuItems();
     const path = this.normalizePath(url);
-
     const labelPath: string[] = [];
 
     const findPath = (items: MenuItem[], parentLabels: string[] = []): boolean => {
       for (const item of items) {
         const fullPath = this.normalizeRouterLink(item.routerLink);
         const currentLabels = [...parentLabels, item.label ?? ''];
-
 
         if (fullPath && path.startsWith(fullPath)) {
           labelPath.splice(0, labelPath.length, ...currentLabels);
@@ -298,40 +302,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  /**
-   * Cierra la sesión del usuario actual
-   */
   cerrarSesion(): void {
-    // Limpiar ambos servicios de sesión
-    this.loginService.logout(); // Este ya llama a sessionService.clearUser()
-    this.usuario = null; // Limpiar el usuario del componente
+    this.loginService.logout();
+    this.usuario = null;
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Abre el diálogo de favoritos y carga la lista
-   */
   abrirFavoritos(): void {
     if (!this.usuario) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Atención',
         detail: 'Debes iniciar sesión para ver tus favoritos',
-        life: 3000
+        life: 1000
       });
       return;
     }
 
     this.mostrarDialogoFavoritos = true;
-    this.cargarFavoritos();
+    this.cargarFavoritos(true);
     this.closeMobileMenu();
   }
 
-  /**
-   * Carga la lista de eventos favoritos
-   */
-  cargarFavoritos(): void {
-    this.cargandoFavoritos = true;
+  cargarFavoritos(mostrarLoading: boolean = false): void {
+    if (mostrarLoading) {
+      this.cargandoFavoritos = true;
+    }
     this.favoritosService.GetListarEventoFavorito().subscribe({
       next: (response) => {
         this.cargandoFavoritos = false;
@@ -346,27 +342,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: 'No se pudieron cargar los favoritos',
-          life: 3000
+          life: 1000
         });
       }
     });
   }
 
-  /**
-   * Elimina un evento de favoritos
-   */
   eliminarDeFavoritos(eventoId: number): void {
-    this.favoritosService.DeleteEliminaEventoFavorito(eventoId).subscribe({
-      next: (response) => {
-        if (response.ok) {
+    this.favoritosStateService.quitarFavorito(eventoId).subscribe({
+      next: (exito) => {
+        if (exito) {
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
             detail: 'Evento eliminado de favoritos',
-            life: 3000
+            life: 1000
           });
-          // Recargar la lista de favoritos
-          this.cargarFavoritos();
+          // Recargar la lista de favoritos para el diálogo
+          this.cargarFavoritos(true);
         }
       },
       error: (error) => {
@@ -375,23 +368,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error?.mensaje || 'No se pudo eliminar el evento de favoritos',
-          life: 3000
+          life: 1000
         });
       }
     });
   }
 
-  /**
-   * Navega al detalle del evento
-   */
   verDetalleEvento(eventoId: number): void {
     this.mostrarDialogoFavoritos = false;
     this.router.navigate(['/home/evento', eventoId]);
   }
 
-  /**
-   * Formatea la fecha del evento
-   */
   formatearFecha(fecha: Date): string {
     const fechaObj = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = {
@@ -402,42 +389,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return fechaObj.toLocaleDateString('es-ES', opciones);
   }
 
-  /**
-   * Maneja el cambio en el término de búsqueda
-   */
   onSearchChange(): void {
     this.searchSubject.next(this.searchTerm);
     this.showSearchDropdown = this.searchTerm.length > 0;
   }
 
-  /**
-   * Maneja el evento de presionar Enter en el buscador
-   */
   onSearchEnter(): void {
     this.showSearchDropdown = false;
     if (this.eventosFiltrados.length > 0) {
-      // Navegar al primer evento encontrado
       this.seleccionarEvento(this.eventosFiltrados[0]);
     }
   }
 
-  /**
-   * Carga todos los eventos disponibles (solo publicados)
-   */
   cargarEventos(): void {
     this.cargandoEventos = true;
     this.eventoService.getListarEventos().subscribe({
       next: (response) => {
         this.cargandoEventos = false;
         if (response.ok && response.data) {
-          // Si response.data es un array
           if (Array.isArray(response.data)) {
-            // Filtrar solo eventos publicados
             this.todosLosEventos = response.data.filter(evento =>
               evento.estadoEvento === 'PUBLICADO'
             );
           } else {
-            // Si response.data es un objeto único, verificar si está publicado
             this.todosLosEventos = response.data.estadoEvento === 'PUBLICADO' ? [response.data] : [];
           }
         }
@@ -449,9 +423,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Filtra los eventos según el término de búsqueda (solo eventos publicados)
-   */
   filtrarEventos(termino: string): void {
     if (!termino || termino.trim() === '') {
       this.eventosFiltrados = [];
@@ -467,30 +438,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
         evento.tipoEvento.toLowerCase().includes(terminoLower) ||
         evento.nombreLocal.toLowerCase().includes(terminoLower)
       )
-    ).slice(0, 5); // Limitar a 5 resultados
+    ).slice(0, 5);
   }
 
-  /**
-   * Selecciona un evento del dropdown
-   */
   seleccionarEvento(evento: EventoData): void {
     this.showSearchDropdown = false;
     this.searchTerm = '';
     this.router.navigate(['/home/evento', evento.idEvento]);
   }
 
-  /**
-   * Cierra el dropdown de búsqueda
-   */
   cerrarDropdown(): void {
     setTimeout(() => {
       this.showSearchDropdown = false;
     }, 200);
   }
 
-  /**
-   * Formatea la fecha para mostrar en el dropdown
-   */
   formatearFechaCorta(fecha: Date): string {
     const fechaObj = new Date(fecha);
     const opciones: Intl.DateTimeFormatOptions = {
@@ -501,13 +463,112 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return fechaObj.toLocaleDateString('es-ES', opciones);
   }
 
-  /**
-   * Resalta el texto de búsqueda en el resultado
-   */
   resaltarTexto(texto: string): string {
     if (!this.searchTerm) return texto;
     const regex = new RegExp(`(${this.searchTerm})`, 'gi');
     return texto.replace(regex, '<strong>$1</strong>');
+  }
+
+  /**
+   * Abre el diálogo de notificaciones y carga la lista
+   */
+  abrirNotificaciones(): void {
+    if (!this.usuario) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'Debes iniciar sesión para ver tus notificaciones',
+        life: 3000
+      });
+      return;
+    }
+
+    this.mostrarDialogoNotificaciones = true;
+    this.cargarNotificaciones();
+    this.closeMobileMenu();
+  }
+
+  /**
+   * Carga la lista de notificaciones del usuario
+   */
+  cargarNotificaciones(): void {
+    this.cargandoNotificaciones = true;
+    this.notificacionesService.GetListaNotificaciones().subscribe({
+      next: (response: NotificacionesResponse) => {
+        if (response.ok && response.data) {
+          this.notificaciones = response.data.content;
+          this.notificacionesNoLeidas = this.notificaciones.filter(n => !n.leida).length;
+          this.notificationCount = this.notificacionesNoLeidas;
+        }
+        this.cargandoNotificaciones = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar notificaciones:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar las notificaciones',
+          life: 3000
+        });
+        this.cargandoNotificaciones = false;
+      }
+    });
+  }
+
+  /**
+   * Formatea la fecha de la notificación para mostrarla de forma relativa
+   */
+  formatearFechaNotificacion(fecha: Date): string {
+    const ahora = new Date();
+    const fechaNotif = new Date(fecha);
+    const diff = ahora.getTime() - fechaNotif.getTime();
+
+    const minutos = Math.floor(diff / 60000);
+    const horas = Math.floor(diff / 3600000);
+    const dias = Math.floor(diff / 86400000);
+
+    if (minutos < 1) return 'Hace un momento';
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos > 1 ? 's' : ''}`;
+    if (horas < 24) return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
+    if (dias < 7) return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
+
+    return fechaNotif.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      year: fechaNotif.getFullYear() !== ahora.getFullYear() ? 'numeric' : undefined
+    });
+  }
+
+  /**
+   * Obtiene el ícono según el tipo de notificación
+   */
+  obtenerIconoNotificacion(tipo: string): string {
+    const iconos: { [key: string]: string } = {
+      'INFO': 'pi-info-circle',
+      'EXITO': 'pi-check-circle',
+      'ADVERTENCIA': 'pi-exclamation-triangle',
+      'ERROR': 'pi-times-circle',
+      'PROMOCION': 'pi-tag',
+      'EVENTO': 'pi-calendar',
+      'SISTEMA': 'pi-cog'
+    };
+    return iconos[tipo] || 'pi-bell';
+  }
+
+  /**
+   * Obtiene la severidad según el tipo de notificación
+   */
+  obtenerSeveridadNotificacion(tipo: string): string {
+    const severidades: { [key: string]: string } = {
+      'INFO': 'info',
+      'EXITO': 'success',
+      'ADVERTENCIA': 'warn',
+      'ERROR': 'danger',
+      'PROMOCION': 'secondary',
+      'EVENTO': 'info',
+      'SISTEMA': 'contrast'
+    };
+    return severidades[tipo] || 'info';
   }
 
 }

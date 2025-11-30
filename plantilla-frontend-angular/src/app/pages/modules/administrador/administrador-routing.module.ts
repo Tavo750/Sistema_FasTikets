@@ -6,6 +6,7 @@ import { GestionEventosComponent } from './components/gestion-eventos/gestion-ev
 import { GestionClientesComponent } from './components/gestion-clientes/gestion-clientes.component';
 import { EditarClienteAdmiComponent } from './components/gestion-clientes/editar-cliente-admi/editar-cliente-admi.component'; // ← IMPORTAR
 import { VerDetalleClienteAdmiComponent } from './components/gestion-clientes/ver-detalle-cliente-admi/ver-detalle-cliente-admi.component';
+import { CambiarAAdminComponent } from './components/gestion-clientes/cambiar-a-admin/cambiar-a-admin.component';
 import { CodigosPromocionalesComponent } from './components/codigos-promocionales/codigos-promocionales.component';
 import { RegistroCodigosPromoComponent } from './components/codigos-promocionales/registro-codigos-promo/registro-codigos-promo.component';
 import { EditarRegistroPromoComponent } from './components/codigos-promocionales/editar-registro-promo/editar-registro-promo.component';
@@ -20,6 +21,7 @@ import { CambiarContrasenaAdminComponent } from './components/perfil-administrad
 import { EditarEventoComponent } from './components/gestion-eventos/editar-evento/editar-evento.component';
 import { CrearEventoComponent } from './components/gestion-eventos/crear-evento/crear-evento.component';
 import { GestionAdministadoresComponent } from './components/gestion-administadores/gestion-administadores.component';
+import { ConfiguracionGeneralComponent } from './components/configuracion-general/configuracion-general.component';
 const routes: Routes = [
   { path: '', redirectTo: 'perfilAdministrador', pathMatch: 'full' },
   { path: 'perfilAdministrador', component: PerfilAdministradorComponent },
@@ -33,6 +35,7 @@ const routes: Routes = [
   { path: 'gestionClientes', component: GestionClientesComponent },
   { path: 'gestionClientes/editar/:id', component: EditarClienteAdmiComponent }, // ← AGREGAR ESTA LÍNEA
   { path: 'gestionClientes/detalle/:id', component: VerDetalleClienteAdmiComponent }, // ← AGREGAR
+  { path: 'gestionClientes/cambiar-a-admin/:id', component: CambiarAAdminComponent },
   { path: 'codigosPromocionales', component: CodigosPromocionalesComponent },
   { path: 'codigosPromocionales/registro', component: RegistroCodigosPromoComponent },
   { path: 'codigosPromocionales/editar/:id', component: EditarRegistroPromoComponent },
@@ -41,6 +44,7 @@ const routes: Routes = [
   { path: 'logErrores/registrar', component: RegistrarErrorComponent },
   { path: 'auditoria', component: AuditoriaComponent },
   { path: 'gestionAdministradores', component: GestionAdministadoresComponent },
+  { path: 'configuracionGeneral', component: ConfiguracionGeneralComponent },
 ];
 
 @NgModule({

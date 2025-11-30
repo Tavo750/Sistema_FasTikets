@@ -40,6 +40,7 @@
               [(ngModel)]="evento.nombre"
               placeholder="Ej. Soda Stereo..."
               class="form-input"
+              [disabled]="datosGeneralesBloqueados"
             />
           </div>
 
@@ -55,6 +56,7 @@
               optionValue="value"
               placeholder="Seleccionar categoría..."
               styleClass="form-input"
+              [disabled]="datosGeneralesBloqueados"
             ></p-dropdown>
           </div>
 
@@ -69,6 +71,7 @@
               [(ngModel)]="evento.descripcion"
               placeholder="Ej. Concierto que conmemora..."
               class="form-input"
+              [disabled]="datosGeneralesBloqueados"
             ></textarea>
           </div>
 
@@ -83,6 +86,7 @@
               [(ngModel)]="evento.restricciones"
               placeholder="Ej. No se permite el ingreso de alimentos..."
               class="form-input"
+              [disabled]="datosGeneralesBloqueados"
             ></textarea>
           </div>
 
@@ -97,6 +101,7 @@
               [(ngModel)]="evento.politicasDevolucion"
               placeholder="Ej. Reembolso hasta 48 horas antes del evento..."
               class="form-input"
+              [disabled]="datosGeneralesBloqueados"
             ></textarea>
           </div>
 
@@ -110,6 +115,7 @@
                 [(ngModel)]="evento.menoresDeEdadPermitidos"
                 [binary]="true"
                 inputId="menoresPermitidos"
+                [disabled]="datosGeneralesBloqueados"
               ></p-checkbox>
               <label for="menoresPermitidos" style="margin-left: 10px; cursor: pointer;">
                 Permitir ingreso de menores de edad
@@ -128,6 +134,8 @@
                 dateFormat="dd/mm/yy"
                 styleClass="form-input"
                 panelStyleClass="calendar-up"
+                [disabled]="datosGeneralesBloqueados"
+                [minDate]="minDate"
               ></p-datepicker>
             </div>
 
@@ -145,6 +153,22 @@
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
                 panelStyleClass="calendar-up"
+                [disabled]="datosGeneralesBloqueados"
+              ></p-datepicker>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label">
+                <i class="pi pi-calendar"></i>
+                Fecha fin del evento
+              </label>
+              <p-datepicker
+                [(ngModel)]="dateFin"
+                dateFormat="dd/mm/yy"
+                styleClass="form-input"
+                panelStyleClass="calendar-up"
+                [disabled]="datosGeneralesBloqueados"
+                [minDate]="date || minDate"
               ></p-datepicker>
             </div>
 
@@ -162,6 +186,7 @@
                 styleClass="form-input"
                 placeholder="Seleccionar hora"
                 panelStyleClass="calendar-up"
+                [disabled]="datosGeneralesBloqueados"
               ></p-datepicker>
             </div>
           </div>
@@ -206,9 +231,11 @@
               </div>
 
               <!-- Área de subida cuando no hay imagen -->
-              <div class="upload-area" (click)="fileInput.click()" *ngIf="!formulario.bannerUrl && !usarBannerDefault">
+              <div class="upload-area" (click)="!datosGeneralesBloqueados && fileInput.click()"
+                   *ngIf="!formulario.bannerUrl && !usarBannerDefault"
+                   [class.disabled]="datosGeneralesBloqueados">
                 <i class="pi pi-cloud-upload"></i>
-                <p>Subir imagen del banner</p>
+                <p>{{ datosGeneralesBloqueados ? 'Banner bloqueado' : 'Subir imagen del banner' }}</p>
                 <small>JPG, PNG - Máximo 5MB</small>
               </div>
 
@@ -219,6 +246,7 @@
                 accept="image/*"
                 (change)="onFileSelected($event)"
                 style="display: none"
+                [disabled]="datosGeneralesBloqueados"
               />
 
               <!-- Botones de acción para el banner -->
@@ -229,6 +257,7 @@
                   severity="info"
                   outlined="true"
                   (onClick)="fileInput.click()"
+                  [disabled]="datosGeneralesBloqueados"
                 ></p-button>
 
                 <p-button
@@ -237,6 +266,7 @@
                   severity="danger"
                   outlined="true"
                   (onClick)="onEliminarBanner($event)"
+                  [disabled]="datosGeneralesBloqueados"
                 ></p-button>
               </div>
             </div>
@@ -261,6 +291,7 @@
               decrementButtonClass="p-button-secondary"
               incrementButtonIcon="pi pi-plus"
               decrementButtonIcon="pi pi-minus"
+              [disabled]="datosGeneralesBloqueados"
             ></p-inputNumber>
           </div>
 
@@ -279,7 +310,7 @@
               styleClass="form-input"
               panelStyleClass="dropdown-up"
               [loading]="cargandoLocales"
-              [disabled]="cargandoLocales"
+              [disabled]="cargandoLocales || datosGeneralesBloqueados"
               (onChange)="onLocalSeleccionado($event)"
             ></p-dropdown>
 
@@ -293,11 +324,13 @@
           <!-- Botón de guardar cambios -->
           <div class="form-field">
             <p-button
-              label="Guardar Cambios"
-              icon="pi pi-save"
+              [label]="datosGeneralesBloqueados ? 'Datos Guardados' : 'Guardar Cambios'"
+              [icon]="datosGeneralesBloqueados ? 'pi pi-check' : 'pi pi-save'"
               (onClick)="onGuardarDatosGenerales()"
               class="form-input"
               [style]="{'width': '100%'}"
+              [disabled]="datosGeneralesBloqueados"
+              [severity]="datosGeneralesBloqueados ? 'success' : 'primary'"
             ></p-button>
           </div>
         </div>
@@ -547,6 +580,8 @@
               dateFormat="dd/mm/yy"
               styleClass="form-input"
               placeholder="Seleccionar fecha"
+              [showIcon]="true"
+              appendTo="body"
             ></p-datepicker>
           </div>
 
@@ -560,6 +595,8 @@
               dateFormat="dd/mm/yy"
               styleClass="form-input"
               placeholder="Seleccionar fecha"
+              [showIcon]="true"
+              appendTo="body"
             ></p-datepicker>
           </div>
 

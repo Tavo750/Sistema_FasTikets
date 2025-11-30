@@ -1,4 +1,6 @@
 <div class="evento-container">
+  
+
   <!-- Spinner de carga -->
   <div *ngIf="cargandoDatos" class="loading-container">
     <p-progressSpinner
@@ -159,7 +161,7 @@
                       icon="pi pi-plus"
                       size="small"
                       severity="danger"
-                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona)"
+                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona) || getTotalEntradasSeleccionadas() >= getMaxEntradasPermitidas()"
                       (onClick)="increment(ticket)"
                       [rounded]="true"
                       styleClass="quantity-btn-plus">
@@ -307,7 +309,18 @@
         </div>
       </div>
     </div>
-
+    <!-- Botón de retroceder -->
+  <div class="btn-retroceder-container">
+    <p-button 
+      label="Volver a los eventos" 
+      icon="pi pi-arrow-left" 
+      severity="danger"
+      size="small"
+      [text]="true"
+      (onClick)="volverAEventos()"
+      styleClass="btn-retroceder">
+    </p-button>
+  </div>
   </p-card>
 
   <!-- Barra inferior flotante con resumen -->
@@ -340,5 +353,5 @@
       </div>
     </p-card>
   </div>
-
+  
 </div>

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { CrearUsuarioRoutingModule } from './crear-usuario-routing.module';
 import { CrearUsuarioComponent } from './crear-usuario.component';
@@ -21,9 +21,14 @@ import { PrimeNgModule } from '../../../prime-ng/prime-ng.module';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     CrearUsuarioRoutingModule,
     PrimeNgModule
   ],
-  providers: [DialogService]
+  providers: [DialogService],
+  exports: [
+    DialogTerminosComponent,
+    DialogPoliticaComponent
+  ]
 })
 export class CrearUsuarioModule { }

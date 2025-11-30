@@ -36,7 +36,7 @@ export class RequestHandlerService {
       severity: 'success',
       summary,
       detail: message,
-      life: 3000
+      life: 1000
     });
   }
 
@@ -48,7 +48,7 @@ export class RequestHandlerService {
       severity: 'info',
       summary,
       detail: message,
-      life: 3000
+      life: 1000
     });
   }
 

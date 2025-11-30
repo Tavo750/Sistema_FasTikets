@@ -11,6 +11,7 @@ import { HistorialComprasResponse } from '../interfaces/gestion-clientes/histori
 import { HistorialPuntosResponse } from '../interfaces/gestion-clientes/historial-puntos.interface';
 import { EliminarPuntosResponse } from '../interfaces/gestion-clientes/eliminar-puntos-cliente.interace';
 import { VerificarClienteResponse } from '../interfaces/gestion-clientes/verificar-cliente.interface';
+import { PromoverAdminRequest, PromoverAdminResponse } from '../interfaces/gestion-clientes/promover-admin.interface';
 import { baseUrl } from '../../../../global';
 
 @Injectable({
@@ -134,7 +135,7 @@ export class GestionClientesService {
    * @returns Observable con la respuesta que contiene los datos actualizados del cliente
    */
   verificarCliente(id: number): Observable<VerificarClienteResponse> {
-    const url = `${baseUrl}/clientes/${id}/verificar`;
+    const url = `${baseUrl}/administrador/clientes/${id}/verificar`;
     console.log('URL verificar cliente:', url);
     
     return this.http.put<VerificarClienteResponse>(url, {}, {
@@ -144,6 +145,32 @@ export class GestionClientesService {
     }).pipe(
       catchError((error) => {
         console.error('Error al verificar cliente:', error);
+        console.error('Estado de la respuesta:', error.status);
+        console.error('Mensaje de error:', error.error);
+        return this.httpUtils.handleError(error);
+      })
+    );
+  }
+
+  /**
+   * Promueve un cliente a administrador
+   * @param id ID del cliente a promover
+   * @param cargo Cargo del administrador
+   * @returns Observable con la respuesta de la promoción
+   */
+  promoverAAdministrador(id: number, cargo: string): Observable<PromoverAdminResponse> {
+    const url = `${baseUrl}/administrador/promover/${id}`;
+    const body: PromoverAdminRequest = { cargo };
+    console.log('URL promover a administrador:', url);
+    console.log('Cargo:', cargo);
+    
+    return this.http.post<PromoverAdminResponse>(url, body, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      catchError((error) => {
+        console.error('Error al promover cliente a administrador:', error);
         console.error('Estado de la respuesta:', error.status);
         console.error('Mensaje de error:', error.error);
         return this.httpUtils.handleError(error);

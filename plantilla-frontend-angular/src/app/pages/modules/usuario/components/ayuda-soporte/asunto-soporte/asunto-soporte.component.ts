@@ -18,6 +18,7 @@ export class AsuntoSoporteComponent {
   @ViewChild('supportForm') supportForm!: NgForm;
   
   asunto: string = '';
+  tipoAsunto: 'INCIDENCIA' | 'RECLAMO' | 'FELICITACION' | 'OTROS' | string = 'INCIDENCIA';
   mensaje: string = '';
   prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | string = 'MEDIA';
   canalOrigen: string = 'PORTAL_WEB';
@@ -76,24 +77,48 @@ export class AsuntoSoporteComponent {
 
   enviarCorreo(form?: NgForm): void {
     console.log('enviarCorreo called', { asunto: this.asunto, mensaje: this.mensaje });
-    // Debug rápido: mostrar toast informativo para confirmar que el handler se ejecutó
-    this.messageService.add({ severity: 'info', summary: 'Envío', detail: 'Procesando solicitud...' });
 
     // Si se pasa el formulario, validar su estado
     if (form && !form.valid) {
       // marcar controles como tocados para mostrar errores inline
       Object.values(form.controls).forEach(control => control.markAsTouched());
-      // Mostrar un toast general para campos obligatorios vacíos
-      this.messageService.add({ severity: 'warn', summary: 'Formulario incompleto', detail: 'Por favor completa los campos obligatorios.' });
+      
+      // Construir mensaje de campos faltantes
+      let camposFaltantes: string[] = [];
+      if (!this.asunto || this.asunto.trim().length < 3) {
+        camposFaltantes.push('Asunto (mínimo 3 caracteres)');
+      }
+      if (!this.mensaje || this.mensaje.trim().length < 5) {
+        camposFaltantes.push('Mensaje (mínimo 5 caracteres)');
+      }
+      
+      const mensajeDetallado = camposFaltantes.length > 0 
+        ? `Por favor completa los siguientes campos: ${camposFaltantes.join(', ')}`
+        : 'Por favor completa todos los campos obligatorios.';
+      
+      // Mostrar toast de advertencia en lugar de alert
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Campos incompletos', 
+        detail: mensajeDetallado,
+        life: 5000
+      });
       return;
     }
 
     // Validación extra por si se llama programáticamente
     if (!this.validarAsunto(this.asunto)) {
-      // Usar MessageService para mostrar el aviso en el p-toast global en lugar de alert()
-      this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'El asunto no es válido. Usa al menos 3 caracteres y evita símbolos raros.' });
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Asunto inválido', 
+        detail: 'El asunto debe tener al menos 3 caracteres y no contener símbolos especiales.',
+        life: 5000
+      });
       return;
     }
+    
+    // Mostrar toast informativo solo después de validar
+    this.messageService.add({ severity: 'info', summary: 'Envío', detail: 'Procesando solicitud...' });
 
     // Construir el body según la API observada en Postman
     const currentUser = this.sessionService.getCurrentUser();
@@ -113,9 +138,12 @@ export class AsuntoSoporteComponent {
     const ipOrigenToSend = (this.ipOrigen && this.ipOrigen.trim().length > 0) ? this.ipOrigen.trim() : '127.0.0.1';
     const metadataToSend = (this.metadataAdicional && this.metadataAdicional.trim().length > 0) ? this.metadataAdicional.trim() : 'prueba_frontend';
 
+    // Concatenar el asunto con el tipo de asunto en formato: "asunto - tipo"
+    const asuntoCompleto = `${this.asunto.trim()} - ${this.tipoAsunto}`;
+
     const payload: AyudaSoporteRequest = {
       idUsuario,
-      asunto: this.asunto.trim(),
+      asunto: asuntoCompleto,
       mensaje: this.mensaje.trim(),
       prioridad: this.prioridad,
       canalOrigen: this.canalOrigen,
@@ -207,5 +235,49 @@ export class AsuntoSoporteComponent {
 
     // Si está ABIERTO y no hay observaciones
     this.messageService.add({ severity: 'info', summary: 'Pendiente', detail: 'Aún no hay respuesta (observaciones vacías).' });
+  }
+
+  /**
+   * Extrae el asunto sin el tipo (parte antes del guion)
+   */
+  obtenerAsunto(asuntoCompleto: string): string {
+    if (!asuntoCompleto) return '';
+    const partes = asuntoCompleto.split(' - ');
+    return partes[0] || asuntoCompleto;
+  }
+
+  /**
+   * Extrae el tipo de asunto (parte después del guion)
+   */
+  obtenerTipo(asuntoCompleto: string): string {
+    if (!asuntoCompleto) return '';
+    const partes = asuntoCompleto.split(' - ');
+    return partes.length > 1 ? partes[1] : '';
+  }
+
+  /**
+   * Obtiene el icono según el tipo de asunto
+   */
+  obtenerIconoTipo(tipo: string): string {
+    switch(tipo) {
+      case 'INCIDENCIA': return 'pi-exclamation-triangle';
+      case 'RECLAMO': return 'pi-times-circle';
+      case 'FELICITACION': return 'pi-heart';
+      case 'OTROS': return 'pi-info-circle';
+      default: return 'pi-tag';
+    }
+  }
+
+  /**
+   * Obtiene la severidad del tag según el tipo de asunto
+   */
+  obtenerSeveridadTipo(tipo: string): string {
+    switch(tipo) {
+      case 'INCIDENCIA': return 'warning';
+      case 'RECLAMO': return 'danger';
+      case 'FELICITACION': return 'success';
+      case 'OTROS': return 'info';
+      default: return 'secondary';
+    }
   }
 }
