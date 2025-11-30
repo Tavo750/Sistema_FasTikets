@@ -109,33 +109,48 @@ describe('LoginComponent', () => {
   });
 
   it('debería mostrar error para credenciales vacías', () => {
+    const mockMessageService = TestBed.inject(MessageService);
     component.username = '';
     component.password = '';
     
-    spyOn(component, 'error');
     component.onSubmit();
     
-    expect(component.error).toHaveBeenCalledWith('¡Usuario o Contraseña incompletos!');
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        severity: 'error',
+        detail: '¡Usuario o Contraseña incompletos!'
+      })
+    );
   });
 
   it('debería mostrar error para formato de email inválido', () => {
+    const mockMessageService = TestBed.inject(MessageService);
     component.username = 'invalid-email';
     component.password = 'password123';
     
-    spyOn(component, 'error');
     component.onSubmit();
     
-    expect(component.error).toHaveBeenCalledWith('¡Formato de correo electrónico inválido!');
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        severity: 'error',
+        detail: '¡Formato de correo electrónico inválido!'
+      })
+    );
   });
 
   it('debería mostrar error para dominio no permitido', () => {
+    const mockMessageService = TestBed.inject(MessageService);
     component.username = 'test@notallowed.com';
     component.password = 'password123';
     
-    spyOn(component, 'error');
     component.onSubmit();
     
-    expect(component.error).toHaveBeenCalledWith('¡Dominio de correo no permitido! Use gmail.com o pucp.edu.pe');
+    expect(mockMessageService.add).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        severity: 'error',
+        detail: '¡Dominio de correo no permitido! Use gmail.com o pucp.edu.pe'
+      })
+    );
   });
 
   it('debería obtener el tipo de usuario correcto basado en el dominio', () => {

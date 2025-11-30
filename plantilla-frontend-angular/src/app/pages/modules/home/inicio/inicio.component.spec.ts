@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { InicioComponent } from './inicio.component';
 
 describe('InicioComponent', () => {
@@ -20,15 +21,21 @@ describe('InicioComponent', () => {
       clear: jasmine.createSpy('clear')
     };
 
+    const mockDialogService = {
+      open: jasmine.createSpy('open'),
+      close: jasmine.createSpy('close')
+    };
+
     await TestBed.configureTestingModule({
       declarations: [InicioComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: Router, useValue: mockRouter },
-        { provide: MessageService, useValue: mockMessageService }
+        { provide: MessageService, useValue: mockMessageService },
+        { provide: DialogService, useValue: mockDialogService }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 
