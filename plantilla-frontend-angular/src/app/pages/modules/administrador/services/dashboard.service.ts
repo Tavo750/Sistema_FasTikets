@@ -372,7 +372,7 @@ export class DashboardService {
 
           // Métricas de ventas reales (adaptadas a la respuesta simple)
           ventasTotales: responses.ventasTotales.data || 0,
-          ingresosReales: (responses.ventasTotales.data || 0) * 100, // Estimación
+          ingresosReales: responses.ventasTotales.data || 0, // Usar el mismo valor de ventas totales
 
           // Top eventos (datos reales con cálculos)
           top3Eventos: eventosPopularesConDatos.slice(0, 3),

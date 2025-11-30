@@ -682,11 +682,11 @@
             <div class="ventas-datos" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error">
                 <div class="ventas-card">
                     <div class="ventas-icono">
-                        <i class="pi pi-dollar"></i>
+                        S/
                     </div>
                     <div class="ventas-info">
                         <h2 class="ventas-monto">
-                            ${{datosVentasEvento.ventasTotales.toLocaleString('es-PE')}}
+                            S/ {{datosVentasEvento.ventasTotales.toLocaleString('es-PE')}}
                         </h2>
                         <p class="ventas-label">Ventas Totales</p>
                         <small class="ventas-descripcion">
