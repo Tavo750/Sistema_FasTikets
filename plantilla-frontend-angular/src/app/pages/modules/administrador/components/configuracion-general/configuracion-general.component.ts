@@ -38,6 +38,7 @@ export class ConfiguracionGeneralComponent implements OnInit {
   loadingReglas: boolean = false;
   editandoRegla: ReglaPuntos | null = null;
   mostrarDialogRegla: boolean = false;
+  searchReglas: string = '';
   formularioRegla: CreateReglaPuntosRequest = {
     solesPorPunto: 1,
     tipoRegla: 'COMPRA',
@@ -437,6 +438,20 @@ export class ConfiguracionGeneralComponent implements OnInit {
    * Obtiene la severidad del badge según el estado
    */
   getEstadoSeverity(activo: boolean): 'success' | 'danger' {
+    return activo ? 'success' : 'danger';
+  }
+
+  /**
+   * Obtiene la severidad del tag según el tipo de regla
+   */
+  getTipoReglaSeverity(tipo: string): 'info' | 'warning' {
+    return tipo === 'COMPRA' ? 'info' : 'warning';
+  }
+
+  /**
+   * Obtiene la severidad del tag según el estado activo
+   */
+  getActivoSeverity(activo: boolean): 'success' | 'danger' {
     return activo ? 'success' : 'danger';
   }
 }
