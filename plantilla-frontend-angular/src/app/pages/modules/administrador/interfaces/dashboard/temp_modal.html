@@ -35,9 +35,7 @@
             <!-- Datos de ventas -->
             <div class="ventas-datos" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error">
                 <div class="ventas-card">
-                    <div class="ventas-icono">
-                        <i class="pi pi-dollar"></i>
-                    </div>
+                    
                     <div class="ventas-info">
                         <h2 class="ventas-monto">
                             ${{datosVentasEvento.ventasTotales.toLocaleString('es-PE')}}
