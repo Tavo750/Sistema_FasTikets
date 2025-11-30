@@ -1,0 +1,365 @@
+/* Contenedor principal */
+.config-container {
+  padding: 2rem;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Header */
+.config-header {
+  margin-bottom: 2rem;
+}
+
+.config-title {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+}
+
+.config-title i {
+  color: #3498db;
+  font-size: 1.8rem;
+}
+
+.config-subtitle {
+  color: #7f8c8d;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Contenido */
+.config-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+}
+
+/* Cards */
+.config-card, .info-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header-custom {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.header-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.header-icon.warning {
+  background: rgba(255, 193, 7, 0.2);
+}
+
+.header-text {
+  flex: 1;
+}
+
+.card-title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.card-description {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
+/* Sección de configuración */
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Info box */
+.info-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 8px;
+}
+
+.info-box i {
+  color: #2196f3;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #0d47a1;
+}
+
+.info-text strong {
+  font-weight: 600;
+}
+
+.info-text span {
+  font-size: 0.95rem;
+}
+
+/* Control de tiempo */
+.time-control-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-label i {
+  color: #3498db;
+}
+
+.time-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+:host ::ng-deep .time-input input {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  color: #2c3e50 !important;
+  width: 150px !important;
+}
+
+.help-text {
+  color: #f39c12;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.help-text i {
+  font-size: 1rem;
+}
+
+/* Presets */
+.presets-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.presets-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.presets-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Preview box */
+.preview-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preview-box i {
+  color: #f39c12;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #856404;
+}
+
+.preview-text strong {
+  font-weight: 600;
+}
+
+.highlight {
+  color: #e67e22;
+  font-size: 1.1rem;
+}
+
+/* Footer */
+.card-footer {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.primary-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Info list */
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.info-item:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.info-item i {
+  color: #28a745;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-item span {
+  color: #495057;
+  line-height: 1.6;
+}
+
+.info-item strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .config-container {
+    padding: 1rem;
+  }
+
+  .config-title {
+    font-size: 1.5rem;
+  }
+
+  .card-header-custom {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .time-input-group {
+    flex-direction: column;
+  }
+
+  :host ::ng-deep .time-input input {
+    width: 100% !important;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-actions {
+    width: 100%;
+  }
+
+  .primary-actions button {
+    flex: 1;
+  }
+
+  .presets-buttons {
+    justify-content: center;
+  }
+}
+
+/* PrimeNG overrides */
+:host ::ng-deep {
+  .p-card {
+    border: none;
+  }
+
+  .p-card .p-card-body {
+    padding: 0;
+  }
+
+  .p-card .p-card-content {
+    padding: 1.5rem;
+  }
+
+  .p-card .p-card-footer {
+    padding: 0;
+  }
+
+  .p-inputnumber-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .p-button.p-button-rounded {
+    width: 3rem;
+    height: 3rem;
+  }
+}

@@ -1,1 +1,218 @@
-<p>configuracion-general works!</p>
+<div class="config-container">
+  <div class="config-header">
+    <h1 class="config-title">
+      <i class="pi pi-cog"></i>
+      Configuración General
+    </h1>
+    <p class="config-subtitle">Gestiona las configuraciones globales del sistema</p>
+  </div>
+
+  <div class="config-content">
+    <!-- Card de Configuración del Carrito -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom">
+          <div class="header-icon">
+            <i class="pi pi-shopping-cart"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Tiempo Límite del Carrito</h2>
+            <p class="card-description">Configura el tiempo máximo que los clientes tienen para completar su compra</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Información actual -->
+          <div class="info-box">
+            <i class="pi pi-info-circle"></i>
+            <div class="info-text">
+              <strong>Configuración actual:</strong>
+              <span>Los clientes tienen {{ originalTimeLimitMinutes }} minutos para completar su compra antes de que expire el carrito.</span>
+            </div>
+          </div>
+
+          <!-- Control principal -->
+          <div class="time-control-section">
+            <label for="timeLimit" class="control-label">
+              <i class="pi pi-clock"></i>
+              Tiempo límite (minutos)
+            </label>
+            
+            <div class="time-input-group">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-minus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="cartTimeLimitMinutes <= 1"
+                (click)="decreaseTime()"
+                pTooltip="Disminuir 5 minutos">
+              </button>
+
+              <p-inputNumber
+                id="timeLimit"
+                [(ngModel)]="cartTimeLimitMinutes"
+                [showButtons]="false"
+                [min]="1"
+                [max]="120"
+                [step]="1"
+                suffix=" min"
+                (onInput)="onTimeLimitChange()"
+                class="time-input">
+              </p-inputNumber>
+
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="cartTimeLimitMinutes >= 120"
+                (click)="increaseTime()"
+                pTooltip="Aumentar 5 minutos">
+              </button>
+            </div>
+
+            <small class="help-text">
+              <i class="pi pi-exclamation-triangle"></i>
+              Rango permitido: 1 - 120 minutos
+            </small>
+          </div>
+
+          <!-- Presets rápidos -->
+          <div class="presets-section">
+            <label class="presets-label">Configuraciones rápidas:</label>
+            <div class="presets-buttons">
+              <button 
+                pButton 
+                type="button" 
+                label="5 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 5"
+                (click)="cartTimeLimitMinutes = 5; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="10 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 10"
+                (click)="cartTimeLimitMinutes = 10; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="15 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 15"
+                (click)="cartTimeLimitMinutes = 15; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="30 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 30"
+                (click)="cartTimeLimitMinutes = 30; onTimeLimitChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="60 min" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="cartTimeLimitMinutes !== 60"
+                (click)="cartTimeLimitMinutes = 60; onTimeLimitChange()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa del cambio -->
+          <div class="preview-box" *ngIf="hasChanges">
+            <i class="pi pi-eye"></i>
+            <div class="preview-text">
+              <strong>Vista previa:</strong>
+              <span>El nuevo tiempo límite será de <strong class="highlight">{{ cartTimeLimitMinutes }} minutos</strong></span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="card-footer">
+          <div class="footer-actions">
+            <button 
+              pButton 
+              type="button" 
+              label="Restablecer por defecto" 
+              icon="pi pi-refresh"
+              class="p-button-outlined p-button-secondary"
+              (click)="resetToDefault()">
+            </button>
+
+            <div class="primary-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Cancelar" 
+                icon="pi pi-times"
+                class="p-button-outlined"
+                [disabled]="!hasChanges || isSaving"
+                (click)="cancelChanges()">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                label="Guardar cambios" 
+                icon="pi pi-check"
+                class="p-button-success"
+                [disabled]="!hasChanges || isSaving"
+                [loading]="isSaving"
+                (click)="saveSettings()">
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
+    <!-- Información adicional -->
+    <p-card class="info-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom">
+          <div class="header-icon warning">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Información importante</h2>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="info-list">
+          <div class="info-item">
+            <i class="pi pi-check-circle"></i>
+            <span>Los cambios se aplicarán <strong>inmediatamente</strong> a todos los nuevos carritos creados.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-clock"></i>
+            <span>Los carritos activos mantendrán su tiempo original hasta que expiren o se completen.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-shield"></i>
+            <span>Un tiempo muy corto puede frustrar a los clientes, mientras que uno muy largo puede afectar el inventario.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-chart-line"></i>
+            <span>Se recomienda un tiempo entre <strong>10 y 30 minutos</strong> para una experiencia óptima.</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
+
+<!-- Toast para notificaciones -->
+<p-toast position="top-right"></p-toast>

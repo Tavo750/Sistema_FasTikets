@@ -3,7 +3,8 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CartTimerService {
-  private readonly CART_TIMER_MS = 15 * 60 * 1000; // 15 minutos
+  private readonly STORAGE_KEY_TIME_LIMIT = 'cart_time_limit_minutes';
+  private CART_TIMER_MS: number;
   private intervalId: any = null;
   private startTs: number | null = null;
   private storageKey: string | null = null;
@@ -12,14 +13,69 @@ export class CartTimerService {
   private remainingSubject = new BehaviorSubject<number>(0);
   private displaySubject = new BehaviorSubject<string>('');
   private expiredSubject = new Subject<void>();
+  private timeLimitSubject = new BehaviorSubject<number>(15); // minutos
 
   public running$: Observable<boolean> = this.runningSubject.asObservable();
   public remaining$: Observable<number> = this.remainingSubject.asObservable();
   public display$: Observable<string> = this.displaySubject.asObservable();
   public expired$: Observable<void> = this.expiredSubject.asObservable();
+  public timeLimit$: Observable<number> = this.timeLimitSubject.asObservable();
 
   constructor() {
-    // nothing to do; start is lazy when components call startIfNotStarted
+    // Cargar tiempo límite desde localStorage o usar default (15 minutos)
+    const savedLimit = this.loadTimeLimitFromStorage();
+    this.CART_TIMER_MS = savedLimit * 60 * 1000;
+    this.timeLimitSubject.next(savedLimit);
+  }
+
+  /**
+   * Carga el tiempo límite guardado en localStorage
+   */
+  private loadTimeLimitFromStorage(): number {
+    try {
+      const saved = localStorage.getItem(this.STORAGE_KEY_TIME_LIMIT);
+      if (saved) {
+        const minutes = parseInt(saved, 10);
+        if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
+          return minutes;
+        }
+      }
+    } catch (e) {
+      console.warn('Error cargando tiempo límite del carrito', e);
+    }
+    return 15; // default: 15 minutos
+  }
+
+  /**
+   * Obtiene el tiempo límite actual en minutos
+   */
+  getTimeLimitMinutes(): number {
+    return this.timeLimitSubject.value;
+  }
+
+  /**
+   * Establece un nuevo tiempo límite (solo para administradores)
+   * @param minutes Tiempo límite en minutos (1-120)
+   */
+  setTimeLimitMinutes(minutes: number): boolean {
+    if (minutes < 1 || minutes > 120) {
+      console.warn('El tiempo límite debe estar entre 1 y 120 minutos');
+      return false;
+    }
+    
+    try {
+      // Guardar en localStorage
+      localStorage.setItem(this.STORAGE_KEY_TIME_LIMIT, String(minutes));
+      
+      // Actualizar el valor interno
+      this.CART_TIMER_MS = minutes * 60 * 1000;
+      this.timeLimitSubject.next(minutes);
+      
+      return true;
+    } catch (e) {
+      console.error('Error guardando tiempo límite del carrito', e);
+      return false;
+    }
   }
 
   startIfNotStarted(userId?: number | string): void {
@@ -99,5 +155,12 @@ export class CartTimerService {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+  }
+
+  /**
+   * Resetea el tiempo límite al valor por defecto (15 minutos)
+   */
+  resetTimeLimitToDefault(): void {
+    this.setTimeLimitMinutes(15);
   }
 }
