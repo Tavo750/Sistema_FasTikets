@@ -14,11 +14,19 @@
         (change)="onFileSelected($event)">
 
       <p-button
+        label="Descargar Plantilla"
+        icon="pi pi-download"
+        severity="help"
+        (click)="descargarPlantillaExcel()"
+        class="download-template-button"
+        [outlined]="true">
+      </p-button>
+
+      <p-button
         label="Cargar Excel"
         icon="pi pi-upload"
-        severity="secondary"
         (onClick)="fileInput.click()"
-        class="upload-button"
+        class="upload-button orange-button"
         [loading]="isUploading">
       </p-button>
 
