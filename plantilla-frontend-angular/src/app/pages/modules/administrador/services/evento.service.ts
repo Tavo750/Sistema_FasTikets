@@ -298,7 +298,8 @@ export class EventoService {
   postCargaMasivaEventos(file: File): Observable<CargaMasivaEventoResponse> {
     const url = `${baseUrl}/admin/carga-masiva/eventos`;
     const formData = new FormData();
-    formData.append('file', file);
+    // Agregar el archivo con su nombre explícito (tercer parámetro)
+    formData.append('file', file, file.name);
 
     return this.http.post<CargaMasivaEventoResponse>(url, formData)
       .pipe(
