@@ -108,10 +108,14 @@
       </div>
     </div>
 
-    <button class="action-btn cart-btn" (click)="navegarA('/home/carritoCompra')" data-testid="cart-btn">
-      <i class="pi pi-shopping-cart"></i>
-      <span class="action-label">Carrito</span>
-      <span id="cart-badge" class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+    <!-- Botón Carrito / Eventos según rol -->
+    <button 
+      class="action-btn cart-btn" 
+      (click)="usuario?.rol === 'ADMINISTRADOR' ? navegarA('/administrador/gestionEventos') : navegarA('/home/carritoCompra')" 
+      data-testid="cart-btn">
+      <i [class]="usuario?.rol === 'ADMINISTRADOR' ? 'pi pi-calendar' : 'pi pi-shopping-cart'"></i>
+      <span class="action-label">{{ usuario?.rol === 'ADMINISTRADOR' ? 'Eventos' : 'Carrito' }}</span>
+      <span id="cart-badge" class="cart-badge" *ngIf="cartItemCount > 0 && usuario?.rol !== 'ADMINISTRADOR'">{{ cartItemCount }}</span>
     </button>
 
     <button 
