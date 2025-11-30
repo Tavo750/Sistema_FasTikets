@@ -149,17 +149,10 @@ export class CambiarAAdminComponent implements OnInit {
         this.mostrarDialogConfirmacion = false;
         console.error('Error al promover cliente a administrador:', error);
         
-        let mensajeError = 'Error al cambiar el cliente a administrador';
-        if (error.error?.mensaje) {
-          mensajeError = error.error.mensaje;
-        } else if (error.message) {
-          mensajeError = error.message;
-        }
-        
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: mensajeError
+          detail: 'No se pudo convertir el cliente a administrador. Por favor, intente nuevamente.'
         });
       }
     });
