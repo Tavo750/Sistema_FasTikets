@@ -26,13 +26,19 @@ export class ConfiguracionGeneralComponent implements OnInit {
   hasChangesEntradas: boolean = false;
   isSavingEntradas: boolean = false;
   
+  // Configuración del límite de transferencias de tickets
+  maxTransferenciasTicket: number = 3;
+  originalMaxTransferencias: number = 3;
+  hasChangesTransferencias: boolean = false;
+  isSavingTransferencias: boolean = false;
+  
   // Estados globales (deprecated - se mantienen por compatibilidad)
   get isSaving(): boolean {
-    return this.isSavingTimer || this.isSavingEntradas;
+    return this.isSavingTimer || this.isSavingEntradas || this.isSavingTransferencias;
   }
   
   get hasChanges(): boolean {
-    return this.hasChangesTimer || this.hasChangesEntradas;
+    return this.hasChangesTimer || this.hasChangesEntradas || this.hasChangesTransferencias;
   }
 
   // Configuración de Reglas de Puntos
@@ -95,6 +101,13 @@ export class ConfiguracionGeneralComponent implements OnInit {
       this.maxEntradasPorCliente = parseInt(maxEntradas, 10);
     }
     this.originalMaxEntradas = this.maxEntradasPorCliente;
+    
+    // Cargar límite de transferencias desde localStorage
+    const maxTransferencias = localStorage.getItem('max_transferencias_ticket');
+    if (maxTransferencias) {
+      this.maxTransferenciasTicket = parseInt(maxTransferencias, 10);
+    }
+    this.originalMaxTransferencias = this.maxTransferenciasTicket;
   }
 
   /**
@@ -109,6 +122,13 @@ export class ConfiguracionGeneralComponent implements OnInit {
    */
   onMaxEntradasChange(): void {
     this.hasChangesEntradas = this.maxEntradasPorCliente !== this.originalMaxEntradas;
+  }
+
+  /**
+   * Detecta cambios en el límite de transferencias
+   */
+  onMaxTransferenciasChange(): void {
+    this.hasChangesTransferencias = this.maxTransferenciasTicket !== this.originalMaxTransferencias;
   }
 
   /**
@@ -273,6 +293,82 @@ export class ConfiguracionGeneralComponent implements OnInit {
   }
 
   /**
+   * Guarda solo la configuración del límite de transferencias
+   */
+  saveTransferenciasSettings(): void {
+    if (this.maxTransferenciasTicket < 0 || this.maxTransferenciasTicket > 20) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error de validación',
+        detail: 'El límite de transferencias debe estar entre 0 y 20'
+      });
+      return;
+    }
+
+    this.isSavingTransferencias = true;
+    localStorage.setItem('max_transferencias_ticket', String(this.maxTransferenciasTicket));
+
+    // Actualizar también en configuraciones generales
+    this.sincronizarLimiteTransferenciasConfiguracion(this.maxTransferenciasTicket);
+  }
+
+  /**
+   * Sincroniza el límite de transferencias con la configuración general LIMITE_TRANSFERENCIAS_TICKET
+   */
+  private sincronizarLimiteTransferenciasConfiguracion(limite: number): void {
+    const configRequest: ConfiguracionRequest = {
+      key: 'LIMITE_TRANSFERENCIAS_TICKET',
+      value: String(limite),
+      descripcion: 'Número máximo de veces que una persona puede transferir un ticket',
+      valueType: 'number'
+    };
+
+    // Primero intentar actualizar, si no existe, crear
+    this.configuracionGeneralService.updateConfiguracion('LIMITE_TRANSFERENCIAS_TICKET', configRequest).subscribe({
+      next: (response) => {
+        this.isSavingTransferencias = false;
+        if (response.ok) {
+          this.originalMaxTransferencias = this.maxTransferenciasTicket;
+          this.hasChangesTransferencias = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Guardado',
+            detail: `Límite de transferencias actualizado a ${this.maxTransferenciasTicket}`
+          });
+          // Recargar configuraciones para reflejar el cambio
+          this.cargarConfiguraciones();
+        }
+      },
+      error: (error) => {
+        // Si falla porque no existe, intentar crear
+        this.configuracionGeneralService.createConfiguracion(configRequest).subscribe({
+          next: (response) => {
+            this.isSavingTransferencias = false;
+            if (response.ok) {
+              this.originalMaxTransferencias = this.maxTransferenciasTicket;
+              this.hasChangesTransferencias = false;
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Guardado',
+                detail: `Límite de transferencias actualizado a ${this.maxTransferenciasTicket}`
+              });
+              this.cargarConfiguraciones();
+            }
+          },
+          error: () => {
+            this.isSavingTransferencias = false;
+            this.messageService.add({
+              severity: 'warning',
+              summary: 'Guardado parcial',
+              detail: 'Límite guardado localmente, pero no se pudo sincronizar con configuración general'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
    * Cancela los cambios del tiempo límite
    */
   cancelTimerChanges(): void {
@@ -289,11 +385,20 @@ export class ConfiguracionGeneralComponent implements OnInit {
   }
 
   /**
+   * Cancela los cambios del límite de transferencias
+   */
+  cancelTransferenciasChanges(): void {
+    this.maxTransferenciasTicket = this.originalMaxTransferencias;
+    this.hasChangesTransferencias = false;
+  }
+
+  /**
    * Cancela los cambios y restaura valores originales (método legacy)
    */
   cancelChanges(): void {
     this.cancelTimerChanges();
     this.cancelEntradasChanges();
+    this.cancelTransferenciasChanges();
   }
 
   /**
@@ -313,11 +418,20 @@ export class ConfiguracionGeneralComponent implements OnInit {
   }
 
   /**
-   * Resetea al valor por defecto (15 minutos y 10 entradas) - método legacy
+   * Resetea el límite de transferencias por defecto (3 transferencias)
+   */
+  resetTransferenciasToDefault(): void {
+    this.maxTransferenciasTicket = 3;
+    this.hasChangesTransferencias = this.maxTransferenciasTicket !== this.originalMaxTransferencias;
+  }
+
+  /**
+   * Resetea al valor por defecto (15 minutos, 10 entradas y 3 transferencias) - método legacy
    */
   resetToDefault(): void {
     this.resetTimerToDefault();
     this.resetEntradasToDefault();
+    this.resetTransferenciasToDefault();
   }
 
   /**
@@ -357,6 +471,26 @@ export class ConfiguracionGeneralComponent implements OnInit {
     if (this.maxEntradasPorCliente > 1) {
       this.maxEntradasPorCliente = Math.max(1, this.maxEntradasPorCliente - 5);
       this.onMaxEntradasChange();
+    }
+  }
+
+  /**
+   * Incrementa el límite de transferencias en 1
+   */
+  increaseMaxTransferencias(): void {
+    if (this.maxTransferenciasTicket < 20) {
+      this.maxTransferenciasTicket = Math.min(20, this.maxTransferenciasTicket + 1);
+      this.onMaxTransferenciasChange();
+    }
+  }
+
+  /**
+   * Decrementa el límite de transferencias en 1
+   */
+  decreaseMaxTransferencias(): void {
+    if (this.maxTransferenciasTicket > 0) {
+      this.maxTransferenciasTicket = Math.max(0, this.maxTransferenciasTicket - 1);
+      this.onMaxTransferenciasChange();
     }
   }
 
@@ -611,6 +745,18 @@ export class ConfiguracionGeneralComponent implements OnInit {
               this.hasChangesEntradas = false;
             }
           }
+
+          // Sincronizar LIMITE_TRANSFERENCIAS_TICKET con localStorage si existe
+          const limiteTransferenciasConfig = response.data.find(c => c.key === 'LIMITE_TRANSFERENCIAS_TICKET');
+          if (limiteTransferenciasConfig) {
+            const limite = parseInt(limiteTransferenciasConfig.value, 10);
+            if (!isNaN(limite) && limite >= 0 && limite <= 20) {
+              localStorage.setItem('max_transferencias_ticket', String(limite));
+              this.maxTransferenciasTicket = limite;
+              this.originalMaxTransferencias = limite;
+              this.hasChangesTransferencias = false;
+            }
+          }
         } else {
           this.messageService.add({
             severity: 'error',
@@ -708,6 +854,16 @@ export class ConfiguracionGeneralComponent implements OnInit {
                 this.maxEntradasPorCliente = limite;
                 this.originalMaxEntradas = limite;
                 this.hasChangesEntradas = false;
+              }
+            }
+            // Si se actualizó LIMITE_TRANSFERENCIAS_TICKET, sincronizar con localStorage
+            if (this.editandoConfiguracion!.key === 'LIMITE_TRANSFERENCIAS_TICKET') {
+              const limite = parseInt(this.formularioConfiguracion.value, 10);
+              if (!isNaN(limite) && limite >= 0 && limite <= 20) {
+                localStorage.setItem('max_transferencias_ticket', String(limite));
+                this.maxTransferenciasTicket = limite;
+                this.originalMaxTransferencias = limite;
+                this.hasChangesTransferencias = false;
               }
             }
             this.messageService.add({

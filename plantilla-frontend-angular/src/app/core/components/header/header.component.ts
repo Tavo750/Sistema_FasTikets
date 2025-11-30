@@ -39,6 +39,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   contadorFavoritos: number = 0;
   cargandoFavoritos: boolean = false;
 
+  // Avatar del usuario
+  avatarUsuario: string = 'https://api.dicebear.com/7.x/personas/svg?seed=user';
+  avatarAdmin: string = 'https://api.dicebear.com/7.x/bottts/svg?seed=admin';
+  
+  /**
+   * Getter que retorna el avatar según el rol del usuario
+   */
+  get avatarUrl(): string {
+    return this.usuario?.rol === 'ADMINISTRADOR' ? this.avatarAdmin : this.avatarUsuario;
+  }
+
   // Variables para notificaciones
   mostrarDialogoNotificaciones: boolean = false;
   notificaciones: Content[] = [];
