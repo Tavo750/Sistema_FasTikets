@@ -346,6 +346,192 @@
       </ng-template>
     </p-card>
 
+    <!-- Card de Configuraciones Generales del Sistema -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="header-icon">
+            <i class="pi pi-database"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Configuraciones Generales</h2>
+            <p class="card-description">Gestiona las configuraciones del sistema mediante pares clave-valor</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Panel de filtros y acciones -->
+          <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+              <!-- Barra de búsqueda -->
+              <div style="flex: 1; min-width: 250px;">
+                <label for="busquedaConfiguraciones" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+                  <i class="pi pi-search"></i> Buscar configuración
+                </label>
+                <span class="p-input-icon-left" style="width: 100%;">
+                  <i class="pi pi-search"></i>
+                  <input
+                    id="busquedaConfiguraciones"
+                    type="text"
+                    pInputText
+                    [(ngModel)]="searchConfiguraciones"
+                    placeholder="Buscar por clave, valor o descripción..."
+                    style="width: 100%;" />
+                </span>
+              </div>
+
+              <!-- Botón crear nueva configuración -->
+              <div>
+                <button 
+                  pButton 
+                  type="button" 
+                  label="Nueva Configuración" 
+                  icon="pi pi-plus"
+                  class="p-button-success"
+                  (click)="abrirDialogNuevaConfiguracion()">
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de configuraciones -->
+          <p-table 
+            [value]="configuraciones" 
+            [loading]="loadingConfiguraciones"
+            [globalFilterFields]="['key', 'value', 'descripcion', 'valueType']"
+            [paginator]="true"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} configuraciones"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            styleClass="p-datatable-sm p-datatable-striped"
+            responsiveLayout="scroll">
+            
+            <ng-template pTemplate="caption">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600; color: #2c3e50;">
+                  <i class="pi pi-list"></i> Lista de Configuraciones ({{ configuraciones.length }})
+                </span>
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-refresh" 
+                  class="p-button-rounded p-button-text"
+                  (click)="cargarConfiguraciones()"
+                  pTooltip="Recargar"
+                  tooltipPosition="left">
+                </button>
+              </div>
+            </ng-template>
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="key" style="width: 20%;">
+                  Clave 
+                  <p-sortIcon field="key"></p-sortIcon>
+                </th>
+                <th pSortableColumn="value" style="width: 25%;">
+                  Valor 
+                  <p-sortIcon field="value"></p-sortIcon>
+                </th>
+                <th pSortableColumn="descripcion" style="width: 30%;">
+                  Descripción 
+                  <p-sortIcon field="descripcion"></p-sortIcon>
+                </th>
+                <th pSortableColumn="valueType" style="width: 15%;">
+                  Tipo 
+                  <p-sortIcon field="valueType"></p-sortIcon>
+                </th>
+                <th style="width: 10%; text-align: center;">Acciones</th>
+              </tr>
+              <tr>
+                <th>
+                  <input 
+                    pInputText 
+                    type="text" 
+                    [(ngModel)]="searchConfiguraciones"
+                    placeholder="Filtrar..."
+                    style="width: 100%;" />
+                </th>
+                <th colspan="4"></th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-config>
+              <tr>
+                <td>
+                  <strong style="color: #667eea;">{{ config.key }}</strong>
+                </td>
+                <td>
+                  <span style="font-family: monospace; background: #f8f9fa; padding: 0.25rem 0.5rem; border-radius: 4px;">
+                    {{ config.value }}
+                  </span>
+                </td>
+                <td>
+                  <span style="color: #6c757d;">{{ config.descripcion }}</span>
+                </td>
+                <td>
+                  <p-tag 
+                    [value]="getTipoValorLabel(config.valueType)" 
+                    [severity]="getTipoValorSeverity(config.valueType)">
+                  </p-tag>
+                </td>
+                <td style="text-align: center;">
+                  <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-text p-button-warning"
+                      (click)="abrirDialogEditarConfiguracion(config)"
+                      pTooltip="Editar"
+                      tooltipPosition="top">
+                    </button>
+                    <button 
+                      pButton 
+                      type="button" 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-text p-button-danger"
+                      (click)="eliminarConfiguracion(config)"
+                      pTooltip="Eliminar"
+                      tooltipPosition="top">
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <i class="pi pi-inbox" style="font-size: 4rem; color: #bdc3c7;"></i>
+                    <div>
+                      <h3 style="margin: 0; color: #7f8c8d;">No hay configuraciones</h3>
+                      <p style="margin: 0.5rem 0 0 0; color: #95a5a6;">Comienza creando una nueva configuración</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="loadingbody">
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 3rem;">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <p-progressSpinner styleClass="custom-spinner" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+                    <p style="margin: 0; color: #7f8c8d;">Cargando configuraciones...</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </ng-template>
+    </p-card>
+
     <!-- Card de Configuración de Reglas de Puntos -->
     <p-card class="config-card">
       <ng-template pTemplate="header">
@@ -565,6 +751,10 @@
             <i class="pi pi-ticket"></i>
             <span>El límite de entradas (rango: <strong>1-50</strong>) ayuda a prevenir acaparamiento y garantiza una distribución equitativa.</span>
           </div>
+          <div class="info-item">
+            <i class="pi pi-database"></i>
+            <span>Las <strong>Configuraciones Generales</strong> permiten personalizar el comportamiento del sistema mediante pares clave-valor almacenados en la base de datos.</span>
+          </div>
         </div>
       </ng-template>
     </p-card>
@@ -655,6 +845,108 @@
       class="p-button-success"
       [loading]="guardandoRegla"
       (click)="guardarRegla()">
+    </button>
+  </ng-template>
+</p-dialog>
+
+<!-- Diálogo para crear/editar configuración general -->
+<p-dialog 
+  [(visible)]="mostrarDialogConfiguracion" 
+  [header]="editandoConfiguracion ? 'Editar Configuración' : 'Nueva Configuración'"
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [closable]="!guardandoConfiguracion">
+  
+  <div style="display: flex; flex-direction: column; gap: 1.5rem; padding: 1rem;">
+    <!-- Clave -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="keyConfig" style="font-weight: 600;">Clave *</label>
+      <input 
+        id="keyConfig"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioConfiguracion.key"
+        placeholder="Ej: max_intentos_login, tiempo_sesion"
+        [disabled]="guardandoConfiguracion || editandoConfiguracion !== null"
+        style="font-family: monospace;" />
+      <small style="color: #666;">La clave debe ser única y no se puede modificar después de creada</small>
+    </div>
+
+    <!-- Valor -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="valueConfig" style="font-weight: 600;">Valor *</label>
+      <input 
+        id="valueConfig"
+        type="text" 
+        pInputText 
+        [(ngModel)]="formularioConfiguracion.value"
+        placeholder="Ej: 3, true, configuracion@example.com"
+        [disabled]="guardandoConfiguracion"
+        style="font-family: monospace;" />
+      <small style="color: #666;">Valor de la configuración</small>
+    </div>
+
+    <!-- Descripción -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="descripcionConfig" style="font-weight: 600;">Descripción *</label>
+      <textarea 
+        id="descripcionConfig"
+        pInputTextarea 
+        [(ngModel)]="formularioConfiguracion.descripcion"
+        placeholder="Describe para qué sirve esta configuración..."
+        [disabled]="guardandoConfiguracion"
+        [rows]="3"
+        style="resize: vertical;">
+      </textarea>
+    </div>
+
+    <!-- Tipo de Valor -->
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <label for="tipoValorConfig" style="font-weight: 600;">Tipo de Valor *</label>
+      <p-dropdown 
+        id="tipoValorConfig"
+        [(ngModel)]="formularioConfiguracion.valueType"
+        [options]="tiposValor"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione tipo de valor"
+        [disabled]="guardandoConfiguracion">
+      </p-dropdown>
+      <small style="color: #666;">Tipo de dato que representa el valor</small>
+    </div>
+
+    <!-- Ejemplo según el tipo -->
+    <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+      <div style="margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50;">
+        <i class="pi pi-info-circle"></i> Ejemplos según el tipo:
+      </div>
+      <ul style="margin: 0; padding-left: 1.5rem; color: #666;">
+        <li><strong>Texto:</strong> "Hola Mundo", "admin&#64;example.com"</li>
+        <li><strong>Número:</strong> 100, 3.14, -5</li>
+        <li><strong>Booleano:</strong> true, false</li>
+        <li><strong>JSON:</strong> {{ '{' }}"key": "value", "number": 123{{ '}' }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      type="button" 
+      label="Cancelar" 
+      icon="pi pi-times"
+      class="p-button-text"
+      [disabled]="guardandoConfiguracion"
+      (click)="cerrarDialogConfiguracion()">
+    </button>
+    <button 
+      pButton 
+      type="button" 
+      [label]="editandoConfiguracion ? 'Actualizar' : 'Crear'"
+      icon="pi pi-check"
+      class="p-button-success"
+      [loading]="guardandoConfiguracion"
+      (click)="guardarConfiguracion()">
     </button>
   </ng-template>
 </p-dialog>
