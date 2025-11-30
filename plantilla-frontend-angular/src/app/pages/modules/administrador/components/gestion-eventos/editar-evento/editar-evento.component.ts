@@ -50,6 +50,7 @@ export class EditarEventoComponent implements OnInit{
     dateFin: Date | undefined; // Fecha de fin del evento
     time: Date | undefined; // Cambiar de array a Date único para timeOnly
     timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
+    today: Date = new Date(); // Fecha actual para validaciones
 
     // Evento principal usando la interfaz del backend
     evento: CrearEventoRequest = {

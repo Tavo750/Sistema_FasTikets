@@ -580,14 +580,15 @@
           <div class="entrada-field">
             <label class="field-label">
               <i class="pi pi-calendar"></i>
-              Fecha inicio venta
+              Fecha inicio<br>venta
             </label>
             <p-datepicker
               [(ngModel)]="entradaFechaInicioVenta"
               dateFormat="dd/mm/yy"
               styleClass="form-input"
-              placeholder="Seleccionar fecha"
+              placeholder="dd/mm/aaaa"
               [showIcon]="true"
+              [minDate]="today"
               appendTo="body"
             ></p-datepicker>
           </div>
@@ -595,14 +596,15 @@
           <div class="entrada-field">
             <label class="field-label">
               <i class="pi pi-calendar"></i>
-              Fecha fin venta
+              Fecha fin<br>venta
             </label>
             <p-datepicker
               [(ngModel)]="entradaFechaFinVenta"
               dateFormat="dd/mm/yy"
               styleClass="form-input"
-              placeholder="Seleccionar fecha"
+              placeholder="dd/mm/aaaa"
               [showIcon]="true"
+              [minDate]="entradaFechaInicioVenta || today"
               appendTo="body"
             ></p-datepicker>
           </div>
