@@ -226,37 +226,39 @@ export class GestionClientesComponent implements OnInit {
 
   eliminarCliente(cliente: Cliente): void {
     this.loading = true;
-    // TODO: Implementar el servicio de eliminación cuando esté disponible en el backend
-    setTimeout(() => {
-      this.clientes = this.clientes.filter(c => c.idCliente !== cliente.idCliente);
-      this.totalRecords = this.clientes.length;
-      this.loading = false;
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Cliente Eliminado',
-        detail: `${cliente.nombres} ${cliente.apellidos} ha sido eliminado correctamente`
-      });
-    }, 500);
-
-    // TODO: Reemplazar con llamada real al servicio
-    // this.clienteService.eliminarCliente(cliente.id).subscribe({
-    //   next: () => {
-    //     this.cargarClientes();
-    //     this.messageService.add({
-    //       severity: 'success',
-    //       summary: 'Cliente Eliminado',
-    //       detail: 'El cliente ha sido eliminado correctamente'
-    //     });
-    //   },
-    //   error: (error) => {
-    //     this.messageService.add({
-    //       severity: 'error',
-    //       summary: 'Error',
-    //       detail: 'No se pudo eliminar el cliente'
-    //     });
-    //   }
-    // });
+    
+    this.gestionClientesService.eliminarClienteLogico(cliente.idCliente).subscribe({
+      next: (response) => {
+        this.loading = false;
+        
+        if (response.ok) {
+          // Recargar la lista de clientes después de eliminar
+          this.cargarClientes();
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Cliente Eliminado',
+            detail: response.mensaje || `${cliente.nombres} ${cliente.apellidos} ha sido eliminado correctamente`
+          });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: response.mensaje || 'No se pudo eliminar el cliente'
+          });
+        }
+      },
+      error: (error) => {
+        this.loading = false;
+        console.error('Error al eliminar cliente:', error);
+        
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.mensaje || 'No se pudo eliminar el cliente'
+        });
+      }
+    });
   }
 
   confirmarVerificacion(cliente: Cliente): void {
