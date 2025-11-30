@@ -390,7 +390,38 @@ export class EventoComponent implements AfterViewInit, OnInit {
       return null;
     }
 
+    /**
+     * Obtiene el límite máximo de entradas configurado por el administrador
+     */
+    getMaxEntradasPermitidas(): number {
+      const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+      return maxEntradas ? parseInt(maxEntradas, 10) : 10;
+    }
+
+    /**
+     * Calcula el total de entradas seleccionadas actualmente
+     */
+    getTotalEntradasSeleccionadas(): number {
+      let total = 0;
+      for (const zonaConTickets of this.zonasConTickets) {
+        total += zonaConTickets.tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      }
+      return total;
+    }
+
     increment(t: TicketType) {
+      const limiteMaximo = this.getMaxEntradasPermitidas();
+      const totalActual = this.getTotalEntradasSeleccionadas();
+      
+      if (totalActual >= limiteMaximo) {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Límite alcanzado',
+          detail: `No puedes seleccionar más de ${limiteMaximo} entradas en total para este evento.`
+        });
+        return;
+      }
+      
       t.quantity++;
     }
 
@@ -459,6 +490,30 @@ export class EventoComponent implements AfterViewInit, OnInit {
           severity: 'warn',
           summary: 'Advertencia',
           detail: 'Selecciona al menos una entrada para añadir al carrito'
+        });
+        return;
+      }
+
+      // Validar límite máximo de entradas configurado por el administrador
+      const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+      const limiteMaximo = maxEntradas ? parseInt(maxEntradas, 10) : 10;
+      
+      const totalSeleccionado = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      const eventoId = this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-');
+      
+      // Calcular entradas actuales en el carrito para este evento
+      const currentCartItems = this.cartService.getCartItems();
+      const entradasActualesEvento = currentCartItems
+        .filter(item => item.eventId === eventoId)
+        .reduce((sum, item) => sum + item.quantity, 0);
+      
+      const totalFinal = entradasActualesEvento + totalSeleccionado;
+      
+      if (totalFinal > limiteMaximo) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Límite excedido',
+          detail: `No puedes comprar más de ${limiteMaximo} entradas para este evento. Ya tienes ${entradasActualesEvento} en el carrito.`
         });
         return;
       }

@@ -269,6 +269,30 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   // Métodos de acciones
+  
+  /**
+   * Obtiene el máximo de entradas configurado por el administrador
+   */
+  getMaxEntradasPermitidas(): number {
+    const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
+    return maxEntradas ? parseInt(maxEntradas, 10) : 10;
+  }
+  
+  /**
+   * Calcula el máximo permitido para un item considerando las entradas del mismo evento
+   */
+  getMaxQuantityForItem(item: CartItem): number {
+    const maxGlobal = this.getMaxEntradasPermitidas();
+    
+    // Calcular cuántas entradas del mismo evento ya están en el carrito (excluyendo este item)
+    const entradasDelEvento = this.cartItems
+      .filter(i => i.eventId === item.eventId && i.id !== item.id)
+      .reduce((sum, i) => sum + i.quantity, 0);
+    
+    // Retornar el máximo que puede tener este item
+    return Math.max(1, maxGlobal - entradasDelEvento);
+  }
+  
   removeItem(item: CartItem): void {
     // Si el item viene del servidor (tiene serverId y cargamos desde servidor), llamar al endpoint DELETE
     const currentUser = this.sessionService.getCurrentUser();
@@ -300,6 +324,30 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   updateQuantity(id: number, quantity: number): void {
+    const item = this.cartItems.find(i => i.id === id);
+    if (!item) return;
+    
+    const maxGlobal = this.getMaxEntradasPermitidas();
+    
+    // Calcular total de entradas del mismo evento
+    const entradasOtrosItems = this.cartItems
+      .filter(i => i.eventId === item.eventId && i.id !== id)
+      .reduce((sum, i) => sum + i.quantity, 0);
+    
+    const totalEntradas = entradasOtrosItems + quantity;
+    
+    if (totalEntradas > maxGlobal) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Límite excedido',
+        detail: `No puedes tener más de ${maxGlobal} entradas para este evento. Actualmente tienes ${entradasOtrosItems} en otros tipos de entrada.`
+      });
+      // Restaurar la cantidad máxima permitida
+      item.quantity = Math.max(1, maxGlobal - entradasOtrosItems);
+      this.cartService.updateQuantity(id, item.quantity);
+      return;
+    }
+    
     this.cartService.updateQuantity(id, quantity);
   }
 

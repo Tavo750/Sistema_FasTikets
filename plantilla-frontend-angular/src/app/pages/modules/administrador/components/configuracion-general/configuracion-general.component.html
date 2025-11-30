@@ -177,6 +177,137 @@
       </ng-template>
     </p-card>
 
+    <!-- Card de Configuración de Límite de Entradas -->
+    <p-card class="config-card">
+      <ng-template pTemplate="header">
+        <div class="card-header-custom" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <div class="header-icon">
+            <i class="pi pi-ticket"></i>
+          </div>
+          <div class="header-text">
+            <h2 class="card-title">Límite de Entradas por Cliente</h2>
+            <p class="card-description">Define el máximo de entradas que cada cliente puede comprar por evento</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <div class="config-section">
+          <!-- Información actual -->
+          <div class="info-box">
+            <i class="pi pi-info-circle"></i>
+            <div class="info-text">
+              <strong>Configuración actual:</strong>
+              <span>Los clientes pueden comprar hasta {{ originalMaxEntradas }} entradas por evento.</span>
+            </div>
+          </div>
+
+          <!-- Control principal -->
+          <div class="time-control-section">
+            <label for="maxEntradas" class="control-label">
+              <i class="pi pi-ticket"></i>
+              Máximo de entradas permitidas
+            </label>
+            
+            <div class="time-input-group">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-minus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxEntradasPorCliente <= 1"
+                (click)="decreaseMaxEntradas()"
+                pTooltip="Disminuir 5 entradas">
+              </button>
+
+              <p-inputNumber
+                id="maxEntradas"
+                [(ngModel)]="maxEntradasPorCliente"
+                [showButtons]="false"
+                [min]="1"
+                [max]="50"
+                [step]="1"
+                suffix=" entradas"
+                (onInput)="onMaxEntradasChange()"
+                class="time-input">
+              </p-inputNumber>
+
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-outlined"
+                [disabled]="maxEntradasPorCliente >= 50"
+                (click)="increaseMaxEntradas()"
+                pTooltip="Aumentar 5 entradas">
+              </button>
+            </div>
+
+            <small class="help-text">
+              <i class="pi pi-exclamation-triangle"></i>
+              Rango permitido: 1 - 50 entradas por evento
+            </small>
+          </div>
+
+          <!-- Presets rápidos -->
+          <div class="presets-section">
+            <label class="presets-label">Configuraciones rápidas:</label>
+            <div class="presets-buttons">
+              <button 
+                pButton 
+                type="button" 
+                label="5" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 5"
+                (click)="maxEntradasPorCliente = 5; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="10" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 10"
+                (click)="maxEntradasPorCliente = 10; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="15" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 15"
+                (click)="maxEntradasPorCliente = 15; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="20" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 20"
+                (click)="maxEntradasPorCliente = 20; onMaxEntradasChange()">
+              </button>
+              <button 
+                pButton 
+                type="button" 
+                label="30" 
+                class="p-button-sm p-button-secondary"
+                [class.p-button-outlined]="maxEntradasPorCliente !== 30"
+                (click)="maxEntradasPorCliente = 30; onMaxEntradasChange()">
+              </button>
+            </div>
+          </div>
+
+          <!-- Vista previa del cambio -->
+          <div class="preview-box" *ngIf="hasChanges && maxEntradasPorCliente !== originalMaxEntradas">
+            <i class="pi pi-eye"></i>
+            <div class="preview-text">
+              <strong>Vista previa:</strong>
+              <span>Los clientes podrán comprar un <strong class="highlight">máximo de {{ maxEntradasPorCliente }} entradas</strong> por evento</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+
     <!-- Información adicional -->
     <p-card class="info-card">
       <ng-template pTemplate="header">
@@ -207,6 +338,10 @@
           <div class="info-item">
             <i class="pi pi-chart-line"></i>
             <span>Se recomienda un tiempo entre <strong>10 y 30 minutos</strong> para una experiencia óptima.</span>
+          </div>
+          <div class="info-item">
+            <i class="pi pi-ticket"></i>
+            <span>El límite de entradas ayuda a prevenir acaparamiento y garantiza una distribución más equitativa.</span>
           </div>
         </div>
       </ng-template>

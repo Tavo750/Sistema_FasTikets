@@ -161,7 +161,7 @@
                       icon="pi pi-plus"
                       size="small"
                       severity="danger"
-                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona)"
+                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona) || getTotalEntradasSeleccionadas() >= getMaxEntradasPermitidas()"
                       (onClick)="increment(ticket)"
                       [rounded]="true"
                       styleClass="quantity-btn-plus">
