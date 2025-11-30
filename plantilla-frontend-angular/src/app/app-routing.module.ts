@@ -42,6 +42,7 @@ const routes: Routes = [
   // ========== REGISTRO DE USUARIO Y CONTRASEÑA ==========================================================
   { path: 'crear_usuario', loadChildren: () => import('./pages/full-pages/crear-usuario/crear-usuario.module').then(m => m.CrearUsuarioModule) },
   { path: 'cambiar_contra', loadChildren: () => import('./pages/full-pages/cambiar-contra/cambiar-contra.module').then(m => m.CambiarContraModule) },
+  { path: 'verificar-cuenta', loadChildren: () => import('./pages/full-pages/verificar-cuenta/verificar-cuenta.module').then(m => m.VerificarCuentaModule) },
   { path: '**', redirectTo: 'error' },
   //=========================================================================================
 ];

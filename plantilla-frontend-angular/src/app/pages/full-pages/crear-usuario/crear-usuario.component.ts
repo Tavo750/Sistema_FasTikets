@@ -41,15 +41,6 @@ export class CrearUsuarioComponent implements OnInit {
   // Fecha máxima para el datepicker (hoy)
   maxDate: Date = new Date();
 
-  // Variables para la verificación de correo
-  mostrarModalVerificacion = false;
-  codigoVerificacion = '';
-  codigoDigitos: string[] = ['', '', '', '', '', ''];
-  correoAVerificar = '';
-  codigoEnviado = false;
-  enviandoCodigo = false;
-  verificandoCodigo = false;
-
   // Dominios permitidos para el correo electrónico
   private dominiosPermitidos = ['gmail.com', 'pucp.edu.pe', 'uni.pe', 'hotmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'unmsm.edu.pe'];
 
@@ -110,7 +101,6 @@ export class CrearUsuarioComponent implements OnInit {
     private dialogService: DialogService,
     private registroUsuarioService: RegistroUsuarioService,
     private messageService: MessageService,
-    private cambiarContraService: CambiarContraService,
     private loadingService: LoadingService
   ) {
     // Calcular fecha máxima (15 años atrás desde hoy)
@@ -284,12 +274,8 @@ setupProvinciaListener(): void {
         return;
       }
 
-      // Obtener el correo y preparar para verificación
-      const email = this.registroForm.get('correo')?.value.trim().toLowerCase();
-      this.correoAVerificar = email;
-
-      // Enviar código de verificación
-      this.enviarCodigoVerificacion();
+      // Registrar usuario directamente
+      this.registrarUsuario();
     } else {
       // Marcar todos los campos como tocados para mostrar los errores
       Object.keys(this.registroForm.controls).forEach(key => {
@@ -363,176 +349,7 @@ setupProvinciaListener(): void {
   }
 
   /**
-   * Envía el código de verificación al correo del usuario
-   */
-  enviarCodigoVerificacion(): void {
-    this.loadingService.show();
-    this.enviandoCodigo = true;
-
-    this.cambiarContraService.putOlvidoContrasena(this.correoAVerificar).subscribe({
-      next: (response) => {
-        this.loadingService.hide();
-        this.enviandoCodigo = false;
-        if (response.ok) {
-          this.codigoEnviado = true;
-          this.mostrarModalVerificacion = true;
-          this.messageService.success('Código de verificación enviado a su correo');
-        } else {
-          this.messageService.error(response.mensaje || 'Error al enviar el código de verificación');
-        }
-      },
-      error: (error) => {
-        this.loadingService.hide();
-        this.enviandoCodigo = false;
-        this.messageService.error('Error al enviar el código de verificación');
-        console.error('Error:', error);
-      }
-    });
-  }
-
-  /**
-   * Valida el código de verificación ingresado por el usuario
-   */
-  validarCodigo(): void {
-    if (!this.codigoCompleto()) {
-      this.messageService.error('Por favor ingrese el código completo de 6 dígitos');
-      return;
-    }
-
-    const codigo = this.codigoDigitos.join('');
-
-    this.loadingService.show();
-    this.verificandoCodigo = true;
-
-    this.cambiarContraService.postValidaCodigo(this.correoAVerificar, codigo).subscribe({
-      next: (response) => {
-        this.loadingService.hide();
-        this.verificandoCodigo = false;
-        if (response.ok) {
-          this.messageService.success('Código verificado correctamente');
-          this.mostrarModalVerificacion = false;
-          this.registrarUsuario();
-        } else {
-          this.messageService.error(response.mensaje || 'Código de verificación incorrecto');
-        }
-      },
-      error: (error) => {
-        this.loadingService.hide();
-        this.verificandoCodigo = false;
-        this.messageService.error('Error al validar el código');
-        console.error('Error:', error);
-      }
-    });
-  }
-
-  /**
-   * Cierra el modal de verificación
-   */
-  cerrarModalVerificacion(): void {
-    this.mostrarModalVerificacion = false;
-    this.codigoVerificacion = '';
-    this.codigoDigitos = ['', '', '', '', '', ''];
-  }
-
-  /**
-   * Reenvía el código de verificación
-   */
-  reenviarCodigo(): void {
-    this.codigoVerificacion = '';
-    this.codigoDigitos = ['', '', '', '', '', ''];
-    this.enviarCodigoVerificacion();
-  }
-
-  /**
-   * Maneja el keypress de un dígito del código
-   */
-  onCodigoKeypress(event: KeyboardEvent, index: number): void {
-    const char = event.key;
-
-    // Solo permitir números del 0 al 9
-    if (!/^[0-9]$/.test(char)) {
-      event.preventDefault();
-      return;
-    }
-
-    // Prevenir la escritura por defecto
-    event.preventDefault();
-
-    // Actualizar el valor manualmente
-    this.codigoDigitos[index] = char;
-
-    // Auto-focus al siguiente input
-    if (index < 5) {
-      setTimeout(() => {
-        const nextInput = document.getElementById(`codigo-${index + 1}`) as HTMLInputElement;
-        if (nextInput) {
-          nextInput.focus();
-        }
-      }, 0);
-    }
-  }
-
-  /**
-   * Maneja el evento keydown para navegación con backspace y delete
-   */
-  onCodigoKeydown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Backspace') {
-      event.preventDefault();
-
-      if (this.codigoDigitos[index]) {
-        // Si hay un valor, borrarlo
-        this.codigoDigitos[index] = '';
-      } else if (index > 0) {
-        // Si no hay valor, ir al anterior y borrarlo
-        this.codigoDigitos[index - 1] = '';
-        const prevInput = document.getElementById(`codigo-${index - 1}`) as HTMLInputElement;
-        if (prevInput) {
-          prevInput.focus();
-        }
-      }
-    } else if (event.key === 'Delete') {
-      event.preventDefault();
-      this.codigoDigitos[index] = '';
-    }
-  }
-
-  /**
-   * Maneja el evento paste para distribuir el código en los 6 inputs
-   */
-  onCodigoPaste(event: ClipboardEvent, index: number): void {
-    event.preventDefault();
-    const pastedData = event.clipboardData?.getData('text') || '';
-    const digits = pastedData.replace(/\D/g, '').split('').slice(0, 6);
-
-    digits.forEach((digit, i) => {
-      if (i < 6) {
-        this.codigoDigitos[i] = digit;
-        const input = document.getElementById(`codigo-${i}`) as HTMLInputElement;
-        if (input) {
-          input.value = digit;
-        }
-      }
-    });
-
-    // Enfocar el último input llenado o el siguiente vacío
-    const nextEmptyIndex = this.codigoDigitos.findIndex(d => !d);
-    const focusIndex = nextEmptyIndex === -1 ? 5 : nextEmptyIndex;
-    const focusInput = document.getElementById(`codigo-${focusIndex}`) as HTMLInputElement;
-    if (focusInput) {
-      focusInput.focus();
-    }
-  }
-
-  /**
-   * Verifica si el código de 6 dígitos está completo
-   */
-  codigoCompleto(): boolean {
-    return this.codigoDigitos.every(digit => digit !== '' && digit !== null && digit !== undefined) &&
-           this.codigoDigitos.length === 6;
-  }
-
-  /**
-   * Registra el usuario después de verificar el código
+   * Registra el usuario
    */
   registrarUsuario(): void {
     // Formatear la fecha de nacimiento a ISO string si es un objeto Date
@@ -545,7 +362,7 @@ setupProvinciaListener(): void {
       docIdentidad: this.registroForm.get('numeroDocumento')?.value.trim(),
       nombres: this.registroForm.get('nombres')?.value.trim(),
       apellidos: this.registroForm.get('apellidos')?.value.trim(),
-      email: this.correoAVerificar,
+      email: this.registroForm.get('correo')?.value.trim().toLowerCase(),
       contrasena: this.registroForm.get('contrasena')?.value,
       telefono: this.registroForm.get('telefono')?.value.trim(),
       fechaNacimiento: fechaFormateada,

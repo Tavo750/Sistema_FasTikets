@@ -52,7 +52,7 @@ export class LoginService {
     this.userRole = sessionStorage.getItem('userRole') || '';
   }
 
-  getLogin(email: string, contrasena: string): Observable<LoginResponse> {
+  postLogin(email: string, contrasena: string): Observable<LoginResponse> {
     const filtro = {
       "email": email,
       "contrasena": contrasena,

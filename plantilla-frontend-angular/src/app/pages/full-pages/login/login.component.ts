@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { FullscreenService } from '../../../shared/services/fullscreen.service';
 import { LoginService } from '../../../core/services/login.service';
 import { SessionService } from '../../../shared/services/session.service';
+import { RegistroUsuarioService } from '../../../core/services/registro-usuario.service';
 
 @Component({
   selector: 'app-login',
@@ -27,6 +28,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   hayError: boolean = false;
   returnUrl: string = '/home/inicio';
   loginMessage: string = '';
+  
+  // Control de verificación de cuenta
+  mostrarBotonReenvio: boolean = false;
+  reenviandoCorreo: boolean = false;
 
   // Control de intentos fallidos
   intentosFallidos: number = 0;
@@ -49,6 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private fullscreenService: FullscreenService,
     private sessionService: SessionService,
+    private registroUsuarioService: RegistroUsuarioService,
   ) { }
 
   ngOnInit(): void {
@@ -128,7 +134,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   validarLogin() {
     this.loadingService.show();
-    this.loginService.getLogin(this.username, this.password).subscribe({
+    this.mostrarBotonReenvio = false; // Resetear estado del botón
+    
+    this.loginService.postLogin(this.username, this.password).subscribe({
       next: (resp) => {
         if (resp.ok === true) {
           // Login exitoso - resetear intentos fallidos y limpiar localStorage
@@ -152,10 +160,28 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.loadingService.hide();
-        // Login fallido por error - incrementar contador
-        this.manejarIntentaFallido();
-        this.messageService.error(error.message || 'Error en la autenticación');
-        this.hayError = true;
+        
+        console.log('Error completo:', error); // Debug
+        
+        // Verificar si es error 409 (cuenta no verificada)
+        // El error puede venir con responseCode o directamente verificar el mensaje
+        const esError409 = error.responseCode === '409' || 
+                           (error.message && error.message.toLowerCase().includes('verificada'));
+        
+        if (esError409) {
+          this.mostrarBotonReenvio = true;
+          this.hayError = true;
+          this.messageService.error(
+            error.message || 'Tu cuenta no ha sido verificada. Por favor, verifica tu correo electrónico.',
+            'Cuenta no verificada',
+            8000
+          );
+        } else {
+          // Login fallido por error - incrementar contador
+          this.manejarIntentaFallido();
+          this.messageService.error(error.message || 'Error en la autenticación');
+          this.hayError = true;
+        }
       }
     })
   }
@@ -272,6 +298,45 @@ export class LoginComponent implements OnInit, OnDestroy {
       // Si no hay sesión activa en ninguno, ir al home público
       this.router.navigate(['/home']);
     }
+  }
+
+  /**
+   * Reenvía el correo de verificación al usuario
+   */
+  reenviarCorreoVerificacion(): void {
+    if (!this.username || !this.validarFormatoEmail(this.username)) {
+      this.messageService.error('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
+    this.reenviandoCorreo = true;
+    this.loadingService.show();
+
+    this.registroUsuarioService.postReenvioVerificacionCorreo(this.username).subscribe({
+      next: (resp) => {
+        this.loadingService.hide();
+        this.reenviandoCorreo = false;
+        
+        if (resp.ok) {
+          this.messageService.success(
+            'Se ha enviado un nuevo correo de verificación. Por favor, revisa tu bandeja de entrada.',
+            'Correo enviado',
+            6000
+          );
+          this.mostrarBotonReenvio = false;
+        } else {
+          this.messageService.error(resp.mensaje || 'No se pudo reenviar el correo.');
+        }
+      },
+      error: (error) => {
+        this.loadingService.hide();
+        this.reenviandoCorreo = false;
+        this.messageService.error(
+          error.error?.mensaje || 'Error al intentar reenviar el correo de verificación.',
+          'Error'
+        );
+      }
+    });
   }
 
   error(mensaje: string) {

@@ -42,6 +42,18 @@
 
       <button type="submit" class="btn-login" [disabled]="bloqueado">{{ bloqueado ? 'Bloqueado (' + tiempoRestante + 's)' : 'Iniciar Sesión' }}</button>
 
+      <!-- Botón para reenviar correo de verificación (solo visible cuando hay error 409) -->
+      <div *ngIf="mostrarBotonReenvio" style="margin-top: 15px;">
+        <button 
+          type="button" 
+          class="btn-reenvio" 
+          (click)="reenviarCorreoVerificacion()" 
+          [disabled]="reenviandoCorreo"
+          style="background-color: #ff6b35; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; font-size: 14px; transition: background-color 0.3s;">
+          {{ reenviandoCorreo ? '⏳ Enviando...' : '📧 Reenviar correo de verificación' }}
+        </button>
+      </div>
+
       <div class="register-wrap">
         <span>¿No tienes cuenta?</span>
         <a (click)="router.navigate(['/crear_usuario'])" class="register-link" style="cursor: pointer;">Regístrate</a>
