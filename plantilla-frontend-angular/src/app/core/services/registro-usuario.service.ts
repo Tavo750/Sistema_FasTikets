@@ -42,4 +42,9 @@ export class RegistroUsuarioService {
     return this.http.post<VerificacionCuentaResponse>(url, {token});
   }
 
+  postReenvioVerificacionCorreo(email: string): Observable<VerificacionCuentaResponse> {
+    const url = `${baseUrl}/auth/verificar/reenviar`;
+    return this.http.post<VerificacionCuentaResponse>(url, {email});
+  }
+
 }
