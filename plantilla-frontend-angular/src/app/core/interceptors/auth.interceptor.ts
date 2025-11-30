@@ -20,10 +20,13 @@ export class AuthInterceptor implements HttpInterceptor {
     const publicEndpoints = [
       '/auth/login',
       '/auth/registro',
+      '/auth/verificar/cuenta',
       '/auth/recuperar-password',
       '/auth/olvido-contrasena',
       '/api/v1/auth/olvido-contrasena',
+      '/api/v1/auth/verificar/cuenta',
       `${baseUrl}/auth/olvido-contrasena`,
+      `${baseUrl}/auth/verificar/cuenta`,
       '/public',
       '/carrito/items',
       '/api/v1/auth/login',

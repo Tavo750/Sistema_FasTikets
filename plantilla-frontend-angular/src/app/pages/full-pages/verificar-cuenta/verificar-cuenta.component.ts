@@ -24,9 +24,15 @@ export class VerificarCuentaComponent implements OnInit {
     // Obtener el token de la URL
     const token = this.route.snapshot.paramMap.get('token');
     
+    console.log('Token obtenido de la URL:', token);
+    console.log('Params completos:', this.route.snapshot.params);
+    console.log('URL completa:', window.location.href);
+    
     if (token) {
+      console.log('Llamando al servicio de verificación con token:', token);
       this.verificarCuenta(token);
     } else {
+      console.error('No se encontró el token en la URL');
       this.verificacionFallida = true;
       this.mensaje = 'Token de verificación no válido';
       this.cargando = false;
@@ -34,13 +40,17 @@ export class VerificarCuentaComponent implements OnInit {
   }
 
   verificarCuenta(token: string): void {
+    console.log('Iniciando verificación de cuenta...');
     this.registroService.postVerificacionCuenta(token).subscribe({
       next: (response) => {
+        console.log('Respuesta exitosa del servidor:', response);
         this.cargando = false;
         this.verificacionExitosa = true;
         this.mensaje = response.mensaje || '¡Cuenta verificada exitosamente!';
       },
       error: (error) => {
+        console.error('Error al verificar la cuenta:', error);
+        console.error('Detalles del error:', error.error);
         this.cargando = false;
         this.verificacionFallida = true;
         this.mensaje = error.error?.mensaje || 'Error al verificar la cuenta. El enlace puede haber expirado o ya fue utilizado.';
