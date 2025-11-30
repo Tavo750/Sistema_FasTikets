@@ -40,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cargandoFavoritos: boolean = false;
 
   // Avatar del usuario
-  avatarUsuario: string = 'https://api.dicebear.com/7.x/personas/svg?seed=user';
+  avatarUsuario: string = 'https://api.dicebear.com/7.x/notionists/svg?seed=user';
   avatarAdmin: string = 'https://api.dicebear.com/7.x/bottts/svg?seed=admin';
   
   /**
