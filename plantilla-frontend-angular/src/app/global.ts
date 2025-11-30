@@ -5,7 +5,7 @@ export var titulo: string = `Plantilla`;
 export var tituloVersion: string = `v(1.0.0)`;
 
 // URL del backend
-export var baseUrl = 'http://localhost:8081/api/v1';
+export var baseUrl = 'https://api.francoricra.online/api/v1';
 
 export var anio: number = 2025;
 
