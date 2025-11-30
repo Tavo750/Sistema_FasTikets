@@ -161,8 +161,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.loadingService.hide();
         
-        console.log('Error completo:', error); // Debug
-        
         // Verificar si es error 409 (cuenta no verificada)
         // El error puede venir con responseCode o directamente verificar el mensaje
         const esError409 = error.responseCode === '409' || 

@@ -143,7 +143,6 @@ cargarDepartamentos(): void {
       }
     },
     error: (error) => {
-      console.error('Error al cargar departamentos:', error);
       this.messageService.error('Error al cargar departamentos');
     }
   });
@@ -167,14 +166,11 @@ setupDepartamentoListener(): void {
           if (response.ok && response.data) {
             this.provincias = response.data;
           } else {
-            console.error('Error al cargar provincias:', response.mensaje);
             this.messageService.error(response.mensaje || 'Error al cargar provincias');
           }
           this.loadingProvincias = false;
         },
         error: (error) => {
-
-          console.error('Error al cargar provincias:', error);
           this.messageService.error('Error al cargar provincias');
           this.loadingProvincias = false;
         }
@@ -196,13 +192,11 @@ setupProvinciaListener(): void {
           if (response.ok && response.data) {
             this.distritos = response.data;
           } else {
-            console.error('Error al cargar distritos:', response.mensaje);
             this.messageService.error(response.mensaje || 'Error al cargar distritos');
           }
           this.loadingDistritos = false;
         },
         error: (error) => {
-          console.error('Error al cargar distritos:', error);
           this.messageService.error('Error al cargar distritos');
           this.loadingDistritos = false;
         }
@@ -243,7 +237,7 @@ setupProvinciaListener(): void {
 
     this.dialogRef.onClose.subscribe((acepto: boolean) => {
       if (acepto) {
-        console.log('Términos aceptados');
+        // Términos aceptados
       }
     });
   }
@@ -262,7 +256,7 @@ setupProvinciaListener(): void {
     });
 
     this.dialogRef.onClose.subscribe((result: any) => {
-      console.log('Dialog exitoso cerrado');
+      // Dialog exitoso cerrado
     });
   }
 
