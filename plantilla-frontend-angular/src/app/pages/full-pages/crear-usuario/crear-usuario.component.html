@@ -23,179 +23,94 @@
     <p class="subtitle">Regístrate y accede a muchos beneficios</p>
 
     <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
-      <!-- Nombres -->
-      <p-floatlabel>
-        <input pInputText id="nombres" formControlName="nombres" class="w-full" />
-        <label for="nombres">Nombres *</label>
-      </p-floatlabel>
-
-      <!-- Apellidos -->
-      <p-floatlabel>
-        <input pInputText id="apellidos" formControlName="apellidos" class="w-full" />
-        <label for="apellidos">Apellidos *</label>
-      </p-floatlabel>
-
-      <!-- Correo -->
-      <p-floatlabel>
-        <input pInputText id="correo" type="email" formControlName="correo" class="w-full" />
-        <label for="correo">Correo Electrónico *</label>
-      </p-floatlabel>
-
-      <!-- Contraseña -->
-      <p-floatlabel>
-        <p-password
-          id="contrasena"
-          formControlName="contrasena"
-          [toggleMask]="true"
-          [feedback]="false"
-          styleClass="w-full"
-          inputStyleClass="w-full">
-        </p-password>
-        <label for="contrasena">Contraseña *</label>
-      </p-floatlabel>
-
-      <!-- Repetir Contraseña -->
-      <p-floatlabel>
-        <p-password
-          id="repitaContrasena"
-          formControlName="repitaContrasena"
-          [toggleMask]="true"
-          [feedback]="false"
-          styleClass="w-full"
-          inputStyleClass="w-full">
-        </p-password>
-        <label for="repitaContrasena">Repita Contraseña *</label>
-      </p-floatlabel>
+      <input type="text" placeholder="Nombres *" formControlName="nombres" required>
+      <input type="text" placeholder="Apellidos *" formControlName="apellidos" required>
+      <input type="email" placeholder="Correo Electrónico *" formControlName="correo" required>
+      <input type="password" placeholder="Contraseña *" formControlName="contrasena" required>
+      <input type="password" placeholder="Repita Contraseña *" formControlName="repitaContrasena" required>
 
       <div class="form-row">
-        <!-- Fecha de Nacimiento -->
         <div class="form-group form-group-date">
-          <p-floatlabel>
-            <p-datepicker
-              id="fechaNacimiento"
-              formControlName="fechaNacimiento"
-              dateFormat="dd/mm/yy"
-              [showIcon]="true"
-              iconDisplay="input"
-              [maxDate]="maxDate"
-              styleClass="w-full"
-              inputStyleClass="w-full">
-            </p-datepicker>
-            <label for="fechaNacimiento">Fecha de Nacimiento *</label>
-          </p-floatlabel>
+          <input type="date" placeholder="Fecha de nacimiento *" formControlName="fechaNacimiento" [max]="maxDate | date:'yyyy-MM-dd'" required>
         </div>
 
         <!-- Departamento -->
         <div class="form-group form-group-departamento">
-          <p-floatlabel>
-            <p-select
-              id="departamento"
-              formControlName="departamento"
-              [options]="departamentos"
-              optionLabel="nombre"
-              optionValue="idDepartamento"
-              placeholder="Seleccione"
-              styleClass="w-full">
-            </p-select>
-            <label for="departamento">Departamento *</label>
-          </p-floatlabel>
+          <select
+            id="departamento"
+            placeholder="Departamento *"
+            formControlName="departamento"
+            class="form-control">
+            <option value="">Departamento *</option>
+            <option *ngFor="let dep of departamentos" [value]="dep.idDepartamento">
+              {{ dep.nombre }}
+            </option>
+          </select>
         </div>
 
         <!-- Provincia -->
         <div class="form-group form-group-provincia">
-          <p-floatlabel>
-            <p-select
-              id="provincia"
-              formControlName="provincia"
-              [options]="provincias"
-              optionLabel="nombre"
-              optionValue="idProvincia"
-              [disabled]="!provincias.length || loadingProvincias"
-              [placeholder]="loadingProvincias ? 'Cargando...' : 'Seleccione'"
-              styleClass="w-full">
-            </p-select>
-            <label for="provincia">Provincia *</label>
-          </p-floatlabel>
+          <select
+            id="provincia"
+            placeholder="Provincia *"
+            formControlName="provincia"
+            class="form-control"
+            [disabled]="!provincias.length || loadingProvincias">
+            <option value="">
+              {{ loadingProvincias ? 'Cargando...' : 'Provincia *' }}
+            </option>
+            <option *ngFor="let prov of provincias" [value]="prov.idProvincia">
+              {{ prov.nombre }}
+            </option>
+          </select>
         </div>
 
         <!-- Distrito -->
         <div class="form-group form-group-distrito">
-          <p-floatlabel>
-            <p-select
-              id="distrito"
-              formControlName="distrito"
-              [options]="distritos"
-              optionLabel="nombre"
-              optionValue="idDistrito"
-              [disabled]="!distritos.length || loadingDistritos"
-              [placeholder]="loadingDistritos ? 'Cargando...' : 'Seleccione'"
-              styleClass="w-full">
-            </p-select>
-            <label for="distrito">Distrito *</label>
-          </p-floatlabel>
+          <select
+            id="distrito"
+            placeholder="Distrito *"
+            formControlName="distrito"
+            class="form-control"
+            [disabled]="!distritos.length || loadingDistritos">
+            <option value="">
+              {{ loadingDistritos ? 'Cargando...' : 'Distrito *' }}
+            </option>
+            <option *ngFor="let dist of distritos" [value]="dist.idDistrito">
+              {{ dist.nombre }}
+            </option>
+          </select>
         </div>
       </div>
 
-      <!-- Dirección -->
-      <p-floatlabel>
-        <input pInputText id="direccion" formControlName="direccion" class="w-full" />
-        <label for="direccion">Dirección domiciliaria *</label>
-      </p-floatlabel>
+      <input type="text" placeholder="Dirección domiciliaria *" formControlName="direccion" required>
 
       <div class="form-row">
-        <!-- Teléfono -->
         <div class="form-group form-group-telefono">
-          <p-floatlabel>
-            <input
-              pInputText
-              id="telefono"
-              formControlName="telefono"
-              maxlength="9"
-              (keypress)="onlyNumbers($event)"
-              (paste)="onPaste($event, 'telefono')"
-              class="w-full" />
-            <label for="telefono">Número de Teléfono *</label>
-          </p-floatlabel>
+          <input type="tel" placeholder="Número de Teléfono *" formControlName="telefono"
+                 maxlength="9"
+                 (keypress)="onlyNumbers($event)"
+                 (paste)="onPaste($event, 'telefono')"
+                 required>
         </div>
-
-        <!-- Tipo de Documento -->
         <div class="form-group form-group-tipo-doc">
-          <p-floatlabel>
-            <p-select
-              id="tipoDocumento"
-              formControlName="tipoDocumento"
-              [options]="tiposDocumentoOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Seleccione"
-              styleClass="w-full">
-            </p-select>
-            <label for="tipoDocumento">Tipo de Documento *</label>
-          </p-floatlabel>
+          <select formControlName="tipoDocumento" required>
+            <option value="">Tipo de Documento *</option>
+            <option value="DNI">DNI</option>
+            <option value="PASAPORTE">Pasaporte</option>
+            <option value="ce">Carnet de Extranjería</option>
+          </select>
         </div>
-
-        <!-- Número de Documento -->
         <div class="form-group form-group-num-doc">
-          <p-floatlabel>
-            <input
-              pInputText
-              id="numeroDocumento"
-              formControlName="numeroDocumento"
-              maxlength="8"
-              (keypress)="onlyNumbers($event)"
-              (paste)="onPaste($event, 'numeroDocumento')"
-              class="w-full" />
-            <label for="numeroDocumento">Número de Documento *</label>
-          </p-floatlabel>
+          <input type="text" placeholder="Número de Documento *" formControlName="numeroDocumento"
+                 maxlength="8"
+                 (keypress)="onlyNumbers($event)"
+                 (paste)="onPaste($event, 'numeroDocumento')"
+                 required>
         </div>
       </div>
 
-      <p-button
-        type="button"
-        label="Continuar"
-        (onClick)="onSubmit()"
-        styleClass="w-full btn-login">
-      </p-button>
+      <button type="button" class="btn-login" (click)="onSubmit()">Continuar</button>
 
       <p class="terms-text">
         Al registrarse acepta los <a href="#" (click)="mostrarTerminos($event)">Términos del Servicio</a><br>
@@ -205,6 +120,7 @@
   </div>
 
 </div>
+
 
 <!-- Modal de Verificación de Correo con PrimeNG -->
 <p-dialog

@@ -75,13 +75,13 @@ form{
 
 /* Inputs estilo suave */
 input, select{
-  width:100%;
-  margin:6px 0;
+  width:100%; 
+  margin:6px 0; 
   padding:12px 14px;
-  background:#f7f7f7;
-  border:1px solid #e5e5e5;
+  background:#f7f7f7; 
+  border:1px solid #e5e5e5; 
   border-radius:8px;
-  outline:none;
+  outline:none; 
   transition:border .2s, box-shadow .2s;
   font-size:14px;
   height: 44px;
@@ -89,7 +89,7 @@ input, select{
 }
 
 input:focus, select:focus{
-  border-color:#b6b6b6;
+  border-color:#b6b6b6; 
   box-shadow:0 0 0 3px rgba(0,0,0,.05);
 }
 
@@ -99,9 +99,9 @@ select{
 
 /* Contenedores para campos en fila */
 .form-row{
-  width:100%;
-  display:flex;
-  gap:12px;
+  width:100%; 
+  display:flex; 
+  gap:12px; 
   margin:6px 0;
   align-items: stretch;
 }
@@ -183,8 +183,8 @@ select{
   .poster{ height:300px; flex:0 0 auto; }
   .form-container h1{ font-size:36px; }
   form{ max-width:420px; }
-  .form-row{
-    flex-wrap: wrap;
+  .form-row{ 
+    flex-wrap: wrap; 
   }
   .form-group-date,
   .form-group-telefono{
