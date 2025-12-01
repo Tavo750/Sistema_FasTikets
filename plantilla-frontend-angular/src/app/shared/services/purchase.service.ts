@@ -49,10 +49,10 @@ export class PurchaseService {
           eventInfo: {
             title: item.title,
             date: item.eventDate || '',
-            time: '', // No disponible en cart, se puede agregar después
+            time: item.eventTime || '',
             venue: item.eventVenue || '',
-            address: '', // No disponible en cart, se puede agregar después
-            organizer: '', // No disponible en cart, se puede agregar después
+            address: item.eventAddress || '',
+            organizer: item.eventOrganizer || '',
             image: item.image
           },
           tickets: [],

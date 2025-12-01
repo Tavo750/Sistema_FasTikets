@@ -1,4 +1,14 @@
 <div class="cart-container">
+  <!-- Modal de confirmación para tiempo agotado con overlay prominente -->
+  <p-confirmDialog 
+    key="timerExpired"
+    [style]="{width: '50vw', maxWidth: '600px'}"
+    [baseZIndex]="10000"
+    [dismissableMask]="false"
+    [closable]="false"
+    styleClass="timer-expired-dialog">
+  </p-confirmDialog>
+
   <div class="cart-header">
     <h1 class="cart-title">
       <i class="pi pi-shopping-cart"></i>
@@ -81,27 +91,118 @@
       <p-panel header="Resumen del Pedido" class="summary-panel">
         <ng-template #content>
           <div class="summary-content">
-            <div class="summary-row">
-              <span>Subtotal:</span>
-              <span>S/ {{ getSubtotal() | number:'1.2-2' }}</span>
+            <!-- Sección 1: Precio Base -->
+            <div class="summary-section">
+              <h4 class="section-title">Precio de Entradas</h4>
+              <div class="summary-row">
+                <span>Precio base de las entradas:</span>
+                <span>S/ {{ getBaseSubtotal() | number:'1.2-2' }}</span>
+              </div>
             </div>
-            <div class="summary-row">
-              <span>Impuestos (incluidos 16%):</span>
-              <span>S/ {{ getTaxes() | number:'1.2-2' }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Subtotal Base:</span>
-              <span>S/ {{ getBaseSubtotal() | number:'1.2-2' }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Recargo por tiempo ({{ getTimeSurchargePercentDisplay() }}):</span>
-              <span>S/ {{ getTimeSurchargeAmount() | number:'1.2-2' }}</span>
-            </div>
-            <!-- Envío eliminado del resumen -->
+            
             <p-divider></p-divider>
-            <div class="summary-row total-row">
-              <span class="total-label">Total:</span>
-              <span class="total-amount">S/ {{ getTotal() | number:'1.2-2' }}</span>
+            
+            <!-- Sección 2: Cargos Adicionales -->
+            <div class="summary-section">
+              <h4 class="section-title">Cargos Adicionales</h4>
+              <div class="summary-row" *ngIf="getTimeSurchargeAmount() > 0">
+                <span>
+                  <i class="pi pi-clock"></i> Recargo por tiempo de compra ({{ getTimeSurchargePercentDisplay() }}):
+                </span>
+                <span>+ S/ {{ getTimeSurchargeAmount() | number:'1.2-2' }}</span>
+              </div>
+              <div class="summary-row info-row">
+                <span>
+                  <i class="pi pi-info-circle"></i> Impuestos incluidos (IGV 16%):
+                </span>
+                <span>S/ {{ getTaxes() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            
+            <p-divider></p-divider>
+            
+            <!-- Sección 3: Subtotal antes de descuento -->
+            <div class="summary-section">
+              <div class="summary-row subtotal-row">
+                <span class="subtotal-label">Subtotal:</span>
+                <span class="subtotal-amount">S/ {{ getSubtotal() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            
+            <!-- Sección 4: Descuentos (si aplica) -->
+            <div class="summary-section" *ngIf="codigoPromocionalAplicado">
+              <p-divider></p-divider>
+              <h4 class="section-title">Descuentos Aplicados</h4>
+              <div class="summary-row promo-row">
+                <span class="promo-label">
+                  <i class="pi pi-tag"></i> Código {{ codigoPromocionalAplicado.codigo }}:
+                </span>
+                <span class="promo-amount">- S/ {{ getDescuentoPromocional() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+            
+            <p-divider></p-divider>
+            
+            <!-- Sección 5: Total Final -->
+            <div class="summary-section">
+              <div class="summary-row total-row">
+                <span class="total-label">
+                  <i class="pi pi-shopping-cart"></i> Total a Pagar:
+                </span>
+                <span class="total-amount">S/ {{ getTotal() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Sección de código promocional -->
+            <div class="promo-code-section">
+              <p-divider></p-divider>
+              <div class="promo-header">
+                <i class="pi pi-gift promo-icon"></i>
+                <h4 class="promo-title">¿Tienes un código promocional?</h4>
+              </div>
+              
+              <div class="promo-input-group" *ngIf="!codigoPromocionalAplicado">
+                <input 
+                  type="text" 
+                  pInputText 
+                  [(ngModel)]="codigoPromocionalInput"
+                  placeholder="Ingresa tu código aquí"
+                  [disabled]="verificandoCodigo"
+                  (keyup.enter)="aplicarCodigoPromocional()"
+                  class="promo-input"
+                />
+                <p-button
+                  label="Aplicar"
+                  icon="pi pi-check"
+                  [loading]="verificandoCodigo"
+                  [disabled]="!codigoPromocionalInput || verificandoCodigo"
+                  (onClick)="aplicarCodigoPromocional()"
+                  styleClass="p-button-success"
+                  size="small">
+                </p-button>
+              </div>
+
+              <div class="promo-applied" *ngIf="codigoPromocionalAplicado">
+                <div class="promo-applied-content">
+                  <div class="promo-applied-icon">
+                    <i class="pi pi-check-circle"></i>
+                  </div>
+                  <div class="promo-applied-info">
+                    <strong class="promo-applied-code">{{ codigoPromocionalAplicado.codigo }}</strong>
+                    <p class="promo-applied-desc">{{ codigoPromocionalAplicado.descripcion }}</p>
+                  </div>
+                </div>
+                <p-button
+                  icon="pi pi-times"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  size="small"
+                  pTooltip="Eliminar código"
+                  tooltipPosition="top"
+                  (onClick)="eliminarCodigoPromocional()">
+                </p-button>
+              </div>
             </div>
 
             <div class="checkout-actions">

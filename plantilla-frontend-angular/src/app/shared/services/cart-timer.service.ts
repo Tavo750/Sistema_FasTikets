@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { baseUrl } from '../../global';
+import { ConfiguracionGeneralService } from '../../pages/modules/administrador/services/configuracion-general.service';
 
 @Injectable({ providedIn: 'root' })
 export class CartTimerService {
   private readonly STORAGE_KEY_TIME_LIMIT = 'cart_time_limit_minutes';
-  private CART_TIMER_MS: number = 0;
+  private readonly DEFAULT_TIME_LIMIT_MINUTES = 15; // Valor por defecto
+  private CART_TIMER_MS: number = 15 * 60 * 1000; // 15 minutos por defecto
   private intervalId: any = null;
   private startTs: number | null = null;
   private storageKey: string | null = null;
@@ -15,8 +15,8 @@ export class CartTimerService {
   private remainingSubject = new BehaviorSubject<number>(0);
   private displaySubject = new BehaviorSubject<string>('');
   private expiredSubject = new Subject<void>();
-  // Inicialmente 0 — se actualizará desde storage o desde el endpoint remoto
-  private timeLimitSubject = new BehaviorSubject<number>(0); // minutos
+  // Inicialmente 15 minutos — se actualizará desde storage o desde el endpoint remoto
+  private timeLimitSubject = new BehaviorSubject<number>(15); // minutos
 
   public running$: Observable<boolean> = this.runningSubject.asObservable();
   public remaining$: Observable<number> = this.remainingSubject.asObservable();
@@ -24,11 +24,8 @@ export class CartTimerService {
   public expired$: Observable<void> = this.expiredSubject.asObservable();
   public timeLimit$: Observable<number> = this.timeLimitSubject.asObservable();
 
-  
-
-  // URL fija del endpoint de configuración para el tiempo de reserva del carrito
-  // No dinámico: usar siempre este endpoint específico
-  private readonly CONFIG_URL = `${baseUrl}/configuracion/TIEMPO_RESERVA_CARRITO_MIN`;
+  // Referencia al servicio de configuración (lazy loading para evitar dependencias circulares)
+  private configuracionGeneralService: ConfiguracionGeneralService | null = null;
   // Promesa que se resuelve cuando la carga inicial (petición remota) termina
   private initialLoadPromise: Promise<void> | null = null;
   private resolveInitialLoad: (() => void) | null = null;
@@ -38,7 +35,7 @@ export class CartTimerService {
   /**
    * Crea el servicio e intenta cargar la configuración remota si está disponible
    */
-  constructor(private http: HttpClient) {
+  constructor(private injector: Injector) {
     // Cargar tiempo límite desde localStorage si existe
     const savedLimit = this.loadTimeLimitFromStorage();
     if (savedLimit !== null) {
@@ -50,30 +47,80 @@ export class CartTimerService {
 
     // Intentar obtener valor remoto y aplicar si es válido
     this.loadTimeLimitFromEndpoint();
+
+    // Escuchar cambios en localStorage para sincronizar entre pestañas/componentes
+    this.setupStorageListener();
   }
 
   /**
-   * Consulta el endpoint de configuración y si devuelve un valor entero válido
+   * Configura el listener de storage para detectar cambios en el tiempo límite
+   */
+  private setupStorageListener(): void {
+    try {
+      window.addEventListener('storage', (event: StorageEvent) => {
+        if (event.key === this.STORAGE_KEY_TIME_LIMIT && event.newValue) {
+          const minutes = parseInt(event.newValue, 10);
+          if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
+            console.log('CartTimerService: Cambio detectado en localStorage, actualizando tiempo límite:', minutes);
+            this.CART_TIMER_MS = minutes * 60 * 1000;
+            this.timeLimitSubject.next(minutes);
+          }
+        }
+      });
+      
+      // También escuchar custom event para cambios en la misma pestaña
+      window.addEventListener('cartTimerConfigChanged', ((event: CustomEvent) => {
+        const minutes = event.detail?.minutes;
+        if (minutes && !isNaN(minutes) && minutes >= 1 && minutes <= 120) {
+          console.log('CartTimerService: Cambio detectado vía custom event, actualizando tiempo límite:', minutes);
+          this.CART_TIMER_MS = minutes * 60 * 1000;
+          this.timeLimitSubject.next(minutes);
+        }
+      }) as EventListener);
+    } catch (e) {
+      console.warn('No se pudo configurar storage listener', e);
+    }
+  }
+
+  /**
+   * Consulta el servicio de configuración y si devuelve un valor entero válido
    * lo aplica como tiempo límite en minutos.
    */
   private loadTimeLimitFromEndpoint(): void {
     try {
-      console.debug('CartTimerService.loadTimeLimitFromEndpoint -> GET', this.CONFIG_URL);
+      // Lazy loading del servicio para evitar dependencias circulares
+      if (!this.configuracionGeneralService) {
+        this.configuracionGeneralService = this.injector.get(ConfiguracionGeneralService);
+      }
+      
+      console.debug('CartTimerService: Cargando tiempo límite desde ConfiguracionGeneralService');
       this.initialLoadStarted = true;
-      this.http.get<any>(this.CONFIG_URL).subscribe({
+      
+      // Usar timeout para resolver la promesa inicial incluso si el servicio tarda
+      const timeoutId = setTimeout(() => {
+        console.info('CartTimerService: Timeout esperando configuración, usando valor por defecto');
+        try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
+      }, 5000); // 5 segundos de timeout
+      
+      this.configuracionGeneralService.getConfiguracionPorKey('TIEMPO_CARRO_MINUTOS').subscribe({
         next: (resp) => {
+          clearTimeout(timeoutId);
           try {
-            // Respuesta esperada: { ok: true, mensaje: '...', data: { value: 15 } }
-            const value = resp?.data?.value ?? resp?.value ?? resp ?? null;
-            // Aceptar formatos como "15", "15.0", "15.00"
-            const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
-            const minutes = !isNaN(parsed) ? Math.round(parsed) : NaN;
-            if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
-              // Aplicar nuevo tiempo límite
-              this.setTimeLimitMinutes(minutes);
+            if (resp.ok && resp.data) {
+              const value = resp.data.value;
+              // Aceptar formatos como "15", "15.0", "15.00"
+              const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
+              const minutes = !isNaN(parsed) ? Math.round(parsed) : NaN;
+              if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
+                // Aplicar nuevo tiempo límite
+                this.setTimeLimitMinutes(minutes);
+                console.log('CartTimerService: Tiempo límite cargado desde backend:', minutes, 'minutos');
+              } else {
+                // no válido: mantener valor por defecto
+                console.info('CartTimerService: valor de tiempo remoto no válido, usando valor por defecto:', this.DEFAULT_TIME_LIMIT_MINUTES, 'minutos');
+              }
             } else {
-              // no válido: ignorar
-              console.info('CartTimerService: valor de tiempo remoto no válido, se mantiene el valor actual', value);
+              console.warn('CartTimerService: No se encontró configuración TIEMPO_CARRO_MINUTOS, usando valor por defecto:', this.DEFAULT_TIME_LIMIT_MINUTES, 'minutos');
             }
           } catch (e) {
             console.warn('Error procesando respuesta de configuración de tiempo', e);
@@ -82,8 +129,10 @@ export class CartTimerService {
           try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
         },
         error: (err) => {
-          // No bloquear si falla la petición; se sigue con el valor guardado o por defecto
-          console.warn('No se pudo obtener configuración remota de tiempo de carrito, se mantiene valor por defecto/storage', err);
+          clearTimeout(timeoutId);
+          // No bloquear si falla la petición; se sigue con el valor por defecto
+          console.warn('No se pudo obtener configuración remota de tiempo de carrito (puede que no exista en BD), usando valor por defecto:', this.DEFAULT_TIME_LIMIT_MINUTES, 'minutos', err);
+          // resolver promesa inicial para que no se quede esperando
           try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
         }
       });
@@ -137,11 +186,27 @@ export class CartTimerService {
       this.timeLimitSubject.next(minutes);
       try { console.debug('CartTimerService.setTimeLimitMinutes -> applied minutes', minutes, 'CART_TIMER_MS', this.CART_TIMER_MS); } catch (_) {}
       
+      // Emitir evento custom para notificar a otros componentes en la misma pestaña
+      try {
+        const event = new CustomEvent('cartTimerConfigChanged', { detail: { minutes } });
+        window.dispatchEvent(event);
+      } catch (e) {
+        console.warn('No se pudo emitir evento de cambio de configuración', e);
+      }
+      
       return true;
     } catch (e) {
       console.error('Error guardando tiempo límite del carrito', e);
       return false;
     }
+  }
+
+  /**
+   * Recarga la configuración desde el endpoint (útil para sincronizar después de cambios)
+   */
+  reloadConfiguration(): void {
+    console.log('CartTimerService: Recargando configuración desde backend');
+    this.loadTimeLimitFromEndpoint();
   }
 
   async startIfNotStarted(userId?: number | string): Promise<void> {

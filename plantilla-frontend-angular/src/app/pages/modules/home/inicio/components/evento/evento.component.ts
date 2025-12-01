@@ -544,7 +544,10 @@ export class EventoComponent implements AfterViewInit, OnInit {
         image: this.eventoData ? this.eventoData.imagenUrl : this.imageUrl,
         date: this.date,
         venue: this.localData ? this.localData.nombre : this.venue,
-        eventId: this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-')
+        eventId: this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-'),
+        time: this.time,
+        address: this.localData ? this.localData.direccion : this.address,
+        organizer: this.organizer
       };
 
       // Actualizar el carrito local (BehaviorSubject) para reflejar la UI

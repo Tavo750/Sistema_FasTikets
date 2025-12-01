@@ -21,8 +21,8 @@ export class ConfiguracionGeneralComponent implements OnInit {
   isSavingTimer: boolean = false;
   
   // Configuración del límite de entradas por cliente
-  maxEntradasPorCliente: number = 10;
-  originalMaxEntradas: number = 10;
+  maxEntradasPorCliente: number = 4;
+  originalMaxEntradas: number = 4;
   hasChangesEntradas: boolean = false;
   isSavingEntradas: boolean = false;
   
@@ -707,6 +707,41 @@ export class ConfiguracionGeneralComponent implements OnInit {
    */
   getActivoSeverity(activo: boolean): 'success' | 'danger' {
     return activo ? 'success' : 'danger';
+  }
+
+  /**
+   * Obtiene un ejemplo de conversión de puntos
+   * Muestra cuántos puntos se obtienen o necesitan según el tipo de regla
+   */
+  getEjemploConversion(regla: ReglaPuntos): string {
+    if (regla.tipoRegla === 'COMPRA') {
+      // Por compra: muestra cuántos soles necesitas gastar para obtener 1 punto
+      return `Por cada S/ ${regla.solesPorPunto.toFixed(2)} en compras = 1 punto`;
+    } else {
+      // Por canje: muestra cuánto descuento obtienes por 1 punto
+      return `1 punto = S/ ${regla.solesPorPunto.toFixed(2)} de descuento`;
+    }
+  }
+
+  /**
+   * Obtiene ejemplos múltiples de conversión
+   */
+  getEjemplosMultiples(regla: ReglaPuntos): string[] {
+    const ejemplos: string[] = [];
+    
+    if (regla.tipoRegla === 'COMPRA') {
+      // Ejemplos de acumulación
+      ejemplos.push(`S/ ${(regla.solesPorPunto * 10).toFixed(2)} → 10 puntos`);
+      ejemplos.push(`S/ ${(regla.solesPorPunto * 50).toFixed(2)} → 50 puntos`);
+      ejemplos.push(`S/ ${(regla.solesPorPunto * 100).toFixed(2)} → 100 puntos`);
+    } else {
+      // Ejemplos de canje
+      ejemplos.push(`10 puntos → S/ ${(regla.solesPorPunto * 10).toFixed(2)} desc.`);
+      ejemplos.push(`50 puntos → S/ ${(regla.solesPorPunto * 50).toFixed(2)} desc.`);
+      ejemplos.push(`100 puntos → S/ ${(regla.solesPorPunto * 100).toFixed(2)} desc.`);
+    }
+    
+    return ejemplos;
   }
 
   // ==================== CONFIGURACIONES GENERALES ====================

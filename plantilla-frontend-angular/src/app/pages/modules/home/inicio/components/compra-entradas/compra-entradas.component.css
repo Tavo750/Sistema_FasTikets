@@ -236,62 +236,171 @@
   border: 1px solid #e9ecef;
 }
 
-/* Nuevo cuadro de canje por código */
+/* Nuevo cuadro de canje por puntos */
 .redeem-box {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
   margin: 0.5rem 0 0.75rem 0;
 }
-.redeem-input {
-  flex: 1;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #ced4da;
+
+/* Info de puntos disponibles */
+.points-info-box {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border: 1px solid #90caf9;
   border-radius: 8px;
-  font-size: 0.95rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
 }
-.redeem-btn {
-  background: linear-gradient(90deg,#1976d2,#1565c0);
-  color: white;
-  border-radius: 8px;
-  padding: 0.55rem 0.9rem;
-  font-weight: 700;
-  box-shadow: 0 6px 12px rgba(21, 101, 192, 0.12);
-}
-.redeem-info {
+
+.points-available-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.6rem;
-  padding: 0.5rem;
-  background: linear-gradient(90deg,#fff8e1,#fff3cd);
-  border-radius: 8px;
-  border: 1px solid #ffe8a1;
+  margin-bottom: 0.25rem;
 }
-.applied-code {
-  font-weight: 700;
-  color: #6b3e00;
-}
-.discount-tag {
-  background: #ffefc7;
-  color: #9a5d00;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  font-weight: 700;
-}
-.clear-code-btn ::ng-deep .p-button {
-  background: transparent;
-}
-.points-availability {
-  margin-top: 0.75rem;
-  font-size: 0.9rem;
-  color: #495057;
-}
-.redeem-message {
-  margin-top: 0.5rem;
+
+.points-label {
   font-size: 0.9rem;
   color: #1565c0;
   font-weight: 600;
+}
+
+.points-value {
+  font-size: 1.1rem;
+  color: #0d47a1;
+  font-weight: 700;
+}
+
+.points-note {
+  display: block;
+  font-size: 0.8rem;
+  color: #1976d2;
+  font-style: italic;
+}
+
+/* Controles de puntos */
+.points-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  border-radius: 8px;
+  border: 1px solid #bdbdbd;
+}
+
+.points-input {
+  width: 100px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.5rem;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  background: white;
+  color: #1976d2;
+}
+
+.points-input:focus {
+  outline: none;
+  border-color: #1565c0;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.redeem-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #4caf50, #388e3c);
+  color: white;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.redeem-btn:hover:not(:disabled) {
+  background: linear-gradient(90deg, #388e3c, #2e7d32);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+  transform: translateY(-2px);
+}
+
+.redeem-btn:disabled {
+  background: #bdbdbd;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.redeem-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 8px;
+  border: 2px solid #81c784;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.applied-code {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.applied-code i {
+  font-size: 1.2rem;
+  color: #4caf50;
+}
+
+.discount-tag {
+  background: #a5d6a7;
+  color: #1b5e20;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.clear-code-btn {
+  margin-left: auto;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-radius: 8px;
+  border: 1px solid #81c784;
+  font-size: 0.95rem;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+.success-message i {
+  font-size: 1.1rem;
+  color: #4caf50;
 }
 
 /* Bloque de canje de puntos (UI sólo) */

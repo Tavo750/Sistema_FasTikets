@@ -11,6 +11,8 @@ import { Subscription } from 'rxjs';
 import { baseUrl } from '../../../../../../global';
 import { HttpClient } from '@angular/common/http';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
+import { CanjePuntosService } from '../../../../../../shared/services/canje-puntos.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
 	selector: 'app-compra-entradas',
@@ -154,7 +156,9 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		private ordenesService: OrdenesService
 			, private cartTimerService: CartTimerService,
 				private perfilService: PerfilPersonalService,
-				private http: HttpClient
+				private http: HttpClient,
+				private canjePuntosService: CanjePuntosService,
+				private messageService: MessageService
 	) {}
 
 		// Nivel del usuario (ej. ORO, PLATA, BRONCE)
@@ -174,11 +178,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		discountSilver: number | null = null;
 		discountBronze: number | null = null;
 
-		// Canje mediante código de texto
-		redeemCodeInput: string = '';
-		codeDiscountPercent: number = 0; // e.g. 0.10 for 10%
-		codeDiscountAmount: number = 0;
+		// Canje de puntos del usuario
+		puntosACanjear: number = 0; // Puntos que el usuario quiere canjear
+		montoDescuentoPuntos: number = 0; // Descuento calculado por los puntos
 		redeemMessage: string | null = null;
+		solesPorPunto: number = 1; // Tasa de conversión dinámica
+		textoConversionPuntos: string = '1 punto = S/ 1.00'; // Texto para mostrar al usuario
 
 		// UI: canjear puntos mediante checkbox (si true se ocultan otros bloques y total -> 0)
 		usePointsRedeem: boolean = false;
@@ -217,6 +222,14 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	expiryError: string | null = null;
 	cvvError: string | null = null;
 	ngOnInit(): void {
+		// Suscribirse a la tasa de conversión de puntos
+		try {
+			this.canjePuntosService.solesPorPunto$.subscribe(soles => {
+				this.solesPorPunto = soles;
+				this.textoConversionPuntos = this.canjePuntosService.getTextoConversion();
+				console.log('Tasa de conversión actualizada:', this.textoConversionPuntos);
+			});
+		} catch (e) { console.warn('No se pudo suscribir a tasa de conversión de puntos', e); }
 		// Cargar descuentos de membresía desde configuración remota
 		try { this.loadMembershipDiscounts(); } catch (e) { console.warn('No se pudo iniciar carga de descuentos', e); }
 		// Suscribirse al temporizador compartido para mostrarlo mientras navegamos
@@ -679,6 +692,16 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.showPagoDialog = true;
 	}
 
+	/**
+	 * Cancela la compra y navega al inicio
+	 */
+	onCancelPurchase(): void {
+		// Cerrar el diálogo de pago si está abierto
+		this.showPagoDialog = false;
+		// Navegar al inicio
+		this.router.navigate(['/home']);
+	}
+
 	private calculateTotals(): void {
 		if (!this.purchaseData) return;
 
@@ -686,6 +709,13 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		if (this.usePointsRedeem) {
 			this.totalAmount = 0;
 			return;
+		}
+
+		// Calcular descuento por puntos a canjear
+		if (this.puntosACanjear > 0) {
+			this.montoDescuentoPuntos = this.canjePuntosService.calcularMontoDescuento(this.puntosACanjear);
+		} else {
+			this.montoDescuentoPuntos = 0;
 		}
 
 		// Asegurar que pointsToUse no supere los puntos disponibles
@@ -696,14 +726,11 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		// Restantes = puntos acumulados - puntos utilizados
 		this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
 
-		// Aplicar descuento por código si existe
-		this.codeDiscountAmount = (this.subtotal || 0) * (this.codeDiscountPercent || 0);
-
 		// Aplicar descuento por nivel de usuario
 		this.levelDiscountAmount = (this.subtotal || 0) * (this.userLevelDiscountPercent || 0);
 
 		// Cada punto se considera S/1 por simplicidad (ajustar si la regla cambia)
-		this.totalAmount = Math.max(0, this.subtotal - this.pointsToUse - this.codeDiscountAmount - this.levelDiscountAmount);
+		this.totalAmount = Math.max(0, this.subtotal - this.pointsToUse - this.montoDescuentoPuntos - this.levelDiscountAmount);
 	}
 
 	onToggleRedeemPoints(): void {
@@ -713,22 +740,96 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.calculateTotals();
 	}
 
-	redeemCode(): void {
+	/**
+	 * Aumenta los puntos a canjear
+	 */
+	increasePointsRedeem(): void {
+		if (this.puntosACanjear < this.userPoints) {
+			// Verificar que no supere el subtotal
+			const nuevoDescuento = this.canjePuntosService.calcularMontoDescuento(this.puntosACanjear + 1);
+			if (nuevoDescuento <= this.subtotal) {
+				this.puntosACanjear++;
+				this.calculateTotals();
+			} else {
+				this.messageService.add({
+					severity: 'warn',
+					summary: 'Límite alcanzado',
+					detail: 'El descuento no puede superar el monto total de la compra'
+				});
+			}
+		} else {
+			this.messageService.add({
+				severity: 'warn',
+				summary: 'Puntos insuficientes',
+				detail: `Solo tienes ${this.userPoints} puntos disponibles`
+			});
+		}
+	}
+
+	/**
+	 * Disminuye los puntos a canjear
+	 */
+	decreasePointsRedeem(): void {
+		if (this.puntosACanjear > 0) {
+			this.puntosACanjear--;
+			this.calculateTotals();
+		}
+	}
+
+	/**
+	 * Aplica el canje de puntos y valida
+	 */
+	applyPointsRedeem(): void {
 		this.redeemMessage = null;
-		const code = (this.redeemCodeInput || '').toString().trim();
-		if (!code) { this.redeemMessage = 'Ingrese un código válido'; return; }
-		// Demo logic: aplicar descuento del 10% para códigos no vacíos.
-		// Reemplazar por llamada al backend si está disponible.
-		this.codeDiscountPercent = 0.10;
-		this.redeemMessage = `Código "${code}" aplicado — ${(this.codeDiscountPercent * 100).toFixed(0)}% descuento`;
+
+		if (this.puntosACanjear <= 0) {
+			this.messageService.add({
+				severity: 'warn',
+				summary: 'Cantidad inválida',
+				detail: 'Debes seleccionar al menos 1 punto para canjear'
+			});
+			return;
+		}
+
+		// Validar el canje
+		const errorValidacion = this.canjePuntosService.validarCanje(
+			this.puntosACanjear,
+			this.userPoints,
+			this.subtotal
+		);
+
+		if (errorValidacion) {
+			this.messageService.add({
+				severity: 'error',
+				summary: 'Canje inválido',
+				detail: errorValidacion
+			});
+			return;
+		}
+
+		// Aplicar el descuento
+		this.montoDescuentoPuntos = this.canjePuntosService.calcularMontoDescuento(this.puntosACanjear);
+		this.redeemMessage = `¡${this.puntosACanjear} puntos aplicados! Descuento: S/${this.montoDescuentoPuntos.toFixed(2)}`;
+		this.messageService.add({
+			severity: 'success',
+			summary: 'Puntos aplicados',
+			detail: this.redeemMessage
+		});
 		this.calculateTotals();
 	}
 
-	clearCode(): void {
-		this.redeemCodeInput = '';
-		this.codeDiscountPercent = 0;
-		this.codeDiscountAmount = 0;
+	/**
+	 * Limpia el canje de puntos
+	 */
+	clearPointsRedeem(): void {
+		this.puntosACanjear = 0;
+		this.montoDescuentoPuntos = 0;
 		this.redeemMessage = null;
+		this.messageService.add({
+			severity: 'info',
+			summary: 'Canje removido',
+			detail: 'Los puntos han sido removidos'
+		});
 		this.calculateTotals();
 	}
 

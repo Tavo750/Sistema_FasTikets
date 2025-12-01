@@ -2,12 +2,14 @@ import { Component, Input, Output, OnInit, TrackByFunction, OnDestroy } from '@a
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../../../../../../shared/services/cart.service';
 import { CarritoService } from '../../../../../../shared/services/carrito.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { SessionService } from '../../../../../../shared/services/session.service';
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { Subscription } from 'rxjs';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 import { LoadingService } from '../../../../../../shared/services/loading.service';
+import { ConfiguracionGeneralService } from '../../../../../modules/administrador/services/configuracion-general.service';
+import { CodigoPromocionalService, CodigoPromocional } from '../../../../../../shared/services/codigo-promocional.service';
 
 @Component({
   selector: 'app-carrito-compra',
@@ -24,6 +26,13 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   // Temporizador: delegado al servicio compartido
   showTimer: boolean = false;
   timerDisplay: string = '';
+  // Configuración de límite de entradas
+  private maxEntradasPorCliente: number = 10; // Valor por defecto
+  
+  // Código promocional
+  codigoPromocionalInput: string = '';
+  codigoPromocionalAplicado: CodigoPromocional | null = null;
+  verificandoCodigo: boolean = false;
 
   constructor(
     private router: Router,
@@ -31,12 +40,21 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   private purchaseService: PurchaseService,
   private carritoService: CarritoService,
     private messageService: MessageService,
+    private confirmationService: ConfirmationService,
     private sessionService: SessionService,
     private cartTimerService: CartTimerService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private configuracionGeneralService: ConfiguracionGeneralService,
+    private codigoPromocionalService: CodigoPromocionalService
   ) {}
 
   ngOnInit(): void {
+    // Cargar configuración de límite de entradas
+    this.cargarLimiteEntradasDesdeEndpoint();
+    
+    // Cargar tiempo límite del carrito desde configuración general
+    this.cargarTiempoLimiteCarrito();
+    
     // Cargar items desde servidor si hay usuario autenticado
     try {
   const user = this.sessionService.getCurrentUser();
@@ -170,9 +188,26 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   // Timer lifecycle now handled by CartTimerService
 
   private handleTimerExpired(): void {
-    // Cuando el temporizador expira el servicio se encarga de limpiar storage;
-    // aquí únicamente eliminamos los items del carrito en el servidor/local.
-    this.deleteAllCartItems();
+    // Mostrar modal informativo cuando el tiempo expira con overlay completo
+    this.confirmationService.confirm({
+      key: 'timerExpired',
+      header: '⏰ Tiempo Agotado',
+      message: 'Lo sentimos, se acabó tu tiempo límite para completar la compra. Tu carrito será vaciado. Por favor, inténtalo otra vez.',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Entendido',
+      rejectVisible: false,
+      acceptButtonStyleClass: 'p-button-danger p-button-lg',
+      defaultFocus: 'accept',
+      blockScroll: true,
+      accept: () => {
+        // Cuando el usuario acepta el modal, eliminar items del carrito
+        this.deleteAllCartItems();
+      },
+      reject: () => {
+        // Si cierra el modal sin aceptar, también eliminar items
+        this.deleteAllCartItems();
+      }
+    });
   }
 
   private deleteAllCartItems(): void {
@@ -198,7 +233,6 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
             const local = this.cartItems.find(ci => ci.serverId === idItemCarrito);
             if (local) this.cartService.removeLocalOnly(local.id);
             if (deletedCount === itemsToDelete.length) {
-              this.messageService.add({ severity: 'warn', summary: 'Tiempo agotado', detail: 'Tiempo de reserva vencido. Carrito eliminado.' });
               // limpiar cualquier remanente
               this.cartService.clearCart();
               this.cartTimerService.clear();
@@ -215,10 +249,8 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
         });
       });
     } else {
-        this.messageService.add({ severity: 'warn', summary: 'Tiempo agotado', detail: 'Tiempo de reserva vencido. Carrito eliminado.' });
-        this.cartTimerService.clear();
+      this.cartTimerService.clear();
       this.cartService.clearCart();
-      this.messageService.add({ severity: 'warn', summary: 'Tiempo agotado', detail: 'Tiempo de reserva vencido. Carrito eliminado.' });
     }
   }
 
@@ -302,12 +334,111 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
 
   getTotal(): number {
     // Como los precios ya incluyen impuestos, el total es simplemente el subtotal
-    return this.getSubtotal();
+    const subtotal = this.getSubtotal();
+    const descuento = this.getDescuentoPromocional();
+    return subtotal - descuento;
   }
 
   // Getter para mantener compatibilidad
   get total(): number {
     return this.getTotal();
+  }
+  
+  /**
+   * Calcula el descuento aplicado por código promocional
+   */
+  getDescuentoPromocional(): number {
+    if (!this.codigoPromocionalAplicado) {
+      return 0;
+    }
+    const subtotal = this.getSubtotal();
+    return this.codigoPromocionalService.calcularDescuento(this.codigoPromocionalAplicado, subtotal);
+  }
+  
+  /**
+   * Verifica y aplica un código promocional
+   */
+  aplicarCodigoPromocional(): void {
+    if (!this.codigoPromocionalInput || this.codigoPromocionalInput.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Código requerido',
+        detail: 'Por favor ingresa un código promocional'
+      });
+      return;
+    }
+
+    this.verificandoCodigo = true;
+    const codigo = this.codigoPromocionalInput.trim().toUpperCase();
+
+    this.codigoPromocionalService.verificarCodigoPromocional(codigo).subscribe({
+      next: (response) => {
+        this.verificandoCodigo = false;
+        if (response.ok && response.data) {
+          // Validar que el código esté activo y tenga stock
+          if (!response.data.activo) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Código inactivo',
+              detail: 'Este código promocional ya no está disponible'
+            });
+            return;
+          }
+
+          if (response.data.stock <= 0) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Sin stock',
+              detail: 'Este código promocional ha alcanzado su límite de uso'
+            });
+            return;
+          }
+
+          // Verificar fecha de expiración
+          const fechaFin = new Date(response.data.fechaFin);
+          if (fechaFin < new Date()) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Código expirado',
+              detail: 'Este código promocional ha expirado'
+            });
+            return;
+          }
+
+          // Aplicar código
+          this.codigoPromocionalAplicado = response.data;
+          const descuentoFormateado = this.codigoPromocionalService.formatearDescuento(response.data);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Código aplicado',
+            detail: `¡Código "${codigo}" aplicado! Descuento: ${descuentoFormateado}`
+          });
+          console.log('Código promocional aplicado:', response.data);
+        }
+      },
+      error: (error) => {
+        this.verificandoCodigo = false;
+        console.error('Error verificando código promocional:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Código inválido',
+          detail: 'El código promocional ingresado no es válido'
+        });
+      }
+    });
+  }
+  
+  /**
+   * Elimina el código promocional aplicado
+   */
+  eliminarCodigoPromocional(): void {
+    this.codigoPromocionalAplicado = null;
+    this.codigoPromocionalInput = '';
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Código removido',
+      detail: 'El código promocional ha sido removido'
+    });
   }
 
   // Métodos de acciones
@@ -316,8 +447,100 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
    * Obtiene el máximo de entradas configurado por el administrador
    */
   getMaxEntradasPermitidas(): number {
+    // Primero intentar obtener desde localStorage (sincronizado por configuración general)
     const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
-    return maxEntradas ? parseInt(maxEntradas, 10) : 10;
+    if (maxEntradas) {
+      const parsed = parseInt(maxEntradas, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 50) {
+        return parsed;
+      }
+    }
+    // Si no existe en localStorage, usar el valor cargado desde el endpoint
+    return this.maxEntradasPorCliente;
+  }
+  
+  /**
+   * Carga el límite de entradas desde el servicio de configuración general
+   * y lo sincroniza con localStorage
+   */
+  private cargarLimiteEntradasDesdeEndpoint(): void {
+    try {
+      console.debug('CarritoCompraComponent: Cargando límite de entradas desde ConfiguracionGeneralService');
+      this.configuracionGeneralService.getConfiguracionPorKey('LIMITE_PERSONAS_COMPRA').subscribe({
+        next: (resp) => {
+          try {
+            if (resp.ok && resp.data) {
+              const value = resp.data.value;
+              const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
+              const limite = !isNaN(parsed) ? Math.round(parsed) : NaN;
+              
+              if (!isNaN(limite) && limite >= 1 && limite <= 50) {
+                this.maxEntradasPorCliente = limite;
+                // Sincronizar con localStorage para mantener consistencia
+                localStorage.setItem('max_entradas_por_cliente', String(limite));
+                console.log('Límite de entradas cargado y sincronizado:', limite);
+              } else {
+                console.info('CarritoCompraComponent: valor de límite no válido, usando valor por defecto', value);
+              }
+            } else {
+              console.warn('No se encontró configuración LIMITE_PERSONAS_COMPRA');
+            }
+          } catch (e) {
+            console.warn('Error procesando respuesta de configuración de límite de entradas', e);
+          }
+        },
+        error: (err) => {
+          console.warn('No se pudo obtener configuración de límite de entradas, usando valor por defecto o localStorage', err);
+        }
+      });
+    } catch (e) {
+      console.warn('Error iniciando petición de configuración de límite de entradas', e);
+    }
+  }
+  
+  /**
+   * Carga el tiempo límite del carrito desde el servicio de configuración general
+   * Busca en todas las configuraciones la key TIEMPO_CARRO_MINUTOS
+   */
+  private cargarTiempoLimiteCarrito(): void {
+    try {
+      console.debug('CarritoCompraComponent: Cargando tiempo límite del carrito desde ConfiguracionGeneralService');
+      this.configuracionGeneralService.getConfiguraciones().subscribe({
+        next: (resp) => {
+          try {
+            if (resp.ok && resp.data) {
+              // Buscar TIEMPO_CARRO_MINUTOS en la lista de configuraciones
+              const configTiempo = resp.data.find((config: any) => config.key === 'TIEMPO_CARRO_MINUTOS');
+              
+              if (configTiempo) {
+                const value = configTiempo.value;
+                const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
+                const minutos = !isNaN(parsed) ? Math.round(parsed) : NaN;
+                
+                if (!isNaN(minutos) && minutos >= 1 && minutos <= 120) {
+                  // Aplicar el tiempo límite al servicio de timer
+                  this.cartTimerService.setTimeLimitMinutes(minutos);
+                  console.log('Tiempo límite del carrito cargado y aplicado:', minutos, 'minutos');
+                } else {
+                  console.info('CarritoCompraComponent: valor de tiempo límite no válido, usando valor por defecto del servicio', value);
+                }
+              } else {
+                console.warn('No se encontró configuración TIEMPO_CARRO_MINUTOS en la lista de configuraciones');
+              }
+            } else {
+              console.warn('No se pudieron cargar las configuraciones generales');
+            }
+          } catch (e) {
+            console.warn('Error procesando respuesta de configuraciones para tiempo límite', e);
+          }
+        },
+        error: (err) => {
+          console.warn('No se pudo obtener configuraciones generales para tiempo límite, usando valor por defecto del servicio', err);
+        }
+      });
+    } catch (e) {
+      console.warn('Error iniciando petición de configuraciones para tiempo límite', e);
+    }
   }
   
   /**

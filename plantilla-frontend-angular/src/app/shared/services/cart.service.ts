@@ -14,6 +14,9 @@ export interface CartItem {
   ticketType?: string;
   eventDate?: string;
   eventVenue?: string;
+  eventTime?: string;
+  eventAddress?: string;
+  eventOrganizer?: string;
   // id asignado por el servidor al persistir el item del carrito (opcional)
   serverId?: number;
   // id del tipo de ticket proporcionado por el backend en `/carrito/cliente/{idCliente}`
@@ -60,6 +63,9 @@ export class CartService {
       date: string;
       venue: string;
       eventId?: string;
+      time?: string;
+      address?: string;
+      organizer?: string;
     }
   ): number[] {
     const currentItems = this.cartItemsSubject.value;
@@ -90,7 +96,10 @@ export class CartService {
             eventId: eventInfo.eventId || '',
             ticketType: ticket.name,
             eventDate: eventInfo.date,
-            eventVenue: eventInfo.venue
+            eventVenue: eventInfo.venue,
+            eventTime: eventInfo.time,
+            eventAddress: eventInfo.address,
+            eventOrganizer: eventInfo.organizer
           };
           newItems.push(newItem);
           createdLocalIds.push(newItem.id);
