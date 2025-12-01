@@ -4,7 +4,7 @@ import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { baseUrl } from '../../../../global';
 import { SessionService } from '../../../../shared/services/session.service';
-// import { ReporteVentasService } from './reporte-ventas.service'; // Comentado hasta implementar en backend
+import { ReporteVentasService } from './reporte-ventas.service'; // Habilitado
 import {
   DashboardResponse,
   DashboardData,
@@ -28,7 +28,7 @@ export class DashboardService {
   constructor(
     private http: HttpClient,
     private sessionService: SessionService,
-    // private reporteVentasService: ReporteVentasService // Comentado hasta implementar en backend
+    private reporteVentasService: ReporteVentasService // Habilitado
   ) {}
 
   /**
@@ -72,43 +72,38 @@ export class DashboardService {
   }
 
   /**
-   * Obtener datos de ventas mejorados usando el servicio de reportes
-   * Primero intenta el reporte simple, si falla usa el método original
-   * COMENTADO: Pendiente implementación de endpoints en backend
+   * Obtener datos de ventas mejorados usando el servicio de reportes real
    */
-  /*
   getVentasPorEventoMejorado(idEvento: number): Observable<VentasEventoResponse> {
-    return this.reporteVentasService.getReporteVentasSimple(idEvento).pipe(
+    return this.reporteVentasService.getReporteVentas(idEvento).pipe(
       map(reporteResponse => {
         if (reporteResponse.ok && reporteResponse.data) {
-          // Convertir datos del reporte al formato VentasEvento
-          const { evento, metricas } = reporteResponse.data;
+          const reporteSimple = this.reporteVentasService.convertirAReporteSimple(reporteResponse);
           
-          return {
-            ok: true,
-            data: {
-              idEvento: evento.idEvento,
-              nombreEvento: evento.nombre,
-              ventasTotales: metricas.totalVentas,
-              ingresosGenerados: metricas.ingresosGenerados,
-              entradasVendidas: metricas.entradasVendidas,
-              aforoTotal: evento.aforoTotal,
-              porcentajeOcupacion: metricas.porcentajeOcupacion
-            },
-            mensaje: 'Datos de ventas obtenidos del reporte'
-          };
-        } else {
-          throw new Error('No se pudieron obtener datos del reporte');
+          if (reporteSimple) {
+            return {
+              ok: true,
+              data: {
+                idEvento: reporteSimple.idEvento,
+                nombreEvento: reporteSimple.nombreEvento,
+                ventasTotales: reporteSimple.ticketsVendidos,
+                ingresosGenerados: reporteSimple.ingresosNetos,
+                entradasVendidas: reporteSimple.ticketsVendidos,
+                aforoTotal: reporteSimple.aforoTotal,
+                porcentajeOcupacion: reporteSimple.porcentajeOcupacion
+              },
+              mensaje: 'Datos de ventas obtenidos del reporte'
+            };
+          }
         }
+        throw new Error('No se pudieron obtener datos del reporte');
       }),
-      catchError(error => {
-        console.warn('⚠️ Reporte de ventas no disponible, usando método original:', error.message);
+      catchError(() => {
         // Fallback al método original
         return this.getVentasPorEvento(idEvento);
       })
     );
   }
-  */
 
   /**
    * Obtener ventas totales de todos los eventos
@@ -328,7 +323,7 @@ export class DashboardService {
 
         // Obtener datos reales de ventas para cada evento popular
         const ventasRequests = eventosResponse.data.map(evento => 
-          this.getVentasPorEvento(evento.idEvento).pipe(
+          this.getVentasPorEventoMejorado(evento.idEvento).pipe(
             map(ventasResponse => ({
               evento,
               ventas: ventasResponse.ok ? ventasResponse.data : null

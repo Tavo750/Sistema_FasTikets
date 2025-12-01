@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventoService } from '../../services/evento.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { ReporteVentasService } from '../../services/reporte-ventas.service';
 import { Data as EventoData } from '../../interfaces/gestion-evento/evento.interface';
 import { DashboardData, EventoPopular } from '../../interfaces/dashboard/dashboard.interface';
+import { ReporteVentasSimple } from '../../interfaces/reporte-ventas/reporte-ventas.interface';
 import { baseUrl } from '../../../../../global';
 import { LoadingService } from '../../../../../shared/services/loading.service';
 import { MessageService as CustomMessageService } from '../../../../../core/services/message.service';
@@ -61,6 +63,7 @@ export class GestionEventosComponent implements OnInit {
   mostrarDashboard: boolean = false;
   analyticsData: DashboardData | null = null;
   cargandoDashboard: boolean = false;
+  ingresosTotalesCalculados: number = 0;
 
   // Variables para el modal de ventas
   mostrarModalVentas: boolean = false;
@@ -70,6 +73,7 @@ export class GestionEventosComponent implements OnInit {
     ventasTotales: number;
     cargando: boolean;
     error?: string;
+    reporteDetallado?: ReporteVentasSimple;
   } | null = null;
 
   // Variables para eventos no cargados del Excel
@@ -86,6 +90,7 @@ export class GestionEventosComponent implements OnInit {
     private router: Router,
     private eventoService: EventoService,
     private dashboardService: DashboardService,
+    private reporteVentasService: ReporteVentasService,
     private loadingService: LoadingService,
     private customMessageService: CustomMessageService,
     private confirmationService: ConfirmationService
@@ -383,6 +388,7 @@ export class GestionEventosComponent implements OnInit {
     this.cargandoDashboard = true;
     this.mostrarDashboard = true;
     this.analyticsData = null; // Limpiar datos previos
+    this.ingresosTotalesCalculados = 0;
     
     // Cargar datos reales desde el backend
     this.dashboardService.getDashboardCompleto().subscribe({
@@ -390,6 +396,8 @@ export class GestionEventosComponent implements OnInit {
         if (response.ok && response.data) {
           this.analyticsData = response.data;
           
+          // Calcular ingresos totales desde los eventos populares
+          this.calcularIngresosTotales();
           
           this.customMessageService.success(
             'Dashboard actualizado correctamente',
@@ -423,14 +431,68 @@ export class GestionEventosComponent implements OnInit {
     this.mostrarDashboard = false;
     this.analyticsData = null;
     this.cargandoDashboard = false;
+    this.ingresosTotalesCalculados = 0;
+  }
+
+  /**
+   * Calcular ingresos totales desde los reportes de ventas de TODOS los eventos activos
+   */
+  private calcularIngresosTotales(): void {
+    // Obtener la lista completa de eventos desde el evento.service
+    this.eventoService.getListarEventos().subscribe({
+      next: (eventosResponse) => {
+        if (eventosResponse.ok && eventosResponse.data) {
+          // Filtrar eventos que estén activos (activo: true)
+          const eventosActivos = Array.isArray(eventosResponse.data) 
+            ? eventosResponse.data.filter((evento: any) => evento.activo === true)
+            : eventosResponse.data.activo === true ? [eventosResponse.data] : [];
+
+          if (eventosActivos.length === 0) {
+            this.ingresosTotalesCalculados = 0;
+            return;
+          }
+
+          let ingresosTotales = 0;
+          let eventosCompletados = 0;
+          const totalEventos = eventosActivos.length;
+
+          // Obtener reporte de ventas para cada evento activo
+          eventosActivos.forEach((evento: any) => {
+            this.reporteVentasService.getReporteVentas(evento.idEvento).subscribe({
+              next: (reporteResponse) => {
+                if (reporteResponse.ok && reporteResponse.data) {
+                  ingresosTotales += reporteResponse.data.resumenGeneralVentas.ingresosNetosTotal;
+                }
+                
+                eventosCompletados++;
+                
+                if (eventosCompletados === totalEventos) {
+                  this.ingresosTotalesCalculados = ingresosTotales;
+                }
+              },
+              error: () => {
+                eventosCompletados++;
+                
+                if (eventosCompletados === totalEventos) {
+                  this.ingresosTotalesCalculados = ingresosTotales;
+                }
+              }
+            });
+          });
+        } else {
+          this.ingresosTotalesCalculados = 0;
+        }
+      },
+      error: () => {
+        this.ingresosTotalesCalculados = 0;
+      }
+    });
   }
 
   /**
    * Ver ventas de un evento específico en un modal
    */
   verVentasEvento(eventoId: number, nombreEvento: string): void {
-    console.log(`📊 Consultando ventas del evento ${eventoId}: ${nombreEvento}`);
-    
     // Inicializar datos del modal
     this.datosVentasEvento = {
       nombreEvento,
@@ -442,7 +504,39 @@ export class GestionEventosComponent implements OnInit {
     // Mostrar el modal
     this.mostrarModalVentas = true;
     
-    // Hacer la petición al backend
+    // Intentar obtener el reporte detallado primero
+    this.reporteVentasService.getReporteVentas(eventoId).subscribe({
+      next: (reporteResponse) => {
+        if (this.datosVentasEvento) {
+          this.datosVentasEvento.cargando = false;
+          
+          if (reporteResponse.ok) {
+            // Convertir a formato simple
+            const reporteSimple = this.reporteVentasService.convertirAReporteSimple(reporteResponse);
+            
+            if (reporteSimple) {
+              this.datosVentasEvento.reporteDetallado = reporteSimple;
+              this.datosVentasEvento.ventasTotales = reporteSimple.ingresosNetos;
+            } else {
+              this.datosVentasEvento.error = 'Error al procesar los datos del reporte';
+            }
+          } else {
+            // Si el reporte falla, intentar con el método básico
+            this.obtenerVentasBasicas(eventoId, nombreEvento);
+          }
+        }
+      },
+      error: () => {
+        // Fallback al método básico si el reporte falla
+        this.obtenerVentasBasicas(eventoId, nombreEvento);
+      }
+    });
+  }
+
+  /**
+   * Obtener ventas básicas como fallback
+   */
+  private obtenerVentasBasicas(eventoId: number, nombreEvento: string): void {
     this.dashboardService.getVentasEvento(eventoId).subscribe({
       next: (response) => {
         if (this.datosVentasEvento) {
@@ -455,8 +549,7 @@ export class GestionEventosComponent implements OnInit {
           }
         }
       },
-      error: (error) => {
-        
+      error: () => {
         if (this.datosVentasEvento) {
           this.datosVentasEvento.cargando = false;
           this.datosVentasEvento.error = `Error al consultar ventas del evento "${nombreEvento}"`;

@@ -1,128 +1,66 @@
-// Interfaces para Reporte de Ventas
+// Interfaces para Reporte de Ventas - Estructura real del backend
 
 export interface ReporteVentasResponse {
   ok: boolean;
-  data: ReporteVentasData;
   mensaje: string;
+  data: ReporteVentasData;
 }
 
 export interface ReporteVentasData {
-  // Información del evento
-  evento: EventoReporte;
-  
-  // Métricas principales
-  metricas: MetricasVentas;
-  
-  // Ventas detalladas por zona
-  ventasPorZona: VentaZona[];
-  
-  // Ventas por fecha
-  ventasPorFecha: VentaFecha[];
-  
-  // Resumen de entradas
-  resumenEntradas: ResumenEntradas;
-  
-  // Información adicional
+  reporteInfo: ReporteInfo;
+  eventoDetalles: EventoDetalles;
+  resumenGeneralVentas: ResumenGeneralVentas;
+  desglosePorCategoriaTicket: CategoriaTicket[];
+  tendenciaVentasPorFecha: any; // null en la respuesta actual
+}
+
+export interface ReporteInfo {
   fechaGeneracion: string;
-  rangoFechas: {
-    fechaInicio: string;
-    fechaFin: string;
-  };
+  periodoCubierto: string;
 }
 
-export interface EventoReporte {
+export interface EventoDetalles {
   idEvento: number;
-  nombre: string;
-  descripcion: string;
+  titulo: string;
   fechaEvento: string;
-  horaInicio: string;
-  horaFin: string;
-  nombreLocal: string;
-  tipoEvento: string;
-  estadoEvento: string;
+  localNombre: string;
   aforoTotal: number;
-  aforoDisponible: number;
 }
 
-export interface MetricasVentas {
-  totalVentas: number;
-  ingresosGenerados: number;
-  entradasVendidas: number;
-  entradasDisponibles: number;
+export interface ResumenGeneralVentas {
+  ticketsVendidosTotal: number;
+  ingresosBrutosTotal: number;
+  descuentosAplicadosTotal: number;
+  ingresosNetosTotal: number;
   porcentajeOcupacion: number;
-  promedioVentaDiaria: number;
-  diaConMasVentas: string;
-  montoPromedioPorEntrada: number;
 }
 
-export interface VentaZona {
-  idZona: number;
-  nombreZona: string;
-  capacidadTotal: number;
-  entradasVendidas: number;
-  entradasDisponibles: number;
-  porcentajeOcupacion: number;
-  precioUnitario: number;
-  ingresosPorZona: number;
-  ordenZona?: number; // Para ordenar las zonas
+export interface CategoriaTicket {
+  categoriaNombre: string;
+  precioUnitarioBase: number;
+  ticketsDisponibles: number;
+  ticketsVendidos: number;
+  ingresosBrutosCategoria: number;
+  descuentosCategoria: number;
+  ingresosNetosCategoria: number;
+  porcentajeVentasCategoria: number;
 }
 
-export interface VentaFecha {
-  fecha: string;
-  cantidadVentas: number;
-  ingresosDelDia: number;
-  ventasAcumuladas: number;
-  ingresosAcumulados: number;
-}
-
-export interface ResumenEntradas {
-  // Por estado de entrada
-  entradasPagadas: number;
-  entradasPendientes: number;
-  entradasCanceladas: number;
-  entradasDevueltas: number;
-  
-  // Por tipo de cliente
-  ventasRegulares: number;
-  ventasConDescuento: number;
-  ventasGratuitas: number;
-  
-  // Por canal de venta
-  ventasOnline: number;
-  ventasEnSitio: number;
-}
-
-// Interface para request personalizado
-export interface ReporteVentasRequest {
+// Interface simplificada para uso en dashboard
+export interface ReporteVentasSimple {
   idEvento: number;
-  fechaInicio?: string;
-  fechaFin?: string;
-  incluirDetalleZonas?: boolean;
-  incluirVentasPorFecha?: boolean;
-  incluirResumenEntradas?: boolean;
+  nombreEvento: string;
+  aforoTotal: number;
+  ticketsVendidos: number;
+  ingresosBrutos: number;
+  ingresosNetos: number;
+  porcentajeOcupacion: number;
+  categorias: CategoriaSimple[];
 }
 
-// Interface para reporte simplificado (si solo necesitas métricas básicas)
-export interface ReporteVentasSimpleResponse {
-  ok: boolean;
-  data: {
-    evento: EventoReporte;
-    metricas: MetricasVentas;
-  };
-  mensaje: string;
-}
-
-// Enums para filtros
-export enum TipoReporteVentas {
-  COMPLETO = 'COMPLETO',
-  SIMPLE = 'SIMPLE',
-  POR_ZONAS = 'POR_ZONAS',
-  POR_FECHAS = 'POR_FECHAS'
-}
-
-export enum EstadoVenta {
-  PAGADO = 'PAGADO',
-  PENDIENTE = 'PENDIENTE',
-  CANCELADO = 'CANCELADO',
-  DEVUELTO = 'DEVUELTO'
+export interface CategoriaSimple {
+  nombre: string;
+  ticketsVendidos: number;
+  porcentajeVentas: number;
+  ingresos: number;
 }

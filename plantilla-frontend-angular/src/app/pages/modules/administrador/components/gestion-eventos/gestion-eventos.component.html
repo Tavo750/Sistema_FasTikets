@@ -541,13 +541,15 @@
                 Métricas de Ingresos
             </h3>
             <div class="kpi-grid-secondary">
-                <div class="kpi-card ingresos">
+                
+
+                <div class="kpi-card ingresos-calculados" *ngIf="ingresosTotalesCalculados > 0">
                     <div class="kpi-icon">
-                        <i class="pi pi-money-bill"></i>
+                        S/
                     </div>
                     <div class="kpi-content">
-                        <h3>{{formatearMoneda(analyticsData.ingresosReales)}}</h3>
-                        <p>Ingresos</p>
+                        <h3>S/ {{ingresosTotalesCalculados.toLocaleString('es-PE')}}</h3>
+                        <p>Ingresos Netos Calculados</p>
                     </div>
                 </div>
 
@@ -579,13 +581,7 @@
                             <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
                             <p>ID: {{evento.idEvento}} - {{formatearFecha(convertirFechaString(evento.fechaEvento))}}</p>
                             
-                            <!-- Información básica de aforo -->
-                            <div class="aforo-basico">
-                                <span class="aforo-info">
-                                    <i class="pi pi-users"></i>
-                                    Aforo disponible: {{formatearNumero(evento.aforoDisponible)}}
-                                </span>
-                            </div>
+                            
                         </div>
                         <div class="estado-badge">
                             <p-tag [value]="evento.estadoEvento"
@@ -722,8 +718,64 @@
                 </div>
             </div>
 
-            <!-- Datos de ventas -->
-            <div class="ventas-datos" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error">
+            <!-- Datos de ventas detallados (con reporte) -->
+            <div class="ventas-datos-detalladas" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error && datosVentasEvento.reporteDetallado">
+                <!-- Métricas principales -->
+                <div class="metricas-principales">
+                    <div class="metrica-card tickets">
+                        <div class="metrica-icono">
+                            <i class="pi pi-ticket"></i>
+                        </div>
+                        <div class="metrica-info">
+                            <span class="metrica-valor">{{datosVentasEvento.reporteDetallado.ticketsVendidos | number}}</span>
+                            <span class="metrica-label">Tickets Vendidos</span>
+                            <small>de {{datosVentasEvento.reporteDetallado.aforoTotal | number}} totales</small>
+                        </div>
+                    </div>
+
+                    <div class="metrica-card ingresos">
+                        <div class="metrica-icono">
+                            S/
+                        </div>
+                        <div class="metrica-info">
+                            <span class="metrica-valor">S/ {{datosVentasEvento.reporteDetallado.ingresosNetos | number:'1.2-2'}}</span>
+                            <span class="metrica-label">Ingresos Netos</span>
+                            <small>Brutos: S/ {{datosVentasEvento.reporteDetallado.ingresosBrutos | number:'1.2-2'}}</small>
+                        </div>
+                    </div>
+
+                    <div class="metrica-card ocupacion">
+                        <div class="metrica-icono">
+                            <i class="pi pi-chart-pie"></i>
+                        </div>
+                        <div class="metrica-info">
+                            <span class="metrica-valor">{{datosVentasEvento.reporteDetallado.porcentajeOcupacion | number:'1.1-1'}}%</span>
+                            <span class="metrica-label">Ocupación</span>
+                            <small>{{datosVentasEvento.reporteDetallado.aforoTotal - datosVentasEvento.reporteDetallado.ticketsVendidos | number}} disponibles</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categorías de tickets -->
+                <div class="categorias-section" *ngIf="datosVentasEvento.reporteDetallado.categorias.length > 0">
+                    <h5><i class="pi pi-tags"></i> Ventas por Categoría</h5>
+                    <div class="categorias-grid">
+                        <div *ngFor="let categoria of datosVentasEvento.reporteDetallado.categorias" class="categoria-item">
+                            <div class="categoria-header">
+                                <span class="categoria-nombre">{{categoria.nombre}}</span>
+                                <span class="categoria-porcentaje">{{categoria.porcentajeVentas | number:'1.1-1'}}%</span>
+                            </div>
+                            <div class="categoria-detalles">
+                                <span class="tickets">{{categoria.ticketsVendidos}} tickets</span>
+                                <span class="ingresos">S/ {{categoria.ingresos | number:'1.2-2'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datos básicos (fallback) -->
+            <div class="ventas-datos" *ngIf="!datosVentasEvento.cargando && !datosVentasEvento.error && !datosVentasEvento.reporteDetallado">
                 <div class="ventas-card">
                     <div class="ventas-icono">
                         S/
