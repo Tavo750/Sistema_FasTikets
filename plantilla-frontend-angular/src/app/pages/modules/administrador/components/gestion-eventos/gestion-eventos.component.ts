@@ -95,10 +95,10 @@ export class GestionEventosComponent implements OnInit {
       { label: 'Urbano', value: 'URBANO' }
     ];
 
-
+    // Inicializar con "Todos los tipos" seleccionado
+    this.tipoSeleccionado = this.tiposConcierto[0];
 
     this.cargarEventos();
-    
   }
 
   cargarEventos() {
@@ -158,11 +158,35 @@ export class GestionEventosComponent implements OnInit {
   }
 
   onBusquedaChange() {
-    //this.filtrarEventos();
+    this.filtrarEventos();
   }
 
   onTipoChange() {
-    //this.filtrarEventos();
+    this.filtrarEventos();
+  }
+
+  filtrarEventos() {
+    let eventosFiltrados = [...this.eventos];
+
+    // Filtrar por término de búsqueda
+    if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
+      const termino = this.terminoBusqueda.toLowerCase().trim();
+      eventosFiltrados = eventosFiltrados.filter(evento =>
+        evento.nombre.toLowerCase().includes(termino) ||
+        evento.descripcion?.toLowerCase().includes(termino) ||
+        evento.nombreLocal?.toLowerCase().includes(termino) ||
+        evento.tipoEvento.toLowerCase().includes(termino)
+      );
+    }
+
+    // Filtrar por tipo de evento
+    if (this.tipoSeleccionado && this.tipoSeleccionado.value !== 'ALL') {
+      eventosFiltrados = eventosFiltrados.filter(evento =>
+        evento.tipoEvento === this.tipoSeleccionado!.value
+      );
+    }
+
+    this.eventosFiltrados = eventosFiltrados;
   }
 
   getEstadoSeverity(estado: string): string {
