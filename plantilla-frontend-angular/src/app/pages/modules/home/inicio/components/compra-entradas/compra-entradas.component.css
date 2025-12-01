@@ -129,6 +129,19 @@
   border: 1px solid #dee2e6;
 }
 
+.participants-per-item {
+  margin-top: 0.75rem;
+}
+
+.participants-scroll {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .ticket-summary-info {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -502,22 +515,48 @@
 
 .action-buttons-compact {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-direction: row;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between; /* boton Continuar a la izquierda, Cancelar a la derecha */
+  width: 100%;
 }
 
 .action-btn-compact {
-  width: 100%;
-  height: 2.5rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  transition: all 0.3s ease;
+  flex: none;
+  min-width: 140px;
+  height: 2.8rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  transition: all 0.18s ease;
 }
 
 .action-btn-compact:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+/* Continue primary style */
+.continue-btn-compact {
+  background-color: #28a745 !important;
+  color: #fff !important;
+  border: 1px solid #28a745 !important;
+}
+
+/* Cancel outlined/bordered style */
+.cancel-btn-compact {
+  background: #fff !important;
+  color: #dc3545 !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+/* Responsive: stack vertically on very small screens */
+@media (max-width: 520px) {
+  .action-buttons-compact {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
 .purchase-card {

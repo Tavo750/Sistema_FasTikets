@@ -119,4 +119,23 @@ export class CarritoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Obtiene información del evento asociado al carrito
+   * Endpoint: GET /carrito/{idCarrito}/evento-info
+   */
+  getEventoInfo(idCarrito: number): Observable<any> {
+    const url = `${baseUrl}/carrito/${idCarrito}/evento-info`;
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('CarritoService.getEventoInfo -> GET', url); } catch(e) {}
+
+    return this.http.get<any>(url, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.getEventoInfo response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
 }

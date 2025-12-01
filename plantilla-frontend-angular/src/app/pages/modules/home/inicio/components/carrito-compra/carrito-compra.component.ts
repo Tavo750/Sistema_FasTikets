@@ -17,6 +17,8 @@ import { LoadingService } from '../../../../../../shared/services/loading.servic
 })
 export class CarritoCompraComponent implements OnInit, OnDestroy {
   cartItems: CartItem[] = [];
+  // Información del evento asociada al carrito
+  eventInfo: any = null;
   private cartSubscription: Subscription | null = null;
   private timerSubscriptions: Subscription[] = [];
   // Indica si los items fueron cargados desde el servidor (true) o desde el carrito local (false)
@@ -91,6 +93,31 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
             }));
             // Marcamos que la lista proviene del servidor
             this.loadedFromServer = true;
+
+            // Intentar obtener idCarrito y cargar info de evento
+            try {
+              // Llamar al endpoint que devuelve el carrito completo para extraer idCarro
+              if (idCliente) {
+                  this.carritoService.getCartByCliente(idCliente).subscribe({
+                    next: (cartResp: any) => {
+                      try { console.debug('getCartByCliente for event info:', cartResp); } catch(e){}
+                      const idCarro = cartResp?.data?.idCarro || cartResp?.idCarro || cartResp?.data?.idCarrito || cartResp?.idCarrito || cartResp?.idCarro;
+                      if (idCarro) {
+                        this.carritoService.getEventoInfo(idCarro).subscribe({
+                          next: (evtResp: any) => {
+                            try {
+                              const maybe = evtResp?.data && Array.isArray(evtResp.data) ? evtResp.data[0] : (evtResp?.data || evtResp);
+                              if (maybe) this.eventInfo = maybe;
+                            } catch (e) { console.warn('Error parsing evento-info', e); }
+                          },
+                          error: (err: any) => { console.warn('No se pudo cargar evento-info:', err); }
+                        });
+                      }
+                    },
+                    error: (err: any) => { console.warn('No se pudo obtener carrito para extraer idCarro:', err); }
+                  });
+                }
+              } catch (e) { console.warn('Error iniciando carga de evento para carrito', e); }
 
             // Sincronizar el CartService para que el header y otras vistas reflejen el conteo real
             try {

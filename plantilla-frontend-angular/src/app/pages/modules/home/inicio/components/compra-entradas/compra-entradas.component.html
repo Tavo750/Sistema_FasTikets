@@ -77,7 +77,7 @@
                 <i class="pi pi-ticket"></i>
                 Detalles de las Entradas
               </h2>
-              <p-tag [value]="quantity + ' entradas'" severity="success" class="quantity-tag"></p-tag>
+              <p-tag [value]="totalTicketsCount + ' entradas'" severity="success" class="quantity-tag"></p-tag>
             </div>
           </div>
         </ng-template>
@@ -86,68 +86,64 @@
           <div class="tickets-section">
             <div class="ticket-details-grid">
               <!-- Mostrar resumen de tickets seleccionados -->
-              <div class="tickets-summary" *ngIf="purchaseData">
-                <h4><i class="pi pi-ticket"></i> Entradas Seleccionadas</h4>
-                <div class="ticket-summary-item" *ngFor="let ticket of purchaseData.tickets; let ti = index">
+                <div class="tickets-summary" *ngIf="cartItems && cartItems.length > 0">
+                <h4><i class="pi pi-ticket"></i> Entradas en el Carrito</h4>
+                <div class="ticket-summary-item" *ngFor="let item of cartItems; let i = index">
                   <div class="ticket-summary-info">
-                    <span class="ticket-name">{{ ticket.name }}</span>
-                    <span class="ticket-quantity">Cantidad: {{ ticket.quantity }}</span>
-                    <span class="ticket-price">S/ {{ ticket.price | number:'1.2-2' }} c/u</span>
-                    <span class="ticket-total">Subtotal: S/ {{ (ticket.price * ticket.quantity) | number:'1.2-2' }}</span>
-                    <!-- ID TipoTicket eliminado por petición del usuario -->
-                  </div>
-                </div>
-                <!-- IDs de tipo de ticket eliminado según solicitud del usuario -->
-              </div>
-
-              <!-- Formulario de participantes (uno por cada entrada) -->
-              <div class="participants-list">
-                <div class="participant-card" *ngFor="let p of participants; let i = index">
-                  <div class="participant-header">
-                    <div class="ticket-type">
-                      <strong>Tipo de entrada</strong>
-                      <div class="ticket-type-name">{{ p.ticketType }}</div>
-                      <div class="ticket-type-id" *ngIf="p.idTipoTicket">
-                        <small>ID TipoTicket: {{ p.idTipoTicket }}</small>
-                      </div>
-                    </div>
-                    <div class="participant-actions">
-                      <label class="complete-label">
-                        <input type="checkbox" [(ngModel)]="p.autoComplete" name="autoComplete-{{i}}" (change)="onParticipantAutoCompleteChange(p, i)" />
-                        Completar con mis datos
-                      </label>
-                    </div>
+                    <span class="ticket-name">{{ item.title || item.category || item.nombreTicket }}</span>
+                    <span class="ticket-quantity">Cantidad: {{ item.quantity }}</span>
+                    <span class="ticket-price">S/ {{ item.price | number:'1.2-2' }} c/u</span>
+                    <span class="ticket-total">Subtotal: S/ {{ (item.subtotal ?? (item.price * item.quantity)) | number:'1.2-2' }}</span>
+                    
                   </div>
 
-                  <div class="participant-body">
-                    <div class="form-row">
-                      <div class="form-group half">
-                        <label>Tipo de Documento: *</label>
-                        <select [(ngModel)]="p.docType" name="docType-{{i}}">
-                          <option *ngFor="let d of docTypes" [value]="d">{{ d }}</option>
-                        </select>
-                      </div>
-                      <div class="form-group half">
-                        <label>Número de Documento: *</label>
-                        <input type="text" [(ngModel)]="p.docNumber" name="docNumber-{{i}}" placeholder="Complete aquí" />
-                      </div>
-                    </div>
+                  <!-- Participantes por unidad dentro de este item -->
+                  <div class="participants-per-item">
+                    <h5>Participantes</h5>
+                    <div class="participants-scroll">
+                      <div class="participant-card" *ngFor="let _ of getRange(item.quantity || 1); let u = index">
+                        <div class="participant-header">
+                          <div class="participant-actions">
+                            <label class="complete-label">
+                              <input type="checkbox" [(ngModel)]="getParticipant(i,u).autoComplete" name="autoComplete-{{i}}-{{u}}" (change)="onParticipantAutoCompleteChange(getParticipant(i,u), i, u)" />
+                              Completar con mis datos
+                            </label>
+                          </div>
+                        </div>
 
-                    <div class="form-row">
-                      <div class="form-group half">
-                        <label>Nombre: *</label>
-                        <input type="text" [(ngModel)]="p.firstName" name="firstName-{{i}}" placeholder="Complete aquí" />
-                      </div>
-                      <div class="form-group half">
-                        <label>Apellidos: *</label>
-                        <input type="text" [(ngModel)]="p.lastName" name="lastName-{{i}}" placeholder="Complete aquí" />
-                      </div>
-                    </div>
+                        <div class="participant-body">
+                          <div class="form-row">
+                            <div class="form-group half">
+                              <label>Tipo de Documento: *</label>
+                              <select [(ngModel)]="getParticipant(i,u).docType" name="docType-{{i}}-{{u}}">
+                                <option *ngFor="let d of docTypes" [value]="d">{{ d }}</option>
+                              </select>
+                            </div>
+                            <div class="form-group half">
+                              <label>Número de Documento: *</label>
+                              <input type="text" [(ngModel)]="getParticipant(i,u).docNumber" name="docNumber-{{i}}-{{u}}" placeholder="Complete aquí" />
+                            </div>
+                          </div>
 
-                    <div class="participant-note">
-                      <small class="text-muted">⚠ Los campos con * son obligatorios.</small>
+                          <div class="form-row">
+                            <div class="form-group half">
+                              <label>Nombre: *</label>
+                              <input type="text" [(ngModel)]="getParticipant(i,u).firstName" name="firstName-{{i}}-{{u}}" placeholder="Complete aquí" />
+                            </div>
+                            <div class="form-group half">
+                              <label>Apellidos: *</label>
+                              <input type="text" [(ngModel)]="getParticipant(i,u).lastName" name="lastName-{{i}}-{{u}}" placeholder="Complete aquí" />
+                            </div>
+                          </div>
+
+                          <div class="participant-note">
+                            <small class="text-muted">⚠ Los campos con * son obligatorios.</small>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -247,15 +243,14 @@
         <button pButton type="button" class="p-button-plain redeem-btn" (click)="redeemCode()">Canjear</button>
       </div>
 
-      <div class="redeem-info" *ngIf="codeDiscountPercent > 0">
-        <div class="applied-code">Código: <strong>{{ redeemCodeInput }}</strong></div>
-        <div class="discount-tag">{{ (codeDiscountPercent * 100) | number:'1.0-0' }}% de descuento</div>
+      <div class="redeem-info" *ngIf="appliedPromoCode">
+        <div class="applied-code">Beneficio aplicado</div>
+        <div class="discount-tag" *ngIf="codeDiscountPercent && codeDiscountPercent > 0">{{ (codeDiscountPercent * 100) | number:'1.0-0' }}% de descuento</div>
+        <div class="discount-tag" *ngIf="(!codeDiscountPercent || codeDiscountPercent === 0) && codeDiscountAmount && codeDiscountAmount > 0">S/ {{ codeDiscountAmount | number:'1.2-2' }} descuento</div>
         <button pButton type="button" icon="pi pi-times" class="clear-code-btn" (click)="clearCode()"></button>
       </div>
 
-      <div class="points-availability">
-        <small>Beneficio: <strong> %20 Descuento </strong></small>
-      </div>
+
       <div class="redeem-message" *ngIf="redeemMessage">{{ redeemMessage }}</div>
     </div>
 
@@ -281,23 +276,22 @@
       </div>
     </div>
 
-    <!-- Botones de acción compactos -->
+    <!-- Botones de acción compactos (alineados en una sola fila) -->
     <div class="action-buttons-compact">
       <p-button
         label="Continuar"
         icon="pi pi-arrow-right"
         iconPos="right"
         severity="success"
-        class="action-btn-compact"
+        class="action-btn-compact continue-btn-compact"
         (click)="onContinuar()">
       </p-button>
 
       <p-button
         label="Cancelar"
         icon="pi pi-times"
-        severity="secondary"
-        [outlined]="true"
-        class="action-btn-compact"
+        severity="danger"
+        class="action-btn-compact cancel-btn-compact"
         (click)="showPagoDialog=false">
       </p-button>
     </div>

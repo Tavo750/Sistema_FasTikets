@@ -5,6 +5,7 @@
       Carrito de Compras
     </h1>
     <p-tag [value]="cartItems.length + ' artículo(s)'" severity="info" icon="pi pi-shopping-bag"></p-tag>
+    <!-- Información del evento removida del encabezado por solicitud -->
   </div>
 
   <!-- Temporizador de reserva visible cuando hay items -->
@@ -32,7 +33,7 @@
               </div>
 
               <div class="item-details">
-                <h3 class="item-title">{{ item.title }}</h3>
+                <h3 class="item-title">{{ eventInfo?.nombreEvento || item.title }}</h3>
                 <p-tag [value]="item.category"
                        [severity]="getCategorySeverity(item.category)"
                        class="category-tag">
@@ -111,7 +112,7 @@
                 severity="secondary"
                 [outlined]="true"
                 size="large"
-                class="w-full mb-2"
+                class="checkout-btn continue-btn"
                 (onClick)="continueShopping()">
               </p-button>
 
@@ -120,7 +121,7 @@
                 icon="pi pi-credit-card"
                 severity="success"
                 size="large"
-                class="w-full"
+                class="checkout-btn proceed-btn"
                 (onClick)="proceedToCheckout()">
               </p-button>
             </div>

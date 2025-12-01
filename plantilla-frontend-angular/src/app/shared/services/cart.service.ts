@@ -20,6 +20,9 @@ export interface CartItem {
   idTipoTicket?: number;
   // alias opcional para compatibilidad con diferentes shapes de respuesta
   name?: string;
+  // subtotal opcional y nombre alternativo para compatibilidad con algunas respuestas
+  subtotal?: number;
+  nombreTicket?: string;
 }
 
 export interface TicketForCart {

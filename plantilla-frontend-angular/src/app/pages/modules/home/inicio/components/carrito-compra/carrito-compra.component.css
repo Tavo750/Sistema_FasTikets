@@ -247,8 +247,33 @@
 .checkout-actions {
   margin-top: 2rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.75rem;
+  align-items: center;
+}
+
+/* Cada botón ocupará la mitad del espacio disponible */
+.checkout-actions .checkout-btn ::ng-deep .p-button {
+  /* not used but kept for specificity */
+}
+.checkout-actions .checkout-btn {
+  flex: 1 1 0;
+}
+
+/* Place Proceed (first button in markup) at left and push Continue to the right */
+.checkout-actions .continue-btn {
+  margin-left: auto;
+}
+
+/* En pantallas pequeñas, apilar verticalmente y usar ancho completo */
+@media (max-width: 640px) {
+  .checkout-actions {
+    flex-direction: column;
+  }
+  .checkout-actions .checkout-btn {
+    width: 100%;
+    margin-left: 0; /* ensure no auto margin on small screens */
+  }
 }
 
 .security-info {

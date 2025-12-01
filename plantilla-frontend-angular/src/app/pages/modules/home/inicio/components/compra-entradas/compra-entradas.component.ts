@@ -33,7 +33,10 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	// Datos de compra completos
 	purchaseData: PurchaseData | null = null;
 	private purchaseSubscription: Subscription = new Subscription();
-	// Participantes y tipos de documento
+	private cartItemsSubscription: Subscription | null = null;
+	// participantsPerItem: array aligned with cartItems; each entry is an array of participant objects (one per unit)
+	participantsPerItem: Array<Array<any>> = [];
+	// legacy flat participants array (kept for compatibility with some validations)
 	participants: Array<any> = [];
 	docTypes: string[] = ['DNI', 'Pasaporte', 'Carnet Ext.'];
 
@@ -133,6 +136,17 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	get subtotal(): number {
 		return this.purchaseData?.totalPrice || 0;
 	}
+
+	/** Número de items distintos en el carrito (longitud del arreglo cartItems) */
+	get cartItemsCount(): number {
+		return this.cartItems ? this.cartItems.length : 0;
+	}
+
+	/** Total de entradas (suma de cantidades de cada item) */
+	get totalTicketsCount(): number {
+		if (!this.cartItems || this.cartItems.length === 0) return 0;
+		return this.cartItems.reduce((acc, it) => acc + (Number(it.quantity) || 0), 0);
+	}
 	usePoints = false;
 	pointsToUse = 0;
 	remainingPoints = 0;
@@ -179,6 +193,8 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		codeDiscountPercent: number = 0; // e.g. 0.10 for 10%
 		codeDiscountAmount: number = 0;
 		redeemMessage: string | null = null;
+		// Código promocional aplicado (no mostrar en UI, pero incluir en orden si fue canjeado y activo)
+		appliedPromoCode: string | null = null;
 
 		// UI: canjear puntos mediante checkbox (si true se ocultan otros bloques y total -> 0)
 		usePointsRedeem: boolean = false;
@@ -227,6 +243,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 				// cuando expira en otra vista podemos mostrar alerta o redirigir
 				console.warn('Temporizador de carrito expiró');
 			}));
+
+			// Intentar iniciar el temporizador al entrar en la vista
+			try {
+				const uid = this.sessionService.getCurrentUser()?.idUsuario;
+				this.cartTimerService.startIfNotStarted(uid).catch((err: any) => console.debug('cartTimer startIfNotStarted error', err));
+			} catch (e) { console.debug('Error llamando startIfNotStarted en ngOnInit', e); }
 		} catch (e) { console.warn('No se pudo suscribir a CartTimerService', e); }
 		// Suscribirse a los datos de compra
 		this.purchaseSubscription = this.purchaseService.purchaseData$.subscribe(
@@ -263,30 +285,69 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 						} catch (e) { console.warn('Error solicitando perfil', e); }
 						this.carritoService.getCartByCliente(currentUser.idUsuario).subscribe({
 							next: (resp: any) => {
-								// Manejar la forma { ok, mensaje, data: { items: [...] } } o { items: [...] }
-								const itemsResp: any[] = resp?.data?.items ?? resp?.items ?? [];
-								this.cartItems = itemsResp.map(it => ({
-									// Acomodar a la interfaz CartItem esperada por el frontend
-									id: it.idItemCarrito ?? 0,
-									title: it.nombreTicket,
-									category: it.nombreTicket,
-									price: it.precioUnitario,
-									quantity: it.cantidad,
-									image: '',
-									// campos adicionales
+								// Extraer items soportando múltiples formas que puede devolver el backend
+								let itemsResp: any[] = [];
+								try {
+									if (Array.isArray(resp)) {
+										itemsResp = resp as any[];
+									} else if (Array.isArray(resp?.data)) {
+										itemsResp = resp.data;
+									} else if (Array.isArray(resp?.data?.items)) {
+										itemsResp = resp.data.items;
+									} else if (Array.isArray(resp?.items)) {
+										itemsResp = resp.items;
+									} else if (resp?.data && typeof resp.data === 'object') {
+										// Puede venir como objeto con claves numéricas: convertir a array
+										const vals = Object.values(resp.data).filter(v => v && typeof v === 'object') as any[];
+										// si parece contener items como propiedades numéricas
+										if (vals.length > 0 && vals.every((v: any) => v && (v.idItemCarrito || v.idTipoTicket || v.nombreTicket))) {
+											itemsResp = vals as any[];
+										} else if (Array.isArray(resp.data.items)) {
+											itemsResp = resp.data.items;
+										}
+									} else if (resp && typeof resp === 'object') {
+										// Caso: resp.items es un objeto con claves numéricas
+										if (resp.items && typeof resp.items === 'object') {
+											itemsResp = Object.keys(resp.items).map(k => resp.items[k]).filter(Boolean);
+										}
+									}
+								} catch (e) {
+									console.warn('Error parsing carrito items response, fallback to empty array', e);
+									itemsResp = [];
+								}
+
+								// Intentar obtener idCarrito desde varias posibles ubicaciones en la respuesta
+								const idCarrito = resp?.data?.idCarro ?? resp?.data?.idCarrito ?? resp?.idCarro ?? resp?.idCarrito ?? null;
+
+								// Mapear todos los items correctamente
+								this.cartItems = (itemsResp || []).map(it => ({
+									id: it.idItemCarrito ?? it.id ?? 0,
+									title: it.nombreTicket ?? it.nombre ?? it.descripcion ?? 'Entrada',
+									category: it.nombreTicket ?? it.categoria ?? it.ticketType ?? '',
+									price: it.precioUnitario ?? it.precio ?? it.precioVenta ?? 0,
+									quantity: it.cantidad ?? it.cantidadSeleccionada ?? it.quantity ?? 1,
+									image: it.imagenUrl ?? it.image ?? '',
 									idTipoTicket: it.idTipoTicket,
-									subtotal: it.subtotal,
-									serverId: it.idItemCarrito
+									subtotal: it.subtotal ?? (it.precioUnitario ? (it.precioUnitario * (it.cantidad || 1)) : null),
+									serverId: it.idItemCarrito ?? it.id
 								} as unknown as CartItem));
-								this.assignParticipantTicketIds();
+								try { console.debug('CompraEntradasComponent: cartItems serverIds ->', this.cartItems.map(ci => ci.serverId)); } catch (e) {}
+								this.buildParticipantsPerItem();
 								this.buildTicketIdsIfReady();
 								// Iniciar temporizador si hay items en carrito
 								try { if (this.cartItems && this.cartItems.length > 0) this.cartTimerService.startIfNotStarted(currentUser.idUsuario); } catch (e) {}
+
+								// Cargar información del evento asociada al carrito, si se proporcionó idCarrito
+								try {
+									if (idCarrito) {
+										this.loadEventoInfoForCarrito(idCarrito);
+									}
+								} catch (e) { console.warn('No se pudo cargar info del evento para el carrito', e); }
 							},
 							error: (err: any) => {
 								console.warn('No se pudo cargar carrito por cliente, usando items locales', err);
 								this.cartItems = this.cartService.getCartItems();
-								this.assignParticipantTicketIds();
+								this.buildParticipantsPerItem();
 								this.buildTicketIdsIfReady();
 								try { if (this.cartItems && this.cartItems.length > 0) this.cartTimerService.startIfNotStarted(this.sessionService.getCurrentUser()?.idUsuario); } catch (e) {}
 							}
@@ -294,7 +355,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					} else {
 						// Fallback: usar items locales
 						this.cartItems = this.cartService.getCartItems();
-						this.assignParticipantTicketIds();
+						this.buildParticipantsPerItem();
 						this.buildTicketIdsIfReady();
 					}
 				} else {
@@ -305,12 +366,32 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 				}
 			}
 		);
+
+		// Mantener sincronía con cambios del carrito en memoria (si otro componente lo actualiza)
+		try {
+			this.cartItemsSubscription = this.cartService.getCartItems$().subscribe(items => {
+				if (items && Array.isArray(items)) {
+					this.cartItems = items;
+					this.buildParticipantsPerItem();
+					// Reiniciar temporizador cuando se agregan/actualizan items en el carrito
+					try {
+						const uid = this.sessionService.getCurrentUser()?.idUsuario;
+						if (this.cartItems && this.cartItems.length > 0) {
+							this.cartTimerService.startIfNotStarted(uid).catch((err: any) => console.debug('cartTimer restart error', err));
+						}
+					} catch (e) { console.debug('Error reiniciando temporizador tras cambio de carrito', e); }
+				}
+			});
+		} catch (e) {
+			console.warn('No se pudo suscribir a CartService desde CompraEntradasComponent', e);
+		}
 	}
 
 	/**
 	 * Handler cuando se activa/desactiva la casilla "Completar con mis datos" de un participante
+	 * Ahora acepta opcionalmente el índice de unidad para compatibilidad con participantsPerItem
 	 */
-	onParticipantAutoCompleteChange(participant: any, index: number): void {
+	onParticipantAutoCompleteChange(participant: any, index: number, unitIndex?: number): void {
 		if (!participant) return;
 		// Si se activa la casilla, completar con los datos del usuario corriente
 		if (participant.autoComplete) {
@@ -344,7 +425,15 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		// Limpiar suscripciones
 		this.purchaseSubscription.unsubscribe();
+		if (this.cartItemsSubscription) {
+			try { this.cartItemsSubscription.unsubscribe(); } catch (e) {}
+		}
 		try { this.timerSubscriptions.forEach(s => s.unsubscribe()); } catch (e) {}
+	}
+
+	// trackBy para el listado de items en la plantilla
+	trackByCartItem(index: number, item: CartItem): any {
+		return (item && (item.serverId ?? item.id)) || index;
 	}
 
 	private updateEventData(data: PurchaseData): void {
@@ -359,40 +448,109 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		};
 	}
 
-	private initializeParticipants(): void {
-		// Inicializar participantes según quantity
-		this.participants = Array.from({ length: this.quantity }, (_, index) => ({
-			ticketType: this.purchaseData?.tickets[Math.floor(index / this.purchaseData.tickets.length)]?.name || 'General',
-			autoComplete: false,
-			docType: '',
-			docNumber: '',
-			firstName: '',
-			lastName: ''
-		}));
+	/**
+	 * Carga información del evento asociada a un carrito por idCarrito.
+	 * Endpoint: GET /carrito/{idCarrito}/evento-info
+	 */
+	private loadEventoInfoForCarrito(idCarrito: number): void {
+		const url = `${baseUrl}/carrito/${encodeURIComponent(String(idCarrito))}/evento-info`;
+		try { console.debug('CompraEntradasComponent.loadEventoInfoForCarrito -> GET', url); } catch(_) {}
+		this.http.get<any>(url).subscribe({
+			next: (resp: any) => {
+				try {
+					const item = Array.isArray(resp?.data) ? resp.data[0] : (Array.isArray(resp) ? resp[0] : resp?.data);
+					if (item) {
+						this.event.title = item.nombreEvento ?? item.evento ?? this.event.title;
+						this.event.date = item.fecha ?? this.event.date;
+						this.event.time = item.hora ?? this.event.time;
+						this.event.venue = item.nombreLocal ?? item.nombreLocal ?? this.event.venue;
+					}
+				} catch (e) {
+					console.warn('Error procesando evento-info', e);
+				}
+			},
+			error: (err: any) => {
+				console.warn('No se pudo obtener evento-info para idCarrito', idCarrito, err);
+			}
+		});
+	}
 
-		// Intentar asignar idTipoTicket a cada participante si ya conocemos los items del carrito
-		this.assignParticipantTicketIds();
+	private initializeParticipants(): void {
+		// Inicializar un participante por cada item del carrito (no por unidad)
+		// Si hay items en el carrito los usamos para crear/actualizar los participantes
+		if (this.cartItems && this.cartItems.length > 0) {
+			this.participants = this.cartItems.map(ci => ({
+				ticketType: ci.title || ci.category || 'General',
+				autoComplete: false,
+				docType: '',
+				docNumber: '',
+				firstName: '',
+				lastName: '',
+				idTipoTicket: (ci as any).idTipoTicket || ci.serverId || ci.id,
+				quantity: ci.quantity || 1
+			}));
+		} else if (this.purchaseData && this.purchaseData.tickets && this.purchaseData.tickets.length > 0) {
+			// Fallback: un participante por cada ticket en purchaseData
+			this.participants = this.purchaseData.tickets.map((t: any) => ({
+				ticketType: t.name || 'General',
+				autoComplete: false,
+				docType: '',
+				docNumber: '',
+				firstName: '',
+				lastName: '',
+				idTipoTicket: null,
+				quantity: t.quantity || 1
+			}));
+		} else {
+			// Default: mantener participantes vacíos
+			this.participants = [];
+		}
 	}
 
 	/**
-	 * Asigna a cada participante el idTipoTicket correspondiente según el orden y cantidades
+	 * Devuelve un arreglo [0..n-1] para usar en plantillas *ngFor por cantidad
 	 */
-	private assignParticipantTicketIds(): void {
-		if (!this.participants || this.participants.length === 0) return;
-		if (!this.cartItems || this.cartItems.length === 0) return;
-
-		let idx = 0;
-		for (const ci of this.cartItems) {
-			const tipoId = (ci as any).idTipoTicket || ci.serverId || ci.id;
-			const qty = ci.quantity || 1;
-			for (let i = 0; i < qty; i++) {
-				if (idx >= this.participants.length) break;
-				this.participants[idx].idTipoTicket = tipoId;
-				// also keep readable ticketType if present
-				this.participants[idx].ticketType = this.participants[idx].ticketType || ci.category || ci.ticketType || ci.title;
-				idx++;
-			}
+	private buildParticipantsPerItem(): void {
+		if (!this.cartItems || this.cartItems.length === 0) {
+			this.participantsPerItem = [];
+			this.participants = [];
+			return;
 		}
+		// Construir arreglo por item -> participantes por unidad
+		this.participantsPerItem = this.cartItems.map(ci => {
+			const qty = ci.quantity || 1;
+			const arr: any[] = [];
+			for (let i = 0; i < qty; i++) {
+				arr.push({
+					ticketType: ci.title || ci.category || 'General',
+					autoComplete: false,
+					docType: '',
+					docNumber: '',
+					firstName: '',
+					lastName: '',
+					idTipoTicket: (ci as any).idTipoTicket || ci.serverId || ci.id
+				});
+			}
+			return arr;
+		});
+		// Flatten for compatibility with existing validation paths
+		this.participants = this.participantsPerItem.reduce((acc, arr) => acc.concat(arr), []);
+	}
+
+	/**
+	 * Devuelve el participante correspondiente a un item y unidad (por cantidad)
+	 */
+	getParticipant(itemIndex: number, unitIndex: number): any {
+		if (!this.participantsPerItem || !this.participantsPerItem[itemIndex]) return null;
+		return this.participantsPerItem[itemIndex][unitIndex] || null;
+	}
+
+	/**
+	 * Devuelve un arreglo [0..n-1] para usar en plantillas *ngFor por cantidad
+	 */
+	getRange(n: number): number[] {
+		if (!n || n <= 0) return [];
+		return Array.from({ length: n }, (_, i) => i);
 	}
 
 	/**
@@ -470,28 +628,47 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		const cartItems = (this.cartItems && this.cartItems.length) ? this.cartItems : this.cartService.getCartItems();
 		if (!cartItems || cartItems.length === 0) return null;
 
-		let participantIndex = 0;
 		const items: any[] = [];
-		for (const ci of cartItems) {
-			const asistentes = (this.participants || []).slice(participantIndex, participantIndex + (ci.quantity || 1)).map((pt: any) => ({
-				tipoDocumento: pt.docType,
-				numeroDocumento: pt.docNumber,
-				nombres: pt.firstName,
-				apellidos: pt.lastName
-			}));
-			participantIndex += (ci.quantity || 1);
-
+		for (let idx = 0; idx < cartItems.length; idx++) {
+			const ci = cartItems[idx];
+			const participantesParaItem = (this.participantsPerItem && this.participantsPerItem[idx]) ? this.participantsPerItem[idx] : null;
+			const asistentes: any[] = [];
+			const qty = ci.quantity || 1;
+			for (let k = 0; k < qty; k++) {
+				const p = participantesParaItem && participantesParaItem[k] ? participantesParaItem[k] : null;
+				if (p) {
+					asistentes.push({
+						tipoDocumento: p.docType,
+						numeroDocumento: p.docNumber,
+						nombres: p.firstName,
+						apellidos: p.lastName
+					});
+				} else if (this.participants && this.participants[idx]) {
+					// Fallback: si existe el participante plano, replicarlo
+					const fp = this.participants[idx];
+					asistentes.push({ tipoDocumento: fp.docType || '', numeroDocumento: fp.docNumber || '', nombres: fp.firstName || '', apellidos: fp.lastName || '' });
+				} else {
+					asistentes.push({ tipoDocumento: '', numeroDocumento: '', nombres: '', apellidos: '' });
+				}
+			}
 			items.push({
 				idTipoTicket: (ci as any).idTipoTicket || ci.serverId || ci.id,
+				idItemCarrito: ci.serverId || ci.id,
 				cantidad: ci.quantity,
 				asistentes
 			});
 		}
 
-		return {
+		const payload: any = {
 			idCliente: currentUser.idUsuario,
 			items
 		};
+		if (this.appliedPromoCode) {
+			payload.codigoPromocional = this.appliedPromoCode;
+		}
+		return payload;
+		// Incluir codigoPromocional si existe y fue aplicado
+		// (al backend se le envía el string exacto ingresado por el usuario)
 	}
 
 	// Submit handler with optional form parameter
@@ -697,7 +874,11 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.remainingPoints = Math.max(0, this.userPoints - this.pointsToUse);
 
 		// Aplicar descuento por código si existe
-		this.codeDiscountAmount = (this.subtotal || 0) * (this.codeDiscountPercent || 0);
+		// Si tenemos un descuento por porcentaje, recalculamos el monto.
+		// Si codeDiscountPercent es 0 y codeDiscountAmount ya fue establecido (monto fijo), lo respetamos.
+		if (this.codeDiscountPercent && this.codeDiscountPercent > 0) {
+			this.codeDiscountAmount = (this.subtotal || 0) * (this.codeDiscountPercent || 0);
+		}
 
 		// Aplicar descuento por nivel de usuario
 		this.levelDiscountAmount = (this.subtotal || 0) * (this.userLevelDiscountPercent || 0);
@@ -717,11 +898,55 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.redeemMessage = null;
 		const code = (this.redeemCodeInput || '').toString().trim();
 		if (!code) { this.redeemMessage = 'Ingrese un código válido'; return; }
-		// Demo logic: aplicar descuento del 10% para códigos no vacíos.
-		// Reemplazar por llamada al backend si está disponible.
-		this.codeDiscountPercent = 0.10;
-		this.redeemMessage = `Código "${code}" aplicado — ${(this.codeDiscountPercent * 100).toFixed(0)}% descuento`;
-		this.calculateTotals();
+
+		// Llamar al endpoint de validación de código promocional
+		const url = `${baseUrl}/cliente/fidelizacion/codigo-promocional/${encodeURIComponent(code)}`;
+		try {
+			this.http.get<any>(url).subscribe({
+				next: (resp: any) => {
+					// El endpoint puede devolver el objeto directamente o dentro de `data`
+					const payload = resp?.data ?? resp;
+					if (!payload) {
+						this.redeemMessage = 'Código inválido o sin respuesta del servidor';
+						return;
+					}
+
+					const activo = payload?.activo ?? payload?.active ?? false;
+					if (!activo) {
+						this.appliedPromoCode = null;
+						this.redeemMessage = 'El código no está activo';
+						return;
+					}
+
+					const tipo = (payload?.tipo || '').toString().toUpperCase();
+					const rawValor = payload?.valor ?? payload?.value ?? 0;
+					const valor = Number(rawValor) || 0;
+
+					if (tipo.includes('PORCENTAJE')) {
+						// Si backend devuelve 10 o 0.10, normalizamos: si >1 lo interpretamos como porcentaje entero
+						this.codeDiscountPercent = valor > 1 ? (valor / 100) : valor;
+						this.codeDiscountAmount = (this.subtotal || 0) * (this.codeDiscountPercent || 0);
+						this.redeemMessage = `Beneficio: PORCENTAJE — ${(this.codeDiscountPercent! * 100).toFixed(0)}% descuento`;
+					} else {
+						// MONTO_FIJO u otros: aplicar monto fijo de descuento
+						this.codeDiscountPercent = 0;
+						this.codeDiscountAmount = valor;
+						this.redeemMessage = `Beneficio: MONTO_FIJO — S/${valor.toFixed(2)} descuento`;
+					}
+					// Guardar el código aplicado para incluirlo en la orden (no mostrarlo en la UI)
+					this.appliedPromoCode = code;
+					// No mostramos el código en la UI (no concatenamos el valor del código en el mensaje)
+					this.calculateTotals();
+				},
+				error: (err: any) => {
+					console.warn('Error validando código promocional', err);
+					this.redeemMessage = 'No se pudo validar el código. Intente nuevamente.';
+				}
+			});
+		} catch (e) {
+			console.warn('Error llamando al endpoint de canje', e);
+			this.redeemMessage = 'Error al intentar canjear el código';
+		}
 	}
 
 	clearCode(): void {
@@ -729,6 +954,7 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.codeDiscountPercent = 0;
 		this.codeDiscountAmount = 0;
 		this.redeemMessage = null;
+		this.appliedPromoCode = null;
 		this.calculateTotals();
 	}
 

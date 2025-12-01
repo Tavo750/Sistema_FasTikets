@@ -7,6 +7,9 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  // Compatibilidad: campos opcionales que algunas respuestas pueden incluir
+  subtotal?: number;
+  nombreTicket?: string;
 }
 
 @Component({

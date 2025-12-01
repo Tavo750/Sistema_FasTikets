@@ -27,8 +27,8 @@ export class CartTimerService {
   
 
   // URL fija del endpoint de configuración para el tiempo de reserva del carrito
-  // No dinámico: usar siempre este endpoint específico
-  private readonly CONFIG_URL = `${baseUrl}/configuracion/TIEMPO_RESERVA_CARRITO_MIN`;
+  // Cambiado para usar el nombre real del endpoint: TIEMPO_CARRO_MINUTOS
+  private readonly CONFIG_URL = `${baseUrl}/configuracion/TIEMPO_CARRO_MINUTOS`;
   // Promesa que se resuelve cuando la carga inicial (petición remota) termina
   private initialLoadPromise: Promise<void> | null = null;
   private resolveInitialLoad: (() => void) | null = null;
@@ -39,11 +39,8 @@ export class CartTimerService {
    * Crea el servicio e intenta cargar la configuración remota si está disponible
    */
   constructor(private http: HttpClient) {
-    // Cargar tiempo límite desde localStorage si existe
-    const savedLimit = this.loadTimeLimitFromStorage();
-    if (savedLimit !== null) {
-      this.setTimeLimitMinutes(savedLimit);
-    }
+    // No cargar/guardar el tiempo límite ni la marca de inicio en localStorage.
+    // El valor remoto (si existe) se aplicará cuando llegue la respuesta.
 
     // Preparar promesa que indica cuando la carga inicial ha terminado
     this.initialLoadPromise = new Promise<void>((resolve) => { this.resolveInitialLoad = resolve; });
@@ -128,20 +125,11 @@ export class CartTimerService {
       return false;
     }
     
-    try {
-      // Guardar en localStorage
-      localStorage.setItem(this.STORAGE_KEY_TIME_LIMIT, String(minutes));
-      
-      // Actualizar el valor interno
-      this.CART_TIMER_MS = minutes * 60 * 1000;
-      this.timeLimitSubject.next(minutes);
-      try { console.debug('CartTimerService.setTimeLimitMinutes -> applied minutes', minutes, 'CART_TIMER_MS', this.CART_TIMER_MS); } catch (_) {}
-      
-      return true;
-    } catch (e) {
-      console.error('Error guardando tiempo límite del carrito', e);
-      return false;
-    }
+    // Actualizar el valor interno (no persistimos en localStorage)
+    this.CART_TIMER_MS = minutes * 60 * 1000;
+    this.timeLimitSubject.next(minutes);
+    try { console.debug('CartTimerService.setTimeLimitMinutes -> applied minutes', minutes, 'CART_TIMER_MS', this.CART_TIMER_MS); } catch (_) {}
+    return true;
   }
 
   async startIfNotStarted(userId?: number | string): Promise<void> {
@@ -153,23 +141,25 @@ export class CartTimerService {
       // Si no se ha iniciado la petición aún, intentar iniciarla ahora
       try { if (!this.initialLoadStarted) this.loadTimeLimitFromEndpoint(); } catch(_) {}
       try { if (this.initialLoadPromise) await this.initialLoadPromise; } catch(_) {}
-      // Si no se obtuvo un tiempo límite válido, no iniciar el temporizador
+      // Si no se obtuvo un tiempo límite válido desde el endpoint, intentar usar el valor
+      // que pudo haberse colocado en timeLimitSubject. Si sigue sin haber un valor válido,
+      // aplicar un valor por defecto (15 minutos) para que el temporizador sea visible.
       if (!this.CART_TIMER_MS || this.CART_TIMER_MS <= 0) {
-        console.warn('CartTimerService: no hay tiempo límite válido, no se iniciará el temporizador');
-        return;
+        const tl = this.timeLimitSubject.value;
+        if (tl && tl > 0) {
+          this.CART_TIMER_MS = tl * 60 * 1000;
+        } else {
+          const DEFAULT_MINUTES = 15;
+          console.info('CartTimerService: no hay tiempo límite válido remoto, aplicando valor por defecto', DEFAULT_MINUTES);
+          this.setTimeLimitMinutes(DEFAULT_MINUTES);
+        }
       }
-      const stored = localStorage.getItem(key);
+      // No usamos localStorage para persistir el inicio; iniciamos en memoria ahora
       const now = Date.now();
-      let start = stored ? parseInt(stored, 10) : null;
-      if (!start || isNaN(start)) {
-        start = now;
-        localStorage.setItem(key, String(start));
-      }
-      this.startFromTimestamp(start);
+      this.startFromTimestamp(now);
     } catch (e) {
       // fallback: start now
       const now = Date.now();
-      try { if (this.storageKey) localStorage.setItem(this.storageKey, String(now)); } catch(_) {}
       this.startFromTimestamp(now);
     }
   }
