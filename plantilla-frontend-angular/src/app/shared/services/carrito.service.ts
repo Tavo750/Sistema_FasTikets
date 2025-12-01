@@ -119,4 +119,94 @@ export class CarritoService {
         catchError(this.httpUtils.handleError)
       );
   }
+
+  /**
+   * Limpia completamente el carrito del servidor eliminando todos los items
+   * Obtiene todos los items y los elimina uno por uno
+   */
+  clearCartOnServer(idCliente: number): Observable<any> {
+    return new Observable(observer => {
+      // Primero obtener todos los items del carrito
+      this.getItemsFromServer(idCliente).subscribe({
+        next: (response) => {
+          console.log('🧹 Items del carrito a eliminar:', response);
+          
+          // Extraer array de items según la estructura de respuesta
+          let items: any[] = [];
+          if (Array.isArray(response)) {
+            items = response;
+          } else if (Array.isArray(response?.data)) {
+            items = response.data;
+          } else if (Array.isArray(response?.items)) {
+            items = response.items;
+          }
+
+          if (items.length === 0) {
+            console.log('✅ Carrito ya está vacío');
+            observer.next({ success: true, message: 'Carrito ya estaba vacío' });
+            observer.complete();
+            return;
+          }
+
+          // Eliminar cada item individualmente
+          let deletedCount = 0;
+          let errorCount = 0;
+          
+          items.forEach((item, index) => {
+            const idItemCarrito = item.idItemCarrito || item.id || item.idTipoTicket;
+            
+            if (idItemCarrito) {
+              this.deleteItemOnServer(idItemCarrito, idCliente).subscribe({
+                next: () => {
+                  deletedCount++;
+                  console.log(`✅ Item ${index + 1}/${items.length} eliminado`);
+                  
+                  // Si es el último item, completar la operación
+                  if (deletedCount + errorCount === items.length) {
+                    if (errorCount === 0) {
+                      observer.next({ success: true, message: `Carrito limpiado: ${deletedCount} items eliminados` });
+                    } else {
+                      observer.next({ success: true, message: `Carrito parcialmente limpiado: ${deletedCount} items eliminados, ${errorCount} errores` });
+                    }
+                    observer.complete();
+                  }
+                },
+                error: (error) => {
+                  errorCount++;
+                  console.warn(`⚠️ Error eliminando item ${index + 1}:`, error);
+                  
+                  // Si es el último item, completar la operación
+                  if (deletedCount + errorCount === items.length) {
+                    if (deletedCount > 0) {
+                      observer.next({ success: true, message: `Carrito parcialmente limpiado: ${deletedCount} items eliminados, ${errorCount} errores` });
+                    } else {
+                      observer.error({ success: false, message: `Error limpiando carrito: ${errorCount} errores` });
+                    }
+                    observer.complete();
+                  }
+                }
+              });
+            } else {
+              errorCount++;
+              console.warn(`⚠️ Item ${index + 1} no tiene ID válido:`, item);
+              
+              // Si es el último item, completar la operación
+              if (deletedCount + errorCount === items.length) {
+                if (deletedCount > 0) {
+                  observer.next({ success: true, message: `Carrito parcialmente limpiado: ${deletedCount} items eliminados, ${errorCount} errores` });
+                } else {
+                  observer.error({ success: false, message: `Error limpiando carrito: ${errorCount} errores` });
+                }
+                observer.complete();
+              }
+            }
+          });
+        },
+        error: (error) => {
+          console.error('❌ Error obteniendo items del carrito para limpiar:', error);
+          observer.error(error);
+        }
+      });
+    });
+  }
 }

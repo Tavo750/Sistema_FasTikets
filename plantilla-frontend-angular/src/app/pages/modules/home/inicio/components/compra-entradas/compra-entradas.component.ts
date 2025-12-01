@@ -774,6 +774,30 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 	onSuccessOk(): void {
 		this.showSuccessDialog = false;
+		
+		// 🧹 Limpiar el carrito después de compra exitosa
+		console.log('🧹 Limpiando carrito después de compra exitosa...');
+		
+		// Limpiar carrito local
+		this.cartService.clearCart();
+		
+		// Limpiar carrito del servidor si hay usuario logueado
+		const currentUser = this.sessionService.getCurrentUser();
+		if (currentUser && currentUser.idUsuario) {
+			this.carritoService.clearCartOnServer(currentUser.idUsuario).subscribe({
+				next: () => {
+					console.log('✅ Carrito del servidor limpiado exitosamente');
+				},
+				error: (error) => {
+					console.warn('⚠️ Error al limpiar carrito del servidor:', error);
+					// No mostramos error al usuario porque la compra ya fue exitosa
+				}
+			});
+		}
+		
+		// Limpiar datos de compra
+		this.purchaseService.clearPurchaseData();
+		
 		// Redirigir a la página principal (home)
 		try {
 			this.router.navigate(['/home']);

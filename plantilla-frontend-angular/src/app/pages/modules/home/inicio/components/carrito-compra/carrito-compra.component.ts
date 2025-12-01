@@ -5,10 +5,23 @@ import { CarritoService } from '../../../../../../shared/services/carrito.servic
 import { MessageService } from 'primeng/api';
 import { SessionService } from '../../../../../../shared/services/session.service';
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
+import { EventoService } from '../../../../administrador/services/evento.service';
+import { LocalService } from '../../../../administrador/services/local.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 import { LoadingService } from '../../../../../../shared/services/loading.service';
+
+interface TicketType {
+  id?: number;
+  name: string;
+  price: number;
+  quantity: number;
+  description?: string;
+  stock?: number;
+  idZona?: number;
+  limitePorPersona?: number;
+}
 
 @Component({
   selector: 'app-carrito-compra',
@@ -31,13 +44,15 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
 
   constructor(
     private router: Router,
-  private cartService: CartService,
-  private purchaseService: PurchaseService,
-  private carritoService: CarritoService,
+    private cartService: CartService,
+    private purchaseService: PurchaseService,
+    private carritoService: CarritoService,
     private messageService: MessageService,
     private sessionService: SessionService,
     private cartTimerService: CartTimerService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private eventoService: EventoService,
+    private localService: LocalService
   ) {}
 
   ngOnInit(): void {
@@ -111,7 +126,12 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
               surchargePercent: (typeof it.porcentaje !== 'undefined' && it.porcentaje !== null) ? it.porcentaje : 0,
               quantity: it.cantidad || it.cantidadSeleccionada || 0,
               image: it.imagenUrl || '',
-              serverId: it.idItemCarrito || it.id
+              serverId: it.idItemCarrito || it.id,
+              // Propiedades adicionales necesarias para el checkout
+              eventId: it.eventId || String(it.idEvento || it.evento?.id || it.evento?.idEvento || 0),
+              eventDate: it.eventDate || it.evento?.fechaEvento || '',
+              eventVenue: it.eventVenue || it.evento?.nombre || '',
+              idTipoTicket: it.idTipoTicket || it.idItemCarrito || 0
             }));
             // Marcamos que la lista proviene del servidor
             this.loadedFromServer = true;
@@ -426,9 +446,11 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   proceedToCheckout(): void {
-    console.log('💳 Comprando ahora desde carrito...');
+    console.log('🚀 INICIO: Procediendo al pago desde carrito...');
+    console.log('🛒 Items en carrito:', this.cartItems);
     
     if (this.cartItems.length === 0) {
+      console.log('❌ DETENCIÓN: Carrito vacío');
       this.messageService.add({
         severity: 'warn',
         summary: 'Advertencia',
@@ -437,40 +459,79 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
       return;
     }
 
-    // COPIAR EXACTAMENTE LA LÓGICA DE onBuyNow QUE FUNCIONA
-    const firstItem = this.cartItems[0];
+    // PRUEBA SIMPLE: Navegar directamente sin datos del backend
+    console.log('🧪 PRUEBA: Navegando directamente sin cargar backend...');
     
-    // Construir datos de compra para el PurchaseService - IGUAL QUE onBuyNow
+    // Construir datos básicos con la información disponible
+    const firstItem = this.cartItems[0];
+    console.log('🎫 Primer item completo:', firstItem);
+    console.log('🔍 Propiedades del item:', Object.keys(firstItem));
+    console.log('🆔 eventId original:', firstItem.eventId);
+    console.log('🆔 idTipoTicket:', firstItem.idTipoTicket);
+    console.log('🆔 serverId:', firstItem.serverId);
+    
+    // Usar idTipoTicket o serverId como eventId si eventId no está disponible
+    const eventoId = parseInt(firstItem.eventId || '0') || firstItem.idTipoTicket || firstItem.serverId || 1;
+    console.log('🆔 ID del evento final (usando fallbacks):', eventoId);
+    
+    const selectedTickets = this.cartItems.map(item => ({
+      idTipoTicket: item.idTipoTicket || item.serverId || 0,
+      name: item.category || 'Entrada',
+      price: item.price,
+      quantity: item.quantity,
+      description: `Entrada ${item.category || item.title}`
+    }));
+
     const purchaseData = {
       eventInfo: {
-        idEvento: parseInt(firstItem.eventId || '0') || 0,
+        idEvento: eventoId, // Usar el ID calculado con fallbacks
         title: firstItem.title || 'Evento',
-        date: firstItem.eventDate || new Date().toLocaleDateString('es-PE'),
+        date: new Date().toLocaleDateString('es-PE'),
         time: '20:00',
         venue: firstItem.eventVenue || 'Lugar del evento',
         address: 'Dirección del evento',
         organizer: 'Organizador del evento',
         image: firstItem.image || ''
       },
-      tickets: this.cartItems.map(item => ({
-        idTipoTicket: item.idTipoTicket || item.serverId || 0,
-        name: item.category || 'Entrada',
-        price: item.price,
-        quantity: item.quantity,
-        description: `Entrada ${item.category || item.title}`
-      })),
+      tickets: selectedTickets,
       totalTickets: this.cartItems.reduce((total, item) => total + item.quantity, 0),
       totalPrice: this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0),
       source: 'evento' as const
     };
 
-    console.log('🎯 Datos de compra construidos:', purchaseData);
+    console.log('🎯 Datos de compra básicos construidos:', purchaseData);
+    console.log('🚀 NAVEGANDO: Enviando datos al PurchaseService...');
 
-    // Enviar datos al PurchaseService - IGUAL QUE onBuyNow
-    this.purchaseService.setPurchaseDataFromEvent(purchaseData);
-
-    // Navegar a la página de compra - IGUAL QUE onBuyNow
-    this.router.navigate(['/home/compraEntradas']);
+    try {
+      this.purchaseService.setPurchaseDataFromEvent(purchaseData);
+      console.log('✅ Datos enviados al PurchaseService exitosamente');
+      
+      console.log('🧭 Intentando navegar a /home/compraEntradas...');
+      this.router.navigate(['/home/compraEntradas']).then((success) => {
+        console.log('🧭 Resultado de navegación:', success);
+        if (success) {
+          console.log('✅ ÉXITO: Navegación exitosa a compra-entradas');
+        } else {
+          console.log('❌ FALLO: Error en la navegación');
+          // Intentar navegación alternativa
+          console.log('🔄 Intentando navegación alternativa...');
+          window.location.href = '/home/compraEntradas';
+        }
+      }).catch(error => {
+        console.error('❌ Error en navegación:', error);
+        // Fallback: usar window.location
+        console.log('🔄 Usando window.location como fallback...');
+        window.location.href = '/home/compraEntradas';
+      });
+      
+    } catch (error) {
+      console.error('❌ Error al procesar datos:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Error al procesar los datos de compra'
+      });
+    }
   }
 
   exploreEvents(): void {
@@ -515,7 +576,12 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
           price: it.precioUnitario || it.precio || it.precioVenta || 0,
           quantity: it.cantidad || it.cantidadSeleccionada || 0,
           image: it.imagenUrl || '',
-          serverId: it.idItemCarrito || it.id
+          serverId: it.idItemCarrito || it.id,
+          // Propiedades adicionales necesarias para el checkout
+          eventId: it.eventId || String(it.idEvento || it.evento?.id || it.evento?.idEvento || 0),
+          eventDate: it.eventDate || it.evento?.fechaEvento || '',
+          eventVenue: it.eventVenue || it.evento?.nombre || '',
+          idTipoTicket: it.idTipoTicket || it.idItemCarrito || 0
         }));
 
         // Sincronizar CartService
@@ -529,5 +595,23 @@ export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit 
         this.loadingService.hide();
       }
     });
+  }
+
+  /**
+   * Formatear hora de 24h a 12h con AM/PM (mismo método que en evento.component.ts)
+   */
+  private formatearHora(hora: string): string {
+    // Si la hora ya viene en formato correcto, la devolvemos
+    if (hora.includes('PM') || hora.includes('AM')) {
+      return hora;
+    }
+
+    // Si viene en formato 24h (ej: "18:00"), convertir a 12h
+    const [hours, minutes] = hora.split(':');
+    const hour24 = parseInt(hours);
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    const ampm = hour24 >= 12 ? 'PM' : 'AM';
+
+    return `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
   }
 }
