@@ -394,7 +394,7 @@
 
 .entrada-row {
   display: grid;
-  grid-template-columns: 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr auto;
+  grid-template-columns: 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 1fr auto;
   gap: 1rem;
   align-items: end;
 }
@@ -563,6 +563,14 @@
 ::ng-deep .p-datepicker,
 ::ng-deep .p-inputnumber {
   width: 100%;
+}
+
+::ng-deep .p-datepicker-input-wrapper {
+  width: 100%;
+}
+
+::ng-deep .p-datepicker input {
+  width: 100% !important;
 }
 
 ::ng-deep .calendar-up {

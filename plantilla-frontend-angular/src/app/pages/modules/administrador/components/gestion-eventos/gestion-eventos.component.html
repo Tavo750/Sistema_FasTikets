@@ -221,6 +221,17 @@
                             tooltipPosition="top"
                             (click)="editarEvento(evento.idEvento)">
                         </p-button>
+
+                        <p-button
+                            icon="pi pi-trash"
+                            severity="danger"
+                            [rounded]="true"
+                            [text]="true"
+                            size="small"
+                            pTooltip="Eliminar evento"
+                            tooltipPosition="top"
+                            (click)="eliminarEvento(evento)">
+                        </p-button>
                     </div>
                 </ng-template>
             </p-card>

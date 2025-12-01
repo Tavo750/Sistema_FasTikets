@@ -51,6 +51,7 @@ export class CrearEventoComponent implements OnInit{
   time: Date | undefined; // Cambiar de array a Date único para timeOnly
   timeFinal: Date | undefined; // Cambiar de array a Date único para timeOnly
   minDate: Date = new Date(); // Fecha mínima permitida (hoy)
+  today: Date = new Date(); // Fecha actual para validaciones
 
   // Nuevas propiedades para la sección de publicación
   publicarInmediatamente: boolean = true;

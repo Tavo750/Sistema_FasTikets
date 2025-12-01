@@ -20,12 +20,12 @@ export class ConfirmPopupService {
             message: mensaje,
             icon: 'pi pi-exclamation-triangle',
             rejectButtonProps: {
-                label: 'Cancelar',
+                label: 'No',
                 severity: 'secondary',
                 outlined: true
             },
             acceptButtonProps: {
-                label: 'Eliminar',
+                label: 'Si',
                 severity: 'danger'
             },
             accept: () => {
