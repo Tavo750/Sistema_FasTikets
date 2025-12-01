@@ -45,6 +45,33 @@ export class CarritoService {
   }
 
   /**
+   * Agrega en una sola llamada varios items al carrito en el backend.
+   * body: { items: [{ idTipoTicket, cantidad }], idCliente }
+   */
+  addItemsToServer(items: Array<{ idTipoTicket: number; cantidad: number }>, idCliente: number): Observable<any> {
+    // El endpoint real para agregar items es el mismo que para uno solo:
+    // POST /api/v1/carrito/items y acepta un payload con 'items' y 'idCliente'.
+    const url = `${baseUrl}/carrito/items`;
+    const body = { items, idCliente };
+
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    try {
+      console.debug('CarritoService.addItemsToServer -> POST', url, body);
+    } catch (e) {}
+
+    return this.http.post<any>(url, body, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.addItemsToServer response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
    * Elimina un item del carrito en el backend por su id (idItemCarrito)
    */
   deleteItemOnServer(idItemCarrito: number, idCliente: number): Observable<any> {

@@ -32,8 +32,11 @@ export class CartTimerService {
   // Promesa que se resuelve cuando la carga inicial (petición remota) termina
   private initialLoadPromise: Promise<void> | null = null;
   private resolveInitialLoad: (() => void) | null = null;
-  // Indica si ya se inició la petición remota al menos una vez
-  private initialLoadStarted: boolean = false;
+  // Mecanismo para evitar múltiples peticiones concurrentes: si ya hay una carga
+  // en curso, reutilizamos la promesa.
+  private loadInProgress: boolean = false;
+  private loaderPromise: Promise<void> | null = null;
+  private loaderResolve: (() => void) | null = null;
 
   /**
    * Crea el servicio e intenta cargar la configuración remota si está disponible
@@ -42,10 +45,9 @@ export class CartTimerService {
     // No cargar/guardar el tiempo límite ni la marca de inicio en localStorage.
     // El valor remoto (si existe) se aplicará cuando llegue la respuesta.
 
-    // Preparar promesa que indica cuando la carga inicial ha terminado
-    this.initialLoadPromise = new Promise<void>((resolve) => { this.resolveInitialLoad = resolve; });
-
-    // Intentar obtener valor remoto y aplicar si es válido
+    this.initialLoadPromise = null; // se asignará cuando lancemos la primera carga
+    // Intentar obtener valor remoto y aplicar si es válido (se reutiliza cualquier
+    // carga en curso y se guarda la promesa inicial para consumidores que esperen)
     this.loadTimeLimitFromEndpoint();
   }
 
@@ -53,41 +55,55 @@ export class CartTimerService {
    * Consulta el endpoint de configuración y si devuelve un valor entero válido
    * lo aplica como tiempo límite en minutos.
    */
-  private loadTimeLimitFromEndpoint(): void {
+  private loadTimeLimitFromEndpoint(): Promise<void> | null {
+    // Si ya hay una carga en curso, devolver su promesa para evitar duplicados
+    if (this.loadInProgress && this.loaderPromise) {
+      return this.loaderPromise;
+    }
+
+    this.loadInProgress = true;
+    this.loaderPromise = new Promise<void>((resolve) => { this.loaderResolve = resolve; });
+    // Si la promesa inicial no existe (primera carga), enlazarla a la loaderPromise
+    if (!this.initialLoadPromise) {
+      this.initialLoadPromise = this.loaderPromise;
+    }
+
     try {
       console.debug('CartTimerService.loadTimeLimitFromEndpoint -> GET', this.CONFIG_URL);
-      this.initialLoadStarted = true;
       this.http.get<any>(this.CONFIG_URL).subscribe({
         next: (resp) => {
           try {
-            // Respuesta esperada: { ok: true, mensaje: '...', data: { value: 15 } }
             const value = resp?.data?.value ?? resp?.value ?? resp ?? null;
-            // Aceptar formatos como "15", "15.0", "15.00"
             const parsed = value !== null && value !== undefined ? parseFloat(String(value)) : NaN;
             const minutes = !isNaN(parsed) ? Math.round(parsed) : NaN;
             if (!isNaN(minutes) && minutes >= 1 && minutes <= 120) {
-              // Aplicar nuevo tiempo límite
               this.setTimeLimitMinutes(minutes);
             } else {
-              // no válido: ignorar
               console.info('CartTimerService: valor de tiempo remoto no válido, se mantiene el valor actual', value);
             }
           } catch (e) {
             console.warn('Error procesando respuesta de configuración de tiempo', e);
           }
-          // resolver promesa inicial
-          try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
+          // resolver la promesa de carga
+          try { if (this.loaderResolve) { this.loaderResolve(); this.loaderResolve = null; } } catch(_) {}
+          this.loadInProgress = false;
+          this.loaderPromise = null;
         },
         error: (err) => {
-          // No bloquear si falla la petición; se sigue con el valor guardado o por defecto
-          console.warn('No se pudo obtener configuración remota de tiempo de carrito, se mantiene valor por defecto/storage', err);
-          try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
+          console.warn('No se pudo obtener configuración remota de tiempo de carrito, se mantiene valor actual', err);
+          try { if (this.loaderResolve) { this.loaderResolve(); this.loaderResolve = null; } } catch(_) {}
+          this.loadInProgress = false;
+          this.loaderPromise = null;
         }
       });
     } catch (e) {
       console.warn('Error iniciando petición de configuración remota', e);
-      try { if (this.resolveInitialLoad) { this.resolveInitialLoad(); this.resolveInitialLoad = null; } } catch(_) {}
+      try { if (this.loaderResolve) { this.loaderResolve(); this.loaderResolve = null; } } catch(_) {}
+      this.loadInProgress = false;
+      this.loaderPromise = null;
     }
+
+    return this.loaderPromise;
   }
 
   /**
@@ -135,7 +151,7 @@ export class CartTimerService {
   async startIfNotStarted(userId?: number | string, forceRestart: boolean = false): Promise<void> {
     const key = userId ? `cart_timer_start_${userId}` : 'cart_timer_start_guest';
     this.storageKey = key;
-    try { console.debug('CartTimerService.startIfNotStarted -> called', { userId, storageKey: key, CART_TIMER_MS: this.CART_TIMER_MS, timeLimitSubject: this.timeLimitSubject.value, initialLoadStarted: this.initialLoadStarted, forceRestart }); } catch(_) {}
+    try { console.debug('CartTimerService.startIfNotStarted -> called', { userId, storageKey: key, CART_TIMER_MS: this.CART_TIMER_MS, timeLimitSubject: this.timeLimitSubject.value, forceRestart }); } catch(_) {}
     try {
       // If the timer is already running and we're not explicitly forcing a restart,
       // do nothing. This prevents accidental resets (for example when the page
@@ -146,30 +162,31 @@ export class CartTimerService {
         try { console.debug('CartTimerService.startIfNotStarted -> timer already running, skipping start'); } catch(_) {}
         return;
       }
-      // Esperar la carga inicial (si está en progreso)
-      // Si no se ha iniciado la petición aún, intentar iniciarla ahora
-      try { if (!this.initialLoadStarted) this.loadTimeLimitFromEndpoint(); } catch(_) {}
-      try { if (this.initialLoadPromise) await this.initialLoadPromise; } catch(_) {}
+      // Solicitar la configuración más reciente (evitar duplicados internamente).
+      // De esta forma no quedamos “pegados” con la primera lectura y podremos
+      // refrescar el valor cada vez que se intente iniciar el temporizador.
+      try { this.loadTimeLimitFromEndpoint(); } catch (_) {}
+      try { if (this.loaderPromise) await this.loaderPromise; } catch(_) {}
       // Si no se obtuvo un tiempo límite válido desde el endpoint, intentar usar el valor
       // que pudo haberse colocado en timeLimitSubject. Si sigue sin haber un valor válido,
-      // aplicar un valor por defecto (15 minutos) para que el temporizador sea visible.
+      // NO iniciar el temporizador: requerimos un valor explícito desde el endpoint.
       if (!this.CART_TIMER_MS || this.CART_TIMER_MS <= 0) {
         const tl = this.timeLimitSubject.value;
         if (tl && tl > 0) {
           this.CART_TIMER_MS = tl * 60 * 1000;
         } else {
-          const DEFAULT_MINUTES = 15;
-          console.info('CartTimerService: no hay tiempo límite válido remoto, aplicando valor por defecto', DEFAULT_MINUTES);
-          this.setTimeLimitMinutes(DEFAULT_MINUTES);
+          console.info('CartTimerService.startIfNotStarted: no hay tiempo límite válido remoto o en memoria; no se iniciará el temporizador');
+          return;
         }
       }
-      // No usamos localStorage para persistir el inicio; iniciamos en memoria ahora
+
+      // Iniciar el temporizador en memoria ahora que tenemos un valor válido
       const now = Date.now();
       this.startFromTimestamp(now);
     } catch (e) {
-      // fallback: start now
-      const now = Date.now();
-      this.startFromTimestamp(now);
+      // No iniciar el temporizador en caso de error al intentar cargar la configuración.
+      console.error('CartTimerService.startIfNotStarted -> error al intentar iniciar temporizador', e);
+      return;
     }
   }
 
@@ -233,7 +250,8 @@ export class CartTimerService {
   }
 
   /**
-   * Resetea el tiempo límite al valor por defecto (15 minutos)
+   * Resetea el tiempo límite a 0 (sin valor). El temporizador no se iniciará
+   * hasta que se establezca un valor válido proveniente del endpoint de configuración.
    */
   resetTimeLimitToDefault(): void {
     try {

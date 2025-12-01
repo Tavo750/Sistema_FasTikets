@@ -1,4 +1,5 @@
 import { Component, Input, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CartService } from '../../../../../../shared/services/cart.service';
 import { CarritoService } from '../../../../../../shared/services/carrito.service';
@@ -507,7 +508,52 @@ export class EventoComponent implements AfterViewInit, OnInit {
       return total;
     }
 
+    /**
+     * Persiste items en el servidor por lotes para evitar problemas con tamaños grandes de payload.
+     * ItemsPayload: [{ idTipoTicket, cantidad }]
+     * localIds: ids locales generados por cartService.addEventTicketsToCart (en el mismo orden)
+     */
+    private async persistItemsInBatches(itemsPayload: Array<{ idTipoTicket: number; cantidad: number }>, localIds: number[], idCliente: number): Promise<void> {
+      const BATCH_SIZE = 50; // ajustar según capacidad del servidor
+      let offset = 0;
+      while (offset < itemsPayload.length) {
+        const batch = itemsPayload.slice(offset, offset + BATCH_SIZE);
+        const localSlice = localIds.slice(offset, offset + BATCH_SIZE);
+        try {
+          const resp: any = await firstValueFrom(this.carritoService.addItemsToServer(batch, idCliente));
+          const data = resp?.data ?? resp;
+          if (Array.isArray(data)) {
+            data.forEach((created: any, idx: number) => {
+              const serverId = created?.idItemCarrito || created?.id || created?.id_carrito || created?.idItem;
+              const localId = localSlice[idx];
+              if (serverId && localId) this.cartService.setServerId(localId, serverId);
+            });
+          } else if (Array.isArray(data?.items)) {
+            data.items.forEach((created: any, idx: number) => {
+              const serverId = created?.idItemCarrito || created?.id;
+              const localId = localSlice[idx];
+              if (serverId && localId) this.cartService.setServerId(localId, serverId);
+            });
+          } else if (typeof data === 'object') {
+            const possibleArray = Object.values(data).filter(v => Array.isArray(v)).shift();
+            if (Array.isArray(possibleArray)) {
+              possibleArray.forEach((created: any, idx: number) => {
+                const serverId = created?.idItemCarrito || created?.id;
+                const localId = localSlice[idx];
+                if (serverId && localId) this.cartService.setServerId(localId, serverId);
+              });
+            }
+          }
+        } catch (err) {
+          // En caso de error, lanzar para que el llamador gestione el revert y notificación
+          throw err;
+        }
+        offset += BATCH_SIZE;
+      }
+    }
+
     onAddToCart() {
+      return (async () => {
       // Obtener todos los tickets seleccionados de todas las zonas
       const selectedTickets: TicketType[] = [];
       for (const zonaConTickets of this.zonasConTickets) {
@@ -528,7 +574,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
       const maxEntradas = localStorage.getItem('max_entradas_por_cliente');
       const limiteMaximo = maxEntradas ? parseInt(maxEntradas, 10) : 10;
       
-      const totalSeleccionado = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      const totalSeleccionado = selectedTickets.reduce((sum: number, ticket: TicketType) => sum + ticket.quantity, 0);
       const eventoId = this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-');
       
       // Calcular entradas actuales en el carrito para este evento
@@ -590,85 +636,30 @@ export class EventoComponent implements AfterViewInit, OnInit {
         }
       } catch (e) { console.debug('No se pudo reiniciar temporizador tras añadir items', e); }
 
-      // Si el usuario está autenticado, persistir cada item en la BD mediante el endpoint
+      // Si el usuario está autenticado, persistir los items en la BD en lotes (batches)
       if (currentUser && currentUser.idUsuario) {
         const idCliente = currentUser.idUsuario;
+        const itemsPayload = selectedTickets
+          .filter(t => t.quantity > 0)
+          .map(t => ({ idTipoTicket: (t as any).id || (t as any).idTipoTicket, cantidad: t.quantity }));
 
-        selectedTickets.forEach((ticket, index) => {
-          const idTipoTicket = (ticket as any).id || (ticket as any).idTipoTicket;
-          const cantidad = ticket.quantity;
-          const localId = localIds[index];
-
-          if (idTipoTicket && cantidad > 0) {
-            this.carritoService.addItemToServer(idTipoTicket, cantidad, idCliente).subscribe({
-              next: (resp: any) => {
-                // Extraer el id asignado por el servidor si está disponible
-                let serverId: number | undefined;
-                try {
-                  serverId = resp?.data?.idItemCarrito || resp?.data?.id || resp?.idItemCarrito || resp?.id;
-                  if (!serverId && typeof resp === 'object') {
-                    serverId = resp['idItemCarrito'] || resp['id'];
-                  }
-                } catch (e) {
-                  console.warn('No se pudo obtener serverId de la respuesta', resp);
-                }
-
-                if (serverId && localId) {
-                  this.cartService.setServerId(localId, serverId);
-                }
-              },
-              error: (err: any) => {
-                // Mostrar modal de error cuando no se pudo persistir el item en el servidor
-                try {
-                  const status = err?.status;
-                  const body = err?.error;
-                  const message = err?.message || (body && (body.mensaje || body.message)) || 'Error desconocido';
-                  console.error('Error guardando item en servidor:', { status, body, message });
-
-                  const dialogRef = this.dialogService.open(DialogoComponent, {
-                    header: 'Error al sincronizar carrito',
-                    width: '480px',
-                    data: {
-                      mensaje: `No se pudo guardar uno o varios items en el servidor (${status}): ${message}`,
-                      severidad: 'error',
-                      buttonLabel: 'Aceptar'
-                    }
-                  });
-
-                  dialogRef.onClose.subscribe(() => {
-                    // Opcional: aquí se puede realizar una acción tras cerrar el modal
-                  });
-                  // Revertir el item local que falló para mantener el carrito consistente
-                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor', e); }
-                } catch (e) {
-                  console.error('Error procesando error del servidor', e);
-                  const dialogRef = this.dialogService.open(DialogoComponent, {
-                    header: 'Error',
-                    width: '420px',
-                    data: {
-                      mensaje: 'No se pudo guardar uno o varios items en el servidor. Se han añadido al carrito en memoria.',
-                      severidad: 'error',
-                      buttonLabel: 'Aceptar'
-                    }
-                  });
-                  dialogRef.onClose.subscribe(() => {});
-                  try { if (localId) this.cartService.removeLocalOnly(localId); } catch(e) { console.warn('No se pudo revertir item local tras error de servidor (fallback)', e); }
-                }
-              }
-            });
-          }
-        });
+        try {
+          await this.persistItemsInBatches(itemsPayload, localIds, idCliente);
+        } catch (err) {
+          // Revertir items locales ya añadidos y mostrar diálogo de error
+          try { localIds.forEach(id => this.cartService.removeLocalOnly(id)); } catch(e) { console.warn('No se pudieron revertir items locales tras error de servidor (onAddToCart)', e); }
+          this.dialogService.open(DialogoComponent, {
+            header: 'Error al sincronizar carrito',
+            width: '480px',
+            data: { mensaje: 'No se pudo guardar los items en el servidor. Intenta de nuevo.', severidad: 'error', buttonLabel: 'Aceptar' }
+          });
+        }
       } else {
         // No autenticado: informar que para persistir en BD se requiere sesión
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Sesión requerida',
-          detail: 'Inicia sesión para sincronizar el carrito en la base de datos.'
-        });
+        this.messageService.add({ severity: 'info', summary: 'Sesión requerida', detail: 'Inicia sesión para sincronizar el carrito en la base de datos.' });
       }
-
       // Mensaje rápido de éxito en la UI
-      const totalTickets = selectedTickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+      const totalTickets = selectedTickets.reduce((sum: number, ticket: TicketType) => sum + ticket.quantity, 0);
       this.messageService.add({
         severity: 'success',
         summary: 'Éxito',
@@ -677,6 +668,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
       // Limpiar selección de tickets
       this.resetTicketQuantities();
+    })();
     }
 
     resetTicketQuantities() {
@@ -692,6 +684,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
     }
 
     onBuyNow() {
+      (async () => {
       // Obtener todos los tickets seleccionados de todas las zonas
       const selectedTickets: TicketType[] = [];
       for (const zonaConTickets of this.zonasConTickets) {
@@ -728,7 +721,55 @@ export class EventoComponent implements AfterViewInit, OnInit {
         return;
       }
 
-      // Preparar datos para el componente de compra
+      // Antes de navegar a la pantalla de compra, añadir los items al carrito local
+      // y persistirlos en el servidor en una sola llamada si el usuario está autenticado.
+      const eventInfo = {
+        title: this.eventoData ? this.eventoData.nombre : this.title,
+        image: this.eventoData ? this.eventoData.imagenUrl : this.imageUrl,
+        date: this.date,
+        venue: this.localData ? this.localData.nombre : this.venue,
+        eventId: this.eventoId ? this.eventoId.toString() : this.title.toLowerCase().replace(/\s+/g, '-')
+      };
+
+      // Añadir al carrito en memoria (genera localIds)
+      const localIds = this.cartService.addEventTicketsToCart(selectedTickets.map(t => ({ name: t.name, price: t.price, quantity: t.quantity })), eventInfo);
+
+      // Reiniciar el temporizador al empezar una operación de compra
+      try {
+        const currentUser2 = this.sessionService.getCurrentUser();
+        if (currentUser2 && currentUser2.idUsuario) {
+          this.cartTimerService.startIfNotStarted(currentUser2.idUsuario, true);
+        } else {
+          this.cartTimerService.startIfNotStarted(undefined, true);
+        }
+      } catch (e) { console.debug('No se pudo reiniciar temporizador tras añadir items (buyNow)', e); }
+
+      // Si el usuario está autenticado, persistir los items en el servidor en batches
+      const currentUser2 = this.sessionService.getCurrentUser();
+      if (currentUser2 && currentUser2.idUsuario) {
+        const idCliente = currentUser2.idUsuario;
+        const itemsPayload = selectedTickets
+          .filter(t => t.quantity > 0)
+          .map(t => ({ idTipoTicket: (t as any).id || (t as any).idTipoTicket, cantidad: t.quantity }));
+
+        try {
+          await this.persistItemsInBatches(itemsPayload, localIds, idCliente);
+        } catch (err) {
+          try { localIds.forEach(id => this.cartService.removeLocalOnly(id)); } catch(e) { console.warn('No se pudieron revertir items locales tras error de servidor (buyNow)', e); }
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo sincronizar el carrito en el servidor. Intenta de nuevo.' });
+          this.proceedToPurchase(selectedTickets);
+          return;
+        }
+        // Continuar con la compra
+        this.proceedToPurchase(selectedTickets);
+      } else {
+        // No autenticado: proceder a compra con items en memoria
+        this.proceedToPurchase(selectedTickets);
+      }
+      })();
+    }
+
+    private proceedToPurchase(selectedTickets: TicketType[]) {
       const purchaseData = {
         eventInfo: {
           title: this.eventoData ? this.eventoData.nombre : this.title,
