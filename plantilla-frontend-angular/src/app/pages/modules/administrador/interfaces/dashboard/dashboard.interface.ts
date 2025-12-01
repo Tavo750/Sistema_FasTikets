@@ -70,6 +70,10 @@ export interface EventoProximo {
   estadoEvento: string;
   aforoDisponible: number;
   diasRestantes: number;
+  // Propiedades calculadas para mostrar detalles
+  aforoTotal?: number;
+  entradasVendidas?: number;
+  porcentajeOcupacion?: number;
 }
 
 export interface EventosPopularesResponse {
@@ -104,6 +108,7 @@ export interface EventoPopular {
   porcentajeOcupacion?: number;
   ingresosGenerados?: number;
   ranking?: number;
+  aforoTotal?: number;
 }
 
 export interface EventosPorEstadoResponse {

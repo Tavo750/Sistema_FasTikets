@@ -345,7 +345,7 @@ export class GestionEventosComponent implements OnInit {
   }
 
   abrirDashboard() {
-    console.log('🔄 Abriendo dashboard con datos reales del backend...');
+    
     this.cargandoDashboard = true;
     this.mostrarDashboard = true;
     this.analyticsData = null; // Limpiar datos previos
@@ -355,14 +355,14 @@ export class GestionEventosComponent implements OnInit {
       next: (response) => {
         if (response.ok && response.data) {
           this.analyticsData = response.data;
-          console.log('✅ Dashboard cargado:', this.analyticsData);
+          
           
           this.customMessageService.success(
             'Dashboard actualizado correctamente',
             'Datos Cargados'
           );
         } else {
-          console.error('❌ Error en respuesta del dashboard:', response.mensaje);
+          
           this.customMessageService.error(
             'No se pudieron cargar los datos del dashboard',
             'Error'
@@ -373,7 +373,7 @@ export class GestionEventosComponent implements OnInit {
         this.cargandoDashboard = false;
       },
       error: (error) => {
-        console.error('❌ Error al cargar dashboard:', error);
+        
         this.cargandoDashboard = false;
         this.customMessageService.error(
           'Error al conectar con el servidor. Mostrando datos locales.',
@@ -422,7 +422,7 @@ export class GestionEventosComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Error al consultar ventas:', error);
+        
         if (this.datosVentasEvento) {
           this.datosVentasEvento.cargando = false;
           this.datosVentasEvento.error = `Error al consultar ventas del evento "${nombreEvento}"`;
@@ -448,122 +448,9 @@ export class GestionEventosComponent implements OnInit {
 
   // =================== MÉTODOS DE DASHBOARD ===================
 
-  /**
-   * Método de fallback para calcular analytics con datos locales
-   * Se usa cuando el backend no está disponible
-   */
-  calcularAnalyticsSimulados() {
-    console.log('⚠️ Usando datos simulados para el dashboard...');
-    const ahora = new Date();
 
-    // Calcular métricas básicas con datos locales
-    const eventosActivos = this.eventos.filter(e => e.estadoEvento === 'ACTIVO' || e.estadoEvento === 'PUBLICADO');
-    const eventosFinalizados = this.eventos.filter(e => e.estadoEvento === 'FINALIZADO');
-    const eventosCancelados = this.eventos.filter(e => e.estadoEvento === 'CANCELADO');
-    const eventosProximos = this.eventos.filter(e => new Date(e.fechaEvento) > ahora);
 
-    // Top 3 eventos por menor aforo disponible (más vendidos)
-    const top3EventosMasVendidos: EventoPopular[] = this.eventos
-      .filter(e => e.estadoEvento !== 'CANCELADO')
-      .sort((a, b) => a.aforoDisponible - b.aforoDisponible)
-      .slice(0, 3)
-      .map((evento, index): EventoPopular => ({
-        idEvento: evento.idEvento,
-        nombre: evento.nombre,
-        descripcion: evento.descripcion,
-        fechaEvento: evento.fechaEvento.toISOString(),
-        fechaFinEvento: undefined,
-        horaInicio: evento.horaInicio,
-        horaFin: evento.horaFin,
-        imagenUrl: undefined,
-        imagenZonasUrl: undefined,
-        tipoEvento: evento.tipoEvento,
-        estadoEvento: evento.estadoEvento,
-        aforoDisponible: evento.aforoDisponible,
-        activo: true,
-        idLocal: evento.idLocal || 0,
-        nombreLocal: evento.nombreLocal,
-        fechaCreacion: new Date().toISOString(),
-        menoresDeEdadPermitidos: false,
-        restricciones: undefined,
-        politicasDevolucion: undefined,
-        // Propiedades calculadas para el dashboard
-        ventasTotales: Math.floor(evento.aforoDisponible * 0.3),
-        entradasVendidas: Math.floor(evento.aforoDisponible * 0.3),
-        porcentajeOcupacion: 30,
-        ingresosGenerados: Math.floor(evento.aforoDisponible * 0.3) * 100,
-        ranking: index + 1
-      }));
-
-    // Próximos eventos con formato correcto
-    const proximosEventos = this.eventos
-      .filter(e => {
-        const fechaEvento = new Date(e.fechaEvento);
-        const unaSemana = new Date();
-        unaSemana.setDate(unaSemana.getDate() + 7);
-        return fechaEvento > ahora && fechaEvento <= unaSemana;
-      })
-      .sort((a, b) => new Date(a.fechaEvento).getTime() - new Date(b.fechaEvento).getTime())
-      .slice(0, 5)
-      .map(evento => ({
-        idEvento: evento.idEvento,
-        nombre: evento.nombre,
-        fechaEvento: evento.fechaEvento.toISOString(),
-        horaInicio: evento.horaInicio,
-        nombreLocal: evento.nombreLocal,
-        tipoEvento: evento.tipoEvento,
-        estadoEvento: evento.estadoEvento,
-        aforoDisponible: evento.aforoDisponible,
-        diasRestantes: Math.ceil((new Date(evento.fechaEvento).getTime() - ahora.getTime()) / (1000 * 3600 * 24))
-      }));
-
-    // Ingresos estimados simulados
-    const ingresosEstimados = this.calcularIngresosEstimados();
-
-    this.analyticsData = {
-      // KPIs principales
-      totalEventos: this.eventos.length,
-      eventosActivos: eventosActivos.length,
-      eventosFinalizados: eventosFinalizados.length,
-      eventosCancelados: eventosCancelados.length,
-      eventosProximos: eventosProximos.length,
-
-      // Métricas de ventas (simuladas)
-      ventasTotales: this.eventos.length * 150, // Simulado
-      ingresosReales: ingresosEstimados,
-
-      // Top eventos (simulados)
-      top3Eventos: top3EventosMasVendidos,
-
-      // Próximos eventos
-      proximosEventos: proximosEventos
-    };
-
-    console.log('📊 Dashboard simulado calculado:', this.analyticsData);
-  }
-
-  calcularIngresosEstimados() {
-    // Simulamos ingresos basados en el aforo y tipo de evento
-    const preciosPromedio: Record<string, number> = {
-      'ROCK': 120,
-      'METAL': 100,
-      'PUNK': 80,
-      'POP': 150,
-      'REGGAE': 90,
-      'REGGAETON': 140,
-      'ELECTRONICA': 160,
-      'ROCK_POP': 130,
-      'URBANO': 110
-    };
-
-    return this.eventos
-      .filter(e => e.estadoEvento !== 'CANCELADO')
-      .reduce((total, evento) => {
-        const precioPromedio = preciosPromedio[evento.tipoEvento] || 100;
-        const ventasEstimadas = Math.floor((evento.aforoDisponible || 0) * 0.3); // 30% de ocupación estimada
-        return total + (ventasEstimadas * precioPromedio);
-      }, 0);
-  }
+  
 
   // Métodos auxiliares para el template del dashboard
   getStringValue(value: unknown): string {
@@ -1116,5 +1003,74 @@ export class GestionEventosComponent implements OnInit {
         }
       }
     });
+  }
+
+  // =================== MÉTODOS PARA CÁLCULOS DE DASHBOARD ===================
+
+  /**
+   * Obtiene el aforo total de un evento desde los datos del backend
+   * Si no está disponible, usar solo el aforo disponible (no hacer estimaciones)
+   */
+  calcularAforoTotal(evento: any): number {
+    // Si el backend proporciona aforoTotal, usarlo
+    if (evento.aforoTotal !== undefined && evento.aforoTotal !== null) {
+      return evento.aforoTotal;
+    }
+    
+    // Si no hay aforoTotal del backend, usar solo aforoDisponible
+    // No hacer cálculos estimados incorrectos
+    return evento.aforoDisponible || 0;
+  }
+
+  /**
+   * Obtiene las entradas vendidas SOLO desde los datos del backend
+   * NO hacer estimaciones si no vienen del backend
+   */
+  calcularEntradasVendidas(evento: any): number {
+    // Solo usar datos reales del backend
+    if (evento.entradasVendidas !== undefined && evento.entradasVendidas !== null) {
+      return evento.entradasVendidas;
+    }
+    
+    // Si no hay datos del backend, retornar 0 (no estimar)
+    return 0;
+  }
+
+  /**
+   * Calcula el porcentaje de ocupación basado en datos reales del backend
+   */
+  calcularPorcentajeOcupacion(evento: any): number {
+    // Si el backend ya proporciona el porcentaje, usarlo
+    if (evento.porcentajeOcupacion !== undefined && evento.porcentajeOcupacion !== null) {
+      return evento.porcentajeOcupacion;
+    }
+    
+    // Solo calcular si tenemos datos reales del backend
+    const aforoTotal = this.calcularAforoTotal(evento);
+    const entradasVendidas = this.calcularEntradasVendidas(evento);
+    
+    if (aforoTotal === 0) return 0;
+    
+    // Solo calcular si tenemos entradas vendidas reales del backend
+    if (evento.entradasVendidas !== undefined && evento.entradasVendidas !== null) {
+      return (entradasVendidas / aforoTotal) * 100;
+    }
+    
+    // Si no hay datos reales, retornar 0%
+    return 0;
+  }
+
+  /**
+   * Obtiene el texto explicativo de la popularidad
+   */
+  getTextoPopularidad(): string {
+    return 'Los eventos se ordenan por cantidad de entradas vendidas (mayor a menor)';
+  }
+
+  /**
+   * Formatea el porcentaje con 1 decimal
+   */
+  formatearPorcentaje(porcentaje: number): string {
+    return `${porcentaje.toFixed(1)}%`;
   }
 }

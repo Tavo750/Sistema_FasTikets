@@ -4,10 +4,12 @@ import { BeneficiosService } from '../../services/beneficios.service';
 import { BeneficiosResponse } from '../../interfaces/beneficios/beneficios.interface';
 import { HistorialPuntosService } from '../../services/historial-puntos.service';
 import { HistorialPuntosResponse, Datum } from '../../interfaces/beneficios/historial-puntos.interface';
+import { HistorialComprasService } from '../../services/historial-compras.service';
+import { ResumenCompras } from '../../interfaces/beneficios/historial-compras.interface';
 import { LoginService } from '../../../../../core/services/login.service';
 import { LoadingService } from '../../../../../shared/services/loading.service';
 
-type Tier = 'BRONCE' | 'PLATA' | 'ORO' | 'BLACK';
+type Tier = 'BRONCE' | 'PLATA' | 'ORO';
 type EstadoPuntos = 'Vigentes' | 'Canjeado';
 
 interface Membership {
@@ -33,22 +35,47 @@ export class BeneficiosComponent implements OnInit {
 
   userName = 'Usuario';
   isLoadingUserName = true;
-  tier: Tier = 'PLATA';  // nivel real del usuario (solo para saludo)
+  tier: Tier = 'BRONCE';  // nivel calculado por historial de compras
+  totalEntradas = 0; // Nueva propiedad para mostrar el total de entradas
+  resumenCompras: ResumenCompras = { // Nueva propiedad para el resumen
+    totalOrdenes: 0,
+    totalEntradas: 0,
+    montoTotal: 0
+  };
 
   // Sin selección por defecto en "Nuestras Membresías"
   selectedTier: Tier | null = null;
 
   // Puntos - ahora dinámicos
   points = 0;
-  targetBlack = 500;
+  targetNextTier = 500; // Target para el siguiente tier
   isLoadingPoints = false;
 
-  get progressToBlack(): number {
-    return Math.min(Math.round((this.points / this.targetBlack) * 100), 100);
+  // Propiedades para el sistema de entradas
+  progressToOro = 0; // Progreso hacia el siguiente tier (ORO es el máximo)
+
+  // Progreso formateado para mostrar en la barra (máximo 2 decimales)
+  get progressToOroFormatted(): number {
+    return Math.round(this.progressToOro * 100) / 100;
   }
+
+  // Reglas de canje fijas por tier
+  get equivalenciaPuntos(): string {
+    switch (this.tier) {
+      case 'BRONCE':
+        return '1 punto equivale a S/ 0.50';
+      case 'PLATA':
+        return '2 puntos equivalen a S/ 0.50';
+      case 'ORO':
+        return '3 puntos equivalen a S/ 0.50';
+      default:
+        return '1 punto equivale a S/ 0.50';
+    }
+  }
+
   // Posición del marcador sobre el banner (compensa el ancho del marcador)
   get progressMarkerLeft(): string {
-    return `calc(${this.progressToBlack}% - 10px)`;
+    return `calc(${this.progressToOro}% - 10px)`;
   }
 
   // Lingotes
@@ -58,12 +85,11 @@ export class BeneficiosComponent implements OnInit {
     { id: 'ORO'    as const, label: 'Oro',    image: '/img/membresias/lingotes/oro.jpg'    },
   ];
 
-  // Subtítulo/rango por tier
+  // Subtítulo/rango por tier - actualizado con números reales
   tierRange: Record<Tier, string> = {
-    BRONCE: 'hasta 30 entradas',
-    PLATA:  'de 30 a 50 entradas',
+    BRONCE: 'de 0 a 30 entradas',
+    PLATA:  'de 31 a 50 entradas',
     ORO:    'más de 50 entradas',
-    BLACK:  'beneficios premium'
   };
 
   // Beneficios (mock)
@@ -85,12 +111,6 @@ export class BeneficiosComponent implements OnInit {
       'Acceso exclusivo a pre-ventas',
       'Beneficios especiales en lanzamientos',
       'Atención prioritaria'
-    ],
-    BLACK: [
-      'Concierge 24/7',
-      'Meet & Greet sujetos a stock',
-      'Upgrades automáticos',
-      'Invitaciones a eventos VIP'
     ]
   };
 
@@ -105,12 +125,13 @@ export class BeneficiosComponent implements OnInit {
     private route: ActivatedRoute,
     private beneficiosService: BeneficiosService,
     private historialPuntosService: HistorialPuntosService,
+    private historialComprasService: HistorialComprasService,
     private loginService: LoginService,
     private loadingService: LoadingService
   ) {
     // Deep-link opcional: ?tier=ORO
     const qpTier = (this.route.snapshot.queryParamMap.get('tier') as Tier) || null;
-    if (qpTier && ['BRONCE','PLATA','ORO','BLACK'].includes(qpTier)) {
+    if (qpTier && ['BRONCE','PLATA','ORO'].includes(qpTier)) {
       this.selectedTier = qpTier;
     }
   }
@@ -118,6 +139,8 @@ export class BeneficiosComponent implements OnInit {
   ngOnInit(): void {
     // Cargar datos del usuario autenticado
     this.cargarDatosUsuario();
+    // Cargar tier basado en historial de compras
+    this.cargarTierPorHistorialCompras();
     // Cargar puntos del cliente autenticado al inicializar el componente
     this.cargarPuntosCliente();
   }
@@ -148,6 +171,84 @@ export class BeneficiosComponent implements OnInit {
       this.userName = 'Usuario';
       this.isLoadingUserName = false;
     }
+  }
+
+  /**
+   * Carga el tier del usuario basado en su historial de compras
+   */
+  private cargarTierPorHistorialCompras(): void {
+    console.log('🎯 Calculando tier basado en historial de compras...');
+
+    this.historialComprasService.getTierPorHistorialCompras()
+      .subscribe({
+        next: (resultado) => {
+          this.tier = resultado.tier;
+          this.totalEntradas = resultado.totalEntradas;
+          this.resumenCompras = resultado.resumen;
+
+          console.log('✅ Tier calculado:', {
+            tier: this.tier,
+            totalEntradas: this.totalEntradas,
+            resumen: this.resumenCompras
+          });
+
+          // Actualizar el progreso hacia el siguiente tier
+          this.updateProgressToNextTier();
+        },
+        error: (error) => {
+          console.error('❌ Error al calcular tier por historial de compras:', error);
+          // Usar valores por defecto en caso de error
+          this.tier = 'BRONCE';
+          this.totalEntradas = 0;
+          this.resumenCompras = {
+            totalOrdenes: 0,
+            totalEntradas: 0,
+            montoTotal: 0
+          };
+        }
+      });
+  }
+
+  /**
+   * Actualiza el progreso hacia el siguiente tier basado en entradas compradas
+   */
+  private updateProgressToNextTier(): void {
+    let currentTarget = 0;
+    let nextTarget = 0;
+
+    switch (this.tier) {
+      case 'BRONCE':
+        currentTarget = 0;
+        nextTarget = 31; // Para alcanzar PLATA
+        break;
+      case 'PLATA':
+        currentTarget = 31;
+        nextTarget = 51; // Para alcanzar ORO
+        break;
+      case 'ORO':
+        // Ya está en el tier máximo
+        currentTarget = 51;
+        nextTarget = 51;
+        break;
+    }
+
+    // Calcular progreso
+    if (this.tier === 'ORO') {
+      this.progressToOro = 100; // Ya alcanzó el máximo
+      this.targetNextTier = this.totalEntradas; // Mostrar su total actual
+    } else {
+      const progress = Math.min(((this.totalEntradas - currentTarget) / (nextTarget - currentTarget)) * 100, 100);
+      this.progressToOro = Math.max(progress, 0);
+      this.targetNextTier = nextTarget;
+    }
+
+    console.log('📈 Progreso actualizado:', {
+      tier: this.tier,
+      totalEntradas: this.totalEntradas,
+      currentTarget,
+      nextTarget,
+      progress: this.progressToOro
+    });
   }
 
   /**
@@ -205,8 +306,7 @@ export class BeneficiosComponent implements OnInit {
    * @returns Tier correspondiente
    */
   private calculateTierByPoints(points: number): Tier {
-    if (points >= 500) return 'BLACK';
-    if (points >= 200) return 'ORO';
+    if (points >= 200) return 'ORO'; // ORO es el tier máximo
     if (points >= 100) return 'PLATA';
     return 'BRONCE';
   }
@@ -235,6 +335,7 @@ export class BeneficiosComponent implements OnInit {
    */
   refreshPoints(): void {
     if (!this.isLoadingPoints) {
+      console.log('🔄 Refrescando puntos del cliente...');
       this.cargarPuntosCliente();
       // Si el historial está visible, también refrescar
       if (this.showHistory && !this.isLoadingHistory) {
