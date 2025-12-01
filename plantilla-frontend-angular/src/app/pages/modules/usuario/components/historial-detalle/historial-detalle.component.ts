@@ -137,31 +137,35 @@ export class HistorialDetalleComponent implements OnInit {
     // If the caller passed a wrapper with `raw` (historial list), prefer that
     const src = p.raw ?? p;
 
-    // Map idOrdenCompra -> purchaseNumber (detalle de la compra)
-    if (src.idOrdenCompra !== undefined) {
-      p.purchaseNumber = src.idOrdenCompra;
-    } else if (p.id !== undefined) {
-      // fallback to mapped id from list
-      p.purchaseNumber = p.id;
-    }
+    // Map standard API fields to the shape used by the template
+    p.idOrden = src.idOrden ?? src.idOrdenCompra ?? src.id ?? p.id;
+    p.codigoCompra = src.codigoCompra ?? src.codigoCompra ?? p.codigoCompra;
+    p.estado = (((src.estado ?? src.estadoPago ?? src.estado ?? p.estado) || '') as string).toString().toUpperCase();
+    p.fechaCompra = src.fechaCompra ?? src.fechaCompra ?? src.fechaOrden ?? p.fechaCompra;
+    p.fechaEvento = src.fechaEvento ?? p.fechaEvento ?? null;
+    p.title = src.nombreEvento ?? src.title ?? p.title;
+    p.nombreEvento = src.nombreEvento ?? p.title;
+    p.lugarEvento = src.lugarEvento ?? src.nombreLocal ?? p.lugarEvento;
+    p.direccionLocal = src.direccionLocal ?? p.direccionLocal;
+    p.image = src.imagenUrl ?? src.image ?? '/assets/img/banners/default.jpg';
+    p.subtotal = src.subtotal ?? src.subTotal ?? p.subtotal ?? 0;
+    p.totalPagado = src.totalPagado ?? src.total ?? src.monto ?? p.totalPagado ?? 0;
+    p.monto = p.totalPagado;
+    p.medioPago = src.medioPago ?? src.medioPago ?? p.medioPago;
+    p.numeroTarjeta = src.numeroTarjeta ?? p.numeroTarjeta;
+    p.idTransaccionPago = src.idTransaccionPago ?? src.idTransaccionPago ?? src.idTransaccion ?? p.idTransaccionPago;
+    p.estadoPago = src.estadoPago ?? src.estadoPago ?? p.estadoPago;
+    p.tieneComprobante = src.tieneComprobante ?? p.tieneComprobante;
+    p.codigoSeguimiento = src.codigoSeguimiento ?? p.codigoSeguimiento;
 
-    // Map fechaOrden -> fechaCompra and dateFull
-    if (src.fechaOrden !== undefined) {
-      p.fechaCompra = src.fechaOrden;
-      p.dateFull = src.fechaOrden;
-    }
-
-    // Map total -> monto
-    if (src.total !== undefined) {
-      p.monto = src.total;
-    }
-
-    // Normalize items: cantidad -> qty, tipoTicketNombre -> desc, precioFinal/precio -> price
+    // Normalize items and asistentes
     const itemsSrc = Array.isArray(src.items) ? src.items : (Array.isArray(p.items) ? p.items : []);
     p.items = itemsSrc.map((it: any) => ({
-      qty: it.cantidad ?? it.qty ?? 1,
-      desc: it.tipoTicketNombre ?? it.desc ?? it.nombreTicket ?? 'Entrada',
-      price: it.precioFinal ?? it.precio ?? it.price ?? 0
+      nombreTipoTicket: it.nombreTipoTicket ?? it.nombreTicket ?? it.tipoTicketNombre ?? it.desc ?? 'Entrada',
+      cantidad: it.cantidad ?? it.qty ?? 1,
+      precioUnitario: it.precioUnitario ?? it.precioFinal ?? it.precio ?? it.price ?? 0,
+      subtotalLinea: it.subtotalLinea ?? it.subtotalLinea ?? it.subtotal ?? 0,
+      asistentes: Array.isArray(it.asistentes) ? it.asistentes : []
     }));
 
     // Build QR image URL if codigoQr is present
@@ -200,6 +204,29 @@ export class HistorialDetalleComponent implements OnInit {
       console.error('Error al generar PDF', err);
       alert('No se pudo generar el PDF. Para habilitar la descarga en PDF instala la dependencia `jspdf` ejecutando:\n\n  npm install jspdf\n\ny luego recarga la aplicación.');
     });
+  }
+
+  /**
+   * Devuelve la URL de imagen del QR para un código de asistente
+   */
+  getAttendeeQrUrl(code: string | undefined | null): string | null {
+    if (!code) return null;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(code)}`;
+  }
+
+  async downloadAttendeeQr(code: string | undefined | null, filename?: string) {
+    if (!code) return;
+    const url = this.getAttendeeQrUrl(code)!;
+    const name = filename ?? `QR-${code}.png`;
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('No se pudo obtener imagen');
+      const blob = await resp.blob();
+      this.triggerDownload(blob, name);
+    } catch (e) {
+      console.error('Error descargando QR de asistente', e);
+      try { window.open(url, '_blank'); } catch (err) {}
+    }
   }
 
   /**

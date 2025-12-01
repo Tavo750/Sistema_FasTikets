@@ -34,6 +34,7 @@ interface TicketType {
   quantity: number;
   description?: string;
   stock?: number;
+  cantidadDisponible?: number;
   idZona?: number;
   limitePorPersona?: number;
 }
@@ -309,13 +310,19 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
                         // Solo agregar el ticket si está dentro del rango de fechas
                         if (dentroDelRango) {
+                          // El endpoint puede devolver tanto `stock` como `cantidadDisponible`.
+                          // Preferimos mostrar `cantidadDisponible` en la UI cuando esté presente.
+                          const cantidadDisponible = Number((ticket as any).cantidadDisponible ?? (ticket as any).cantidadDisponible ?? ticket.stock ?? 0);
+                          const stockValor = ticket.stock ?? cantidadDisponible ?? 0;
                           ticketsDeZona.push({
                             id: ticket.idTipoTicket,
                             name: ticket.nombre,
                             price: ticket.precio,
                             quantity: 0,
                             description: ticket.descripcion,
-                            stock: ticket.stock,
+                            // Mantener `stock` para compatibilidad, y exponer `cantidadDisponible` por separado
+                            stock: stockValor,
+                            cantidadDisponible: !isNaN(cantidadDisponible) ? cantidadDisponible : undefined,
                             idZona: ticket.idZona,
                             limitePorPersona: ticket.limitePorPersona
                           });
@@ -648,10 +655,27 @@ export class EventoComponent implements AfterViewInit, OnInit {
         } catch (err) {
           // Revertir items locales ya añadidos y mostrar diálogo de error
           try { localIds.forEach(id => this.cartService.removeLocalOnly(id)); } catch(e) { console.warn('No se pudieron revertir items locales tras error de servidor (onAddToCart)', e); }
+          // Extraer mensaje retornado por el servidor si está disponible
+          let serverMsg = 'Ha ocurrido un error al sincronizar el carrito';
+          try {
+            const serr: any = err as any;
+            if (serr && serr.error) {
+              const e = serr.error;
+              serverMsg = e?.message ?? e?.data?.mensaje ?? e?.mensaje ?? e?.error ?? serverMsg;
+            } else if (serr && serr.message) {
+              serverMsg = serr.message;
+            } else if (serr && serr.statusText) {
+              serverMsg = serr.statusText;
+            }
+            if (typeof serverMsg === 'object') serverMsg = JSON.stringify(serverMsg);
+          } catch (e) {
+            console.warn('Error extrayendo mensaje de error de servidor (onAddToCart)', e);
+          }
+
           this.dialogService.open(DialogoComponent, {
             header: 'Error al sincronizar carrito',
             width: '480px',
-            data: { mensaje: 'No se pudo guardar los items en el servidor. Intenta de nuevo.', severidad: 'error', buttonLabel: 'Aceptar' }
+            data: { mensaje: serverMsg, severidad: 'error', buttonLabel: 'Aceptar' }
           });
         }
       } else {

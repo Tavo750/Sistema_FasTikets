@@ -92,6 +92,48 @@ export class CarritoService {
   }
 
   /**
+   * Incrementa la cantidad de un item en el carrito en el backend.
+   * Endpoint: POST /carrito/incrementar-item/{idItemCarrito}
+   * Acepta body opcional { cantidad, idCliente }
+   */
+  incrementItemOnServer(idItemCarrito: number, idCliente: number, cantidad: number = 1): Observable<any> {
+    const url = `${baseUrl}/carrito/incrementar-item/${idItemCarrito}`;
+    const body = { cantidad, idCliente };
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('CarritoService.incrementItemOnServer -> POST', url, body); } catch (e) {}
+
+    return this.http.post<any>(url, body, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.incrementItemOnServer response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
+   * Decrementa la cantidad de un item en el carrito en el backend.
+   * Endpoint: POST /carrito/decrementar-item/{idItemCarrito}
+   * Acepta body opcional { cantidad, idCliente }
+   */
+  decrementItemOnServer(idItemCarrito: number, idCliente: number, cantidad: number = 1): Observable<any> {
+    const url = `${baseUrl}/carrito/decrementar-item/${idItemCarrito}`;
+    const body = { cantidad, idCliente };
+    const token = this.sessionService.getCurrentUser()?.token;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) headers = headers.set('Authorization', `Bearer ${token}`);
+
+    try { console.debug('CarritoService.decrementItemOnServer -> POST', url, body); } catch (e) {}
+
+    return this.http.post<any>(url, body, { headers })
+      .pipe(
+        tap(resp => { try { console.debug('CarritoService.decrementItemOnServer response', resp); } catch(e){} }),
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+  /**
    * Obtiene los items del carrito desde el servidor para un cliente dado
    * Endpoint: GET /carrito/items?idCliente={idCliente}
    */

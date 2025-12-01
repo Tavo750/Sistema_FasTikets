@@ -89,9 +89,6 @@
                 <div class="tickets-summary" *ngIf="cartItems && cartItems.length > 0">
                 <h4><i class="pi pi-ticket"></i> Entradas en el Carrito</h4>
                 <div class="ticket-summary-item" *ngFor="let item of cartItems; let i = index">
-                  <div class="ticket-image">
-                    <img [src]="item.image || event.image || '/assets/img/default-ticket.png'" alt="{{ item.title || item.category }}" />
-                  </div>
                   <div class="ticket-summary-info">
                     <span class="ticket-name">{{ item.title || item.category || item.nombreTicket }}</span>
                     <span class="ticket-quantity">Cantidad: {{ item.quantity }}</span>

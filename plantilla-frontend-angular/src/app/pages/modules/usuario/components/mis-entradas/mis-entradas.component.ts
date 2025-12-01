@@ -254,26 +254,38 @@ export class MisEntradasComponent implements OnInit {
   downloadQr(entry: any): void {
     try {
       const src = entry?.raw ?? entry;
-      const code = this.findQrCodeValue(src);
-      if (!code) {
-        this.messageService.add({ severity: 'warn', summary: 'QR', detail: 'No hay QR disponible para esta entrada.' });
+      const ticketId = entry?.id ?? src?.idTicket ?? src?.id ?? 'ticket';
+
+      // Usar únicamente la URL proporcionada por el backend
+      const qrImageUrl = src?.qrImageUrl ?? src?.qr_image_url ?? src?.qrUrl ?? src?.qr_url ?? null;
+      if (!qrImageUrl || typeof qrImageUrl !== 'string' || !qrImageUrl.trim()) {
+        this.messageService.add({ severity: 'warn', summary: 'QR', detail: 'No hay `qrImageUrl` disponible para esta entrada.' });
         return;
       }
 
-      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(code)}`;
-      fetch(qrUrl)
-        .then((resp) => {
-          if (!resp.ok) throw new Error('No se pudo obtener la imagen del QR');
-          return resp.blob();
-        })
-        .then((blob) => {
-          const filename = `QR-${entry?.id ?? 'ticket'}.png`;
-          this.triggerDownload(blob, filename);
-        })
-        .catch((err) => {
-          console.error('Error descargando QR', err);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar el QR.' });
-        });
+      // Intentar descargar la imagen como blob usando HttpClient
+      this.http.get(qrImageUrl, { responseType: 'blob' }).subscribe({
+        next: (blob: Blob) => {
+          try {
+            const filename = `QR-${ticketId}.png`;
+            this.triggerDownload(blob, filename);
+          } catch (err) {
+            console.error('Error procesando blob del QR', err);
+            try { window.open(qrImageUrl, '_blank'); } catch (e) {}
+            this.messageService.add({ severity: 'info', summary: 'QR', detail: 'No se pudo descargar automáticamente la imagen. Se abrió en una pestaña nueva; guarda la imagen manualmente.' });
+          }
+        },
+        error: (err) => {
+          console.error('Error descargando QR desde qrImageUrl con HttpClient', err);
+          // Fallback simple: abrir la URL en nueva pestaña para que el usuario la guarde manualmente
+          try {
+            window.open(qrImageUrl, '_blank');
+            this.messageService.add({ severity: 'info', summary: 'QR', detail: 'No se pudo descargar automáticamente la imagen. Se abrió en una pestaña nueva; guarda la imagen manualmente.' });
+          } catch (e) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar la imagen del QR.' });
+          }
+        }
+      });
     } catch (e) {
       console.error('downloadQr error', e);
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al intentar descargar el QR.' });

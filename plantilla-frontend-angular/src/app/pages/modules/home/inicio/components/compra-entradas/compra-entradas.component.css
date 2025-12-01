@@ -144,7 +144,7 @@
 
 .ticket-summary-info {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr; /* ajustado: sin columna de imagen */
   gap: 0.5rem;
   align-items: center;
 }

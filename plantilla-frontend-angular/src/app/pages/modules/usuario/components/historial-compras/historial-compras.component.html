@@ -2,6 +2,8 @@
 	<div class="historial-header">
 		<h2>Historial de Compras</h2>
 
+
+
 		<div class="filters">
 			<div class="filter-item">
 				<label>Por Categoría:</label>
@@ -15,7 +17,7 @@
 
 			<div class="filter-item">
 				<label>Por Estados:</label>
-				<select [(ngModel)]="filterStatus">
+				<select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
 					<option value="">Seleccionar</option>
 					<option value="Aprobado">Aprobado</option>
 					<option value="Rechazado">Rechazado</option>
@@ -25,18 +27,18 @@
 
 			<div class="filter-item">
 				<label>Por Fechas:</label>
-				<input type="date" [(ngModel)]="filterDate" />
+				<input type="date" [(ngModel)]="filterDate" (ngModelChange)="onFilterChange()" />
 			</div>
 		</div>
 	</div>
 
-	<div *ngIf="!purchases || purchases.length === 0" class="no-results">
+	<div *ngIf="!visiblePurchases || visiblePurchases.length === 0" class="no-results">
 		<p>No hay compras registradas.</p>
 	</div>
 
 	<div class="historial-grid">
-		<ng-container *ngFor="let p of purchases">
-			<div class="purchase-card" *ngIf="!(p.estado && p.estado.toLowerCase() === 'pendiente')">
+		<ng-container *ngFor="let p of pagedPurchases">
+			<div class="purchase-card">
 				<div class="card-image">
 					<img [src]="p.image" alt="{{p.title}}" />
 				</div>
@@ -56,5 +58,12 @@
 				</div>
 			</div>
 		</ng-container>
-	</div>
+		</div>
+
+		<!-- Controles de paginación (fuera del grid para evitar que formen parte del layout de tarjetas) -->
+		<div class="pagination-controls" *ngIf="visiblePurchases.length > rowsPerPage">
+			<button class="btn-detail" (click)="prevPage()" [disabled]="currentPage===1">Anterior</button>
+			<div class="pagination-label">Página {{currentPage}} de {{ totalPages }}</div>
+			<button class="btn-detail" (click)="nextPage()" [disabled]="currentPage===totalPages">Siguiente</button>
+		</div>
 </div>

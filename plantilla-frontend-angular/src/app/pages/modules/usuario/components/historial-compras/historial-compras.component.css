@@ -78,6 +78,23 @@
 }
 .btn-detail:hover { opacity: 0.95; }
 
+/* Paginación: centrar controles y estilo */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+.pagination-controls .pagination-label { color: #444; font-weight: 600; }
+.pagination-controls .btn-detail {
+  min-width: 100px;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+.pagination-controls .btn-detail[disabled] { opacity: 0.5; cursor: not-allowed; }
+
 
 
 @media (max-width: 1100px) {

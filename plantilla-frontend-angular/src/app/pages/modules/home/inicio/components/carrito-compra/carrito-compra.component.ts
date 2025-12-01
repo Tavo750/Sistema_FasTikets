@@ -26,6 +26,8 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   // Temporizador: delegado al servicio compartido
   showTimer: boolean = false;
   timerDisplay: string = '';
+  // Mantener cantidades previas para detectar delta en actualizaciones
+  private lastQuantities: Record<number, number> = {};
 
   constructor(
     private router: Router,
@@ -94,6 +96,10 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
             // Marcamos que la lista proviene del servidor
             this.loadedFromServer = true;
 
+            // Inicializar lastQuantities con valores del servidor
+            this.lastQuantities = {};
+            this.cartItems.forEach(it => { this.lastQuantities[it.id] = it.quantity || 0; });
+
             // Intentar obtener idCarrito y cargar info de evento
             try {
               // Llamar al endpoint que devuelve el carrito completo para extraer idCarro
@@ -106,8 +112,46 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
                         this.carritoService.getEventoInfo(idCarro).subscribe({
                           next: (evtResp: any) => {
                             try {
-                              const maybe = evtResp?.data && Array.isArray(evtResp.data) ? evtResp.data[0] : (evtResp?.data || evtResp);
-                              if (maybe) this.eventInfo = maybe;
+                              // Normalizar la respuesta a un arreglo de entradas
+                              const dataArray: any[] = Array.isArray(evtResp?.data)
+                                ? evtResp.data
+                                : (Array.isArray(evtResp) ? evtResp : (evtResp?.data ? [evtResp.data] : []));
+
+                              // Guardar la primera entrada como eventInfo para compatibilidad visual
+                              if (dataArray.length > 0) {
+                                this.eventInfo = dataArray[0];
+                              } else {
+                                this.eventInfo = evtResp?.data || evtResp;
+                              }
+
+                              // Si hay imágenes por item (imagenURL/imagenUrl/image), mapearlas a los cartItems
+                              if (Array.isArray(dataArray) && dataArray.length > 0 && Array.isArray(this.cartItems)) {
+                                // Helper para obtener la URL de imagen de una entrada
+                                const pickImg = (entry: any) => entry?.imagenURL ?? entry?.imagenUrl ?? entry?.image ?? entry?.imagen ?? null;
+
+                                // Caso ideal: misma longitud -> mapear por índice
+                                if (dataArray.length === this.cartItems.length) {
+                                  dataArray.forEach((entry: any, idx: number) => {
+                                    const img = pickImg(entry);
+                                    if (img) this.cartItems[idx].image = img;
+                                  });
+                                } else {
+                                  // Intentar mapear por nombre (nombreEvento -> cartItem.title)
+                                  dataArray.forEach((entry: any) => {
+                                    const img = pickImg(entry);
+                                    const nombre = (entry?.nombreEvento || entry?.nombre || '').toString().toLowerCase();
+                                    if (!img || !nombre) return;
+                                    const match = this.cartItems.find(ci => (ci.title || '').toString().toLowerCase() === nombre);
+                                    if (match) match.image = img;
+                                  });
+
+                                  // Si no se mapeó nada, usar la primera imagen disponible como fallback para todos
+                                  const fallbackImg = dataArray.map(d => pickImg(d)).find(Boolean) || null;
+                                  if (fallbackImg) {
+                                    this.cartItems.forEach(ci => { if (!ci.image) ci.image = fallbackImg; });
+                                  }
+                                }
+                              }
                             } catch (e) { console.warn('Error parsing evento-info', e); }
                           },
                           error: (err: any) => { console.warn('No se pudo cargar evento-info:', err); }
@@ -179,6 +223,10 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
     this.cartSubscription = this.cartService.getCartItems$().subscribe((items: CartItem[]) => {
       const prevCount = this.cartItems?.length || 0;
       this.cartItems = items;
+      // actualizar lastQuantities para reflejar último estado conocido
+      try {
+        items.forEach(i => { this.lastQuantities[i.id] = i.quantity || 0; });
+      } catch (e) { }
       const newCount = items?.length || 0;
 
       // Si antes no había items y ahora sí: iniciar temporizador centralizado
@@ -416,7 +464,43 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
       this.cartService.updateQuantity(id, item.quantity);
       return;
     }
-    
+    // Detectar delta respecto al último estado conocido
+    const prev = (this.lastQuantities && typeof this.lastQuantities[id] !== 'undefined') ? this.lastQuantities[id] : (item.quantity || 0);
+    const delta = (quantity || 0) - (prev || 0);
+
+    // Si el carrito proviene del servidor, intentar persistir cada cambio usando los endpoints incrementar/decrementar
+    const currentUser = this.sessionService.getCurrentUser();
+    const idCliente = currentUser?.idUsuario;
+
+    if (this.loadedFromServer && item.serverId && idCliente && delta !== 0) {
+      this.loadingService.show();
+      const absDelta = Math.abs(delta);
+      const op$ = delta > 0 ? this.carritoService.incrementItemOnServer(item.serverId, idCliente, absDelta)
+                             : this.carritoService.decrementItemOnServer(item.serverId, idCliente, absDelta);
+
+      op$.subscribe({
+        next: (resp: any) => {
+          // Aceptar el cambio localmente y actualizar cache de cantidades
+          this.lastQuantities[id] = quantity || 0;
+          this.cartService.updateQuantity(id, quantity);
+          this.loadingService.hide();
+        },
+        error: (err: any) => {
+          console.error('Error actualizando cantidad en servidor:', err);
+          // Revertir el cambio localmente
+          item.quantity = prev;
+          this.cartService.updateQuantity(id, prev);
+          const status = err?.status;
+          const body = err?.error;
+          const message = err?.message || (body && (body.mensaje || body.message)) || JSON.stringify(body) || 'Error desconocido';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: `No se pudo actualizar la cantidad (${status}): ${message}` });
+          this.loadingService.hide();
+        }
+      });
+      return;
+    }
+
+    // Caso local (no autenticado o items locales): actualizar localmente
     this.cartService.updateQuantity(id, quantity);
   }
 

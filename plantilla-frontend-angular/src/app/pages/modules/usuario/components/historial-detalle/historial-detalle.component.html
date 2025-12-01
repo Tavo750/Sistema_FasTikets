@@ -3,41 +3,58 @@
 
   <div class="detail-card">
     <div class="detail-top">
-      <img [src]="purchase.image" alt="{{purchase.title}}" />
+        <img [src]="purchase.image" alt="{{purchase.title}}" />
     </div>
 
     <div class="detail-body">
       <div class="detail-left" [ngClass]="{'transfer-active': purchase.estado === 'Transferido' || purchase.estado === 'Rechazado'}">
         <div class="header-row">
           <div>
-            <div class="small-muted">Detalles de la compra : <span class="muted">{{ purchase.purchaseNumber }}</span></div>
+            <div class="small-muted">Código: <span class="muted">{{ purchase.codigoCompra || purchase.idOrden }}</span></div>
             <div class="title-sub">{{ purchase.title }}</div>
+            <div class="small-muted">Evento: <strong>{{ purchase.nombreEvento }}</strong></div>
+            <div class="small-muted">Lugar: {{ purchase.lugarEvento }} — {{ purchase.direccionLocal }}</div>
           </div>
           <div class="badge-container">
-            <span class="status-badge" [ngClass]="{'approved': purchase.estado == 'Aprobado', 'rejected': purchase.estado == 'Rechazado', 'transferred': purchase.estado == 'Transferido'}">{{ purchase.estado === 'Rechazado' ? 'Entrada Rechazada' : purchase.estado }}</span>
+            <span class="status-badge" [ngClass]="{'approved': purchase.estado == 'APROBADO' || purchase.estado == 'Aprobado', 'rejected': purchase.estado == 'RECHAZADO' || purchase.estado == 'Rechazado', 'transferred': purchase.estado == 'TRANSFERIDO' || purchase.estado == 'Transferido'}">{{ purchase.estado }}</span>
           </div>
         </div>
 
-        <div class="detail-row"><div class="detail-label">Fecha de compra:</div><div class="detail-value">{{ purchase.dateFull }}</div></div>
+        <div class="detail-row"><div class="detail-label">Fecha de compra:</div><div class="detail-value">{{ purchase.fechaCompra | date:'dd/MM/yyyy' }}</div></div>
+        <div class="detail-row"><div class="detail-label">Fecha de evento:</div><div class="detail-value">{{ purchase.fechaEvento | date:'dd/MM/yyyy' }}</div></div>
         <!-- Show full details only when not Rechazado -->
         <ng-container *ngIf="purchase.estado !== 'Rechazado'">
-          <div class="detail-row"><div class="detail-label">Entradas:</div><div class="detail-value">{{ purchase.items?.[0]?.qty }} x {{ purchase.items?.[0]?.desc }} <span class="price">S/ {{ purchase.items?.[0]?.price | number:'1.2-2' }}</span></div></div>
+          <div class="items-section">
+            <div class="section-title">Entradas</div>
+            <div *ngFor="let it of purchase.items" class="item-row">
+              <div class="item-main">{{ it.cantidad }} x {{ it.nombreTipoTicket }} <span class="price">S/ {{ it.precioUnitario | number:'1.2-2' }}</span></div>
+              <div *ngIf="it.asistentes && it.asistentes.length" class="attendees">
+                <div *ngFor="let a of it.asistentes" class="attendee">
+                  <div class="attendee-info">
+                    <div class="att-name">{{ a.nombreCompleto }}</div>
+                    <div class="att-doc">{{ a.documento }}</div>
+                  </div>
+                  <div class="att-qr">
+                    <!-- Imagen QR ocultada por solicitud; queda el botón para descargar -->
+                    <button class="btn-qr" (click)="downloadAttendeeQr(a.codigoQr, 'QR-'+(a.idTicket||a.nombreCompleto)+'.png')" title="Descargar QR">
+                      <i class="pi pi-download" aria-hidden="true"></i>
+                      <span>Descargar QR</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="spacer"></div>
-          <div class="detail-row"><div class="detail-label">Puntos Canjeados:</div><div class="detail-value">{{ purchase.puntosCanjeados }} pts.</div></div>
-          <div class="detail-row"><div class="detail-label">Descuento</div><div class="detail-value">- S/ {{ purchase.descuento | number:'1.2-2' }}</div></div>
-          <div class="detail-row"><div class="detail-label">Total pagado :</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
-
-          <div class="detail-label">Nombres y apellidos :</div>
-          <div class="name-box">{{ purchase.nombres }}</div>
-          <div class="muted">DNI: {{ purchase.dni }}</div>
-
-          <div class="detail-row"><div class="detail-label">Puntos Obtenidos por su compra:</div><div class="detail-value">{{ purchase.puntosObtenidos }} pts.</div></div>
+          <div class="detail-row"><div class="detail-label payment">Puntos Canjeados:</div><div class="detail-value">{{ purchase.puntosCanjeados ?? 0 }} pts.</div></div>
+          <div class="detail-row"><div class="detail-label">Descuento</div><div class="detail-value">- S/ {{ purchase.descuentoPuntos ?? 0 | number:'1.2-2' }}</div></div>
+          <div class="detail-row"><div class="detail-label">Total pagado :</div><div class="detail-value">S/ {{ purchase.totalPagado | number:'1.2-2' }}</div></div>
         </ng-container>
 
         <!-- Full details for non-rejected purchases -->
         <ng-container *ngIf="purchase.estado !== 'Rechazado'">
-          <div class="detail-row"><div class="detail-label">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
+          <div class="detail-row"><div class="detail-label payment">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
           <div class="detail-row"><div class="detail-label">Medio de pago:</div><div class="detail-value">{{ purchase.medioPago }}</div></div>
 
           <div class="detail-row"><div class="detail-label">Monto</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
@@ -66,7 +83,7 @@
         <ng-container *ngIf="purchase.estado === 'Rechazado'">
           <div class="rejected-panel">
             <div class="panel-title">Detalle de pago</div>
-            <div class="detail-row"><div class="detail-label">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
+            <div class="detail-row"><div class="detail-label payment">Detalles de Pago:</div><div class="detail-value">{{ purchase.detallePago }}</div></div>
             <div class="detail-row"><div class="detail-label">Monto</div><div class="detail-value">S/ {{ purchase.monto | number:'1.2-2' }}</div></div>
             <div class="detail-row"><div class="detail-label">Estado</div><div class="detail-value">{{ purchase.estado }}</div></div>
             <div class="detail-row"><div class="detail-label">Fecha</div><div class="detail-value">{{ purchase.fechaCompra }}</div></div>

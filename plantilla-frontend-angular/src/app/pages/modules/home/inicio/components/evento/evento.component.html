@@ -123,23 +123,23 @@
                       {{ ticket.description }}
                     </div>
 
-                    <!-- Información de stock -->
-                    <div class="ticket-stock" *ngIf="ticket.stock">
+                    <!-- Información de cantidad disponible (usa cantidadDisponible si existe) -->
+                    <div class="ticket-stock" *ngIf="(ticket.cantidadDisponible ?? ticket.stock ?? 0) !== null">
                       <span
                         class="stock-icon"
                         [ngClass]="{
-                          'disponible': ticket.stock > 10,
-                          'limitado': ticket.stock <= 10 && ticket.stock > 0,
-                          'agotado': ticket.stock === 0
+                          'disponible': (ticket.cantidadDisponible ?? ticket.stock ?? 0) > 10,
+                          'limitado': (ticket.cantidadDisponible ?? ticket.stock ?? 0) <= 10 && (ticket.cantidadDisponible ?? ticket.stock ?? 0) > 0,
+                          'agotado': (ticket.cantidadDisponible ?? ticket.stock ?? 0) === 0
                         }">
                       </span>
                       <span
                         [ngClass]="{
-                          'stock-disponible': ticket.stock > 10,
-                          'stock-limitado': ticket.stock <= 10 && ticket.stock > 0,
-                          'stock-agotado': ticket.stock === 0
+                          'stock-disponible': (ticket.cantidadDisponible ?? ticket.stock ?? 0) > 10,
+                          'stock-limitado': (ticket.cantidadDisponible ?? ticket.stock ?? 0) <= 10 && (ticket.cantidadDisponible ?? ticket.stock ?? 0) > 0,
+                          'stock-agotado': (ticket.cantidadDisponible ?? ticket.stock ?? 0) === 0
                         }">
-                        {{ ticket.stock > 0 ? 'Stock: ' + ticket.stock : 'Agotado' }}
+                        {{ (ticket.cantidadDisponible ?? ticket.stock ?? 0) > 0 ? 'Disponibles: ' + (ticket.cantidadDisponible ?? ticket.stock ?? 0) : 'Agotado' }}
                       </span>
                     </div>
                   </div>
@@ -149,7 +149,7 @@
                       icon="pi pi-minus"
                       size="small"
                       severity="secondary"
-                      [disabled]="ticket.quantity <= 0"
+                      [disabled]="ticket.quantity <= 0 || (ticket.cantidadDisponible ?? ticket.stock ?? 0) === 0"
                       (onClick)="decrement(ticket)"
                       [rounded]="true"
                       styleClass="quantity-btn-minus">
@@ -161,7 +161,7 @@
                       icon="pi pi-plus"
                       size="small"
                       severity="danger"
-                      [disabled]="(ticket.stock && ticket.quantity >= ticket.stock) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona) || getTotalEntradasSeleccionadas() >= getMaxEntradasPermitidas()"
+                      [disabled]="(ticket.quantity >= (ticket.cantidadDisponible ?? ticket.stock ?? 0)) || (ticket.limitePorPersona && ticket.quantity >= ticket.limitePorPersona) || getTotalEntradasSeleccionadas() >= getMaxEntradasPermitidas()"
                       (onClick)="increment(ticket)"
                       [rounded]="true"
                       styleClass="quantity-btn-plus">

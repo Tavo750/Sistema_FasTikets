@@ -155,7 +155,8 @@ export class InicioComponent implements OnInit, OnDestroy {
     return {
       id: eventoData.idEvento,
       nombre: eventoData.nombre,
-      fecha: this.formatearFecha(eventoData.fechaEvento),
+      // Preferir fechaEvento; usar fechaCreacion como fallback si no existe
+      fecha: this.formatearFecha(eventoData.fechaEvento ?? eventoData.fechaCreacion),
       lugar: eventoData.nombreLocal || 'Lugar no especificado',
       categoria: eventoData.tipoEvento,
       precio: this.obtenerPrecioDesde(eventoData.idEvento), // Precio dinámico o valor por defecto
@@ -175,8 +176,17 @@ export class InicioComponent implements OnInit, OnDestroy {
     return 'img/logo/concierto.jpg';
   }
 
-  private formatearFecha(fecha: Date): string {
-    const fechaObj = new Date(fecha);
+  private formatearFecha(fecha: string | Date | null | undefined): string {
+    if (!fecha) return '';
+    // Aceptar tanto string como Date
+    let fechaObj: Date;
+    try {
+      fechaObj = (fecha instanceof Date) ? fecha : new Date(fecha as string);
+      if (isNaN(fechaObj.getTime())) return '';
+    } catch (e) {
+      return '';
+    }
+
     const opciones: Intl.DateTimeFormatOptions = {
       day: 'numeric',
       month: 'long'
