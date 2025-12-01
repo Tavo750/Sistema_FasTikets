@@ -207,6 +207,16 @@ export class EventoService {
   }
 
 
+
+  deleteEventoPorId(id: number): Observable<EliminaEventoResponse> {
+    const url = `${baseUrl}/eventos/${id}`;
+    return this.http.delete<EliminaEventoResponse>(url)
+      .pipe(
+        catchError(this.httpUtils.handleError)
+      );
+  }
+
+
 // ========================= entradas ======================
   /**
    * Obtiene la lista de entradas

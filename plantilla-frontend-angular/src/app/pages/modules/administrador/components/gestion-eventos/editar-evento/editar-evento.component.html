@@ -121,7 +121,8 @@
             <div class="form-field">
               <label class="field-label">
                 <i class="pi pi-calendar"></i>
-                Fecha del evento
+                Fecha del <br>
+                evento
               </label>
               <p-datepicker
                 [(ngModel)]="date"
@@ -135,7 +136,8 @@
             <div class="form-field">
               <label class="field-label">
                 <i class="pi pi-clock"></i>
-                Hora de inicio
+                Hora de <br>
+                inicio
               </label>
               <p-datepicker
                 [(ngModel)]="time"
@@ -484,21 +486,8 @@
       </div>
 
       <div class="entradas-content">
-        <!-- Moneda -->
-        <div class="form-field">
-          <label class="field-label">
-            <i class="pi pi-dollar"></i>
-            Moneda
-          </label>
-          <p-dropdown
-            [(ngModel)]="formulario.moneda"
-            [options]="monedaOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Seleccionar moneda..."
-            styleClass="form-input"
-          ></p-dropdown>
-        </div>
+
+
 
         <!-- Entrada Row -->
         <div class="entrada-row">
@@ -578,14 +567,15 @@
           <div class="entrada-field">
             <label class="field-label">
               <i class="pi pi-calendar"></i>
-              Fecha inicio venta
+              Fecha inicio<br>venta
             </label>
             <p-datepicker
               [(ngModel)]="entradaFechaInicioVenta"
               dateFormat="dd/mm/yy"
               styleClass="form-input"
-              placeholder="Seleccionar fecha"
+              placeholder="dd/mm/aaaa"
               [showIcon]="true"
+              [minDate]="today"
               appendTo="body"
             ></p-datepicker>
           </div>
@@ -593,14 +583,15 @@
           <div class="entrada-field">
             <label class="field-label">
               <i class="pi pi-calendar"></i>
-              Fecha fin venta
+              Fecha fin<br>venta
             </label>
             <p-datepicker
               [(ngModel)]="entradaFechaFinVenta"
               dateFormat="dd/mm/yy"
               styleClass="form-input"
-              placeholder="Seleccionar fecha"
+              placeholder="dd/mm/aaaa"
               [showIcon]="true"
+              [minDate]="entradaFechaInicioVenta || today"
               appendTo="body"
             ></p-datepicker>
           </div>

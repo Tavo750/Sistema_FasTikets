@@ -277,18 +277,46 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
                     console.log(`Tickets encontrados para zona ${zona.nombre}:`, tickets.length);
 
+                    // Obtener la fecha actual (sin hora para comparación correcta)
+                    const fechaActual = new Date();
+                    fechaActual.setHours(0, 0, 0, 0);
+
                     tickets.forEach(ticket => {
                       if (ticket.activo) { // Solo agregar tickets activos
-                        ticketsDeZona.push({
-                          id: ticket.idTipoTicket,
-                          name: ticket.nombre,
-                          price: ticket.precio,
-                          quantity: 0,
-                          description: ticket.descripcion,
-                          stock: ticket.stock,
-                          idZona: ticket.idZona,
-                          limitePorPersona: ticket.limitePorPersona
-                        });
+                        // Validar que la entrada esté dentro del rango de fechas de venta
+                        let dentroDelRango = true;
+
+                        if (ticket.fechaInicioVenta) {
+                          const fechaInicio = new Date(ticket.fechaInicioVenta);
+                          fechaInicio.setHours(0, 0, 0, 0);
+                          if (fechaActual < fechaInicio) {
+                            dentroDelRango = false;
+                            console.log(`Entrada "${ticket.nombre}" aún no está disponible. Inicia el ${ticket.fechaInicioVenta}`);
+                          }
+                        }
+
+                        if (ticket.fechaFinVenta) {
+                          const fechaFin = new Date(ticket.fechaFinVenta);
+                          fechaFin.setHours(23, 59, 59, 999); // Incluir todo el día final
+                          if (fechaActual > fechaFin) {
+                            dentroDelRango = false;
+                            console.log(`Entrada "${ticket.nombre}" ya no está disponible. Finalizó el ${ticket.fechaFinVenta}`);
+                          }
+                        }
+
+                        // Solo agregar el ticket si está dentro del rango de fechas
+                        if (dentroDelRango) {
+                          ticketsDeZona.push({
+                            id: ticket.idTipoTicket,
+                            name: ticket.nombre,
+                            price: ticket.precio,
+                            quantity: 0,
+                            description: ticket.descripcion,
+                            stock: ticket.stock,
+                            idZona: ticket.idZona,
+                            limitePorPersona: ticket.limitePorPersona
+                          });
+                        }
                       }
                     });
                   }

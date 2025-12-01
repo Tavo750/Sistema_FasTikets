@@ -304,6 +304,46 @@ export class GestionEventosComponent implements OnInit {
     this.router.navigate(['/administrador/gestionEventos/crear', idEvento]);
   }
 
+  eliminarEvento(evento: Evento) {
+    this.confirmationService.confirm({
+      message: `¿Está seguro que desea eliminar el evento "${evento.nombre}"? Esta acción no se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => {
+        this.loadingService.show();
+        this.eventoService.deleteEventoPorId(evento.idEvento).subscribe({
+          next: (response) => {
+            this.loadingService.hide();
+            this.customMessageService.add({
+              severity: 'success',
+              summary: 'Evento eliminado',
+              detail: `El evento "${evento.nombre}" ha sido eliminado exitosamente`
+            });
+            // Recargar la lista de eventos
+            this.cargarEventos();
+          },
+          error: (error) => {
+            this.loadingService.hide();
+            console.error('Error al eliminar evento:', error);
+            this.customMessageService.add({
+              severity: 'error',
+              summary: 'Error al eliminar',
+              detail: error.error?.mensaje || 'No se pudo eliminar el evento. Intente nuevamente.'
+            });
+          }
+        });
+      },
+      reject: () => {
+        // Usuario canceló la eliminación
+        console.log('Eliminación cancelada por el usuario');
+      }
+    });
+  }
+
   abrirDashboard() {
     console.log('🔄 Abriendo dashboard con datos reales del backend...');
     this.cargandoDashboard = true;
