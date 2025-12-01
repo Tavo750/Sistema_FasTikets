@@ -528,7 +528,7 @@
                     </div>
                     <div class="kpi-content">
                         <h3>{{analyticsData.eventosProximos}}</h3>
-                        <p>Próxima Semana</p>
+                        <p>Próximos Eventos</p>
                     </div>
                 </div>
             </div>
@@ -562,6 +562,10 @@
                 <h4 class="analysis-title">
                     <i class="pi pi-trophy"></i>
                     🏆 Top 3 Eventos Más Populares
+                    <small class="popularidad-explicacion" title="{{getTextoPopularidad()}}">
+                        <i class="pi pi-info-circle"></i>
+                        Por entradas vendidas
+                    </small>
                 </h4>
                 <div class="top-eventos">
                     <div *ngFor="let evento of analyticsData.top3Eventos; index as i"
@@ -574,10 +578,14 @@
                         <div class="evento-info">
                             <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
                             <p>ID: {{evento.idEvento}} - {{formatearFecha(convertirFechaString(evento.fechaEvento))}}</p>
-                            <span class="aforo-info">
-                                <i class="pi pi-users"></i>
-                                Aforo disponible: {{formatearNumero(evento.aforoDisponible)}}
-                            </span>
+                            
+                            <!-- Información básica de aforo -->
+                            <div class="aforo-basico">
+                                <span class="aforo-info">
+                                    <i class="pi pi-users"></i>
+                                    Aforo disponible: {{formatearNumero(evento.aforoDisponible)}}
+                                </span>
+                            </div>
                         </div>
                         <div class="estado-badge">
                             <p-tag [value]="evento.estadoEvento"
@@ -592,55 +600,60 @@
             <div class="analysis-section" *ngIf="analyticsData.proximosEventos && analyticsData.proximosEventos.length > 0">
                 <h4 class="analysis-title">
                     <i class="pi pi-calendar-plus"></i>
-                    📅 Próximos Eventos (Esta Semana)
+                    📅 Próximos Eventos
+                    <span class="contador-eventos" *ngIf="analyticsData.proximosEventos.length > 3">
+                        ({{analyticsData.proximosEventos.length}} eventos)
+                    </span>
                 </h4>
-                <div class="proximos-eventos">
-                    <div *ngFor="let evento of analyticsData.proximosEventos"
-                         class="proximo-evento-item clickeable-evento"
-                         (click)="verVentasEvento(evento.idEvento, evento.nombre)"
-                         title="Click para ver ventas del evento">
-                        <div class="fecha-badge">
-                            <span class="dia">{{evento.fechaEvento | date:'dd'}}</span>
-                            <span class="mes">{{evento.fechaEvento | date:'MMM'}}</span>
-                        </div>
-                        <div class="evento-details">
-                            <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
-                            <p>ID: {{evento.idEvento}} - {{evento.horaInicio}}</p>
-                            <span class="venue">
-                                <i class="pi pi-map-marker"></i>
-                                {{evento.nombreLocal}}
-                            </span>
-                        </div>
-                        <div class="capacidad-info">
-                            <span class="capacidad">{{formatearNumero(evento.aforoDisponible)}}</span>
-                            <small>disponibles</small>
+                <div class="proximos-eventos-container">
+                    <div class="proximos-eventos">
+                        <div *ngFor="let evento of analyticsData.proximosEventos"
+                             class="proximo-evento-item clickeable-evento"
+                             (click)="verVentasEvento(evento.idEvento, evento.nombre)"
+                             title="Click para ver ventas del evento">
+                            <div class="fecha-badge">
+                                <span class="dia">{{evento.fechaEvento | date:'dd'}}</span>
+                                <span class="mes">{{evento.fechaEvento | date:'MMM'}}</span>
+                            </div>
+                            <div class="evento-details">
+                                <h5>{{evento.nombre}} <i class="pi pi-external-link"></i></h5>
+                                <p>ID: {{evento.idEvento}} - {{evento.horaInicio}}</p>
+                                <span class="venue">
+                                    <i class="pi pi-map-marker"></i>
+                                    {{evento.nombreLocal}}
+                                </span>
+                            </div>
+                            <div class="capacidad-info">
+                                <span class="capacidad">{{formatearNumero(evento.aforoDisponible)}}</span>
+                                <small>disponibles</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Resumen de Estados -->
-            <div class="analysis-section">
-                <h4 class="analysis-title">
-                    <i class="pi pi-info-circle"></i>
-                    📈 Resumen de Estados
-                </h4>
-                <div class="estados-resumen">
-                    <div class="estado-item activos">
-                        <i class="pi pi-play-circle"></i>
-                        <span class="estado-nombre">Eventos Activos</span>
-                        <span class="estado-valor">{{analyticsData.eventosActivos}}</span>
-                    </div>
-                    <div class="estado-item finalizados">
-                        <i class="pi pi-check-circle"></i>
-                        <span class="estado-nombre">Finalizados</span>
-                        <span class="estado-valor">{{analyticsData.eventosFinalizados}}</span>
-                    </div>
-                    <div class="estado-item cancelados" *ngIf="analyticsData.eventosCancelados > 0">
-                        <i class="pi pi-times-circle"></i>
-                        <span class="estado-nombre">Cancelados</span>
-                        <span class="estado-valor">{{analyticsData.eventosCancelados}}</span>
-                    </div>
+        <!-- Resumen de Estados (movido abajo) -->
+        <div class="analysis-section resumen-estados-full">
+            <h4 class="analysis-title">
+                <i class="pi pi-info-circle"></i>
+                📈 Resumen de Estados
+            </h4>
+            <div class="estados-resumen">
+                <div class="estado-item activos">
+                    <i class="pi pi-play-circle"></i>
+                    <span class="estado-nombre">Eventos Activos</span>
+                    <span class="estado-valor">{{analyticsData.eventosActivos}}</span>
+                </div>
+                <div class="estado-item finalizados">
+                    <i class="pi pi-check-circle"></i>
+                    <span class="estado-nombre">Finalizados</span>
+                    <span class="estado-valor">{{analyticsData.eventosFinalizados}}</span>
+                </div>
+                <div class="estado-item cancelados" *ngIf="analyticsData.eventosCancelados > 0">
+                    <i class="pi pi-times-circle"></i>
+                    <span class="estado-nombre">Cancelados</span>
+                    <span class="estado-valor">{{analyticsData.eventosCancelados}}</span>
                 </div>
             </div>
         </div>

@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { baseUrl } from '../../../../global';
 import { SessionService } from '../../../../shared/services/session.service';
+// import { ReporteVentasService } from './reporte-ventas.service'; // Comentado hasta implementar en backend
 import {
   DashboardResponse,
   DashboardData,
@@ -26,7 +27,8 @@ export class DashboardService {
 
   constructor(
     private http: HttpClient,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    // private reporteVentasService: ReporteVentasService // Comentado hasta implementar en backend
   ) {}
 
   /**
@@ -68,6 +70,45 @@ export class DashboardService {
         })
       );
   }
+
+  /**
+   * Obtener datos de ventas mejorados usando el servicio de reportes
+   * Primero intenta el reporte simple, si falla usa el método original
+   * COMENTADO: Pendiente implementación de endpoints en backend
+   */
+  /*
+  getVentasPorEventoMejorado(idEvento: number): Observable<VentasEventoResponse> {
+    return this.reporteVentasService.getReporteVentasSimple(idEvento).pipe(
+      map(reporteResponse => {
+        if (reporteResponse.ok && reporteResponse.data) {
+          // Convertir datos del reporte al formato VentasEvento
+          const { evento, metricas } = reporteResponse.data;
+          
+          return {
+            ok: true,
+            data: {
+              idEvento: evento.idEvento,
+              nombreEvento: evento.nombre,
+              ventasTotales: metricas.totalVentas,
+              ingresosGenerados: metricas.ingresosGenerados,
+              entradasVendidas: metricas.entradasVendidas,
+              aforoTotal: evento.aforoTotal,
+              porcentajeOcupacion: metricas.porcentajeOcupacion
+            },
+            mensaje: 'Datos de ventas obtenidos del reporte'
+          };
+        } else {
+          throw new Error('No se pudieron obtener datos del reporte');
+        }
+      }),
+      catchError(error => {
+        console.warn('⚠️ Reporte de ventas no disponible, usando método original:', error.message);
+        // Fallback al método original
+        return this.getVentasPorEvento(idEvento);
+      })
+    );
+  }
+  */
 
   /**
    * Obtener ventas totales de todos los eventos
@@ -246,11 +287,7 @@ export class DashboardService {
               menoresDeEdadPermitidos: evento.menoresDeEdadPermitidos ?? false,
               restricciones: evento.restricciones,
               politicasDevolucion: evento.politicasDevolucion,
-              // Propiedades calculadas para el dashboard
-              ventasTotales: Math.floor((evento.aforoDisponible || 1000) * 0.3),
-              entradasVendidas: Math.floor((evento.aforoDisponible || 1000) * 0.3),
-              porcentajeOcupacion: 30,
-              ingresosGenerados: Math.floor((evento.aforoDisponible || 1000) * 0.3) * 100,
+              // Solo datos reales del backend - sin simulaciones
               ranking: index + 1
             }));
           
@@ -278,6 +315,95 @@ export class DashboardService {
       })
     );
   }
+  /**
+   * Obtener eventos populares con datos reales de ventas
+   */
+  getEventosPopularesConVentas(topN: number = 3): Observable<EventosPopularesResponse> {
+    return this.getEventosPopulares(topN).pipe(
+      switchMap(eventosResponse => {
+        if (!eventosResponse.ok || !eventosResponse.data || eventosResponse.data.length === 0) {
+          // Si falla, usar método alternativo SIN datos simulados
+          return this.getEventosPopularesAlternativos();
+        }
+
+        // Obtener datos reales de ventas para cada evento popular
+        const ventasRequests = eventosResponse.data.map(evento => 
+          this.getVentasPorEvento(evento.idEvento).pipe(
+            map(ventasResponse => ({
+              evento,
+              ventas: ventasResponse.ok ? ventasResponse.data : null
+            })),
+            catchError(() => of({ evento, ventas: null }))
+          )
+        );
+
+        return forkJoin(ventasRequests).pipe(
+          map(resultados => {
+            const eventosConVentasReales = resultados.map(({ evento, ventas }, index) => ({
+              ...evento,
+              // Solo usar datos reales del backend
+              ventasTotales: ventas?.ventasTotales || undefined,
+              entradasVendidas: ventas?.entradasVendidas || undefined,
+              porcentajeOcupacion: ventas?.porcentajeOcupacion || undefined,
+              ingresosGenerados: ventas?.ingresosGenerados || undefined,
+              aforoTotal: ventas?.aforoTotal || undefined,
+              ranking: index + 1
+            }));
+
+            return {
+              ok: true,
+              data: eventosConVentasReales,
+              mensaje: 'Eventos populares con datos reales de ventas'
+            };
+          })
+        );
+      }),
+      catchError(() => this.getEventosPopularesAlternativos())
+    );
+  }
+
+  /**
+   * Obtener eventos próximos con datos reales de ventas
+   */
+  getEventosProximosConVentas(): Observable<EventosProximosResponse> {
+    return this.getEventosProximos().pipe(
+      switchMap(eventosResponse => {
+        if (!eventosResponse.ok || !eventosResponse.data || eventosResponse.data.length === 0) {
+          return of(eventosResponse);
+        }
+
+        // Obtener datos reales de ventas para cada evento próximo
+        const ventasRequests = eventosResponse.data.map(evento => 
+          this.getVentasPorEvento(evento.idEvento).pipe(
+            map(ventasResponse => ({
+              evento,
+              ventas: ventasResponse.ok ? ventasResponse.data : null
+            })),
+            catchError(() => of({ evento, ventas: null }))
+          )
+        );
+
+        return forkJoin(ventasRequests).pipe(
+          map(resultados => {
+            const eventosConVentasReales = resultados.map(({ evento, ventas }) => ({
+              ...evento,
+              // Solo usar datos reales del backend
+              aforoTotal: ventas?.aforoTotal || undefined,
+              entradasVendidas: ventas?.entradasVendidas || undefined,
+              porcentajeOcupacion: ventas?.porcentajeOcupacion || undefined
+            }));
+
+            return {
+              ok: true,
+              data: eventosConVentasReales,
+              mensaje: 'Eventos próximos con datos reales de ventas'
+            };
+          })
+        );
+      })
+    );
+  }
+
   getEventosPorEstado(estado: EstadoEvento): Observable<EventosPorEstadoResponse> {
     const url = `${baseUrl}/eventos/estado/${estado}`;
     const headers = this.getHeaders();
@@ -305,10 +431,10 @@ export class DashboardService {
     const ventasTotales$ = this.getVentasTotales();
     const eventosProximos$ = this.getEventosProximos();
     
-    // Intentar obtener eventos populares, si falla usar método alternativo
+    // Usar métodos originales hasta implementar endpoints de reportes
     const eventosPopulares$ = this.getEventosPopulares(3).pipe(
       catchError(error => {
-        
+        console.log('🔄 Usando datos alternativos para eventos populares');
         return this.getEventosPopularesAlternativos();
       })
     );
@@ -344,22 +470,11 @@ export class DashboardService {
                            (responses.eventosBorrador.data?.length || 0) +
                            (responses.eventosAgotados.data?.length || 0);
 
-        // Procesar eventos populares y agregar datos calculados
+        // Usar solo datos básicos del backend - sin información de ventas detallada
         let eventosPopularesConDatos: EventoPopular[] = [];
         
         if (responses.eventosPopulares.ok && responses.eventosPopulares.data) {
-          eventosPopularesConDatos = responses.eventosPopulares.data.map((evento, index) => {
-            // Si ya tiene las propiedades calculadas, las mantiene; si no, las calcula
-            return {
-              ...evento,
-              ventasTotales: evento.ventasTotales || Math.floor(evento.aforoDisponible * 0.3),
-              entradasVendidas: evento.entradasVendidas || Math.floor(evento.aforoDisponible * 0.3),
-              porcentajeOcupacion: evento.porcentajeOcupacion || 30,
-              ingresosGenerados: evento.ingresosGenerados || Math.floor(evento.aforoDisponible * 0.3) * 100,
-              ranking: evento.ranking || (index + 1)
-            };
-          });
-          
+          eventosPopularesConDatos = responses.eventosPopulares.data;
         } 
 
         const dashboardData: DashboardData = {

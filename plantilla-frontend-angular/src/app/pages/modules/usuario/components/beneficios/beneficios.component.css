@@ -133,6 +133,35 @@
   box-shadow: 0 4px 8px rgba(28, 34, 77, 0.2);
 }
 
+/* ---------- Progress Bar Rojo ---------- */
+:host ::ng-deep .progress-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+:host ::ng-deep .progress-card .p-card-header {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  border: none;
+  padding: 1rem 1.5rem;
+}
+
+:host ::ng-deep .progress-pill-red .p-progressbar-value {
+  background: linear-gradient(90deg, #dc2626, #ef4444) !important;
+}
+
+:host ::ng-deep .progress-pill-red {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  background-color: #f3f4f6 !important;
+}
+
+:host ::ng-deep .progress-pill-red .p-progressbar-label {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
 /* ---------- Progreso hacia black ---------- */
 .progress-visual {
   width: 100%;

@@ -379,7 +379,7 @@ export class GestionEventosComponent implements OnInit {
   }
 
   abrirDashboard() {
-    console.log('🔄 Abriendo dashboard con datos reales del backend...');
+    
     this.cargandoDashboard = true;
     this.mostrarDashboard = true;
     this.analyticsData = null; // Limpiar datos previos
@@ -389,14 +389,14 @@ export class GestionEventosComponent implements OnInit {
       next: (response) => {
         if (response.ok && response.data) {
           this.analyticsData = response.data;
-          console.log('✅ Dashboard cargado:', this.analyticsData);
+          
           
           this.customMessageService.success(
             'Dashboard actualizado correctamente',
             'Datos Cargados'
           );
         } else {
-          console.error('❌ Error en respuesta del dashboard:', response.mensaje);
+          
           this.customMessageService.error(
             'No se pudieron cargar los datos del dashboard',
             'Error'
@@ -407,7 +407,7 @@ export class GestionEventosComponent implements OnInit {
         this.cargandoDashboard = false;
       },
       error: (error) => {
-        console.error('❌ Error al cargar dashboard:', error);
+        
         this.cargandoDashboard = false;
         this.customMessageService.error(
           'Error al conectar con el servidor. Mostrando datos locales.',
@@ -456,7 +456,7 @@ export class GestionEventosComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('❌ Error al consultar ventas:', error);
+        
         if (this.datosVentasEvento) {
           this.datosVentasEvento.cargando = false;
           this.datosVentasEvento.error = `Error al consultar ventas del evento "${nombreEvento}"`;

@@ -25,8 +25,8 @@
           <img class="coin-icon" src="/img/iconos/coin.svg" alt="moneda" />
           <div class="points-number">{{ points }} puntos</div>
         </div>
-        <!-- Línea 2: leyenda centrada -->
-        <small class="points-rate">1 punto equivale a S/ 0.50</small>
+        <!-- Línea 2: leyenda centrada - dinámica basada en tier -->
+        <small class="points-rate">{{ equivalenciaPuntos }}</small>
         <!-- Línea 3: botón negro centrado -->
         <p-button
           label="Ver Historial de Puntos"
@@ -38,17 +38,19 @@
     </ng-template>
   </p-card>
 
-  <!-- Progreso hacia black -->
+  <!-- Progreso hacia siguiente tier -->
   <p-card class="progress-card">
     <ng-template pTemplate="header">
-      <h3 class="section-title">Progreso hacia Oro</h3>
+      <h3 class="section-title">
+        Progreso hacia {{ tier === 'BRONCE' ? 'Plata' : tier === 'PLATA' ? 'Oro' : 'Máximo Alcanzado' }}
+      </h3>
     </ng-template>
 
     <ng-template pTemplate="content">
-      <p-progressbar [value]="progressToBlack" [showValue]="true" styleClass="progress-pill">
+      <p-progressbar [value]="progressToOroFormatted" [showValue]="true" styleClass="progress-pill-red">
       </p-progressbar>
       <div class="progress-meta text-sm">
-        {{ points }} / {{ targetBlack }} pts ({{ progressToBlack }}%)
+        {{ totalEntradas }} / {{ targetNextTier }} entradas ({{ progressToOro | number:'1.0-0' }}%)
       </div>
     </ng-template>
   </p-card>
