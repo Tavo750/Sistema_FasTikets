@@ -80,6 +80,7 @@ export class GestionEventosComponent implements OnInit {
     error: string;
   }> = [];
   ultimaCargaTuvoErrores: boolean = false;
+  totalEventosIntentados: number = 0; // Total de eventos que se intentaron cargar del Excel
 
   constructor(
     private router: Router,
@@ -499,7 +500,15 @@ export class GestionEventosComponent implements OnInit {
   limpiarEventosNoCargados(): void {
     this.eventosNoCargados = [];
     this.ultimaCargaTuvoErrores = false;
+    this.totalEventosIntentados = 0;
     this.cerrarModalEventosNoCargados();
+  }
+
+  /**
+   * Calcula la cantidad de eventos que se cargaron exitosamente
+   */
+  get eventosCargadosExitosamente(): number {
+    return this.totalEventosIntentados - this.eventosNoCargados.length;
   }
 
   // =================== MÉTODOS DE DASHBOARD ===================
@@ -1091,6 +1100,7 @@ export class GestionEventosComponent implements OnInit {
 
     // Extraer nombres de eventos del Excel para comparación posterior
     const nombresEventosExcel = this.extraerNombresEventosExcel(jsonData, headers);
+    this.totalEventosIntentados = nombresEventosExcel.length; // Guardar total de eventos del Excel
     console.log('📋 Eventos en el Excel:', nombresEventosExcel);
 
     this.eventoService.postCargaMasivaEventos(file).subscribe({
