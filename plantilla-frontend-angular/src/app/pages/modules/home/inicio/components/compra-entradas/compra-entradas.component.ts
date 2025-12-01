@@ -134,7 +134,22 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	get subtotal(): number {
-		return this.purchaseData?.totalPrice || 0;
+		// Calcular subtotal como la suma de los subtotales proporcionados por el servidor
+		// o, si no existe `subtotal`, como price * quantity por cada item.
+		if (!this.cartItems || this.cartItems.length === 0) {
+			// Fallback a purchaseData si no hay items sincronizados
+			return this.purchaseData?.totalPrice || 0;
+		}
+		const sum = this.cartItems.reduce((acc, it) => {
+			const itemSubtotal = (it as any).subtotal;
+			if (itemSubtotal !== null && itemSubtotal !== undefined) {
+				return acc + (Number(itemSubtotal) || 0);
+			}
+			const price = Number(it.price) || 0;
+			const qty = Number(it.quantity) || 0;
+			return acc + (price * qty);
+		}, 0);
+		return sum;
 	}
 
 	/** Número de items distintos en el carrito (longitud del arreglo cartItems) */
@@ -154,6 +169,10 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	showPagoDialog: boolean = false;
 	showConfirmExitDialog: boolean = false;
 	showSuccessDialog: boolean = false;
+
+	// Modal para mostrar errores al crear la orden
+	showOrderErrorDialog: boolean = false;
+	orderErrorMessage: string = '';
  
 	 showTimer: boolean = false;
 	 timerDisplay: string = '';
@@ -465,6 +484,58 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 						this.event.time = item.hora ?? this.event.time;
 						this.event.venue = item.nombreLocal ?? item.nombreLocal ?? this.event.venue;
 					}
+
+					// Intentar extraer imágenes por ticket desde la respuesta de evento-info.
+					// El endpoint puede devolver las entradas/tiles en varias propiedades; buscamos
+					// en resp.data.items, resp.data.entradas, resp.data.tickets u objetos similares.
+					try {
+						let imageItems: any[] = [];
+						if (Array.isArray(resp?.data?.items)) imageItems = resp.data.items;
+						else if (Array.isArray(resp?.data?.entradas)) imageItems = resp.data.entradas;
+						else if (Array.isArray(resp?.data?.tickets)) imageItems = resp.data.tickets;
+						else if (Array.isArray(resp?.data)) imageItems = resp.data;
+						else if (Array.isArray(resp)) imageItems = resp;
+						// Si viene como objeto con claves numéricas, convertir a array
+						if (!imageItems.length && resp?.data && typeof resp.data === 'object') {
+							const vals = Object.values(resp.data).filter(v => v && typeof v === 'object');
+							if (vals.length) imageItems = vals as any[];
+						}
+
+						if (imageItems && imageItems.length && this.cartItems && this.cartItems.length) {
+							// Para cada elemento con posible imagen, intentar mapearlo a un cartItem
+							imageItems.forEach(imgIt => {
+								const imgUrl = imgIt?.imagenUrl ?? imgIt?.imagen ?? imgIt?.imageUrl ?? imgIt?.image ?? null;
+								const idTipo = imgIt?.idTipoTicket ?? imgIt?.id_tipo_ticket ?? imgIt?.idTicket ?? imgIt?.id;
+								const name = ((imgIt?.nombre ?? imgIt?.name ?? imgIt?.nombreTicket ?? imgIt?.ticketName) || '').toString().toLowerCase();
+								if (!imgUrl) return;
+								// Primero intentar coincidencia por idTipoTicket
+								let matched = false;
+								for (let i = 0; i < this.cartItems.length; i++) {
+									const ci: any = this.cartItems[i];
+									if (idTipo && (ci.idTipoTicket === idTipo || ci.idTipoTicket === Number(idTipo) || ci.serverId === idTipo || ci.id === idTipo)) {
+										ci.image = imgUrl;
+										matched = true;
+										break;
+									}
+								}
+								if (matched) return;
+								// Fall back: intentar por nombre/categoría
+								for (let i = 0; i < this.cartItems.length; i++) {
+									const ci: any = this.cartItems[i];
+									const cat = (ci.category || ci.ticketType || ci.title || '').toString().toLowerCase();
+									if (name && (cat === name || cat.includes(name) || name.includes(cat))) {
+										ci.image = imgUrl;
+										matched = true;
+										break;
+									}
+								}
+							});
+							// Fuerzar cambio de referencia para disparar detección de cambios
+							this.cartItems = this.cartItems.map(ci => ({ ...ci } as CartItem));
+						}
+					} catch (e) {
+						console.warn('No se pudo mapear imágenes desde evento-info al carrito', e);
+					}
 				} catch (e) {
 					console.warn('Error procesando evento-info', e);
 				}
@@ -768,7 +839,24 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 			error: (err) => {
 				console.error('Error creando orden antes de pago', err);
 				this.isProcessingPayment = false;
-				alert('Ocurrió un error al crear la orden. Por favor intente de nuevo.');
+				// Extraer mensaje amigable del error del servidor
+				let msg = 'Ocurrió un error al crear la orden. Por favor intente de nuevo.';
+				try {
+					// Posibles formas: err.error.message, err.error?.data?.mensaje, err.message, err.statusText
+					if (err && err.error) {
+						const e = err.error;
+						msg = e?.message ?? e?.data?.mensaje ?? e?.mensaje ?? e?.error ?? msg;
+					} else if (err && err.message) {
+						msg = err.message;
+					} else if (err && err.statusText) {
+						msg = err.statusText;
+					}
+					if (typeof msg === 'object') msg = JSON.stringify(msg);
+				} catch (e) {
+					console.warn('Error extrayendo mensaje de error de createOrder', e);
+				}
+				this.orderErrorMessage = String(msg || 'Ocurrió un error inesperado');
+				this.showOrderErrorDialog = true;
 			}
 		});
 	}

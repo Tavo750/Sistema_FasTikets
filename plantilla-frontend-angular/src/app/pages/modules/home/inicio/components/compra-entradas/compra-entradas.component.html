@@ -89,6 +89,9 @@
                 <div class="tickets-summary" *ngIf="cartItems && cartItems.length > 0">
                 <h4><i class="pi pi-ticket"></i> Entradas en el Carrito</h4>
                 <div class="ticket-summary-item" *ngFor="let item of cartItems; let i = index">
+                  <div class="ticket-image">
+                    <img [src]="item.image || event.image || '/assets/img/default-ticket.png'" alt="{{ item.title || item.category }}" />
+                  </div>
                   <div class="ticket-summary-info">
                     <span class="ticket-name">{{ item.title || item.category || item.nombreTicket }}</span>
                     <span class="ticket-quantity">Cantidad: {{ item.quantity }}</span>
@@ -446,6 +449,19 @@
     <div class="success-buttons">
       <button pButton type="button" label="Ok, continuar" class="p-button-secondary" (click)="onSuccessOk()"></button>
       <button pButton type="button" label="Ver detalle" class="p-button-success" (click)="onViewDetail()"></button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Modal de error al crear orden -->
+<p-dialog header="Error creando la orden" [(visible)]="showOrderErrorDialog" modal="true" [closable]="true" [style]="{width: '500px'}" (onHide)="showOrderErrorDialog=false">
+  <div class="order-error-modal">
+    <h3>Ocurrió un error al crear la orden</h3>
+    <div class="error-body">
+      <p style="white-space:pre-wrap">{{ orderErrorMessage }}</p>
+    </div>
+    <div class="error-actions" style="text-align:right; margin-top:1rem;">
+      <button pButton type="button" label="Cerrar" class="p-button-secondary" (click)="showOrderErrorDialog=false"></button>
     </div>
   </div>
 </p-dialog>
