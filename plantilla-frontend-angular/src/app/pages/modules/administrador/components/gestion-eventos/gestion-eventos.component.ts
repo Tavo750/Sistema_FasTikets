@@ -72,6 +72,15 @@ export class GestionEventosComponent implements OnInit {
     error?: string;
   } | null = null;
 
+  // Variables para eventos no cargados del Excel
+  mostrarModalEventosNoCargados: boolean = false;
+  eventosNoCargados: Array<{
+    fila: number;
+    nombre: string;
+    error: string;
+  }> = [];
+  ultimaCargaTuvoErrores: boolean = false;
+
   constructor(
     private router: Router,
     private eventoService: EventoService,
@@ -468,6 +477,29 @@ export class GestionEventosComponent implements OnInit {
    */
   obtenerFechaActual(): string {
     return new Date().toLocaleString('es-PE');
+  }
+
+  /**
+   * Abrir modal con la lista de eventos que no se pudieron cargar
+   */
+  abrirModalEventosNoCargados(): void {
+    this.mostrarModalEventosNoCargados = true;
+  }
+
+  /**
+   * Cerrar modal de eventos no cargados
+   */
+  cerrarModalEventosNoCargados(): void {
+    this.mostrarModalEventosNoCargados = false;
+  }
+
+  /**
+   * Limpiar la lista de eventos no cargados y ocultar el botón
+   */
+  limpiarEventosNoCargados(): void {
+    this.eventosNoCargados = [];
+    this.ultimaCargaTuvoErrores = false;
+    this.cerrarModalEventosNoCargados();
   }
 
   // =================== MÉTODOS DE DASHBOARD ===================
@@ -934,7 +966,8 @@ export class GestionEventosComponent implements OnInit {
             rejectIcon: 'none',
             rejectButtonStyleClass: 'p-button-text',
             accept: () => {
-              this.cargarExcelMasivo(file);
+              // Pasar los datos del Excel al método de carga
+              this.cargarExcelMasivo(file, jsonData, headers);
             },
             reject: () => {
               event.target.value = '';
@@ -1047,71 +1080,98 @@ export class GestionEventosComponent implements OnInit {
   /**
    * Realiza la carga masiva de eventos desde un archivo Excel
    */
-  private cargarExcelMasivo(file: File): void {
+  private cargarExcelMasivo(file: File, jsonData: any[], headers: string[]): void {
     this.isUploading = true;
     this.loadingService.show();
     this.customMessageService.info('Procesando archivo Excel...', 'Cargando');
+
+    // Limpiar errores previos
+    this.eventosNoCargados = [];
+    this.ultimaCargaTuvoErrores = false;
+
+    // Extraer nombres de eventos del Excel para comparación posterior
+    const nombresEventosExcel = this.extraerNombresEventosExcel(jsonData, headers);
+    console.log('📋 Eventos en el Excel:', nombresEventosExcel);
 
     this.eventoService.postCargaMasivaEventos(file).subscribe({
       next: (response) => {
         console.log('Respuesta completa de carga masiva:', response);
 
-        if (response.ok) {
-          // Mostrar mensaje de éxito con detalles
-          const eventosCreados = response.data?.eventosCreados || 0;
-          const errores = response.data?.errores || 0;
-          const conflictos = response.data?.conflictos || 0;
+        // Recargar la lista de eventos desde el backend para detectar cuáles se cargaron
+        this.eventoService.getListarEventos().subscribe({
+          next: (eventosResponse) => {
+            if (eventosResponse.ok && eventosResponse.data) {
+              // Obtener nombres de eventos actuales en el sistema
+              const eventosEnSistema = Array.isArray(eventosResponse.data) 
+                ? eventosResponse.data 
+                : [eventosResponse.data];
+              
+              const nombresEventosEnSistema = eventosEnSistema.map(
+                (evento: any) => evento.nombre.trim().toLowerCase()
+              );
 
-          let mensajeDetallado = `${eventosCreados} evento(s) creado(s) exitosamente.`;
-          if (errores > 0 || conflictos > 0) {
-            mensajeDetallado += ` (Errores: ${errores}, Conflictos: ${conflictos})`;
-          }
+              console.log('✅ Eventos en el sistema después de la carga:', nombresEventosEnSistema);
 
-          this.customMessageService.success(
-            mensajeDetallado,
-            'Carga finalizada'
-          );
+              // Comparar: encontrar eventos del Excel que NO están en el sistema
+              this.detectarEventosNoCargados(nombresEventosExcel, nombresEventosEnSistema);
 
-          // Recargar la lista de eventos
-          this.cargarEventos();
-        } else {
-          // Mostrar error con detalles
-          const errores = response.data?.errores || 0;
-          const conflictos = response.data?.conflictos || 0;
-          const detallesErrores = response.data?.detallesErrores || [];
+              // Actualizar la lista visual de eventos
+              this.eventos = eventosEnSistema.map((evento: EventoData) => ({
+                idEvento: evento.idEvento,
+                nombre: evento.nombre,
+                tipoEvento: evento.tipoEvento,
+                fechaEvento: this.convertirFechaLocal(evento.fechaEvento.toString()),
+                fechaFinEvento: evento.fechaFinEvento ? this.convertirFechaLocal(evento.fechaFinEvento.toString()) : undefined,
+                nombreLocal: evento.nombreLocal,
+                aforoDisponible: evento.aforoDisponible,
+                estadoEvento: evento.estadoEvento,
+                descripcion: evento.descripcion,
+                horaInicio: evento.horaInicio,
+                horaFin: evento.horaFin
+              }));
+              this.eventosFiltrados = [...this.eventos];
 
-          let mensajeError = response.mensaje || 'Error al procesar el archivo';
-          
-          if (errores > 0 || conflictos > 0) {
-            mensajeError += `\n\nErrores: ${errores}, Conflictos: ${conflictos}`;
-          }
+              // Mostrar mensaje según el resultado
+              const eventosCreados = response.data?.eventosCreados || 0;
+              const hayEventosNoCargados = this.eventosNoCargados.length > 0;
 
-          if (detallesErrores.length > 0) {
-            const maxErrores = 3;
-            const erroresAMostrar = detallesErrores.slice(0, maxErrores);
-            mensajeError += '\n\nDetalles:\n' + erroresAMostrar.join('\n');
+              if (hayEventosNoCargados) {
+                this.customMessageService.add({
+                  severity: 'warn',
+                  summary: 'Carga parcial',
+                  detail: `${eventosCreados} evento(s) cargado(s). ${this.eventosNoCargados.length} evento(s) no se cargaron debido a errores.`
+                });
+              } else {
+                this.customMessageService.success(
+                  `${eventosCreados} evento(s) cargado(s) exitosamente.`,
+                  'Carga finalizada'
+                );
+              }
+            }
+
+            this.isUploading = false;
+            this.loadingService.hide();
+
+            // Limpiar el input file
+            const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+            if (fileInput) {
+              fileInput.value = '';
+            }
+          },
+          error: (error) => {
+            console.error('❌ Error al recargar eventos:', error);
+            // Intentar con el método normal de recarga
+            this.cargarEventos();
             
-            if (detallesErrores.length > maxErrores) {
-              mensajeError += `\n... y ${detallesErrores.length - maxErrores} errores más`;
+            this.isUploading = false;
+            this.loadingService.hide();
+
+            const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+            if (fileInput) {
+              fileInput.value = '';
             }
           }
-
-          console.error('Detalles de errores:', detallesErrores);
-
-          this.customMessageService.error(
-            mensajeError,
-            'Error en carga'
-          );
-        }
-
-        this.isUploading = false;
-        this.loadingService.hide();
-
-        // Limpiar el input file
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (fileInput) {
-          fileInput.value = '';
-        }
+        });
       },
       error: (error) => {
         console.error('Error en carga masiva:', error);
@@ -1140,5 +1200,65 @@ export class GestionEventosComponent implements OnInit {
         }
       }
     });
+  }
+
+  /**
+   * Extrae los nombres de eventos del archivo Excel
+   */
+  private extraerNombresEventosExcel(jsonData: any[], headers: string[]): Array<{fila: number, nombre: string}> {
+    const nombreIndex = headers.indexOf('Nombre Evento');
+    const eventosExcel: Array<{fila: number, nombre: string}> = [];
+
+    if (nombreIndex === -1) {
+      return eventosExcel;
+    }
+
+    // Empezar desde la fila 1 (fila 0 son los headers)
+    for (let i = 1; i < jsonData.length; i++) {
+      const fila = jsonData[i] as any[];
+      const nombre = fila[nombreIndex];
+
+      if (nombre && typeof nombre === 'string' && nombre.trim() !== '') {
+        eventosExcel.push({
+          fila: i + 1, // +1 porque Excel empieza en 1
+          nombre: nombre.trim()
+        });
+      }
+    }
+
+    return eventosExcel;
+  }
+
+  /**
+   * Detecta eventos del Excel que no fueron cargados al sistema
+   * comparando con la lista actual de eventos
+   */
+  private detectarEventosNoCargados(
+    eventosExcel: Array<{fila: number, nombre: string}>, 
+    nombresEnSistema: string[]
+  ): void {
+    this.eventosNoCargados = [];
+
+    eventosExcel.forEach(eventoExcel => {
+      const nombreNormalizado = eventoExcel.nombre.toLowerCase();
+      
+      // Si el evento del Excel NO está en el sistema, significa que no se cargó
+      if (!nombresEnSistema.includes(nombreNormalizado)) {
+        this.eventosNoCargados.push({
+          fila: eventoExcel.fila,
+          nombre: eventoExcel.nombre,
+          error: 'No se pudo cargar este evento. Verifique que los datos sean correctos y que no existan conflictos.'
+        });
+      }
+    });
+
+    // Marcar que hubo errores si hay eventos no cargados
+    this.ultimaCargaTuvoErrores = this.eventosNoCargados.length > 0;
+    
+    if (this.ultimaCargaTuvoErrores) {
+      console.log('⚠️ Eventos no cargados detectados:', this.eventosNoCargados);
+    } else {
+      console.log('✅ Todos los eventos del Excel se cargaron exitosamente');
+    }
   }
 }

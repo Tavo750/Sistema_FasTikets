@@ -1785,3 +1785,377 @@
         justify-content: center;
     }
 }
+
+/* ========================================
+   ESTILOS PARA MODAL DE EVENTOS NO CARGADOS
+======================================== */
+
+/* Botón de eventos no cargados en el header */
+.error-button ::ng-deep .p-button {
+    animation: pulseError 2s infinite;
+}
+
+@keyframes pulseError {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(220, 53, 69, 0);
+    }
+}
+
+/* Modal de eventos no cargados */
+:host ::ng-deep .modal-eventos-no-cargados {
+    .p-dialog {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(220, 53, 69, 0.2);
+    }
+
+    .p-dialog-header {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        padding: 1.25rem 1.75rem;
+        border-radius: 16px 16px 0 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+    }
+
+    .p-dialog-content {
+        padding: 0;
+        background: #f8f9fa;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+
+    .p-dialog-footer {
+        background: white;
+        border-top: 2px solid #e9ecef;
+        padding: 1.25rem 1.75rem;
+        border-radius: 0 0 16px 16px;
+    }
+}
+
+/* Contenido del modal */
+.modal-content-errores {
+    padding: 1.25rem;
+}
+
+/* Resumen Compacto */
+.resumen-carga {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.resumen-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.resumen-item i {
+    font-size: 1.75rem;
+}
+
+.resumen-item.exitoso i {
+    color: #28a745;
+}
+
+.resumen-item.fallido i {
+    color: #dc3545;
+}
+
+.resumen-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+}
+
+.resumen-numero {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #2c3e50;
+}
+
+.resumen-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resumen-separador {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #dee2e6, transparent);
+}
+
+/* Título de Lista */
+.titulo-lista-errores {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.titulo-lista-errores i {
+    color: #dc3545;
+    font-size: 1rem;
+}
+
+.titulo-lista-errores h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+/* Lista de errores */
+.lista-errores {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    max-height: 48vh;
+    overflow-y: auto;
+}
+
+.error-item {
+    display: flex;
+    gap: 0.875rem;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f3f5;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.error-item:last-child {
+    border-bottom: none;
+}
+
+.error-item-alternate {
+    background: #fafbfc;
+}
+
+.error-item:hover {
+    background: #fff5f5;
+    transform: translateX(3px);
+}
+
+/* Número del error */
+.error-numero {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.numero-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.25);
+}
+
+/* Detalles del error */
+.error-detalles {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.error-header-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.evento-nombre-error {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.evento-nombre-error i {
+    color: #dc3545;
+    font-size: 0.95rem;
+}
+
+/* Mensaje de error */
+.error-mensaje {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    background: #fff5f5;
+    border-left: 3px solid #dc3545;
+    border-radius: 6px;
+}
+
+.error-mensaje i {
+    color: #dc3545;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.error-mensaje span {
+    color: #721c24;
+    line-height: 1.4;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Sin errores */
+.no-errores {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+}
+
+.no-errores i {
+    font-size: 3rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.no-errores p {
+    margin: 0;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Footer del modal */
+.modal-footer-errores {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Responsive para modal de errores */
+@media (max-width: 768px) {
+    :host ::ng-deep .modal-eventos-no-cargados {
+        .p-dialog {
+            width: 95vw !important;
+            max-width: none !important;
+            margin: 1rem;
+        }
+
+        .p-dialog-header {
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+        }
+
+        .p-dialog-content {
+            max-height: 55vh;
+        }
+    }
+
+    .modal-content-errores {
+        padding: 1rem;
+    }
+
+    .resumen-carga {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.875rem;
+    }
+
+    .resumen-separador {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(to right, transparent, #dee2e6, transparent);
+    }
+
+    .resumen-item {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .titulo-lista-errores {
+        margin-bottom: 0.625rem;
+    }
+
+    .titulo-lista-errores h3 {
+        font-size: 0.9rem;
+    }
+
+    .lista-errores {
+        max-height: 40vh;
+    }
+
+    .error-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.625rem;
+        padding: 0.875rem;
+    }
+
+    .error-numero {
+        align-self: flex-start;
+    }
+
+    .numero-badge {
+        min-width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+    }
+
+    .error-header-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .evento-nombre-error {
+        font-size: 0.925rem;
+        min-width: auto;
+    }
+
+    .error-mensaje {
+        padding: 0.5rem 0.625rem;
+    }
+
+    .error-mensaje span {
+        font-size: 0.825rem;
+    }
+
+    .modal-footer-errores {
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .modal-footer-errores p-button {
+        flex: 1;
+        min-width: 140px;
+    }
+}

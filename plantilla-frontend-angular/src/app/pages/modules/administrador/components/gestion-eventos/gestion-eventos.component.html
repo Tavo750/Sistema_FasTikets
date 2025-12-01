@@ -40,6 +40,18 @@
             </p-button>
 
             <p-button
+                *ngIf="ultimaCargaTuvoErrores"
+                label="Ver Eventos No Cargados ({{eventosNoCargados.length}})"
+                icon="pi pi-exclamation-triangle"
+                severity="danger"
+                (click)="abrirModalEventosNoCargados()"
+                class="error-button"
+                [outlined]="true"
+                pTooltip="Ver lista de eventos que no se pudieron cargar"
+                tooltipPosition="bottom">
+            </p-button>
+
+            <p-button
                 label="Agregar Evento" 
                 icon="pi pi-plus"
                 (click)="crearEvento(0)"
@@ -755,6 +767,113 @@
                 icon="pi pi-times"
                 severity="secondary"
                 (click)="cerrarModalVentas()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Modal de Eventos No Cargados -->
+<p-dialog
+    header="⚠️ Resultado de Carga Masiva"
+    [(visible)]="mostrarModalEventosNoCargados"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{width: '90vw', maxWidth: '800px', maxHeight: '85vh'}"
+    styleClass="modal-eventos-no-cargados"
+    (onHide)="cerrarModalEventosNoCargados()">
+
+    <div class="modal-content-errores">
+        <!-- Resumen Compacto -->
+        <div class="resumen-carga">
+            <div class="resumen-item exitoso">
+                <i class="pi pi-check-circle"></i>
+                <div class="resumen-info">
+                    <span class="resumen-numero">{{eventosCargadosExitosamente}}</span>
+                    <span class="resumen-label">Cargados</span>
+                </div>
+            </div>
+            <div class="resumen-separador"></div>
+            <div class="resumen-item fallido">
+                <i class="pi pi-times-circle"></i>
+                <div class="resumen-info">
+                    <span class="resumen-numero">{{eventosNoCargados.length}}</span>
+                    <span class="resumen-label">No Cargados</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Título de Lista -->
+        <div class="titulo-lista-errores">
+            <i class="pi pi-list"></i>
+            <h3>Eventos que no se pudieron cargar</h3>
+        </div>
+
+        <!-- Lista de Errores -->
+        <div class="lista-errores">
+            <div 
+                *ngFor="let evento of eventosNoCargados; let i = index" 
+                class="error-item"
+                [class.error-item-alternate]="i % 2 === 1">
+                
+                <div class="error-numero">
+                    <span class="numero-badge">{{i + 1}}</span>
+                </div>
+
+                <div class="error-detalles">
+                    <div class="error-header-item">
+                        <h4 class="evento-nombre-error">
+                            <i class="pi pi-calendar-times"></i>
+                            {{evento.nombre}}
+                        </h4>
+                        <p-tag 
+                            *ngIf="evento.fila > 0" 
+                            [value]="'Fila ' + evento.fila"
+                            severity="secondary"
+                            [rounded]="true">
+                        </p-tag>
+                    </div>
+                    
+                    <div class="error-mensaje">
+                        <i class="pi pi-times-circle"></i>
+                        <span>{{evento.error}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="no-errores" *ngIf="eventosNoCargados.length === 0">
+                <i class="pi pi-check-circle"></i>
+                <p>Todos los eventos se cargaron exitosamente</p>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="modal-footer-errores">
+            <p-button
+                label="Descargar Plantilla"
+                icon="pi pi-download"
+                severity="help"
+                [outlined]="true"
+                (click)="descargarPlantillaExcel()"
+                pTooltip="Descargar plantilla Excel para corregir los datos">
+            </p-button>
+
+            <p-button
+                label="Limpiar Lista"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                (click)="limpiarEventosNoCargados()"
+                pTooltip="Limpiar la lista de eventos no cargados">
+            </p-button>
+
+            <p-button
+                label="Cerrar"
+                icon="pi pi-times"
+                severity="secondary"
+                (click)="cerrarModalEventosNoCargados()">
             </p-button>
         </div>
     </ng-template>
