@@ -512,7 +512,9 @@ export class GestionEventosComponent implements OnInit {
   }
 
   // =================== MÉTODOS DE DASHBOARD ===================
-
+  getTextoPopularidad(): string {
+    return 'Los eventos se ordenan por cantidad de entradas vendidas (mayor a menor)';
+  }
   /**
    * Método de fallback para calcular analytics con datos locales
    * Se usa cuando el backend no está disponible
