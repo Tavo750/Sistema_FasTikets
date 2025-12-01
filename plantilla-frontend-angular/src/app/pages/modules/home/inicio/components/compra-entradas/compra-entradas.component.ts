@@ -856,6 +856,17 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.showPagoDialog = true;
 	}
 
+
+	/**
+	 * Redirige al componente CarritoCompra.
+	 */
+	goToCarritoCompra(): void {
+		try {
+			this.router.navigate(['/home/carritoCompra']);
+		} catch (e) {
+			console.warn('No se pudo navegar a /home/carritoCompra', e);
+		}
+	}
 	private calculateTotals(): void {
 		if (!this.purchaseData) return;
 

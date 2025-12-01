@@ -246,5 +246,88 @@ export class MisEntradasComponent implements OnInit {
     }
   }
 
+  /**
+   * Intenta descargar el QR asociado a una entrada.
+   * Busca heurísticamente propiedades como codigoQr, codigoQrBase64, codigo, qr, qrCode en el objeto
+   * y si encuentra un payload de texto genera una imagen QR mediante el servicio qrserver y la descarga.
+   */
+  downloadQr(entry: any): void {
+    try {
+      const src = entry?.raw ?? entry;
+      const code = this.findQrCodeValue(src);
+      if (!code) {
+        this.messageService.add({ severity: 'warn', summary: 'QR', detail: 'No hay QR disponible para esta entrada.' });
+        return;
+      }
+
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(code)}`;
+      fetch(qrUrl)
+        .then((resp) => {
+          if (!resp.ok) throw new Error('No se pudo obtener la imagen del QR');
+          return resp.blob();
+        })
+        .then((blob) => {
+          const filename = `QR-${entry?.id ?? 'ticket'}.png`;
+          this.triggerDownload(blob, filename);
+        })
+        .catch((err) => {
+          console.error('Error descargando QR', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo descargar el QR.' });
+        });
+    } catch (e) {
+      console.error('downloadQr error', e);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al intentar descargar el QR.' });
+    }
+  }
+
+  /**
+   * Heurística simple para buscar un payload de QR dentro de un objeto/array.
+   */
+  private findQrCodeValue(obj: any, depth = 0): string | null {
+    if (!obj || depth > 6) return null;
+    if (typeof obj === 'string') return obj.trim() ? obj : null;
+    if (Array.isArray(obj)) {
+      for (const it of obj) {
+        const found = this.findQrCodeValue(it, depth + 1);
+        if (found) return found;
+      }
+      return null;
+    }
+    if (typeof obj === 'object') {
+      const candidates = /codigoQr|codigo_qr|codigoQrBase64|codigo|qrCode|qr|codigoQR/i;
+      // Check direct properties
+      for (const k of Object.keys(obj)) {
+        try {
+          if (candidates.test(k) && typeof (obj as any)[k] === 'string' && (obj as any)[k].trim()) {
+            return (obj as any)[k];
+          }
+        } catch (e) {}
+      }
+      // Deep scan
+      for (const k of Object.keys(obj)) {
+        try {
+          const found = this.findQrCodeValue((obj as any)[k], depth + 1);
+          if (found) return found;
+        } catch (e) {}
+      }
+    }
+    return null;
+  }
+
+  private triggerDownload(blob: Blob, filename: string) {
+    try {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Error triggering download', e);
+    }
+  }
+
   // Helpers para la plantilla eliminados (antes relacionados al formulario de transferencia)
 }

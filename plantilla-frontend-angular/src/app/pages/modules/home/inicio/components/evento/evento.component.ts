@@ -15,6 +15,7 @@ import { Data as ZonaData } from '../../../../administrador/interfaces/gestion-e
 import { Data as EntradaData } from '../../../../administrador/interfaces/gestion-evento/entrada.interface';
 import { GOOGLE_MAPS_CONFIG } from '../../../../../../config/google-maps.config';
 import { LoadingService } from '../../../../../../shared/services/loading.service';
+import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 
 // Declarar Google Maps para TypeScript
 declare global {
@@ -61,6 +62,7 @@ export class EventoComponent implements AfterViewInit, OnInit {
     private sessionService: SessionService,
     private dialogService: DialogService,
     private loadingService: LoadingService
+    , private cartTimerService: CartTimerService
   ) {}
 
   @ViewChild('eventoMapa', { static: false }) mapaElement!: ElementRef;
@@ -577,6 +579,16 @@ export class EventoComponent implements AfterViewInit, OnInit {
 
       // Actualizar el carrito local (BehaviorSubject) para reflejar la UI
       const localIds = this.cartService.addEventTicketsToCart(selectedTickets, eventInfo);
+
+      // Reiniciar el temporizador de reserva del carrito porque el usuario agregó items
+      try {
+        if (currentUser && currentUser.idUsuario) {
+          this.cartTimerService.startIfNotStarted(currentUser.idUsuario, true);
+        } else {
+          // For guests, force restart as well
+          this.cartTimerService.startIfNotStarted(undefined, true);
+        }
+      } catch (e) { console.debug('No se pudo reiniciar temporizador tras añadir items', e); }
 
       // Si el usuario está autenticado, persistir cada item en la BD mediante el endpoint
       if (currentUser && currentUser.idUsuario) {

@@ -38,7 +38,9 @@
 						<td>{{ entry.eventName }}</td>
 						<td>
 									<!-- Redirige a la página de transferencia pasando la entrada seleccionada -->
-									<button pButton type="button" class="p-button-sm" label="Transferir" (click)="goToTransfer(entry)"></button>
+								<button pButton type="button" class="p-button-sm" label="Transferir" (click)="goToTransfer(entry)"></button>
+								<!-- Botón para descargar el QR asociado a la entrada (si existe) -->
+								<button pButton type="button" class="p-button-sm p-button-text" icon="pi pi-download" (click)="downloadQr(entry)" title="Descargar QR"></button>
 								</td>
 					</tr>
 				</ng-template>

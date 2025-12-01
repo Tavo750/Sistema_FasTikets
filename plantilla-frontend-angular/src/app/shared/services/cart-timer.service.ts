@@ -132,11 +132,20 @@ export class CartTimerService {
     return true;
   }
 
-  async startIfNotStarted(userId?: number | string): Promise<void> {
+  async startIfNotStarted(userId?: number | string, forceRestart: boolean = false): Promise<void> {
     const key = userId ? `cart_timer_start_${userId}` : 'cart_timer_start_guest';
     this.storageKey = key;
-    try { console.debug('CartTimerService.startIfNotStarted -> called', { userId, storageKey: key, CART_TIMER_MS: this.CART_TIMER_MS, timeLimitSubject: this.timeLimitSubject.value, initialLoadStarted: this.initialLoadStarted }); } catch(_) {}
+    try { console.debug('CartTimerService.startIfNotStarted -> called', { userId, storageKey: key, CART_TIMER_MS: this.CART_TIMER_MS, timeLimitSubject: this.timeLimitSubject.value, initialLoadStarted: this.initialLoadStarted, forceRestart }); } catch(_) {}
     try {
+      // If the timer is already running and we're not explicitly forcing a restart,
+      // do nothing. This prevents accidental resets (for example when the page
+      // visibility changes and components re-subscribe). Consumers that want to
+      // restart the timer after an explicit action (adding an item) should pass
+      // `forceRestart = true`.
+      if (this.runningSubject.value === true && !forceRestart) {
+        try { console.debug('CartTimerService.startIfNotStarted -> timer already running, skipping start'); } catch(_) {}
+        return;
+      }
       // Esperar la carga inicial (si está en progreso)
       // Si no se ha iniciado la petición aún, intentar iniciarla ahora
       try { if (!this.initialLoadStarted) this.loadTimeLimitFromEndpoint(); } catch(_) {}
