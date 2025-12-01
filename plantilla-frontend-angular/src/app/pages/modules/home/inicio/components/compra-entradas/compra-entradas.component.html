@@ -298,7 +298,7 @@
         severity="secondary"
         [outlined]="true"
         class="action-btn-compact"
-        (click)="showPagoDialog=false">
+        (click)="onCancelarCompra()">
       </p-button>
     </div>
   </div>
@@ -310,7 +310,7 @@
     <ng-template pTemplate="header">
       <div class="modal-header" >
         <img src="/img/logo/logo-fasticket.jpg" alt="Fasticket" class="modal-logo" (click)="navigateToHome()" />
-        <button type="button" class="close-button" (click)="onExitCancel()">×</button>
+        <button type="button" class="close-button" (click)="showPagoDialog=false">×</button>
       </div>
     </ng-template>
 

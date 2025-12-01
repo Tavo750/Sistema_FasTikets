@@ -7,6 +7,8 @@ import { CarritoService } from '../../../../../../shared/services/carrito.servic
 import { SessionService } from '../../../../../../shared/services/session.service';
 import { OrdenesService } from '../../../../../../shared/services/ordenes.service';
 import { PerfilPersonalService } from '../../../../usuario/services/perfil-personal.service';
+import { EventoService } from '../../../../administrador/services/evento.service';
+import { LocalService } from '../../../../administrador/services/local.service';
 import { Subscription } from 'rxjs';
 import { baseUrl } from '../../../../../../global';
 import { HttpClient } from '@angular/common/http';
@@ -151,10 +153,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		private cartService: CartService,
 		private carritoService: CarritoService,
 		private sessionService: SessionService,
-		private ordenesService: OrdenesService
-			, private cartTimerService: CartTimerService,
-				private perfilService: PerfilPersonalService,
-				private http: HttpClient
+		private ordenesService: OrdenesService,
+		private cartTimerService: CartTimerService,
+		private perfilService: PerfilPersonalService,
+		private eventoService: EventoService,
+		private localService: LocalService,
+		private http: HttpClient
 	) {}
 
 		// Nivel del usuario (ej. ORO, PLATA, BRONCE)
@@ -217,6 +221,14 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	expiryError: string | null = null;
 	cvvError: string | null = null;
 	ngOnInit(): void {
+		console.log('🚀 CompraEntradas - ngOnInit iniciado');
+		
+		// Verificar datos iniciales
+		const dataSource = this.purchaseService.getPurchaseDataSource();
+		const purchaseData = this.purchaseService.getPurchaseData();
+		console.log('📊 Fuente de datos inicial:', dataSource);
+		console.log('📦 Datos de compra inicial:', purchaseData);
+		
 		// Cargar descuentos de membresía desde configuración remota
 		try { this.loadMembershipDiscounts(); } catch (e) { console.warn('No se pudo iniciar carga de descuentos', e); }
 		// Suscribirse al temporizador compartido para mostrarlo mientras navegamos
@@ -231,9 +243,18 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		// Suscribirse a los datos de compra
 		this.purchaseSubscription = this.purchaseService.purchaseData$.subscribe(
 			(data: PurchaseData | null) => {
+				console.log('📨 Datos de compra recibidos en suscripción:', data);
+				
 				if (data) {
+					console.log('✅ Datos válidos, procesando...');
 					this.purchaseData = data;
 					this.updateEventData(data);
+					
+					// Si viene del carrito, completar información del evento
+					if (data.source === 'carrito' && data.eventInfo.idEvento) {
+						this.loadCompleteEventInfo(data.eventInfo.idEvento);
+					}
+					
 					this.initializeParticipants();
 					this.calculateTotals();
 					// Obtener items del carrito desde el servidor para mostrar idTipoTicket
@@ -299,7 +320,11 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					}
 				} else {
 					// Si no hay datos, redirigir o mostrar error
-					console.warn('No hay datos de compra disponibles');
+					console.warn('❌ No hay datos de compra disponibles en la suscripción');
+					console.log('🔍 Estado del PurchaseService:', {
+						dataSource: this.purchaseService.getPurchaseDataSource(),
+						purchaseData: this.purchaseService.getPurchaseData()
+					});
 					// Opcional: redirigir a home
 					// this.router.navigate(['/home']);
 				}
@@ -465,33 +490,140 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 	// Helper que construye el payload de la orden a partir del carrito y participantes
 	private buildOrderPayload(): any {
-		const currentUser = this.sessionService.getCurrentUser();
-		if (!currentUser) return null;
-		const cartItems = (this.cartItems && this.cartItems.length) ? this.cartItems : this.cartService.getCartItems();
-		if (!cartItems || cartItems.length === 0) return null;
+		console.log('🔧 Construyendo order payload...');
+		
+		try {
+			const currentUser = this.sessionService.getCurrentUser();
+			if (!currentUser) {
+				console.error('❌ Usuario no autenticado');
+				return null;
+			}
+			console.log('👤 Usuario actual:', currentUser.idUsuario);
 
-		let participantIndex = 0;
-		const items: any[] = [];
-		for (const ci of cartItems) {
-			const asistentes = (this.participants || []).slice(participantIndex, participantIndex + (ci.quantity || 1)).map((pt: any) => ({
-				tipoDocumento: pt.docType,
-				numeroDocumento: pt.docNumber,
-				nombres: pt.firstName,
-				apellidos: pt.lastName
-			}));
-			participantIndex += (ci.quantity || 1);
+			// Verificar fuente de datos
+			const dataSource = this.purchaseService.getPurchaseDataSource();
+			console.log('📊 Fuente de datos:', dataSource);
 
-			items.push({
-				idTipoTicket: (ci as any).idTipoTicket || ci.serverId || ci.id,
-				cantidad: ci.quantity,
-				asistentes
-			});
+			if (dataSource === 'evento') {
+				// Flujo desde página de evento
+				const eventData = this.purchaseService.getPurchaseData();
+				console.log('🎫 Event data completo:', eventData);
+				
+				if (!eventData) {
+					console.error('❌ No hay eventData');
+					return null;
+				}
+				
+				if (!eventData.tickets) {
+					console.error('❌ eventData.tickets es undefined');
+					return null;
+				}
+				
+				if (eventData.tickets.length === 0) {
+					console.error('❌ eventData.tickets está vacío');
+					return null;
+				}
+
+				console.log('✅ Datos del evento válidos:', eventData);
+
+			let participantIndex = 0;
+			const items: any[] = [];
+
+			for (const ticket of eventData.tickets) {
+				if (!ticket.idTipoTicket) {
+					console.error('❌ idTipoTicket faltante en ticket:', ticket);
+					return null;
+				}
+
+				const asistentes = (this.participants || [])
+					.slice(participantIndex, participantIndex + ticket.quantity)
+					.map((pt: any) => ({
+						tipoDocumento: pt.docType,
+						numeroDocumento: pt.docNumber,
+						nombres: pt.firstName,
+						apellidos: pt.lastName
+					}));
+
+				participantIndex += ticket.quantity;
+
+				items.push({
+					idTipoTicket: ticket.idTipoTicket,
+					cantidad: ticket.quantity,
+					asistentes
+				});
+
+				console.log('✅ Item del evento agregado:', {
+					idTipoTicket: ticket.idTipoTicket,
+					cantidad: ticket.quantity,
+					asistentes: asistentes.length
+				});
+			}
+
+			const payload = {
+				idCliente: currentUser.idUsuario,
+				items
+			};
+
+			console.log('📦 Payload final (evento):', payload);
+			return payload;
+
+		} else {
+			// Flujo desde carrito (comportamiento original)
+			const cartItems = (this.cartItems && this.cartItems.length) ? this.cartItems : this.cartService.getCartItems();
+			if (!cartItems || cartItems.length === 0) {
+				console.warn('⚠️ No hay items en el carrito');
+				return null;
+			}
+
+			console.log('🛒 Items del carrito:', cartItems);
+
+			let participantIndex = 0;
+			const items: any[] = [];
+
+			for (const ci of cartItems) {
+				const idTipoTicket = (ci as any).idTipoTicket || ci.serverId || ci.id;
+				if (!idTipoTicket) {
+					console.error('❌ No se puede determinar idTipoTicket para item del carrito:', ci);
+					return null;
+				}
+
+				const asistentes = (this.participants || [])
+					.slice(participantIndex, participantIndex + (ci.quantity || 1))
+					.map((pt: any) => ({
+						tipoDocumento: pt.docType,
+						numeroDocumento: pt.docNumber,
+						nombres: pt.firstName,
+						apellidos: pt.lastName
+					}));
+
+				participantIndex += (ci.quantity || 1);
+
+				items.push({
+					idTipoTicket,
+					cantidad: ci.quantity,
+					asistentes
+				});
+
+				console.log('✅ Item del carrito agregado:', {
+					idTipoTicket,
+					cantidad: ci.quantity,
+					asistentes: asistentes.length
+				});
+			}
+
+			const payload = {
+				idCliente: currentUser.idUsuario,
+				items
+			};
+
+			console.log('📦 Payload final (carrito):', payload);
+			return payload;
 		}
-
-		return {
-			idCliente: currentUser.idUsuario,
-			items
-		};
+		
+		} catch (error) {
+			console.error('💥 Error en buildOrderPayload:', error);
+			return null;
+		}
 	}
 
 	// Submit handler with optional form parameter
@@ -504,9 +636,12 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		// Validar formulario y campos de pago antes de llamar a cualquier endpoint
 		const orderPayload = this.buildOrderPayload();
 		if (!orderPayload) {
+			console.error('❌ buildOrderPayload retornó null');
 			alert('No se pudo construir la orden. Verifique el carrito y los participantes.');
 			return;
 		}
+
+		console.log('✅ Order payload construido exitosamente:', orderPayload);
 
 		// Validaciones cliente: si fallan, no llamamos al backend
 		const valid = this.validatePaymentFields(form);
@@ -564,6 +699,11 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 					monto: this.totalAmount,
 					idUsuario: this.sessionService.getCurrentUser()?.idUsuario
 				};
+
+				console.log('💳 Payload de pago construido:');
+				console.log('   - ID Orden:', this.createdOrderId);
+				console.log('   - Monto a enviar:', this.totalAmount);
+				console.log('   - Payload completo:', paymentPayload);
 
 				console.debug('Llamando a registerPayment con payload:', paymentPayload);
 				this.ordenesService.registerPayment(paymentPayload).subscribe({
@@ -669,10 +809,115 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 		this.showConfirmExitDialog = false;
 	}
 	onExitCancel(): void {
-		// Cierra el dialogo de confirmación y vuelve al modal de pago o formulario
-		//this.showConfirmExitDialog = false;
-		this.showPagoDialog = false;
-		this.showConfirmExitDialog = true;
+		this.showConfirmExitDialog = false;
+		this.showPagoDialog = true;
+	}
+
+	/**
+	 * Método para cancelar la compra y navegar de vuelta
+	 */
+	onCancelarCompra(): void {
+		console.log('🔙 Cancelando compra...');
+		
+		// Siempre navegar al carrito cuando se cancela
+		// Esto evita errores y es más intuitivo para el usuario
+		console.log('🛒 Navegando de vuelta al carrito');
+		this.router.navigate(['/home/carrito']);
+	}
+
+	/**
+	 * Cargar información completa del evento desde el backend
+	 */
+	private loadCompleteEventInfo(idEvento: number): void {
+		console.log('📡 Cargando información completa del evento:', idEvento);
+		
+		this.eventoService.getEventoPorId(idEvento).subscribe({
+			next: (response: any) => {
+				console.log('✅ Información del evento cargada:', response);
+				
+				if (response?.data) {
+					const eventoData = response.data;
+					
+					// Formatear la fecha si viene del backend
+					let fechaFormateada = this.event.date;
+					if (eventoData.fechaEvento) {
+						const fecha = new Date(eventoData.fechaEvento);
+						fechaFormateada = fecha.toLocaleDateString('es-PE', {
+							weekday: 'long',
+							year: 'numeric',
+							month: 'long', 
+							day: 'numeric'
+						});
+					}
+					
+					// Formatear la hora
+					let horaFormateada = this.event.time;
+					if (eventoData.horaInicio) {
+						horaFormateada = this.formatearHora(eventoData.horaInicio);
+					}
+					
+					// Actualizar datos del evento con información completa
+					this.event = {
+						...this.event,
+						title: eventoData.nombre || this.event.title,
+						date: fechaFormateada,
+						time: horaFormateada,
+						address: eventoData.direccion || this.event.address,
+						organizer: eventoData.organizador || this.event.organizer,
+						image: eventoData.imagenUrl || this.event.image
+					};
+					
+					// Si hay idLocal, obtener información del local
+					if (eventoData.idLocal) {
+						this.localService.getlistarLocalesPorID(eventoData.idLocal).subscribe({
+							next: (localResponse: any) => {
+								if (localResponse?.data) {
+									this.event.address = localResponse.data.direccion || this.event.address;
+									this.event.venue = localResponse.data.nombre || this.event.venue;
+									console.log('✅ Información del local cargada:', localResponse.data);
+									console.log('🎯 Información final del evento:', this.event);
+								}
+							},
+							error: (error: any) => {
+								console.warn('⚠️ Error cargando información del local:', error);
+								console.log('🎯 Información del evento (sin local):', this.event);
+							}
+						});
+					} else {
+						console.log('🎯 Información del evento actualizada:', this.event);
+					}
+				}
+			},
+			error: (error: any) => {
+				console.error('❌ Error cargando información del evento:', error);
+				// Usar datos de fallback
+				this.event = {
+					...this.event,
+					time: this.event.time || '20:00',
+					address: this.event.address || 'Dirección del evento',
+					organizer: this.event.organizer || 'Organizador del evento'
+				};
+				console.log('🎯 Información fallback del evento:', this.event);
+			}
+		});
+	}
+	
+	/**
+	 * Formatear hora desde formato 24h a 12h
+	 */
+	private formatearHora(hora: string): string {
+		// Si la hora ya viene en formato correcto, la devolvemos
+		if (hora.includes('PM') || hora.includes('AM')) {
+			return hora;
+		}
+
+		// Si viene en formato 24h (ej: "18:00"), convertir a 12h
+		const [hours, minutes] = hora.split(':');
+		const hour24 = parseInt(hours);
+		const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+		const ampm = hour24 >= 12 ? 'PM' : 'AM';
+
+		return `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 	}
 	ofExitCancel(): void {
 		this.showConfirmExitDialog = false;
@@ -680,11 +925,18 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 	}
 
 	private calculateTotals(): void {
-		if (!this.purchaseData) return;
+		if (!this.purchaseData) {
+			console.warn('⚠️ calculateTotals: No hay purchaseData disponible');
+			return;
+		}
+
+		console.log('🧮 Calculando totales...');
+		console.log('📦 PurchaseData:', this.purchaseData);
 
 		// Si el usuario decide canjear puntos (modo exclusivo), el total se vuelve 0
 		if (this.usePointsRedeem) {
 			this.totalAmount = 0;
+			console.log('💎 Usando canje de puntos exclusivo - Total: 0');
 			return;
 		}
 
@@ -704,6 +956,13 @@ export class CompraEntradasComponent implements OnInit, OnDestroy {
 
 		// Cada punto se considera S/1 por simplicidad (ajustar si la regla cambia)
 		this.totalAmount = Math.max(0, this.subtotal - this.pointsToUse - this.codeDiscountAmount - this.levelDiscountAmount);
+
+		console.log('💰 Cálculo de totales:');
+		console.log('   - Subtotal:', this.subtotal);
+		console.log('   - Puntos a usar:', this.pointsToUse);
+		console.log('   - Descuento por código:', this.codeDiscountAmount);
+		console.log('   - Descuento por nivel:', this.levelDiscountAmount);
+		console.log('   - TOTAL FINAL:', this.totalAmount);
 	}
 
 	onToggleRedeemPoints(): void {

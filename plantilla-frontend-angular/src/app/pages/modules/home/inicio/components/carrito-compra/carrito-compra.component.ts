@@ -1,11 +1,12 @@
-import { Component, Input, Output, OnInit, TrackByFunction, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input, Output, OnInit, TrackByFunction, OnDestroy, AfterViewInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
 import { CartService, CartItem } from '../../../../../../shared/services/cart.service';
 import { CarritoService } from '../../../../../../shared/services/carrito.service';
 import { MessageService } from 'primeng/api';
 import { SessionService } from '../../../../../../shared/services/session.service';
 import { PurchaseService } from '../../../../../../shared/services/purchase.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { CartTimerService } from '../../../../../../shared/services/cart-timer.service';
 import { LoadingService } from '../../../../../../shared/services/loading.service';
 
@@ -15,12 +16,15 @@ import { LoadingService } from '../../../../../../shared/services/loading.servic
   templateUrl: './carrito-compra.component.html',
   styleUrls: ['./carrito-compra.component.css']
 })
-export class CarritoCompraComponent implements OnInit, OnDestroy {
+export class CarritoCompraComponent implements OnInit, OnDestroy, AfterViewInit {
   cartItems: CartItem[] = [];
   private cartSubscription: Subscription | null = null;
+  private navigationSubscription: Subscription | null = null;
   private timerSubscriptions: Subscription[] = [];
   // Indica si los items fueron cargados desde el servidor (true) o desde el carrito local (false)
   private loadedFromServer = false;
+  // Para detectar si es la primera carga
+  private isFirstLoad = true;
   // Temporizador: delegado al servicio compartido
   showTimer: boolean = false;
   timerDisplay: string = '';
@@ -38,9 +42,29 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Cargar items desde servidor si hay usuario autenticado
+    this.loadCartFromServer();
+    
+    // Configurar detector de navegación para recargas automáticas
+    this.navigationSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        // Si navegamos de vuelta a la ruta del carrito y no es la primera carga
+        if (event.url.includes('/carrito') && !this.isFirstLoad) {
+          console.log('🔄 Detectada navegación de vuelta al carrito, recargando...');
+          this.reloadCartFromServer();
+        }
+      });
+  }
+
+  ngAfterViewInit(): void {
+    // Marcar que ya no es la primera carga
+    this.isFirstLoad = false;
+  }
+
+  private loadCartFromServer(): void {
     try {
-  const user = this.sessionService.getCurrentUser();
-  try { console.debug('CarritoCompraComponent: currentUser', user); } catch(e){}
+      const user = this.sessionService.getCurrentUser();
+      try { console.debug('CarritoCompraComponent: currentUser', user); } catch(e){}
       // Suscribirse al servicio de temporizador para mostrar estado (siempre)
       try {
         this.timerSubscriptions.push(this.cartTimerService.display$.subscribe(d => this.timerDisplay = d));
@@ -227,6 +251,9 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
     if (this.cartSubscription) {
       try { this.cartSubscription.unsubscribe(); } catch (e) { console.warn('Error unsubscribing cartSubscription', e); }
     }
+    if (this.navigationSubscription) {
+      try { this.navigationSubscription.unsubscribe(); } catch (e) { console.warn('Error unsubscribing navigationSubscription', e); }
+    }
     try {
       this.timerSubscriptions.forEach(s => { try { s.unsubscribe(); } catch (e) {} });
     } catch (e) {}
@@ -399,21 +426,108 @@ export class CarritoCompraComponent implements OnInit, OnDestroy {
   }
 
   proceedToCheckout(): void {
+    console.log('💳 Comprando ahora desde carrito...');
+    
     if (this.cartItems.length === 0) {
-      console.log('No hay items en el carrito');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'No hay items en el carrito para proceder al pago'
+      });
       return;
     }
 
-    // Enviar datos del carrito al servicio de compra
-    this.purchaseService.setPurchaseDataFromCart(this.cartItems);
+    // COPIAR EXACTAMENTE LA LÓGICA DE onBuyNow QUE FUNCIONA
+    const firstItem = this.cartItems[0];
+    
+    // Construir datos de compra para el PurchaseService - IGUAL QUE onBuyNow
+    const purchaseData = {
+      eventInfo: {
+        idEvento: parseInt(firstItem.eventId || '0') || 0,
+        title: firstItem.title || 'Evento',
+        date: firstItem.eventDate || new Date().toLocaleDateString('es-PE'),
+        time: '20:00',
+        venue: firstItem.eventVenue || 'Lugar del evento',
+        address: 'Dirección del evento',
+        organizer: 'Organizador del evento',
+        image: firstItem.image || ''
+      },
+      tickets: this.cartItems.map(item => ({
+        idTipoTicket: item.idTipoTicket || item.serverId || 0,
+        name: item.category || 'Entrada',
+        price: item.price,
+        quantity: item.quantity,
+        description: `Entrada ${item.category || item.title}`
+      })),
+      totalTickets: this.cartItems.reduce((total, item) => total + item.quantity, 0),
+      totalPrice: this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0),
+      source: 'evento' as const
+    };
 
-    // Navegar al proceso de pago
+    console.log('🎯 Datos de compra construidos:', purchaseData);
+
+    // Enviar datos al PurchaseService - IGUAL QUE onBuyNow
+    this.purchaseService.setPurchaseDataFromEvent(purchaseData);
+
+    // Navegar a la página de compra - IGUAL QUE onBuyNow
     this.router.navigate(['/home/compraEntradas']);
-    console.log('Proceder al pago');
   }
 
   exploreEvents(): void {
     // Navegar a la página principal donde están todos los eventos disponibles
     this.router.navigate(['/home/inicio']);
+  }
+
+  /**
+   * Recargar el carrito desde el servidor
+   */
+  reloadCartFromServer(): void {
+    console.log('🔄 Recargando carrito desde servidor...');
+    
+    const user = this.sessionService.getCurrentUser();
+    const idCliente = user?.idUsuario;
+    
+    if (!idCliente) {
+      console.warn('No hay usuario autenticado para recargar carrito');
+      return;
+    }
+
+    this.loadingService.show();
+    this.carritoService.getItemsFromServer(idCliente).subscribe({
+      next: (resp: any) => {
+        console.log('🛒 Carrito recargado desde servidor:', resp);
+        
+        // Reutilizar la lógica existente para procesar la respuesta
+        let itemsSource: any = null;
+        if (Array.isArray(resp)) {
+          itemsSource = resp;
+        } else if (Array.isArray(resp?.data)) {
+          itemsSource = resp.data;
+        } else if (Array.isArray(resp?.items)) {
+          itemsSource = resp.items;
+        }
+
+        const items = itemsSource || [];
+        this.cartItems = items.map((it: any) => ({
+          id: it.idItemCarrito || it.idTipoTicket || Math.floor(Math.random() * 1000000),
+          title: it.nombreTicket || it.nombre || it.descripcion || 'Ticket',
+          category: it.nombreTicket || it.categoria || '',
+          price: it.precioUnitario || it.precio || it.precioVenta || 0,
+          quantity: it.cantidad || it.cantidadSeleccionada || 0,
+          image: it.imagenUrl || '',
+          serverId: it.idItemCarrito || it.id
+        }));
+
+        // Sincronizar CartService
+        this.cartService.setCartItems(this.cartItems);
+        
+        console.log('✅ Carrito actualizado, items:', this.cartItems.length);
+        this.loadingService.hide();
+      },
+      error: (error) => {
+        console.error('❌ Error recargando carrito:', error);
+        this.loadingService.hide();
+      }
+    });
   }
 }

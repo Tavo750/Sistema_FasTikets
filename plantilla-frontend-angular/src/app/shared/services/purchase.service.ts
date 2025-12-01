@@ -4,6 +4,7 @@ import { CartItem } from './cart.service';
 
 export interface PurchaseData {
   eventInfo: {
+    idEvento: number; // Agregar ID del evento
     title: string;
     date: string;
     time: string;
@@ -13,6 +14,7 @@ export interface PurchaseData {
     image: string;
   };
   tickets: Array<{
+    idTipoTicket: number; // Agregar ID del tipo de ticket
     name: string;
     price: number;
     quantity: number;
@@ -47,6 +49,7 @@ export class PurchaseService {
       if (!groups[eventKey]) {
         groups[eventKey] = {
           eventInfo: {
+            idEvento: parseInt(item.eventId || '0'),
             title: item.title,
             date: item.eventDate || '',
             time: '', // No disponible en cart, se puede agregar después
@@ -69,6 +72,7 @@ export class PurchaseService {
       const group = eventGroups[eventKey];
 
       group.tickets.push({
+        idTipoTicket: (item as any).idTipoTicket || item.serverId || item.id || 0,
         name: item.category,
         price: item.price,
         quantity: item.quantity,
@@ -89,6 +93,12 @@ export class PurchaseService {
   // Obtener datos de compra actuales
   getPurchaseData(): PurchaseData | null {
     return this.purchaseDataSubject.value;
+  }
+
+  // Obtener fuente de datos de la compra
+  getPurchaseDataSource(): 'evento' | 'carrito' | null {
+    const currentData = this.purchaseDataSubject.value;
+    return currentData?.source || null;
   }
 
   // Limpiar datos de compra
